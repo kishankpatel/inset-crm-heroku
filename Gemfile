@@ -101,12 +101,12 @@ gem 'geocoder', '1.4.4'
 gem 'email_verifier', '0.1.0'
 #gem 'ahoy_email', '0.2.2'
 group :development, :test do
-	#tweaks to improve your Rails (3.1+) development experience
-	gem 'rails-dev-tweaks', '~> 1.1'
-	
-	gem 'newrelic_rpm', '4.3.0.335'
-	gem "private_pub", '1.0.3'
-  gem 'annotate'
+  #tweaks to improve your Rails (3.1+) development experience
+  gem 'rails-dev-tweaks', '~> 1.1'
+  
+  gem 'newrelic_rpm', '4.3.0.335'
+  gem "private_pub", '1.0.3'
+  # gem 'annotate'
 end
 gem "omnicontacts", "0.3.7"
 gem 'mail'
