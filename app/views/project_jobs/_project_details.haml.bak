@@ -1,0 +1,811 @@
+/ :css
+/   .sub_details .editable-container{left: 60px;}
+/   .sub_details .editable-container .arrow{top:-18px;}
+/   .sub_details .editable-input{width: 100px;}
+/   .sub_details .editable-input input{width: 90px;}
+/   .sub_details .editable-buttons{margin-left: 0;margin-top: 7px;}
+/   .dz-error-message {
+/     top: 140px;
+/   }
+/   .wysiwyg {
+/     border: 1px solid #ccc;
+/     margin-bottom: 20px;
+/     overflow: hidden;
+/     width: 181px;
+/   }
+/   #comment_comment-wysiwyg-iframe {
+/     margin-bottom: 18px;
+/     width: 100% !important;
+/   }
+/   .dropzone {border:none !important;}
+/   .dropzone .dz-message{margin:0 !important;padding: 5px;border: 1px solid #ddd;}
+/   .dropzone .dz-message > div{padding: 20px;display: inline-block;width: 100%;border:2px solid #fff}
+/   .dropzone .dz-message > div:hover{border:2px dashed #ddd;}
+/   #my-awesome-dropzone { padding-bottom: 60px;position: relative;margin-bottom: 15px;}
+/   .dz-details .dz-filename{margin-top:45px;}
+/   .dz-details{
+/     bottom:28px;
+/   }
+/ = stylesheet_link_tag "dropzone", :media => "all"
+/ = javascript_include_tag "dropzone"
+%div  
+  -proj_pri = @project_job.priority.present? ? @project_job.priority : "na"
+  .col-md-9.padlft.padrht.new_form_layout.project_details_left_sec
+    / .top_left_sec{:class => "#{proj_pri.downcase()}_priority_border", style:"height: 82px;"}
+    /   .task-detail-head.task_details_title
+    /     %h5
+    /       #case_ttl_edit_main.wrapword
+    /         #case_ttl_edit_spn.task_title_hover{:style => "float:left;cursor:pointer;"}
+    /         = "#" + @project_job.job_no.to_s
+    /         =": "
+    /         = @project_job.name
+    /       .cb
+    /     .job_head_desc
+    /       %p
+    /         Last updated by
+    /         - if @project_job.last_updated_user.present?  
+    /           - last_updated_by = @project_job.last_updated_user.full_name.present? ? @project_job.last_updated_user.full_name : @project_job.last_updated_user.email
+    /         -if last_updated_by.present?
+    /           %span{:rel => "tooltip", :title => last_updated_by}
+    /             = last_updated_by.truncate(20)
+    /         on
+    /         = @project_job.updated_at.strftime("%b %d, %Y at %H:%M %p")
+    /       %p
+    /         %i.fa.fa-comments{"aria-hidden" => "true",title: "Comments", style:"    font-size: 16px;color: rgb(12, 130, 183);margin-left: 10px;"}
+    /         = "(#{@project_job.comments.count})"
+    / .clearfix
+    .task-detail-lft
+      .task-detail-container
+        / .col-md-12.job_details_top_sec
+        /   .detials-option-cont
+        /     .small_sec
+        /       %div
+        /         %div.gray-txt Job Type
+        /         %div.sub_details
+        /           %span.project_job_type_name
+        /             = @project_job.project_job_type.present? ? @project_job.project_job_type.name : ""
+        /           %span.dropdown  
+        /             %span.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer", onclick: "get_job_types(#{@project_job.id})"}
+        /             %ul.dropdown-menu
+        /               %li.arrow_top
+        /               .job_type_list
+        /                 =image_tag "ajax-loader2.gif"
+
+
+
+        /     .small_sec
+        /       %div.gray-txt Estimated Hour(s)
+        /       %div.sub_details
+        /         %a.editable_estimated_hours{href:"javascript:void(0)"}
+        /           = @project_job.estimate_hour               
+        /     .small_sec
+        /       %span.gray-txt Project
+        /       .sub_details{:title=>@project_job.project.present? ? @project_job.project.name : ""}
+        /         = @project_job.project.present? ? @project_job.project.name.truncate(25) : "NA"
+        /     .small_sec
+        /       %div.gray-txt Priority
+        /       .sub_details
+        /         %span.project_job_pri_col{:class=>"job_pri_#{@project_job.id} #{@project_job.priority}"}
+        /         %spa{:class=>"project_job_pri_#{@project_job.id}"}
+        /           = @project_job.priority
+        /         %span.dropdown
+        /           %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+        /           %ul.dropdown-menu{:style => "left: -8px;min-width: 80px !important;"}
+        /             %li.arrow_top
+        /             %li{:onclick => "change_priority(\"#{@project_job.id}\", \"High\")", :style => "cursor:pointer;padding:0 10px"} High
+        /             %li.divider
+        /             %li{:onclick => "change_priority(\"#{@project_job.id}\", \"Medium\")", :style => "cursor:pointer;padding:0 10px"} Medium
+        /             %li.divider
+        /             %li{:onclick => "change_priority(\"#{@project_job.id}\", \"Low\")", :style => "cursor:pointer;padding:0 10px"} Low
+        /           %span
+        /     .cb
+
+        / .cb
+        / .col-md-12.job_details_top_sec
+        /   .small_sec
+        /     %div.gray-txt Created date
+        /     %div.sub_details
+        /       = @project_job.created_at.strftime("%b %d, %Y %H:%M %p")
+
+        /   .small_sec
+        /     %div.gray-txt Status
+        /     %div.sub_details
+        /       %span.project_job_status{title: @project_job.status}
+        /         = @project_job.status
+        /       %span.dropdown
+        /         %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+        /         %ul.dropdown-menu{:style => "left: -8px;width: 130px;"}
+        /           %li.arrow_top
+        /           %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"New\")", :style => "cursor:pointer;padding:0 10px"} New
+        /           %li.divider
+        /           %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"In Progress\")", :style => "cursor:pointer;padding:0 10px"} In Progress
+        /           %li.divider
+        /           %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Resolved\")", :style => "cursor:pointer;padding:0 10px"} Resolved
+        /           %li.divider
+        /           %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Blocked\")", :style => "cursor:pointer;padding:0 10px"} Blocked
+        /           %li.divider
+        /           %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Closed\")", :style => "cursor:pointer;padding:0 10px"} Closed
+
+
+        /   .small_sec
+        /     %div.gray-txt Job Group
+        /     %div.sub_details
+        /       %span.project_job_group_name
+        /         - if @project_job.project_job_group.present?  
+        /           %span{title: @project_job.project_job_group.name}  
+        /             = @project_job.project_job_group.name.truncate(20)
+        /       %span.dropdown
+        /         %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer", onclick: "list_project_job_group('#{@project_job.id}')"}
+        /         %ul.dropdown-menu{:style => "left: -8px;min-width:130px;"}
+        /           %li.arrow_top
+        /           .list_project_job_group
+        /             =image_tag "ajax-loader2.gif"
+        /   .small_sec
+        /     %span.gray-txt Lead Associated
+        /     #estdiv4703999
+        /       %p.estb.ttc{:style => ""}
+        /         %span.border_dashed
+        /           - if @project_job.project.individual_contact.present?
+        /             = link_to @project_job.project.individual_contact.name, "/contact/" + @project_job.project.individual_contact.to_param, :title => @project_job.project.individual_contact.name
+        /           - else
+        /             NA
+        /   .small_sec{style:"padding-right:0"}
+        /     %div.gray-txt Opportunity Associated
+        /     %div.sub_details
+        /       - if @project_job.project.deal.present?
+        /         = link_to truncate(@project_job.project.deal.title, :length => 20, :ommission => "..."), "/leads/" + @project_job.project.deal.to_param, :title => @project_job.project.deal.title
+        /       - else
+        /         NA
+        /   .cb
+        / .cb
+
+        / #description-div.job_details_top_sec
+        /   - get_char =  @project_job.project.created_user.present? ? (@project_job.project.created_user.full_name.present? ? @project_job.project.created_user.full_name.strip.downcase[0] : @project_job.project.created_user.email.downcase[0]) : "n"
+        /   - color_code = @project_job.project.created_user.present? ? @project_job.project.created_user.get_user_color_code(get_char) : "#000"
+        /   - color_code = color_code.present? ? color_code : "#ccc"
+        /   .fl.user-task-pf
+        /     - if @project_job.project.created_user.present? && @project_job.project.created_user.image.present? && @project_job.project.created_user.image.image.present?
+        /       %span.user-profile
+        /         %span.userImage
+        /           = image_tag @project_job.project.created_user.image.image.url(:thumb), :alt=>"", :style => "height:40px;width:40px;"
+        /     - else
+        /       .lead-profile-icon.fl{:style => "background:" + color_code}
+        /         = get_char.upcase
+        /   .fl
+        /     %p
+        /       %span.relayed_by  
+        /         = @project_job.project.created_user.present? ? (@project_job.project.created_user.full_name.present? ? @project_job.project.created_user.full_name : @project_job.project.created_user.email) : "NA"
+        /       %small.blue-txt created
+        /     %span.gray-txt
+        /       = @project_job.project.created_at.strftime("%b %d, %Y %H:%M %p") if @project_job.project.present? && @project_job.project.created_at.present?                  
+        /   .cb
+        /   %div{:style => "margin-left:60px;"}
+        /     =raw @project_job.description
+        / .fr{style:"margin: 10px;"}
+        /   = link_to "javascript:void(0)", :id => "showcollapsDescription" do
+        /     Collapse Description
+        /     %span.glyphicon.glyphicon-chevron-up{style:"font-size: 10px;"}
+        
+        / .cb
+        / .col-md-12
+        /   .col-md-10.padnon.fl.timelog-stat
+        /     =render :partial=>"project_jobs/project_job_time_stat",:locals=>{project_job: @project_job}
+        /   #timelogdiv.fr.col-md-2
+        /     %a.btn.btn-default{:onclick=>"get_time_log_form(#{@project_job.id})",:href=>"#timeLogModal", :data=>{:toggle=>"modal" }}
+        /       %span.fa.fa-clock-o
+        /         Time Entry
+        / .col-md-12.padleft.list_job_time_log
+        /   =render :partial=>"project_jobs/list_job_time_log",:locals=>{project_job: @project_job}
+                
+        / .user-comment
+        /   .col-md-4
+        /     %h4 Comments
+        /   .cb
+        /   #reply_content
+        /     #showhidemorereply
+        /       - i = 0
+        /       - if (job_comments = @project_job.comments).count > 0
+        /         - job_comments.each do |c|
+        /           - if c.comment.present?
+        /             .replay_sec.job_details_top_sec
+        /               .fl.user-task-pf
+        /                 - get_char =  c.user.present? ? (c.user.full_name.present? ? c.user.full_name.strip.downcase[0] : c.user.email.downcase[0]) : "n"
+        /                 - color_code = c.user.present? ? c.user.get_user_color_code(get_char) : "#000"
+        /                 - color_code = color_code.present? ? color_code : "#ccc"
+        /                 - if c.user.present? && c.user.image.present? && c.user.image.image.present?
+        /                   %span.user-profile
+        /                     %span.userImage
+        /                       = image_tag c.user.image.image.url(:thumb), :alt=>"", :style => "height:40px;width:40px;"
+        /                 - else
+        /                   .lead-profile-icon.fl{:style => "background:" + color_code}
+        /                     = get_char.upcase
+        /                 %span.replay_count
+        /                   = i += 1
+                          
+        /               .fl
+        /                 %p
+        /                   %span.relayed_by  
+        /                     = c.user.present? ? (c.user.full_name.present? ? c.user.full_name : c.user.email) : "NA"
+        /                   %small.blue-txt Replied
+        /                 %span.gray-txt
+        /                   = c.created_at.strftime("%b %d, %Y %H:%M %p") if c.present? && c.created_at.present?                  
+        /               .cb
+        /               %div{:style => "margin-left:60px;"}
+        /                 = raw c.comment
+        /               %div{:style => "margin-left:60px;margin-top:10px;"}
+        /                 - comment_files = c.note.flatten.map{|s|s.note_attachments}.flatten
+        /                 - comment_files.each do |file|
+        /                   - file_type = file.attachment_file_name.present? ? file.attachment_file_name.split(".").last : "NA"
+        /                   / Show image in pop up if images are in following format
+        /                   - if file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg" || file_type.downcase == "tiff" || file_type.downcase == "gif" || file_type.downcase == "bmp" || file_type.downcase == "ppm" || file_type.downcase == "pgm" || file_type.downcase == "pbm" || file_type.downcase == "pnm"
+        /                     %a{"data-target" => "#ViewImageModal", "data-toggle" => "modal", href: "javascript:void(0)",onclick: "view_image('#{file.attachment.url}', '#{file.attachment_file_name}' )", title: "View - #{file.attachment_file_name}", style:"height: 50px;display: inline-block;"} 
+        /                       %img{src:file.attachment.url,style:"height:auto;width:50px;max-height: 100%;"}
+        /                   - else
+        /                     %a{href: file.attachment.url, download:file.attachment.url, style:"height: 50px;display: inline-block;", title:"Download - #{file.attachment_file_name}" }
+        /                       %span.cwkp-sprite{class: "file_#{file_type.downcase}"}
+        /           .cb
+        /%form.dropzone{:action => "/"}
+        %div#comments
+          = form_for [@project_job, @comment], :html => {:id => "my-awesome-dropzone", :class=> "dropzone cmn_new_popup_form", :enctype=>"multipart/form-data", :remote=>true, style:"    padding: 0;margin: 20px;margin-bottom: 75px;"} do |f|
+            .row
+              .col-md-12
+                %span.comment_err_msg.error
+                = f.text_area :comment, :cols => 80, :rows => 6
+                = hidden_field_tag "project_job_id", @project_job.id.to_s
+                = hidden_field_tag "comment[user_id]", current_user.id.to_s
+            .row
+              .col-md-3.form-group
+                .form_fld.cmn_selct_fld
+                  %span.cwkp-sprite.task_status{title: "Status", class:"tooltip"}
+                  = f.select :status, options_for_select([["New", "New"], ["In Progress", "In Progress"], ["Close", "Close"], ["Resolve", "Resolve"], ["Blocked", "Blocked"]], @project_job.status),{}, {:required => true, :class => "form-control"}
+              .col-md-3.form-group
+                .form_fld.cmn_selct_fld
+                  %span.cwkp-sprite.lead_name{title: "Assigned to", class:"tooltip"}
+                  = f.select :assigned_to, options_for_select(@project_job.project.project_users.map{|p|p.user}.compact.collect {|c| [ c.id == @current_user.id ? "me" : (c.full_name.present? ? c.full_name : c.email), c.id ]}, @project_job.assigned_to),{},{ :class => "form-control", :required => true, prompt: "Assigned to", selected: @project_job.assigned_to}
+              .col-md-6.form-group{style:"padding: 10px 15px;"}
+                %span.cwkp-sprite.small-pin
+                %span
+                  Priority
+                %span{class: "modal-radio", style:"margin-top:5px;margin-left:10px;"}
+                  = f.radio_button :priority, 'low', :checked => true
+                  %label{for: "comment_priority_low"}
+                    %span
+                    Low
+                %span{class: "modal-radio", style:"margin-top:5px;"}  
+                  = f.radio_button :priority, 'medium'
+                  %label{for: "comment_priority_medium"}
+                    %span
+                    Medium
+                %span{class: "modal-radio", style:"margin-top:5px;"}
+                  = f.radio_button :priority, 'high'
+                  %label{for: "comment_priority_high"}
+                    %span
+                    High
+              .cb
+            
+            .row
+              .form-group.col-md-12
+                %h5 Notify via Email
+                .modal-checkbox
+                  %span{class: "modal-checkbox"}
+                    = check_box_tag "checkAll", ""
+                    %label{for: "checkAll"} 
+                      %span
+                      All
+                    = f.hidden_field :notify_email_ids
+                  - @project_job.project.project_users.map{|p|p.user}.compact.each do |u|
+                    %span{class: "modal-checkbox"}  
+                      = check_box_tag "notify_email_ids", u.id, false, :id => "notify_email_#{u.id}", :name => "notify_email_ids"
+                      %label{for: "notify_email_#{u.id}"}
+                        %span
+                        = u.id == @current_user.id ? "me" : u.full_name.present? ? u.full_name : u.email.split("@")[0]
+            .row
+              .col-md-12
+                #drop-file-errror
+                .drag_and_drop_div
+                  /%input{:name=>"file", :type=>"file"}
+                  / Change /upload-target to your upload address
+                  Upload files below
+                  /%form.dropzone{:action => "/"}
+                  .dropzone-previews
+                  /= f.hidden_field :images
+            .form-layout-footer{style:"bottom: -60px;position: absolute;cursor:pointer;"}
+              = f.submit "Post comment",:class=>"btn btn-info", :id => "comment-submit-btn", style:"cursor:pointer;", :disable_with => "Please wait..."
+              %a{href: "/projects/#{params[:project_id]}/jobs", "aria-hidden" => "true", style:"cursor:pointer;"}
+                Cancel              
+  .col-md-3.padlft.padrht.project_details_right_sec
+    .top_right_short_cut_icon
+      %span
+        = link_to "javascript:void(0)", :onclick => "fetch_job_content('#{@project_job.id}', 'refresh')", :title => "Reload" do
+          %span.cwkp-sprite.job-refresh-icon
+      %span
+        = link_to edit_project_project_job_path(@project_job.project,@project_job), :title => "Edit" do
+          %span.cwkp-sprite.job-edit-icon
+      - if @project_job.status != "Resolved"  
+        %span
+          = link_to "javascript:void(0)", :onclick => "change_status_in_job_details('#{@project_job.id}', 'Resolved')", :title => "Resolve" do
+            %span.cwkp-sprite.job-resolve-color-icon
+      - if @project_job.status != "Closed"    
+        %span
+          = link_to "javascript:void(0)", :onclick => "change_status_in_job_details('#{@project_job.id}', 'Closed')", :title => "Close" do
+            %span.cwkp-sprite.job-close-icon
+      %span
+        = link_to delete_project_job_path(@project_job.id), :method => "delete", :title => "Delete this job", "data-confirm" => "Are you sure?" do
+          %span.cwkp-sprite.job-delete-color-icon
+      - if @project_job.status != "Blocked"     
+        %span{style:"height: 30px;border-right: 1px solid #aaa;position: relative;top: -2px;"}
+        %span
+          = link_to "javascript:void(0)", :onclick => "update_catchup_later_in_job_details('#{@project_job.id}')", :title => "Blocked" do
+            %span.cwkp-sprite.job-catchup-icon
+      %span
+        = link_to "#reAllocateResourceModal",:data=>{:toggle=>"modal"},:onclick=>"get_reallocate_resource(#{@project_job.id},'all')" do
+          %span.cwkp-sprite.resource-allocation
+    %section
+      %h5 Assigned to
+      - if @project_job.assigned_user.present?
+        - user_name =  @project_job.assigned_user.id == @current_user.id ? "me" : (@project_job.assigned_user.full_name.present? ? @project_job.assigned_user.full_name : @project_job.assigned_user.email)
+        - color_code = @project_job.assigned_user.get_user_color_code(user_name.downcase[0])
+        - if @project_job.assigned_user.present? && @project_job.assigned_user.image.present? && @project_job.assigned_user.image.image.present?
+          %span.user-profile
+            %span.userImage
+              = image_tag @project_job.assigned_user.image.image.url(:thumb), :alt=>"", :title => "#{user_name}"
+        - else
+          %span.lead-profile-icon.ass_lead{:style => "background:" + color_code}
+            = user_name.upcase[0]
+        %span{:style => "font-size:14px;", title: user_name, :class=> "project_job_ass_#{@project_job.id}"}
+          = user_name.truncate(20)
+        %span.dropdown  
+          %span.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer", onclick: "get_assigned_user(#{@project_job.id})"}
+          %ul.dropdown-menu{style: "left: -118px;"}
+            %li.arrow_top{style:"right:4px;left: auto;"}
+            .assigned_user_list
+              =image_tag "ajax-loader2.gif"
+    .cb
+    %section
+      %h5 Start date
+      %div
+        .col-md-8{style: "padding:0"}
+          %span.display_start_date{:style => "font-size:14px;"}
+            = @project_job.start_date.present? ? @project_job.start_date.to_date.strftime("%b %d, %a") : "Date not set"
+          / %span.dropdown
+          /   %span.start_date_for_job.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer"}
+      .cb
+      %h5 Due date
+      %div
+        .col-md-8{style: "padding:0"}
+          %span.display_due_date{:style => "font-size:14px;"}
+            /= @project_job.due_date.to_date
+            /=@project_job.due_date
+            = @project_job.due_date.present? ? @project_job.due_date.to_date.strftime("%b %d, %a") : "Date not set"
+          %span.dropdown
+            %span.due_date_for_job.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer"}
+
+            
+
+        .col-md-4
+          %span.cwkp-sprite.job_detail_calendar_icon
+        .cb
+    %section
+      %h5 Job Progress
+      .progress.fl.project_job_progress{style:"height:8px;width:75%;border-radius: 4px;"}
+        .progress-bar{style:"width:#{@project_job.progress.present? ? @project_job.progress : 0}%"}
+      .fr{style:"width:25%;margin-top: -5px;text-align:right;"}
+        %span.show_progress
+          = "#{@project_job.progress.present? ? @project_job.progress : 0}%"
+        %span.dropdown
+          %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+          %ul.dropdown-menu{:style => "left: -26px;min-width:20px !important"}
+            %li.arrow_top{style:"left:auto;right:0;"}
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"10\")", :style => "cursor:pointer;padding:0 10px"} 10%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"20\")", :style => "cursor:pointer;padding:0 10px"} 20%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"30\")", :style => "cursor:pointer;padding:0 10px"} 30%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"40\")", :style => "cursor:pointer;padding:0 10px"} 40%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"50\")", :style => "cursor:pointer;padding:0 10px"} 50%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"60\")", :style => "cursor:pointer;padding:0 10px"} 60%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"70\")", :style => "cursor:pointer;padding:0 10px"} 70%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"80\")", :style => "cursor:pointer;padding:0 10px"} 80%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"90\")", :style => "cursor:pointer;padding:0 10px"} 90%
+            %li.divider
+            %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"100\")", :style => "cursor:pointer;padding:0 10px"} 100%
+      .cb
+    %section
+      - files = @project_job.comments.map{|p|p.note}.flatten.map{|s|s.note_attachments}.flatten
+      %h5 File(s) in this Job
+      .files_count.fl
+        = files.count
+        Files
+      .fr  
+        %span.cwkp-sprite.job_attach_icon
+      .cb
+      - files.flatten.each do |file|
+        - file_type = file.attachment_content_type.present? ? file.attachment_content_type.split("/").last : "NA"
+        - if file_type.downcase == "doc" || file_type.downcase == "docx"
+          - file_title = "Document"
+        - elsif file_type.downcase == "zip"
+          - file_title = "ZIP File"
+        - elsif file_type.downcase == "xls" || file_type.downcase == "csv"
+          - file_title = "Excel Sheet"
+        - elsif file_type.downcase == "exe"
+          - file_title = "Application"
+        - elsif file_type.downcase == "txt"
+          - file_title = "Text"  
+        - elsif file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg"
+          - file_title = "Image"
+        - else
+          - file_title = file_type
+          - file_type = "other"
+        .fl.display_attached_file
+          / %span.cwkp-sprite{class: "file_#{file_type.downcase}", title: file_title}
+          / %a{href: file.attachment.url, download:file.attachment.url, style:"height: 50px;display: inline-block;", title:"Download - #{file.attachment_file_name}" }          
+
+          - file_type = file.attachment_file_name.present? ? file.attachment_file_name.split(".").last : "NA"
+          / Show image in pop up if images are in following format
+          - if file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg" || file_type.downcase == "tiff" || file_type.downcase == "gif" || file_type.downcase == "bmp" || file_type.downcase == "ppm" || file_type.downcase == "pgm" || file_type.downcase == "pbm" || file_type.downcase == "pnm"
+            %a{"data-target" => "#ViewImageModal", "data-toggle" => "modal", href: "javascript:void(0)",onclick: "view_image('#{file.attachment.url}', '#{file.attachment_file_name}' )", title: "View - #{file.attachment_file_name}", style:"height: 50px;display: inline-block;"} 
+              %img{src:file.attachment.url,style:"height:auto;width:50px;max-height: 100%;"}
+          - else
+            %a{href: file.attachment.url, download:file.attachment.url, style:"height: 50px;display: inline-block;", title:"Download - #{file.attachment_file_name}" }
+              %span.cwkp-sprite{class: "file_#{file_type.downcase}"}
+      .cb
+    %section.activity
+      .activity-info
+        %h5 Activities
+        %span.fr.cwkp-sprite.job_activity_icon
+      .activity-info
+        %span.gray-txt Last Updated:
+        %p
+          %span{style: "font-size:14px;"}
+            = @project_job.updated_at.strftime("%b %d, %Y at %H:%M %p")
+      .activity-info
+        %span.gray-txt Created:
+        %p
+          %span{style: "font-size:14px;"}
+            = @project_job.created_at.strftime("%b %d, %Y at %H:%M %p")
+      -if(@project_job.status == "Resolved" && @project_job.resolved_at.present?)
+        .activity-info
+          %span.gray-txt Resolved:
+          %p
+            %span{style: "font-size:14px;"}
+              = @project_job.resolved_at.strftime("%b %d, %Y at %H:%M %p")
+      -if(@project_job.status == "Closed" && @project_job.closed_at.present?)
+        .activity-info
+          %span.gray-txt Closed:
+          %p
+            %span{style: "font-size:14px;"}
+              = @project_job.closed_at.strftime("%b %d, %Y at %H:%M %p")
+    %section.involve-people
+      .activity-info
+        .fl  
+          %h5 People Involved
+        .fr  
+          %span.cwkp-sprite.job_repeat_color_icon
+        .cb
+      .lead-details-page
+        - if @project_job.created_user.present?
+          - created_user_name = @project_job.created_user.full_name.present? ? @project_job.created_user.full_name : @project_job.created_user.email        
+          - if @project_job.created_user.present? && @project_job.created_user.image.present? && @project_job.created_user.image.image.present?
+            %span.user-profile
+              %span.userImage
+                = image_tag @project_job.created_user.image.image.url(:thumb), :alt=>""
+          - else
+            %span.assn-pf-icon{:title => "#{created_user_name}", style: "background: #{@project_job.created_user.get_user_color_code(created_user_name.downcase[0])}"} 
+              = created_user_name[0].upcase
+        - if @project_job.assigned_user.present?
+          - assigned_user_name = @project_job.assigned_user.full_name.present? ? @project_job.assigned_user.full_name : @project_job.assigned_user.email
+          - if created_user_name != assigned_user_name
+            - if @project_job.assigned_user.present? && @project_job.assigned_user.image.present? && @project_job.assigned_user.image.image.present?
+              %span.user-profile
+                %span.userImage
+                  = image_tag @project_job.assigned_user.image.image.url(:thumb), :alt=>""
+            - else
+              %span.assn-pf-icon{:title => "#{assigned_user_name}", style: "background: #{@project_job.assigned_user.get_user_color_code(assigned_user_name.downcase[0])}"} 
+                = assigned_user_name[0].upcase
+  .cb
+
+#ViewImageModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      .modal-header
+        %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+        %h4.modal-title{style: "display:inline-block;"} View Image
+      .modal-body
+
+:javascript
+  var project_job_id = "#{@project_job.id}";
+  function view_image(img_url, img_name){
+    $("#ViewImageModal .modal-body").html("<img src='/assets/ajax-loader2.gif'/>");
+    
+    $("#ViewImageModal .modal-body").html("<div style='padding:20px;text-align:center;max-height: 350px;overflow-y: auto;margin-bottom: 20px;'><img src='"+img_url+"' style='max-width:100%;'/><div style='position:absolute;right:10px;bottom:10px'><a href = \'"+img_url+"\' download = \'"+img_name+"\' title = \'Download - "+img_name+"\' >Download</a></div></div>");
+  }
+  $(document).ready(function () {
+    initialize_tinymce();
+    $("#checkAll").click(function () {
+       $("input[name='notify_email_ids']").not(this).prop('checked', this.checked);
+    });
+
+    var countChecked = function() {
+      var total = [];
+      if($( "input[name='notify_email_ids']:checked" ).length == $( "input[name='notify_email_ids']" ).length){
+        $("#checkAll").attr("checked");
+      }
+      $( "input[name='notify_email_ids']:checked" ).not('#checkAll').each(function(){
+        total.push($(this).attr("id"));
+      });
+      $( "#comment_notify_email_ids" ).val(total);
+      if($(this).attr("id") != "checkAll"){
+        $("#checkAll").removeAttr("checked");
+      }
+           
+    };
+    countChecked();
+    $( "input[type=checkbox]" ).on( "click", countChecked );
+  }); 
+
+  Dropzone.options.myAwesomeDropzone = {
+    // The configuration we've talked about above
+    addRemoveLinks: true,
+    autoProcessQueue: false,
+    uploadMultiple: true,
+    parallelUploads: 100,
+    maxFiles: 10,
+    maxFilesize: 200,
+    // The setting up of the dropzone
+    init: function() {
+      var myDropzone = this;
+      // First change the button to actually tell Dropzone to process the queue.
+      this.element.querySelector("input[type=submit]").addEventListener("click", function(e) {
+        // Make sure that the form isn't actually being sent.
+        if(myDropzone.files.length > 0 && $("#comment_comment").val().trim() != ""){
+          myDropzone.processQueue();
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        
+        //$('#my-awesome-dropzone').trigger('submit');
+      });
+
+      // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
+      // of the sending event because uploadMultiple is set to true.
+      this.on("sendingmultiple", function() {
+        // Gets triggered when the form is actually being sent.
+        // Hide the success button or the complete form.
+      });
+      this.on("successmultiple", function(files, response) {
+        $("#drop-file-errror").text("");
+        $("#comment-submit-btn").removeAttr("disabled");
+        $(".job_detail_page").html(response["html_data"]);
+        $("#task_loader,.fixed_loader").hide();
+        initialize_tinymce();
+        Dropzone.discover();
+        //$("#comment_images").val(files)
+        // Gets triggered when the files have successfully been sent.
+        // Redirect user or notify of success.
+      });
+      this.on("errormultiple", function(files, response) {
+        $("#drop-file-errror").css("color","#f00").text("Please upload files upto 200 mb.")
+        $("#comment-submit-btn").prop("disabled",true);
+        e.preventDefault();
+        e.stopPropagation();
+        // Gets triggered when there was an error sending the files.
+        // Maybe show form again, and notify user of error
+      });
+    }
+  }
+
+
+
+  / function get_assigned_user(project_job_id){
+  /   $.ajax({
+  /     url: "/get_user_list_for_project_job",
+  /     data: {project_job_id: project_job_id},
+  /     success: function(data){ 
+  /       $(".assigned_user_list").html(data);
+  /     },
+  /     error: function(data){
+  /       alert('Got an error while getting user list.');
+  /     }
+  /   });
+  / }
+
+  / function get_job_types(project_job_id){
+  /   $.ajax({
+  /     url: "/get_job_types",
+  /     data: {project_job_id: project_job_id},
+  /     success: function(data){ 
+  /       $(".job_type_list").html(data);
+  /     },
+  /     error: function(data){
+  /       alert('Got an error while getting user list.');
+  /     }
+  /   });
+  / }
+
+  / function change_priority(project_job_id, priority){
+  /   $("#task_loader,.fixed_loader").show();
+  /   $.ajax({
+  /     url: "/change_priority_for_project_job",
+  /     data: {project_job_id: project_job_id, priority: priority},
+  /     success: function(data){ 
+  /       $(".job_detail_page").html(data);
+  /       $("#task_loader,.fixed_loader").hide();
+  /     },
+  /     error: function(data){
+  /       $("#task_loader,.fixed_loader").hide();
+  /       alert('Got an error while changing priority.');
+  /     }
+  /   });
+  / }
+
+  // function change_status_in_job_details(project_job_id, status){
+  //   $("#task_loader,.fixed_loader").show();
+  //   $.ajax({
+  //     url: "/change_status_in_job_details",
+  //     data: {project_job_id: project_job_id, status: status},
+  //     success: function(data){ 
+  //       // $(".project_job_status").html(data);
+  //       // $(".container").load(location.href + ".container");
+  //       // initialize_tinymce();
+  //       fetch_job_content(project_job_id,'refresh');
+  //       $("#task_loader,.fixed_loader").hide();
+  //     },
+  //     error: function(data){
+  //       $("#task_loader,.fixed_loader").hide();
+  //       alert('Got an error while changing status.');
+  //     }
+  //   });
+  // }
+
+  function update_catchup_later_in_job_details(project_job_id){
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      type: 'PUT',
+      url: "/update_catchup_later_in_job_details",
+      data: {project_job_id: project_job_id},
+      complete: function(data){ 
+        //$(".container").load(location.href + ".container");
+        //initialize_tinymce();
+        fetch_job_content(project_job_id,'refresh');
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader,.fixed_loader").hide();
+        alert('Got an error while changing status.');
+      }
+    });
+  }
+
+  function list_project_job_group(project_job_id){
+    $.ajax({
+      url: "/list_project_job_group",
+      data: {project_job_id: project_job_id, status: status},
+      success: function(data){ 
+        $(".list_project_job_group").html(data);
+      },
+      error: function(data){
+        alert('Got an error while changing job group.');
+      }
+    });
+  }
+  function update_job_progress(project_job_id, progress){
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      url: "/update_job_progress",
+      data: {project_job_id: project_job_id, progress: progress},
+      success: function(data){ 
+        $(".project_job_progress .progress-bar").css("width",data+"%");
+        $(".show_progress").html(data+"%");
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader,.fixed_loader").hide();
+        alert('Got an error while updating progress of the job.');
+      }
+    });
+  }
+  // $('.editable_estimated_hours').editable({
+  //     url: '/update_estimated_hours?project_job_id='+ project_job_id,
+  //     pk: 'source',
+  //     mode: 'popup',
+  //     type: 'text',
+  //     placement: 'bottom',
+  //     title: 'Enter estimated hour(s)',   
+  //     data: {custom: 'Enter estimated hour(s)'}, 
+  //     validate: function(value) {
+  //       if($.trim(value) == ''){
+  //         return 'Please enter estimated hour(s)';
+  //       }
+  //       if ($.isNumeric(value) == '') {
+  //           return 'Only numbers are allowed';
+  //       }
+  //     },
+  //     render: function() {
+  //       this.$loading = $($.fn.editableform.loading);        
+  //       this.$div.empty().append(this.$loading);
+  //     },
+  //     success: function(response, newValue) {
+  //       //if(response != "")
+  //       //  $('#source1').attr("data-original-title", response)
+  //       $(".job_detail_page").html(response);
+  //       $("#reAllocateResourceModal").modal("show")
+  //       get_reallocate_resource("#{@project_job.id}",'all')
+  //     }
+  //   });
+
+  
+
+  $(function () {
+    var date = new Date();
+    date.setDate(date.getDate());
+    var nwdate = new Date();
+    nwdate.setDate(nwdate.getDate() - 1); 
+
+    $('.due_date_for_job').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM-DD-YYYY'}).on('dp.change', function(e){
+      var d = new Date(e.date);
+      var m = parseInt(d.getMonth()) + 1;
+      var dt = d.getDate()+"-"+ m +"-"+d.getFullYear();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+      url: "/update_due_date?project_job_id=#{@project_job.id}",
+      data: {date: dt},
+      success: function(data){ 
+        $(".bootstrap-datetimepicker-widget").hide();
+        fetch_job_content("#{@project_job.id}",'refresh');
+        $("#task_loader,.fixed_loader").hide();
+
+        $('#reAllocateResourceModal').modal('show');
+        get_reallocate_resource("#{@project_job.id}",'all')
+      },
+      error: function(data){
+        $("#task_loader,.fixed_loader").hide();
+        alert('Got an error while updating due date');
+      }
+    });
+
+    });
+  });
+
+  $("#comment-submit-btn").click(function(event){
+    var docDescription = $("#comment_comment").val().trim();
+    if (docDescription == "") {
+        var docDesc1 = docDescription.replace(/(?:&nbsp;|<br>)/g, ' ');
+        var dd = docDesc1.replace(/^\s+/g, "")
+        if (dd.length == 0) {
+            $(".comment_err_msg").html('Comment cannot be blank.')
+            //event.preventDefault();
+            //event.stopPropagation();
+            return false;
+        }
+        else {
+            $(".comment_err_msg").html("");
+            $("#task_loader,.fixed_loader").show();
+            return true;
+        }
+    }   
+  });
+
+  $('#my-awesome-dropzone').bind('ajax:complete', function( evt, data, status, xhr) {
+    $(".job_detail_page").html(data['responseText']);
+    $("#task_loader,.fixed_loader").hide();
+    initialize_tinymce();
+    Dropzone.discover();
+    show_alert_message("success","Your comment has been posted successfully.");
+  });
+
+  
+
+  $("#showcollapsDescription").click(function () {
+    $("#description-div").slideToggle(500, function () {
+      $("#showcollapsDescription").text(function () {
+          $("#description-div").is(":visible") ? $("#showcollapsDescription").html("<span>Collapse Description</span><span class='glyphicon glyphicon-chevron-up' style='font-size:10px;margin-left:3px;'>") : $("#showcollapsDescription").html("<span>Expand Description</span><span class='glyphicon glyphicon-chevron-down' style='font-size:10px;margin-left:3px;'>");
+      });
+    });
+  });
+

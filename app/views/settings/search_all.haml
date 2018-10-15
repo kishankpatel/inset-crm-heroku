@@ -1,0 +1,19 @@
+:css
+  .content-body{
+    margin:top:50px;
+  }
+.container
+  .row
+    .cb10
+    .cb10
+    .col-md-12
+      .con-box1
+        - @deals.each do |deal|
+          %p
+            = deal.name
+        - @individual_contacts.each do |individual_contact|
+          %p 
+            = individual_contact.first_name
+        - @company_contacts.each do |company_contact|
+          %p 
+            = company_contact.name

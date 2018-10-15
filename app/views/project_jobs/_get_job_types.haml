@@ -1,0 +1,4 @@
+- @project_job_types.each do |p|
+  %li{style:"padding: 0 5px;text-align: left;cursor:pointer", onclick:"update_job_type_in_job_details('#{params[:project_job_id]}', '#{p.id}');", title: p.name}
+    = p.name.truncate(20)
+  %li.divider

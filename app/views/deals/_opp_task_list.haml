@@ -1,0 +1,252 @@
+/ :css
+/   .cont_activity_sec .timeline-centered:before {
+/     top: 40px;
+/   }
+.cont_box.task-container.remove-pad{ class: "task_widget_#{@deal.id}"}
+  %a.toggle_task_form.toggle_note_form.add-pad{href:"javascript:void(0)",onclick: "$('#new_task_form')[0].reset();setTimeout(\"$('#deal_title_task').val('#{@deal.title}');$('#hfield').val('#{@deal.id}');$('.custom-frm-inner').trigger('focusout');task_deal('#{@deal.id}')\",1000);$('#deal_title_task').attr('disabled', true);$('#clicked_button_ref').val('taskwidget');set_ld_track_event('WUS - Create Task', 'Lead Details > Add Task');$('#lead_priority').val('#{@deal.priority_type.name}');hide_rec_sec()", "data-id" => @deal.id } Click here to create task...
+  .opp_note_form.opp_task_form
+    .close_note_form.close_task_form ×
+    .add_task_form
+      - @task = Task.new  
+      = form_for(@task, :remote => true, :html=>{:class => "form cmn_new_popup_form add-form-pad",:method=> "post",:id=> "new_task_form"}) do |f|
+        =hidden_field_tag "check_deal_show", "false"
+        =hidden_field_tag "clicked_button_ref",""
+        %input{:type=>"hidden",:id=>"is_edit_deal",:name=> "is_edit_deal"}
+        %p
+          Enter the task details here.
+        .col-md-12
+          .form-group
+            .input-group
+              .input-group-addon
+                %span.pe-7s-note
+              =f.text_field :title, :required => true,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder: "Enter Task Title*",:class=>"form-control"
+        
+        .col-md-6
+          .form-group
+            .input-group
+              .input-group-addon
+                %span.fal.fa-calendar
+              - set_time = @task.new_record? ? (Time.zone.now + 30.minutes).strftime("%Y/%m/%d %H:%M") : @task.due_date.strftime("%Y/%m/%d %H:%M")
+              - set_time = @task.new_record? ? "" : @task.due_date.strftime("%Y-%m-%d %H:%M")
+              
+              = text_field_tag "due_date_task","", id: "datetimepicker", autocomplete: "off",onchange: "change_mnth_days('datetimepicker', 'task_due_date');" ,:value=> @task.new_record? ? "" : @task.due_date.strftime("%m-%d-%Y %H:%M"),:required => true,:onkeydown => "disable_text(event);", placeholder: "Select Due Date*",:class=>"form-control"
+              =f.hidden_field :due_date, required: "true", :onkeydown => "disable_text(event);",:value=> set_time, placeholder: ""
+        .col-md-6
+          .form-group
+            .input-group
+              
+              - if @task.new_record?
+                .input-group-addon
+                  %span.pe-7s-note2
+                =f.select :task_type_id, current_user.organization.task_types.collect {|c| [ c.name, c.id ]}, {:include_blank => '- Select task type* -'}, :required => true,:class=>"form-control"
+                .event_space{:style => "display:none"}
+                  .input-group-addon
+                    %span.fal.fa-calendar
+                  = text_field_tag "event_end_date","", id: "event_datetimepicker" , autocomplete: "off",onchange: "change_mnth_days('event_datetimepicker', 'task_event_end_date');",:onkeydown => "disable_text(event);", placeholder: "End date",:class=>"form-control"
+                  =f.hidden_field :event_end_date, :placeholder => "Due date", :onkeydown => "disable_text(event);",:value=> (@task.event_end_date.strftime("%Y-%m-%d %H:%M") if @task.present? && @task.event_end_date.present?)
+              - else
+                - if @task.is_event?
+                  .input-group-addon
+                    %span.fal.fa-calendar
+                  = text_field_tag "event_end_date","",value: "#{Date.today.strftime('%m-%d-%Y %H:%M')}", id: "event_datetimepicker_task" , autocomplete: "off",onchange: "change_mnth_days('datetimepicker', 'task_event_end_date');" ,:value=> (@task.event_end_date.strftime("%m-%d-%Y %H:%M") if @task.present? && @task.event_end_date.present?),:required => true,:onkeydown => "disable_text(event);", placeholder: "Due date*",:class=>"form-control"
+                  =f.hidden_field :event_end_date, required: "true", :placeholder => "Due date*", :onkeydown => "disable_text(event);",:value=> (@task.event_end_date.strftime("%Y-%m-%d %H:%M") if @task.present? && @task.event_end_date.present?)
+                -else
+                  .input-group-addon
+                    %span.pe-7s-note2
+                  =f.select :task_type_id, current_user.organization.task_types.collect {|c| [ c.name, c.id ]}, {:include_blank => '- Select task type* -'}, {:required => true,:class=>"form-control"}
+        .cb
+        .col-md-6
+          .form-group
+            .input-group
+              .input-group-addon
+                %span.pe-7s-user
+              =f.select :assigned_to, all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]}, {:include_blank => '- Assigned to* -', :selected => @task.new_record? ? @current_user.id : @task.assigned_to},:class=>"assign_task_usr_email custom-frm-inner form-control", :required => true,:class=>"form-control"
+        .col-md-6.padrht
+          .form-group
+            .input-group.disable_row
+              .input-group-addon
+                %span.pe-7s-mail
+              =f.email_field :mail_to,:class=>"assign_mail",:required => true, :placeholder => "Mail To*",:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :value=> @task.new_record? ? @current_user.email : @task.mail_to, disabled: true, id:"new_task_mail_to",:class=>"form-control"
+              %div{id:"email_err",class: "error"}
+        
+        .col-md-6.padlft
+          .form-group
+            - if (!@task.new_record? && @task.taskable.class.name == "Contact")
+              .input-group.disable_row
+                .input-group-addon
+                  %span.pe-7s-note
+                = text_field_tag :contact_fullname, ((!@task.new_record? && @task.taskable.class.name == "Contact") ? @task.taskable.title : ""), :disabled => true, placeholder: "Full Name",:class=>"form-control"
+            - else      
+              -if(params[:action] == "edit_task")
+                .input-group.disable_row
+                  .input-group-addon
+                    %span.pe-7s-portfolio
+                  =text_field_tag "deal_title", (@task.new_record? ? "" : (@task.taskable.title.present? ? @task.taskable.title : "")),:class=>"task_deal_typeahead", "data-provide"=> "typeahead" ,:size=>"32" , :autocomplete=>"off", :required => true,:disabled => true,style: "color:#333", placeholder: "Assign Opportunity*",:class=>"form-control"
+              -else
+                .input-group.disable_row
+                  .input-group-addon
+                    %span.pe-7s-note2
+                  =text_field_tag "deal_title_task", (@task.new_record? ? "" : (@task.taskable.title.present? ? @task.taskable.title : "")),:class=>"custom-frm-inner task_deal_typeahead", "data-provide"=> "typeahead", :size=>"32" , :autocomplete=>"off", :required => true, style: "color:#333", placeholder: "Assign Opportunity*",:class=>"form-control"
+              .contact_firstname_div.displaynone
+                .input-group.disable_row
+                  .input-group-addon
+                    %span.pe-7s-user
+                  
+                  = text_field_tag :contact_fullname, "", :disabled => true,:class=>"form-control"
+                  =f.hidden_field :deal_id,:id=>"hfield"        
+        .col-md-6
+          /%label Priority
+          -if current_user.organization.present? && current_user.organization.priority_types.present?
+            .input-group.disable_row
+              .input-group-addon
+                %span.pe-7s-user
+              / =f.select :priority_id, current_user.organization.priority_types.find(:all).collect {|c| [ c.name, c.id ]}, {:include_blank => '- Lead Type -', :selected => @task.new_record? ? @current_user.organization.warm_priority.id : @task.priority_id}, :required => true, :class => "form-control"
+              = text_field_tag "lead_priority", "",placeholder:"Lead Type",readonly:true,disabled:true,:class=>"form-control"
+          = hidden_field_tag :taskable_type,"Deal", :id => "task_taskable_type"
+          = hidden_field_tag :taskable_id, @deal.id, :id => "task_taskable_id"
+          = f.hidden_field :notify_email, :value => "1", :id=>"task_notify_email"
+        
+        .col-md-12.opp_new_text_area
+          .form-group
+            .input-group
+              .input-group-addon
+                %span.pe-7s-pen
+              =f.text_area :details, :style=> "resize: none;", :rows=>"4",:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Add task details", class: "form-control", style:""
+        / .col-md-12
+        /   .opp_new_field
+        /     %span.cwkp-sprite.task_details
+        /     =f.text_area :details, placeholder: "Add task details"
+        .cb
+        - if @task.new_record?
+          .col-md-12.task_recurring_section
+            .recurring_task
+              .form-group.fl
+                %a{href: "javascript:void(0)", onclick: "display_rec_sec()"} 
+                  %span.cwkp-sprite.repeat_task
+                  Repeat this task 
+            .recurring_task_form{style: "display:none"}
+              .form-group.fl
+                %a{href: "javascript:void(0)", onclick: "hide_rec_sec()"} 
+                  %span.cwkp-sprite.repeat_task
+                  Repeat this task
+              .form-group.fl.ml10
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'none', onclick: "reset_end_datepicker('none')", :checked => true, id:"new_task_recurring_type_none"
+                  %label{for: "new_task_recurring_type_none"}
+                    %span
+                    None
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'daily', onclick: "reset_end_datepicker('daily')", id:"new_task_recurring_type_daily"
+                  %label{for: "new_task_recurring_type_daily"}
+                    %span
+                    Daily
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'weekly', onclick: "reset_end_datepicker('weekly')", id:"new_task_recurring_type_weekly"
+                  %label{for: "new_task_recurring_type_weekly"}
+                    %span
+                    Weekly
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'monthly', onclick: "reset_end_datepicker('monthly')", id:"new_task_recurring_type_monthly"
+                  %label{for: "new_task_recurring_type_monthly"}
+                    %span
+                    Monthly
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'qtr', onclick: "reset_end_datepicker('qtr')", id:"new_task_recurring_type_qtr"
+                  %label{for: "new_task_recurring_type_qtr"}
+                    %span
+                    QTR
+                %span{class: "modal-radio radio radio-inline"}
+                  = f.radio_button :recurring_type, 'yearly', onclick: "reset_end_datepicker('yearly')", id:"new_task_recurring_type_yearly"
+                  %label{for: "new_task_recurring_type_yearly"}
+                    %span
+                    Yearly
+              .form-group.col-md-4.fl.recurring_task_form.fl.pl0{style: "display:none"}
+                .recurring_end_date.opp_new_field
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-calendar
+                    = text_field_tag "end_date_task","", id: "end_datetimepicker_task", name: "task[rec_end_date]"  , autocomplete: "off",onchange: "change_mnth_days('end_datetimepicker_task', 'task_rec_end_date');",:onkeydown => "disable_text(event);", placeholder: "End Date", class: "form-control"
+                    =f.hidden_field :rec_end_date, :placeholder => "Due date", :onkeydown => "disable_text(event);",:value=> (@task.rec_end_date.strftime("%Y-%m-%d %H:%M") if @task.present? && @task.rec_end_date.present?)
+              .cb
+        -else
+          - if @task.recurring_type != "none"
+            .row
+              .form-group.col-md-6
+                %label Recurring type:
+                =@task.recurring_type.camelize
+              .form-group.col-md-6
+                %label End Date:
+                =@task.rec_end_date.strftime("%m-%d-%Y %H:%M") if @task.rec_end_date.present?
+        .clearfix
+        .col-md-12.form-layout-footer
+          .fl  
+            =f.submit "Save", :disable_with => "Please wait ...", :class => "btn btn-info"
+            %a.btn.btn-default.close_task_form{href:"javascript:void(0)"}
+              Cancel
+          / .fr
+          /   - if @task.new_record? 
+          /     .modal-checkbox
+          /       /%input#puppy_gooddog{name: "puppy", type: "checkbox",checked: "checked",onclick: "update_mail()"}
+          /       /%span
+          /       /  Email Notify
+          /       %span{class: "modal-checkbox"}
+          /         %input#new_task_notify_email{name: "puppy", type: "checkbox",checked: "checked",onclick: "update_task_mail()"}
+          /         %label{for: "new_task_notify_email"} 
+          /           %span
+          /           Email Notify
+          .cb
+%input{:type=>"hidden", :id=>"deal_id" ,:value=>@deal.id}
+#task_header.task_dealdtl
+  =render :partial=>"deals/widget_task_header" ,:objects=>{deal: @deal}
+
+:javascript
+  $(".toggle_task_form").click(function(){
+    $(".toggle_task_form").hide();
+    $(".opp_task_form").slideDown();
+    $(".toggle_note_form").hide();
+  })
+  $(".close_task_form, .cls_task_form").click(function(){
+    $(".opp_task_form").hide();
+    $(".toggle_task_form").show();
+    $(".ajax-file-upload-statusbar").remove();
+    $(".tmp_file_ids").val("");
+    $("#prv_pub").remove();
+    $(".toggle_note_form").show();
+  })
+
+  var date = new Date();
+  date.setDate(date.getDate());
+  //$('#datetimepicker').datetimepicker({startDate: date, language: 'en',pick12HourFormat: true,format: 'mm-dd-yyyy hh:ii',autoclose: true})
+  var nwdate = new Date();
+  nwdate.setDate(nwdate.getDate() - 1); 
+  $('#datetimepicker').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on('change', function(){
+    $(this).blur();
+  });
+  $('#end_datetimepicker_task').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on('change', function(){
+    $(this).blur();
+  });
+  $('#new_task_form').bind('ajax:success', function(evt, data, status, xhr){
+    load_activity_cum_deals('task_list');
+    show_alert_message('success', 'Awesome! A new task has been added. Keep them coming!');
+  });
+  function hide_rec_sec(){
+    $('.recurring_task').show();
+    $('.recurring_task_form').hide();
+  }
+  function display_rec_sec(){
+    $('.recurring_task').hide();
+    $('.recurring_task_form').show();    
+    $('#task_recurring_type_none').prop('checked', true);
+    $("#end_datetimepicker").html("");
+    $(".recurring_end_date").hide();
+    $("#task_rec_end_date").val("");  
+    $("#task_rec_end_date").removeProp("required");
+  }
+
+  function update_task_mail()
+  {
+    if($("#new_task_notify_email").is(':checked'))
+     $("#task_notify_email").val(1)
+    else
+     $("#task_notify_email").val(0)
+  } 

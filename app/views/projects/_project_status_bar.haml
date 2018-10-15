@@ -1,0 +1,10 @@
+%div
+  - ps_original_id = @project.project_stage.present? ? @project.project_stage.position : 1
+  - i = 1
+  - @current_organization.active_project_stages.order("position").each do |ps|
+    - cls = ''
+    - if ps_original_id >= i
+      - cls = 'active'
+    %span.opp_status{:class=> "#{cls}", onclick: "changeProjectStageDetails(#{@project.id}, #{ps.id})"}
+      = ps.name
+    - i += 1

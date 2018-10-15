@@ -1,0 +1,27 @@
+/* Dashboard page strats here */
+
+.summary_box .panel-body{margin-bottom: 10px;}
+.summary_box .social-talk{margin-bottom: 0;}
+.dashboard_page .summary_box .social-talk .social-profile img{width:30px; height: auto; border-radius: 0px;}
+
+.dashboard_page .task_list{margin-bottom: 10px;}
+.dashboard_page .task_list .btn{margin-right: 10px;}
+.dashboard_page .task_list .btnbtn-primary{margin-right: 0px;}
+
+
+
+.dashboard_page .recent_leads .social-talk{margin: 30px 0px;}
+.dashboard_page .recent_leads .social-talk:first-child{margin-top:0px;}
+.dashboard_page .recent_leads .social-talk .social-profile img{width:50px; height: auto; border-radius: 0px;}
+
+/* project filters menu */
+.tag_filter li {display: inline-block;list-style: none outside none;margin-right: 4px;}
+.prj-sub-menu{height:198px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left: -15px;}
+
+/* loader */
+.wus-loader{display:none;position: fixed; height: 100%; width: 100%; z-index: 99999; top:0px; left:0px;bottom:0;right:0;background: rgba(0, 0, 0, 0.4);}
+.fixed_loader  {animation: rotate 1s infinite; height: 50px; width: 50px; top:0;bottom:0; left:0; right:0; margin: auto; position: absolute; opacity: 1;}
+.fixed_loader:before,
+.fixed_loader:after { border-radius: 50%; content: ''; display: block; height: 20px; width: 20px;
+}.fixed_loader:before {animation: ball1 1s infinite; background-color: #cb2025; box-shadow: 30px 0 0 #f8b334; margin-bottom: 10px;}
+.fixed_loader:after { animation: ball2 1s infinite; background-color: #00a096; box-shadow: 30px 0 0 #97bf0d;}

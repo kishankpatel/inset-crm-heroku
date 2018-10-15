@@ -1,0 +1,83 @@
+/ - session[:non_authenticate] = nil
+/ - @user = User.new
+/ .social_media_sign_up
+/   %a.vi-google-signup{href:"javascript:void(0)", :onclick => "social_authenticate('/auth/google_oauth2')", :title => "Sign in using Google Account"}
+/   %a.vi-linkedin-signup{href:"javascript:void(0)", :onclick => "social_authenticate('/auth/linkedin')", :title => "Sign in using Linkedin Account"}
+/   .bdr_or
+/     %span OR
+/ = form_for @user, :url => save_user_path, :html=>{:class => "form signup-form", autocomplete:"off", id:"new_user_form", :style => "text-align:center;"}, remote:"true" do |f|
+/   = f.text_field :nickname, value: "", :class => "user_nickname", id:""
+/   .sign_up_field.email_icn.email_icn_new
+/     = f.email_field :email, :required => true, :class=>"form-control email-c-name user_email", :placeholder=>"Work email",value:"",readonly:"true",onclick:"$(this).removeAttr('readonly')", style:"cursor:text;background:#fff;",onblur:"$(this).attr('readonly','readonly')"
+/     .email_err_msg
+/   .inp-fld.sign_up_field.password_icn{style:"width:100%;margin-top: 15px;"}
+/     = f.password_field "password", :required => true, :placeholder => "Set a password", :class=>"input_icon"
+/   .sign_up_field.company_icn{style:"margin-top: 15px;"}
+/     = f.text_field "organization_name", :class => "form-control email-c-name ", :required => true, :placeholder => "Your company name"
+
+/   %div{:style => "display: inline-block; margin-top: 10px;color: #1F92DC;width: 425px;"}
+/     .fl
+/       = f.check_box :terms, :required => true
+/     .fl{style: "width: 95%;text-align: left;"}
+/       I agree to the Wakeupsales
+/       %a{href: "#{ENV['MKTR_URL']}/terms", :style => "color:#2a59a9;font-weight: 700;"} Terms of Service
+/       and
+/       %a{href: "#{ENV['MKTR_URL']}/privacy", :style => "color:#2a59a9;font-weight: 700;"} Privacy Policy
+/     .cb
+/   %div{:style => "display: inline-block; margin-top: 10px;color: #1F92DC;width: 425px;"}
+/     .fl
+/       = fields_for :organization, @user.organization do |o|
+/         = o.check_box :consent_update
+/       /= check_box_tag :consent_update, " ", :required => true
+/     .fl{style: "width: 95%;text-align: justify;"}
+/       Yes, please keep me updated on Wakeupsales's news, events and others
+/     .cb
+
+/   %span.inp-fld
+/     = f.submit "Sign Up Now, It's Free", :disable_with => "Submitting....", :style => "width:70%;", :class=>"submit_btn"
+/     %div{:style => "text-align:center;color: #1F92DC;"}
+/       %small
+/         No credit card required.
+
+
+/ :javascript
+/   $(document).ready(function() {
+/     $('#feature').click(function(){
+/       window.location.href="/#features";
+/     });
+/   });
+////////////////////////////////////////
+- session[:non_authenticate] = nil
+- @user = User.new
+.hpanel
+  .panel-body
+    = form_for @user, :url => save_user_path, :html=>{:class => "form signup-form", autocomplete:"off", id:"new_user_form"}, remote:"true" do |f|
+      /= form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html=>{:class => "form"}) do |f|
+      = devise_error_messages!
+      .row
+        .form-group.col-lg-6
+          = f.text_field  :organization_name, :required => true, :class=>"form-control", :placeholder=>"Organization Name"
+        .form-group.col-lg-6
+          = f.text_field :nickname, value: "", :class => "form-control", id:"",:placeholder=>"Short Name"
+        .form-group.col-lg-6
+          = f.email_field :email, :required => true, :class=>"form-control user_email", :placeholder=>"Email"
+          .email_err_msg
+        .form-group.col-lg-6
+          = f.text_field  :organization_website, :required => true, :class=>"form-control", :placeholder=>"Website"
+        .form-group.col-lg-12
+          = f.select :organization_size, CompanyStrength.find(:all).collect {|c| [ c.range, c.id ]}, {:include_blank => '- Organization Size -'},  :required => "true", :class=>"form-control"
+        .form-group.col-lg-6
+          = f.password_field :password, :required => true, :class=>"form-control", :placeholder=>"Password"
+        .form-group.col-lg-6
+          = f.password_field :password_confirmation, :required => true, :class=>"form-control", :placeholder=>"Password Confirmation"
+        .col-lg-12
+          = f.check_box :terms, :required => true,:class=>"i-checks"
+          I agree to the InSet CRM
+          %a{href: "#{MKTR_URL}/terms"} Terms of Service
+          and
+          %a{href: "#{MKTR_URL}/privacy"} Privacy Policy
+      .text-center
+        = f.submit "Register", :class=>"btn btn-success submit_btn"
+        = f.button "Cancel", :class=>"btn btn-default"
+    .form-group
+      = render "devise/shared/links"

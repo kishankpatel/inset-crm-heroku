@@ -1,0 +1,6 @@
+-if project_job_groups.present?
+  - project_job_groups.each do |p|
+    %li{style:"list-style:none;cursor:pointer;", onclick:"update_job_group_for_job('#{project_job.id}', '#{p.id}');", title: p.name}
+      = radio_button_tag :project_group,project_job.project_job_group_id,project_job.project_job_group_id == p.id
+      = p.name.truncate(20)
+    

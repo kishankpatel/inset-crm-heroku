@@ -1,0 +1,64 @@
+-@deal_stages = @current_organization.deal_statuses.where("name NOT IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc')        
+-@users =all_org_users
+
+= form_for(@goal, :url => '/edit_goal', :html=>{:class => 'form', onsubmit: 'editGoals(this); return false;'}) do |f| 
+  = f.hidden_field :goal_type, :class=>"gty" 
+  =hidden_field_tag 'gi', "#{@goal.id}"
+  .qu_dealsq
+    .form-group.row
+      %label.col-sm-2.col-form-label{:for => "goal_user_id"} User
+      .col-sm-3
+        =f.select :user_id, @users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]}, {:include_blank => '- Select user -'}, :required => true, :class => "form-control gl-user-id"
+        
+    .form-group.row.stage-dealsa
+      %label.col-sm-2.col-form-label{:for => "goal_deal_stage_id"} Stage
+      .col-sm-3
+        =f.select :deal_stage_id, @deal_stages.collect {|c| [ c.name , c.id ]}, {:include_blank => '- Select stage -'}, :class => "form-control gl-stage-id"
+       
+    .form-group.row
+      %label.col-sm-2.col-form-label{:for => "goal_period"} Period
+      .col-sm-3
+        = f.select :period, @period,{},:class=>"form-control gl-period-id"
+
+    .form-group.row
+      %label.col-sm-2.col-form-label{:for => "goal_quantity_deal"} Expected
+      .col-sm-3
+        = f.text_field "quantity_deal", autocomplete: "off" , :class => "form-control expected_closed_date gl-qnt-id", placeholder: "Quantity of Deal"
+   
+    .form-group.row.vl-deals
+      %label.col-sm-2.col-form-label{:for => "goal_currency_deal"} Currency
+      .col-sm-3
+        = select(:currency, :type, @cur, {:selected => @goal.currency.present? ? @goal.currency : 'USD'}, :class => "btn btn-default gl-cry-id")
+    
+  .form-group
+    %button.btn.btn-success{type: "submit",id: "deal_submit_btn"} Save
+    %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+      Cancel
+      
+:javascript
+  $(function() {
+   
+    var gtype = "#{escape_once(@goal.goal_type)}"
+    var gid = $("#gi").val()
+    if(gtype == 'quantity of deals')
+    {
+    $(".vl-deals").hide();
+    $(".vb").text("Quantity of Deals Advanced")
+    }
+    if(gtype == 'value of deals')
+    {
+    $(".vb").text("Value of Deals Advanced")
+    }
+    if(gtype == 'quantity of deals won')
+    {
+    $(".vl-deals").hide();
+    $(".stage-dealsa").hide();
+    $(".vb").text("Quantity of Deals won ")
+    }
+    if(gtype == 'value of deals won')
+    {
+  
+    $(".stage-dealsa").hide();
+    $(".vb").text("Values of Deals won ")
+    }
+  });  

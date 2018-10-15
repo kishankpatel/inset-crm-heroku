@@ -1,0 +1,534 @@
+/ :css
+/   .wysiwyg {
+/     border: 1px solid #ccc;
+/     margin-bottom: 20px;
+/     overflow: hidden;
+/     width: 181px;
+/   }
+/   #email-body-wysiwyg-iframe {
+/     margin-bottom: 18px;
+/     width: 558px !important;
+/   }
+/ %script{src: "/assets/jquery.tagsinput.min.js"}
+
+.normalheader
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fa.fa-arrow-up
+      #hbreadcrumb.pull-right.m-t-lg
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/"} Dashboard
+          %li.active
+            %span Mailbox
+      %h2.font-light.m-b-xs
+        Gmail
+      %small Gmail - Email list.
+.content
+  .row
+    .col-md-3
+      .hpanel
+        .panel-body.emails_container
+          .email_menu{:style=>"overflow-y:auto"}
+            %ul.mailbox-list
+              %li.email_header
+                .fl
+                  - email = @current_user.email_account.email
+                  %span{title: email.length > 17 ? email : "", rel: "tooltip"}
+                    = email.truncate(20)
+                .fr
+                  =link_to email_logout_path, method: :delete, title: "Sign Out", class: "gmail_sign_out" do
+                    %span
+                      %i.fal.fa-sign-out{"aria-hidden" => "true"}
+                .cb
+              %li
+                %a.btn.btn-success{"data-toggle" => "modal", :href => "#compose-email", :title => "Write new message", :onclick => "$('#compose-mail-form')[0].reset();$('#attachment-details').html('');"}
+                  %span.compose_button
+                    Compose
+                %br
+              .email_menu_sec  
+                - mailbox = @labels.select { |l| l['name'] == 'INBOX' }.first
+                - message_count = @api_client.fetch_label_by_id(mailbox['id'])['messagesUnread']
+                %li.active.email-menu{"data-name" => "INBOX", :id => "#{mailbox['Id'] || mailbox['id']}"}
+                  %a{href: "javascript:void(0)"}  
+                    .fl  
+                      %span.email_icons.inbox
+                        %i.fal.fa-inbox{"aria-hidden" => "true"}
+                      %span
+                        Inbox
+                    .fr
+                      - if message_count > 0
+                        %span.inbox_count
+                          = message_count
+                    .cb
+                -mailbox = @labels.select { |l| l['name'] == 'SENT' }.first
+                %li.email-menu{:id => "#{mailbox['Id'] || mailbox['id']}", :"data-name" => "SENT"}
+                  %a{href: "javascript:void(0)"}
+                    %span.email_icons.sent_mail
+                      %i.fal.fa-paper-plane{"aria-hidden" => "true"}
+                    %span
+                      Sent Mail
+                - mailbox = @labels.select { |l| l['name'] == 'DRAFT' }.first
+                - message_count = @api_client.fetch_label_by_id(mailbox['id'])['messagesTotal']
+                %li.email-menu{"data-name" => "DRAFT", :id => "#{mailbox['Id'] || mailbox['id']}"}
+                  %a{href: "javascript:void(0)"} 
+                    .fl  
+                      %span.email_icons.drafts
+                        %i.fal.fa-pencil-square-o{"aria-hidden" => "true"}
+                      %span
+                        Drafts
+                    .fr
+                      - if message_count > 0
+                        %span.inbox_count
+                          = message_count
+                    .cb
+                - mailbox = @labels.select { |l| l['name'] == 'SPAM' }.first
+                - message_count = @api_client.fetch_label_by_id(mailbox['id'])['messagesUnread']
+                %li.email-menu{"data-name" => "SPAM", :id => "#{mailbox['Id'] || mailbox['id']}"}
+                  %a{href: "javascript:void(0)"}
+                    .fl  
+                      %span.email_icons.spam
+                        %i.fal.fa-exclamation-circle{"aria-hidden" => "true"}
+                      %span
+                        Spam
+                    .fr
+                      - if message_count > 0
+                        %span.inbox_count
+                          = message_count
+                    .cb
+                - mailbox = @labels.select { |l| l['name'] == 'TRASH' }.first
+                - message_count = @api_client.fetch_label_by_id(mailbox['id'])['messagesUnread']
+                %li.email-menu{"data-name" => "TRASH", :id => "#{mailbox['Id'] || mailbox['id']}"}
+                  %a{href: "javascript:void(0)"}  
+                    %span.email_icons.trash
+                      %i.fal.fa-trash{"aria-hidden" => "true"}
+                    %span
+                      Trash
+                - @labels = @labels.select { |label| label['type'] == 'user' }
+                - @labels.each do |label|
+                  - message_count = @api_client.fetch_label_by_id(label['id'])['messagesUnread']
+                  %li.email-menu{:id => "#{label['Id'] || label['id']}"}
+                    %a{:href => "javascript:void(0)"}
+                      .fl  
+                        %span.email_icons.spam
+                          %i.fal.fa-folder-open.fa-lg{"aria-hidden" => "true"}
+                        %span
+                          - label_name = label['DisplayName'] || label['name']
+                          - if label_name.length > 20
+                            %span{:title => label_name}
+                              = truncate(label_name, :length => 20, :ommission => "...", :title => label_name)
+                          -else
+                            = label_name
+                      .fr
+                        - if message_count > 0
+                          %span.inbox_count
+                            = message_count
+                      .cb
+                %li
+                  = link_to email_logout_path, method: :delete do
+                    %span.email_icons.sign_out
+                      %i.fal.fa-sign-out{"aria-hidden" => "true"}
+                    %span
+                      Sign Out
+    .col-md-9
+      .hpanel
+        .panel-heading.hbuilt
+          .text-center.p-xs.font-normal
+            .search_bar.input-group
+              %input.email_search_field.form-control.input-sm{type: "text", placeholder: "Search email in your inbox...", id: "txt-email-search"}
+              %span.input-group-btn
+                %button.btn.btn-sm.btn-default#btn-email-search.search_email_btn
+                  %i.fal.fa-search{"aria-hidden" => "true"}
+        .panel-body
+          .email_right_sec  
+            .email_details
+              .email_details_header
+                .fl  
+                  .checkbox
+                    =check_box_tag "chk-all"
+                    %label
+                    #inboxOptions.btn-group
+                      %button.btn.btn-default.btn-sm.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                        More
+                        %span.caret
+                      %ul.dropdown-menu
+                        %li
+                          %a#mark-as-read{:href => "javascript:void(0)"} Mark as Read
+                        %li
+                          %a#mark-as-unread{:href => "javascript:void(0)"} Mark as Unread
+                        %li
+                          %a#delete-messages{:href => "javascript:void(0)"} Delete
+                
+                .btn-group.fr
+                  .btn.btn-default.btn-sm#refresh-emails{class: "refresh-title"}
+                    %i.fal.fa-refresh{"aria-hidden" => "true"}
+                  .btn.btn-default.btn-sm#prev-page
+                    %i.fal.fa-arrow-left{"aria-hidden" => "true"}
+                  .btn.btn-default.btn-sm#next-page
+                    %i.fal.fa-arrow-right{"aria-hidden" => "true"}
+                .cb
+              #email-content
+                = render partial: 'inbox'
+              = hidden_field_tag "current_count", 20
+          .cb
+/ Modal
+#compose-email.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :style => "display: none;min-height:500px;overflow-y:auto;", :tabindex => "-1"}
+  .modal-dialog.pop-lrg{style:"max-width:700px"}
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title Compose a Mail
+      = form_tag send_email_path, :method => 'post', :id => 'compose-mail-form', :class => 'form-horizontal', :remote => true, :multipart => true do
+        .modal-body
+          .form-group
+            = label_tag :'email-to', 'To', class: 'col-lg-2 control-label font-bold'
+            .col-lg-10
+              = text_field_tag :to, '', :placeholder => 'Recipients', :class => 'form-control', :id => 'email-to', :required => true
+          .form-group
+            = label_tag :'email-cc', 'Cc', :class => 'col-lg-2 control-label font-bold'
+            .col-lg-10
+              = text_field_tag :cc, '', :id => 'email-cc', :class => 'form-control', :name => 'cc'
+          .form-group
+            = label_tag :'email-bcc', 'Bcc', :class => 'col-lg-2 control-label font-bold'
+            .col-lg-10
+              = text_field_tag :bcc, '', :id => 'email-bcc', :class => 'form-control', :name => 'bcc'
+          .form-group
+            = label_tag 'email-subject', 'Subject', :class => 'col-lg-2 control-label font-bold'
+            .col-lg-10
+              = text_field_tag :subject, '', :id => 'email-subject', :name => 'subject', :class => 'form-control', :placeholder => 'Subject'
+          .form-group
+            = label_tag :'email-body', 'Message', :class => 'col-lg-2 control-label font-bold'
+            .col-lg-10
+              = text_area_tag :body, '', :id => 'email-body', :name => 'body', :placeholder => 'Type your message here.', :style => "resize:none;"
+          .form-group
+            #attachment-details.col-lg-offset-2.col-lg-10
+            .col-lg-offset-2.col-lg-10
+              %span.btn.btn-default.green.fileinput-button
+                %i.fal.fa-paperclip.fal.fa-white
+                %span Attachment
+                = file_field_tag :'files[]', :id => 'email-attachments', :multiple => true
+        .modal-footer
+          .text-right
+            / <button class="btn btn-send" type="submit">Send</button>
+            %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Cancel
+            = submit_tag 'Send', :id => 'send-email', :class => 'btn btn-send btn-primary'
+    / /.modal-content
+  / /.modal-dialog
+/ /.modal
+#output1
+/= tinymce :alternate
+
+:javascript
+  var pageToken = [""];
+  var currentPage = 0;
+  var next_page_token = "";
+  var labelId = "INBOX";
+  var mailType = "INBOX";
+  $(".email_menu_sec li").on('click', function(){
+    $(".email_menu_sec li").removeClass("active");
+    $(this).addClass("active");
+  });
+  //$(function () {
+    $('.refresh-title').prop({'title': 'Refresh', 'rel': 'tooltip'});
+    //toggleLeftMenu();    
+    $(".email-menu").on("click", function (event) {
+      $("#task_loader,.fixed_loader").show();
+      event.preventDefault();
+      pageToken = [""];
+      currentPage = 0;
+      $(".email-menu").removeClass("active");
+      $(this).addClass("active");
+
+      labelId = $(this).attr("id");
+      mailType = $(this).data("name");
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: {label_id: labelId, mail_type: mailType},
+        success: function (res) {
+          $(".email_details_header,.search_bar").show();
+          $("#email-content").html(res);
+          $(".mail-option").show();
+          $("#txt-email-search").val("");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    });
+
+    $("#prev-page").on("click", function (e) {      
+      e.preventDefault();
+      if ("#{params[:provider]}" == "google") {
+        if (currentPage == 0) {
+          return false;
+        }
+        var page_token = "";
+        if (currentPage == 0) {
+          page_token = pageToken[currentPage]
+        }
+        else {
+          $("#task_loader,.fixed_loader").show();
+          page_token = pageToken[currentPage - 1]
+        }
+      }
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: {label_id: labelId, page_token: page_token, mail_type: mailType},
+        success: function (res) {
+          $("#email-content").html(res);
+          if (currentPage > 0) {
+            currentPage = currentPage - 1;            
+            $("#task_loader,.fixed_loader").hide();
+          }
+        }
+      });
+    });
+
+    $("#next-page").on("click", function (e) {      
+      e.preventDefault();
+      if ("#{params[:provider]}" == "google") {
+        if (currentPage == pageToken.length - 1) {
+          return false;
+        }
+        var page_token = "";
+        if (currentPage <= pageToken.length - 1) {
+          $("#task_loader,.fixed_loader").show();
+          page_token = pageToken[currentPage + 1]
+        }
+        else {
+          page_token = pageToken[currentPage]
+        }
+      }
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: {label_id: labelId, page_token: page_token, mail_type: mailType},
+        success: function (res) {
+          $("#email-content").html(res);
+          currentPage = currentPage + 1;
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    });
+    $(".chk-item").on("click", function () {
+      if ($(this).prop("checked") == true) {
+        $(this).closest("tr").addClass("highlight");
+        if ($("input:checkbox[class='chk-item']:checked").length == $("input:checkbox[class='chk-item']").length) {
+          $("#chk-all").prop("checked", true)
+        }
+      }
+      else {
+        $(this).closest("tr").removeClass("highlight");
+        $("#chk-all").prop("checked", false)
+      }
+    });
+
+    $("#chk-all").on("click", function () {
+      if ($(this).prop("checked") == true) {
+        $("tr").addClass("highlight");
+        $(".chk-item").prop("checked", true)
+      }
+      else {
+        $("tr").removeClass("highlight");
+        $(".chk-item").prop("checked", false)
+      }
+    });
+
+    $("#delete-messages").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var conf = confirm("This will permanently delete the selected messages. Do you want to Continue?");
+      if (!conf) {
+        return conf;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: "/emails/#{params[:provider]}/delete_emails",
+        type: "POST",
+        data: {ids: selectedIds.join(",")},
+        success: function (res) {
+          if (res.result) {
+            selectedRows.closest(".email_contents").remove();
+            $("#task_loader,.fixed_loader").hide();
+          }
+        }
+      });
+    });
+
+    // $('#compose-mail-form').bind('form-pre-serialize', function (e) {
+    //   //tinyMCE.triggerSave();
+    // });
+
+    var options = {
+      target: '#output1', // target element(s) to be updated with server response
+      contentType: "application/x-www-form-urlencoded;charset=utf-8",
+      beforeSubmit: changeBtnText, // pre-submit callback
+      success: showResponse, // post-submit callback
+      error: function (xhr) {
+        alert(xhr.responseText);
+        $("#send-email").val("Send").prop("disabled", false);
+      }
+    };
+
+    // bind form using 'ajaxForm'
+    $('#compose-mail-form').ajaxForm(options);
+
+    function changeBtnText() {
+      $("#send-email").val("Sending...").prop("disabled", true);
+    }
+
+    function showResponse(responseText, statusText, xhr, $form) {
+      $("#send-email").val("Send").prop("disabled", false);
+      $("#compose-email").modal("hide");
+      $("#compose-mail-form")[0].reset();
+      $("#attachment-details").html("");
+    }
+
+    $("#refresh-emails").on("click", function (e) {
+      $("#task_loader,.fixed_loader").show();
+      e.preventDefault();
+      var page_token;
+      if ("#{params[:provider]}" == "google") {
+        page_token = pageToken[currentPage];
+      }
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: {label_id: labelId, mail_type: mailType, page_token: page_token},
+        success: function (res) {
+          $("#email-content").html(res);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    });
+
+    $("#mark-as-read").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $.ajax({
+        url: "/emails/#{params[:provider]}/toggle_unread",
+        type: "POST",
+        data: {ids: selectedIds.join(","), unread: false},
+        success: function () {
+          selectedRows.closest(".email_contents").removeClass("unread");
+        }
+      });
+    });
+
+    $("#mark-as-unread").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $.ajax({
+        url: "/emails/#{params[:provider]}/toggle_unread",
+        type: "POST",
+        data: {ids: selectedIds.join(","), unread: true},
+        success: function (res) {
+          selectedRows.closest(".email_contents").addClass("unread");
+        }
+      });
+    });
+
+    $("#email-attachments").change(function () {
+      if ($(this)[0].files.length == 0) return false;
+      var attachmentContent = "";
+      $.each($(this)[0].files, function (key, value) {
+        attachmentContent += buildAttamantContent(value.name, formatBytes(value.size, 2),key);
+      });
+      $("#attachment-details").html(attachmentContent);
+    });
+
+    function buildAttamantContent(fileName, fileSize, obj) {
+      return "<div class='col-xs-7' style='white-space: nowrap; padding: 3px 0'>" +
+          "<span>" + fileName + "</span></div>" +
+          "<div class='col-xs-4 col-xs-offset-1' style='padding: 3px 0'><span>" + fileSize + "</span></div>";
+    }
+    $("#txt-email-search").keypress(function (e) {
+      var keycode = (e.keyCode ? e.keyCode : e.which);
+      if (keycode == '13') {
+        e.preventDefault();
+        searchEmails($.trim($(this).val()));
+      }
+    });
+
+    $("#btn-email-search").on("click", function (e) {
+      e.preventDefault();
+      searchEmails($.trim($("#txt-email-search").val()));
+    });
+
+    function searchEmails(q) {
+      $("#task_loader,.fixed_loader").show();
+      if (q == "") return false;
+      $(".email-menu").removeClass("active");
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: {q: q},
+        success: function (res) {
+          $("#email-content").html(res);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+
+    function formatBytes(bytes, decimals) {
+      if (bytes == 0) return '0 KB';
+      var k = 1024; // or 1024 for binary
+      var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+    }
+    // $('#email-body').wysiwyg({
+    //   rmUnusedControls: true,
+    //   controls: {
+    //     bold: { visible : true },
+    //     underline: { visible: true },
+    //     italic: { visible: true },
+    //     insertOrderedList: { visible: true },
+    //     insertUnorderedList: { visible: true },
+    //     undo: { visible: true },
+    //     redo: { visible: true },
+    //     indent: { visible: true },
+    //     outdent: { visible: true },
+    //     h1: { visible: true },
+    //     h2: { visible: true },
+    //     h3: { visible: true },
+    //     removeFormat: { visible: true },
+    //     increaseFontSize: { visible: true },
+    //     decreaseFontSize: { visible: true }
+    //   }
+    // });
+    $('#email-body').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+  //});
+
+  function removeFile(index_val) {
+    alert($("#email-attachments")[0].files)
+  }

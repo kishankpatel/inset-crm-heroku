@@ -1,0 +1,150 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  } 
+.panel-heading.hbuilt
+  %h4.fl Manage User Designations
+  %a#addnewlabel.easyui-linkbutton.fr{href: '#addUserDesg', 'data-toggle' => 'modal', onclick: '$("#lead_error").hide();cleandesg();'}
+    %button.btn.btn-primary.btn-success.pad2{type: 'button'}
+      %span.glyphicon.glyphicon-plus-sign
+      Add User Designation
+  .cb
+.panel-body
+  .table-responsive.mtop10
+    %table.table
+      %tbody
+        %tr
+          %td{style: "border-top: none !important;"}
+            #list_user_designations= render :partial => "listing_user_designations"
+/ ................Modals.......................
+#addUserDesg.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add User Designation
+      .modal-body
+        = form_for(UserDesignation.new, :url => '', :html=>{:class => 'form', onsubmit: 'addUserDesignation(); return false;'}) do |f|
+          .row#lead_error
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group.col-md-8
+              %label.control-label{:for => "input"} Name*
+              %i.bar
+              =f.text_field :name, :required => true, :maxlength=> '50', :style=> 'height:41px; resize: none;'
+          .form-group
+            %button.btn.btn-success{type: 'submit',data: {:disable_with => "Please wait..."}, id: 'desg_submit_btn', class: 'add_submit_btn'} Save
+            %a.btn.btn-default{style: 'top:0px ', href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'}
+              %span.c_links
+                Cancel
+/ ...................Modal for Edit status................
+#editUserDesg.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal', onclick: "$('#edit_error').hide();"} &times;
+        %h4.modal-title Edit User Designation
+      .modal-body
+        = form_for(UserDesignation.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateUserDesg(this); return false;'}) do |f|
+          = f.hidden_field 'id'
+          .row#edit_error
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Designation Name*
+              %i.bar
+              =f.text_field :name, id: 'txt-edit-userdesg', :maxlength=> '50', :class=> 'form-control', :required => true
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'edit_submit_btn', class: "edit_submit_btn"} Update
+              %a.btn.btn-default{href:'javascript:', :onclick => "$('#edit_error').hide();", 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+:javascript
+  var editButton;
+  $(function() {
+      $('#editUserDesg').on('show.bs.modal', function (event) {
+        editButton = $(event.relatedTarget);
+        var desgName = editButton.data('name');
+        var desgid = editButton.data('id');
+        $('#txt-edit-userdesg').val(desgName);
+        $('#user_designation_id').val(desgid);
+      });
+  });
+  function cleandesg()
+  {
+    $("#user_designation_name").val('')
+  }
+  function addUserDesignation() {
+    var userDesignation = $("#user_designation_name").val();
+    $.ajax({
+      url: 'settings/add_user_designation',
+      type: 'POST',
+      data: {name: userDesignation},
+      success: function(res) {
+        $("#addUserDesg").modal('hide');
+        $(".add_submit_btn").removeAttr("disabled").text("Save");
+        $('#addUserDesg').on('hidden.bs.modal', function () {
+          $('#list_user_designations').html('').html(res);
+          show_alert_message("success", "User designation was saved.")
+        })
+      },
+      error: function(res) {
+        $("#lead_error").show();
+        $(".add_submit_btn").removeAttr("disabled").text("Save");
+        if(res.responseText == "desg_exists"){
+          $(".text-danger").html("Designation name already exists. Please enter different name.");
+        }
+        if(res.responseText == "failed"){
+          $(".text-danger").html("Failed to update settings for user designation.");
+        }
+      }
+    });
+  }
+  function updateUserDesg(val){
+    var user_desg_id = $('#user_designation_id').val();
+    var user_desg = $("#txt-edit-userdesg").val();
+    $.ajax({
+      url: 'settings/update_user_designation',
+      type: 'POST',
+      data: {id: user_desg_id, name: user_desg},
+      success: function(res) {
+        $("#editUserDesg").modal('hide');
+        $(".edit_submit_btn").removeAttr("disabled").text("Update");
+        $('#editUserDesg').on('hidden.bs.modal', function () {
+          $('#list_user_designations').html('').html(res);
+          show_alert_message("success", "User designation was updated.")
+        })
+      },
+      error: function(res) {
+        $("#edit_error").show();
+        $(".edit_submit_btn").removeAttr("disabled").text("Update");
+        if(res.responseText == "desg_exists"){
+          $(".text-danger").html("Designation name already exists. Please enter different name.");
+        }
+        if(res.responseText == "failed"){
+          $(".text-danger").html("Failed to update settings for user designation.");
+        }
+      }
+    });
+  }
+  function deleteUserDesg(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_user_designation/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#user_Desg_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success", "User designation deleted successfully.")
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  }

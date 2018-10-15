@@ -1,0 +1,251 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ 
+ *= #require font-awesome
+
+
+ *= require metisMenu/dist/metisMenu
+ *= require animate.css/animate
+
+ *= require summernote/dist/summernote
+ *= require summernote/dist/summernote-bs3 
+ *= require bootstrap/dist/css/bootstrap
+ *= #require bootstrap.min
+ *= require fontawesome-pro-5.1.0-web/css/all
+ *= require fontawesome/css/font-awesome.css
+ *= require datatables.net-bs/css/dataTables.bootstrap.min
+
+ *= require xeditable/bootstrap3-editable/css/bootstrap-editable
+ *= require select2-3.5.2/select2
+ *= require select2-bootstrap/select2-bootstrap
+ *= require bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min
+ *= require bootstrap-datepicker-master/dist/css/bootstrap-datepicker3.min
+ *= require awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css
+ *= require clockpicker/dist/bootstrap-clockpicker.min
+ *= require eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min
+ *= require fonts/pe-icon-7-stroke/css/pe-icon-7-stroke
+ *= require fonts/pe-icon-7-stroke/css/helper
+ *= require bootstrap-datetimepicker
+ *= require jquery.timepicker
+ *= require toastr/build/toastr.min
+ *= #require sweetalert/lib/sweet-alert
+ *= #require uploadfile.min
+ *= require  bxslider
+ *= require saas/style.css
+ *= require saas/style-custom
+ *= require saas/static_custom
+ *= require saas/custom
+ *= require saas/kanban
+ *= require saas/activities
+ *= require saas/custom-slider 
+ *= require dropzone
+ *= #require_tree ../../../app/assets/stylesheets/saas/
+ *= #require_tree ../../../vendor/assets/stylesheets/
+ *= require_self
+ */
+ 
+ /** require bootstrap.min*/
+
+ .new-left-menu {
+    position: fixed;
+    left: 0;
+    padding-top: 60px;
+    top: 0;
+    width: 60px;
+    height: 100%;
+    background: #343536;
+    z-index: 9;
+}
+.new-left-menu ul.menu-list {
+    list-style: none;
+    padding-left: 0;
+}
+.new-left-menu .menu-list > li > a {
+    display: block;
+    height: 60px;
+    width: 60px;
+}
+
+.menu-list li {
+    padding: 10px;
+}
+.new-left-menu .menu-list > li > a.active {
+    background: #111;
+}
+.new-left-menu .menu-list > li > a {
+    display: block;
+    position: relative;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+.new-left-menu .menu-list > li > a > span {
+    display: block;
+    height: 20px;
+    width: 20px;
+    position: absolute; 
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.dashboard_icn{
+    background: url(/assets/left-menu/dashboard.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.cont_icn{
+    background: url(/assets/left-menu/contact.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.opp_icn{
+    background: url(/assets/left-menu/opportunities.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.project_icn{
+    background: url(/assets/left-menu/project.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.resource_icn{
+    background: url(/assets/left-menu/resource.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.team_icn{
+    background: url(/assets/left-menu/team.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.office_icn{
+    background: url(/assets/left-menu/office-365.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.calendar_icn{
+    background: url(/assets/left-menu/calendar.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span.siteadmin_icn{
+    background: url(/assets/left-menu/contact.png) no-repeat;
+    background-size: cover;
+}
+.new-left-menu .menu-list a span{
+    background-size: cover;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+}
+.new-left-menu .menu-list a.sub_menu_active span{
+    -webkit-filter: none;
+    filter: none;
+}
+.new-left-menu .menu-list li:hover span{
+    -webkit-filter: grayscale(100%) brightness(400%);
+    filter: grayscale(100%) brightness(400%);
+}
+.tooltip {
+	z-index: 9999 !important;
+}
+.tooltip-inner {
+    white-space: nowrap;
+}
+.new-sub-list{
+	position: relative;
+}
+.new-sub-list:before{
+    background: url(/assets/left-menu/more-icon.png) no-repeat;
+    position: absolute;
+    right: -4px;
+    top: 24px;
+    content: '';
+    height: 16px;
+    width: 16px;
+    background-size: 80%;
+}
+.new-sub-list .new-sub-menu{
+	display: none;
+	position: absolute;
+    background: #333;
+    color: #fff;
+    top:5px;
+    right: -160px;
+    border-radius: 3px;
+}
+.new-sub-list .new-sub-menu ul{
+    padding: 5px 0;
+    list-style: none;
+    min-width: 150px;
+}
+.new-sub-list .new-sub-menu:after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 16px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid #343536;
+}
+.new-sub-list:hover .new-sub-menu{
+	display: block;
+}
+.new-sub-list .new-sub-menu li a.sub-menu-list {color: #fff;display:block;padding:8px 10px;}
+.new-sub-list .new-sub-menu li a.sub-menu-list:hover {background: #000;}
+.new-sub-list .new-sub-menu li{padding:0;}
+
+
+/*.hamburger-menu */
+.hamburger-menu {
+    background: url(/assets/left-menu/menu.png) no-repeat;
+    cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    float: left;
+    background-position: center;
+    margin: 10px;
+}
+#logo.expand{
+    width: 180px;
+}
+.new-left-menu.expand{
+    width: 180px;
+}
+#logo.light-version.expand span {
+    width: 180px;
+}
+#logo.light-version span .short-logo{
+    display: block;
+}
+#logo.light-version span .full-logo{
+    display: none;
+}
+#logo.light-version.expand span .short-logo{
+    display: none;
+}
+#logo.light-version.expand span .full-logo{
+    display: block;
+}
+.fixed-navbar #wrapper.expand{
+    margin-left: 180px;
+}
+.new-left-menu .list_name {
+    display: none;
+}
+.new-left-menu.expand .list_name {
+    display: inline-block;
+    vertical-align: middle;
+    color: #999;
+    padding-left: 45px;
+    padding-top: 11px;
+    white-space: nowrap;
+}
+.menu-list li:hover .list_name{
+    color: #fff;
+} 
+.new-left-menu .menu-list a span.extend_icon{display: none;}

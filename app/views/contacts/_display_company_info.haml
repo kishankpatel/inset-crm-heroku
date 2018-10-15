@@ -1,0 +1,31 @@
+%h5 Company information as follows:
+.table-responsive
+  %table.table
+    %thead
+      %tr.row
+        %td.col-md-2
+          %b Name:
+        %td.col-md-8=@company.name
+      %tr.row
+        %td.col-md-2
+          %b Email:
+        %td.col-md-4=@company.email
+      
+        %td.col-md-2
+          %b Website:
+        %td.col-md-4=@company.website
+      %tr.row
+        %td.col-md-2
+          %b Size:
+        %td.col-md-4=@company.company_strength.present? ? @company.company_strength.range : ""
+        %td.col-md-2
+          %b City:
+        %td.col-md-4=@company.address.present? ? @company.address.city : ""
+      %tr.row
+        %td.col-md-2
+          %b State:
+        %td.col-md-4=@company.address.present? ? @company.address.state : ""
+      
+        %td.col-md-2
+          %b Country:
+        %td.col-md-4=@company.country.present? ? @company.country.name : ""

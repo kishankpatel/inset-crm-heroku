@@ -1,0 +1,10 @@
+production:
+  client_id: <%=MailboxCredential.first.client_id%>
+  client_secret: <%=MailboxCredential.first.client_secret%>
+staging:
+  client_id: 387026582543-4ns4ba7nlk60o7u1d135q4buv34rqp13.apps.googleusercontent.com
+  client_secret: bUVdS2A5QOgIWSYjsZZkWPg_
+development:
+  client_id: <%=MailboxCredential.first.client_id%>
+  client_secret: <%=MailboxCredential.first.client_secret%>
+

@@ -1,0 +1,84 @@
+/////////////////////////////////////////////
+
+#filter_options.filter_box.text-right{style: "display:none"}
+  .row
+    .col-md-2
+      =select_tag "filter_created_by", options_from_collection_for_select(all_org_users_with_blocked, "id", "full_name"), :class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Created by -"
+    .col-md-2
+      =select_tag "filter_assigned_to", options_from_collection_for_select(all_org_users_with_blocked, "id", "full_name"), :class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Assigned to -"
+    .col-md-2
+      =select_tag "filter_location", options_from_collection_for_select(Country.all, "id", "name"),:class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Location -"
+    .col-md-2
+      =select_tag "filter_priority", options_from_collection_for_select(@current_user.organization.priority_types, "id", "name"),:class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Priority -"
+    .col-md-2
+      = select_tag "filter_date", options_for_select(["Past Week","Past Two Weeks","Past Three Weeks", "Past Month", "Past Year"]),:class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Any time -"
+    .col-md-2
+      = select_tag "filter_last_touch", options_for_select(["Last Week","Last Two Weeks","Last Three Weeks","Last Month","Last Three Months"]),:class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Last touch -"
+    .col-md-2
+      = select_tag "filter_stage", options_from_collection_for_select(current_user.organization.deal_statuses,"original_id", "name"),:class=>"col-md-12 form-control filterSelectDropdow", :prompt => "- Any Stage -"
+.clearfix
+%ul.tag_filter.text-right{style: ""}
+  %li#show_filter_dealmsg
+  %li.created_by_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#created_by_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('created_by','cre_by_c');"} x
+  %li.assigned_to_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#assigned_to_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('assigned_to','asg_by_c');"} x
+  %li.location_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#location_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('location','country_c');"} x
+  %li.priority_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#priority_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('priority','priority_c');"} x
+  %li.next_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#next_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('next','next_c');"} x
+  %li.date_range_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#from_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('date_range','any_time');"} x          
+  %li.last_touch_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#last_touch_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('last_touch','lst_tch');"} x      
+  %li.date_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#date_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('date','any_time');"} x          
+  %li.opportunity_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#opportunity_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('opportunity','opportunity');"} x
+  %li.label_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#label_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('label_type','label_type');"} x
+  %li.deal_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#deal_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('tag','tag');"} x
+  %li.stage_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#stage_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('stage','stage_c');"} x
+  %li.user_label_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#user_label_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('user_label','user_label_c');"} x
+  %li.source_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#source_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('source_label','source_c');"} x
+  %li.contacted_leads_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#contacted_leads_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_deal_filter('contacted_leads','contacted_leads_c');"} x 
+  %li.reset_tag.com_cls
+    %div{:style => ""}
+      %a{href: "javascript:void(0);", onclick: "reset_all_deal_filter();reset_filter_val();", class: "btn btn-xs btn-warning"} RESET   

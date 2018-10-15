@@ -1,0 +1,12 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      .row
+        .col-md-3
+          %h2.font-light.m-b-xs Project Jobs
+      
+.content
+  .hpanel.hblue
+    .panel-body
+      = render :partial => "show_kanban_view",:locals=>{:type=>'all_user'}
+=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}

@@ -1,0 +1,52 @@
+/- contact = @cont_type.constantize.find(@cont_id)
+/ .col-md-6{style: "border: 2px dotted #ddd; height: 70px; padding: 10px; border-radius: 5px;"}
+/   .fl
+/     Name : 
+/   .fl
+/     = contact.name.present? ? contact.name : contact.first_name.present? ? contact.first_name : "NA"
+/   .cb
+/   .fl
+/     Email : 
+/   .fl
+/     = contact.email
+
+
+.form-group
+  %label.control-label{:for => "input"} 
+    %b Select Opportunity
+  .form_fld.cmn_selct_fld  
+    %span.cwkp-sprite.lead_title 
+    - if @deals.present?
+      = select_tag "deal_id", options_from_collection_for_select(@deals, "id", "title"), :prompt => "- Select Opportunity -", :class=>"form-control"
+    - else
+      = select_tag "deal_id", nil, :prompt => "- Select Opportunity -", :class=>"form-control", :disabled => "disabled"
+  .cc_txt
+    .link_col.cc_link Cc
+.cb
+
+:javascript
+  $(".cc_link").off().on('click',function(){
+    $(this).css("visibility","hidden")
+    $(".cc_sec").show();
+  });
+  $("#deal_id").on("change", function(){
+
+    var id = $("#deal_id").val();
+    if(id != null && id != undefined && id != ""){
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/get_invoice_deal_projects',
+        type: 'GET',
+        data: {id: id},
+        success: function(res) {
+            $(".invoice_deal_projects").html(res);
+            $("#task_loader,.fixed_loader").hide();
+        },
+        error: function(res) {
+          $("#task_loader,.fixed_loader").hide();
+          alert("Unable to load projects.");
+        }
+      })
+    }
+
+  })

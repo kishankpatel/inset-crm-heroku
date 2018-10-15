@@ -1,0 +1,101 @@
+-if @quotes.present?
+  - if current_user.is_admin? && !current_user.is_siteadmin?
+    .co-md-12.text-center
+      - if @deal.present? && @contact.present?
+        %a{:href => "/invoice/create?type=quote&lead=#{@deal.to_param}&contact=#{@contact.to_param}"}
+          + Create Quote
+
+  .col-md-12
+    .table-responsive
+      %table#opp_invoices.table.white-table.table-hover.table-striped
+        %thead
+          %tr
+            %th{style: "width:10px;"}
+            %th
+              Quote#
+            %th
+              Bill To
+            %th.text-center
+              Status
+            %th.text-center
+              Amount($)
+            %th.text-center
+              Due Date
+            %th.text-center
+              Generated Date
+        %tbody
+          - @quotes.each do |invoice|
+            %tr{class: "#{invoice.is_active ? 'active_quote_td' : ''}"}
+              %td
+                .quotes_actions{id: "quote_#{invoice.id}"}
+                  - if invoice.status.present? && (invoice.status.downcase != "paid" && invoice.status.downcase != "cancelled")
+                    .btn-group
+                      %a.deal_set.dropdown-toggle{"data-toggle" => "dropdown", type: "button"}
+                        %span.fal.fa-ellipsis-h
+                      %ul.dropdown-menu.invoice_actions{role: "menu", style:"min-width: 100px;"}
+                        - if !invoice.is_active
+                          %li
+                            %a.activate_invoice{ title: "Activate the quote", :"data-confirm"=> "Are you sure to activate this quote? The other quotes will be deactivated.",href: "/activate_quote/#{invoice.id}",:style=>"cursor: pointer;"} 
+                              %span.fal.fa-check-circle
+                              Activate
+                          %li.divider
+                        - if invoice.is_active
+                          %li
+                            %a.convert_invoice{ title: "Convert to Invoice", :"data-confirm"=> "Are you sure to convert this quote to invoice?",href: "/invoice_from_quote/#{invoice.id}",:style=>"cursor: pointer;"} 
+                              %span.fal.fa-check-circle
+                              Convert to Invoice
+                          %li.divider
+                        %li
+                          - if invoice.status == "Resend" || invoice.is_sent == true
+                            %a.send_resend_invoice{ title: "Send the quote again", :"data-confirm"=> "Are you sure to send the quote again?", href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                              %span.fal.fa-redo
+                              Resend
+                          - else
+                            %a.send_resend_invoice{ title: "Send quote mail", :"data-confirm"=> "Are you sure to send quote mail?",href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                              %span.fal.fa-location-arrow
+                              Send
+                        %li.divider
+                        %li
+                          %a.cancel_invoice{ title: "Cancel the quote", :"data-confirm"=> "Are you sure to cancel this quote?",href: "/cancel_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                            %span.fal.fa-times-circle
+                            Cancel
+                  - elsif invoice.status.present? && invoice.status.downcase == "paid"
+                    =link_to download_invoice_path(:id => invoice.id) do
+                      %span.fal.fa-download
+                    / %a{href: "javascript:void(0)"}
+                    /   %span.fa.fa-download
+              %td
+                %span{title: invoice.invoice_no.size > 15 ? invoice.invoice_no : ""}  
+                  %a{href: "/invoice_details/#{invoice.id}"} 
+                    = invoice.invoice_no.present? ? (invoice.invoice_no.size > 15 ? invoice.invoice_no.truncate(15) : invoice.invoice_no) : "NA"
+              %td
+                - individual_contact = @current_organization.individual_contacts.where("id=?",invoice.contact_id).first
+                - if individual_contact.present?
+                  %a{href: "/contact/#{individual_contact.to_param}", title: "#{individual_contact.name.present? ? individual_contact.name + ' - ': ''} #{individual_contact.email}" }
+                    = individual_contact.name.present? ? individual_contact.name : individual_contact.email
+              %td.text-center
+                - inv_status =  invoice.status.present? ? (invoice.status == "Send" ? "Sent" : invoice.status) : "NA"
+                %span{:class=>"invoice_"+inv_status.downcase}
+                  = inv_status                
+              %td.text-center
+                - tot_amt = invoice.total_amount.to_s
+                %span{title: tot_amt.size > 20 ? tot_amt : "", :class => tot_amt.size > 20 ? "tooltip" : ""}
+                  =invoice.currency
+                  = tot_amt.truncate(20)
+              %td.text-center
+                = invoice.due_date.present? ? invoice.due_date.strftime("%m/%d/%Y") : "NA"
+              %td.text-center
+                = invoice.created_at.strftime("%m/%d/%Y")
+- else
+  - if current_user.is_admin? && !current_user.is_siteadmin?
+    .co-md-12.text-center
+     
+      - if @deal.present? && @contact.present?
+        %a{:href => "/invoice/create?type=quote&lead=#{@deal.to_param}&contact=#{@contact.to_param}"}
+          + Create Quote
+      %br          
+      No quotes found.
+  - else
+    .co-md-12.text-center
+      No quotes found. Please contact admin to create quotes.
+      

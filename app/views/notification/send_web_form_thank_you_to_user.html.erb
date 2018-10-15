@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <title>Assign Priority Lead</title>
+  </head>
+  <body leftmargin='0' marginheight='0' marginwidth='0' offset='0' style="font-family:'Trebuchet MS'; font-size:13px; color:#666" topmargin='0'>
+    <table align='center' border='0' cellpadding='0' cellspacing='0' style='background:#f3f3f3; width:750px;padding-top:10px;'>
+      <tr>
+        <td>
+          <table align='center' border='0' cellpadding='10' cellspacing='0' style='width:640px'>
+            <tr>
+              <td style='border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;'>
+                <p>
+                  Hey <%= @full_name %>,
+                </p>
+                <p>
+                  Thanks for contacting us on our website. We'll get back to you as soon as we can.
+                </p>
+                <p>
+                  Best, 
+                  <br>
+                  <%=@org_name%>
+                </p>
+                <br>
+              </td>
+            </tr>
+            <tr>
+              <td style='background:#fff;border-top:none !important;border:1px solid #dfdfdf;'>
+                <div style='width: 140px;margin: 30px auto;text-align: center'>
+                  <small>Powered by </small>
+                  <br>
+                  <a href="<%=APP_CONFIG["host_url"]%>/" target="_blank">
+                    <img alt='' src='<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png' style='width:100%'>
+                  </a>  
+                </div>
+                <p style='color:#666666;margin:0'></p>
+                <div style='clear:both'></div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height='20px'></td>
+      </tr>
+    </table>
+  </body>
+</html>

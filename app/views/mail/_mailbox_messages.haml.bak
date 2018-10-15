@@ -1,0 +1,107 @@
+/ Inbox Contents
+- if emails.present?
+  .table-responsive
+    %table.table.table-hover.table-mailbox
+      %tbody
+        - emails.each do |email|
+          %tr{:class=>"#{!email.is_read ? 'unread' : ''}"}
+            %td
+              .checkbox
+                %input.chk-item{:type => "checkbox"}/
+                %label
+            %td
+              .email_contents{:class => "#{!email.is_read ? 'unread_row' : 'read_row'}", data: {id: "#{email.id}",read: "#{email.is_read ? 'true' : 'false'}"}}
+                %a{:href => "#"} 
+                  -from_email=email.from.email_address.name
+                  = from_email.present? ? truncate(from_email.split('<').first.strip, :length => 20, :ommission => "...") : ''
+                .cb
+                #mail_detail.subject-line.view-message 
+                  = email.subject.truncate(60)
+                .cb
+                .col-md-4.text-left
+                  %span.attach= email.has_attachments ? "<i class='fa fa-paperclip fa-lg'></i>".html_safe : ''
+                .col-md-8.text-right
+                  - if email.received_date_time.present?
+                    - received = email.received_date_time # Time.at(email.received_date_time).in_time_zone(current_user.time_zone)
+                    - if received.year == Date.today.year
+                      = (received < Date.today) ? received.strftime('%b %e') : received.strftime('%H:%M')
+                    - else
+                      = received.strftime('%d/%m/%Y')
+            
+  
+- else
+  %div{:style=>"text-align:center;top:0;padding-top:4%"}
+    There are no conversations with this label.
+/ /list-group
+
+:javascript
+
+  $(function () {
+    next_page_token = "#{@next_page_token}";
+    if (next_page_token != "" && $.inArray(next_page_token, pageToken) == -1) {
+      pageToken.push(next_page_token);
+    }
+
+    $(".view-message").on("click", function () {
+      var id = $(this).closest(".email_contents").data("id");
+      
+      var is_read=$(this).closest(".email_contents").data("read");
+      var obj = this;
+      read_message(id,is_read,obj)
+      
+    });
+
+    $(".star").on("click", function () {
+      var element = $(this);
+      var id = element.closest(".email_contents").data("id"),
+          starred = element.parent().data("starred");
+      $.ajax({
+        url: "/emails/#{params[:provider]}/" + id + "/toggle_star/",
+        type: "POST",
+        data: {starred: starred},
+        success: function (res) {
+          if (res.result) {
+            if(element.hasClass("stared_msg")){
+              element.removeClass("stared_msg").addClass("unstared_msg");
+            }else{
+              element.removeClass("unstared_msg").addClass("stared_msg");
+            }
+            element.parent().data("starred", !starred);
+          }
+        }
+      });
+
+    });
+  });
+  function mark_as_read(id) {
+   // $.ajax({
+   //    url: "/mail/toggle_unread",
+   //    type: "POST",
+   //    data: {message_id: id, unread: false},
+   //    success: function (res) {
+   //      $(this).closest("li").find("span.view-message").addClass("unread");
+   //    }
+   //  });
+  }
+  function read_message(id,is_read,obj)
+  {
+    console.log(id)
+    $.ajax({
+    url: "/mail/message_read/",
+    data: {message_id: id,is_read: is_read},
+    type: 'POST',
+    success: function (res) {
+      // $(".email_details_header,.search_bar").hide();
+      $("#task_loader,.fixed_loader").hide();
+      $("#email-body-content").html(res);
+      $(".mail-option").hide();
+      $(".email_row").removeClass("active_row")
+      $(obj).removeClass("unread")
+      $(obj).parents(".email_row").addClass("active_row")
+    },
+    error: function(res){
+    
+    $("#task_loader,.fixed_loader").hide();
+    }
+  });
+  }

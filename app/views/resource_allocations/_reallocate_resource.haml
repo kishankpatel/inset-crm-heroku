@@ -1,0 +1,106 @@
+= form_tag "/reallocate_resource",  :class => "form",:method=>"post",:id=>"form_reallocate_resource", :remote => true do |f|
+  .modal-body
+    .row
+      .col-md-3
+        %strong
+          ="Resource: "
+          =project_job.assigned_user.full_name
+      .col-md-2
+        %strong
+          ="Est Hrs:"
+          /=project_job.estimate_hour
+          =project_job.estimate_minutes.present? ? getHourMinuteFromMinutes(project_job.estimate_minutes) : "0"
+          =hidden_field_tag :project_job_estimate_hour,project_job.estimate_hour
+          =hidden_field_tag :project_job_estimate_minutes,project_job.estimate_minutes
+      .col-md-3
+        %strong
+          ="Spent Hrs:"
+          -spent_time_in_sec = project_job.job_time_logs.where("log_start_time <= ? ",Date.today).sum("spent_hours")
+          = getHourMinuteFromSeconds(spent_time_in_sec)
+          =hidden_field_tag :project_job_spent_time, spent_time_in_sec / 60
+      .col-md-4
+        #estimation_match.alert{style:"padding:3px"}
+
+  
+    - max_hours = @current_organization.resource_setting.hours_of_work
+    - weekends = @current_organization.resource_setting.week_off_days
+    =hidden_field_tag :user_id,assigned_user.id
+    =hidden_field_tag :project_job_id,project_job.id
+    =hidden_field_tag :max_hours,max_hours
+
+    .cmn_new_popup_form.col-md-12.modal-table-overflow
+      %table.table.table-stripped
+        -days_count = (end_date.to_date - start_date.to_date)
+        %tr
+          %td
+          - (0..days_count).step(1) do |index|
+            -color_code = (weekends.include? ((@start_date + (index).days).wday)) ? "#efeaea" : "#ffffff"
+            %td{style: "background-color:#{color_code}"}
+              = (@start_date + (index).days).strftime("%m/%d")
+              %br
+              = (@start_date + (index).days).strftime("%A")[0,3]
+          %td Total
+        -users.each do |worked_user|
+          -user_mins_spent = 0
+          %tr
+            %td
+              =worked_user.full_name.present? ? worked_user.full_name : worked_user.email
+          
+            -(0..days_count).step(1) do |index|
+              -color_code = (weekends.include? ((@start_date.to_date + (index).days).wday)) ? "#efeaea" : "#ffffff"
+              %td{style: "background-color:#{color_code}"}
+                -rs = resource_distributions.select{|rd| rd.allotted_date.utc.to_date == (@start_date + (index).days).to_date && rd.user_id == worked_user.id }
+                
+                -if(rs.present?)
+                  /-value = rs[0].allotted_time
+                  -value =getHourMinuteFromMinutes(rs[0].allotted_time).to_s
+                  -user_mins_spent += rs[0].allotted_time
+                -else
+                  -value="0"
+                -past_date = ((@start_date.to_date + (index).days) < Date.today) || worked_user.id != assigned_user.id
+                -if !past_date
+                  -input_name = "allocated[#{(@start_date + (index).days)}][value]"
+                -else
+                  -input_name = ""
+                
+                %input.wid60.hour-input.resource-allot-hours{name: input_name,value: value,:placeholder=>"hh:mm",:readonly=>past_date,:onclick=>'calculate_total_spenthours()',:onblur=>"calculate_total_spenthours()"}
+            %td
+              =getHourMinuteFromMinutes(user_mins_spent).to_s
+        / %tr
+        /   %td.text-right
+        /     %strong
+        /       Total
+        /   %td{colspan: "2"}
+        /     %input.form-control#total_spent_hours{readonly:true}
+        /   / %td.text-right{colspan: days_count - 1}
+        /   /   %span#estimation_match.alert{style:"padding:5px"}
+    .cb
+    .row
+      .col-md-4.pull-right
+        Total
+        %input.form-control#total_spent_hours{readonly:true}
+  .modal-footer
+    %button.btn{type:"button",:onclick=>"clear_distribution_fields()"}
+      Clear Fields
+    %button.btn{:data=>{:dismiss=>"modal"},"aria-hidden"=>"true"}
+      Continue with Current Distribution
+    %button.btn.btn-primary#reallocate-submit-btn{:type=>"submit"}
+      Save
+    
+:javascript
+  $(function(){
+    calculate_total_spenthours()
+    $('.hour-input').timepicker({ timeFormat: 'H:i' ,'step': 30});
+  });
+  $("#form_reallocate_resource").on("ajax:beforeSend",function(){
+    $("#task_loader,.fixed_loader").show();
+  });
+  $("#form_reallocate_resource").on("ajax:success",function(){
+    $("#task_loader,.fixed_loader").hide();
+    $("#reAllocateResourceModal").modal("hide")
+  });
+  $("#form_reallocate_resource").on("ajax:complete",function(){
+    $("#task_loader,.fixed_loader").hide();
+  });
+  
+  

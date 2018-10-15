@@ -1,0 +1,730 @@
+= stylesheet_link_tag   "bootstrap-formhelpers", :media => "all"
+= stylesheet_link_tag   "bootstrap-formhelpers.min", :media => "all"
+
+
+/= javascript_include_tag "bootstrap-formhelpers-currencies"
+= javascript_include_tag "bootstrap-formhelpers"
+= javascript_include_tag "bootstrap-formhelpers.min"
+= hidden_field_tag "sub_total_discount"
+
+
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          / %li
+          /   %a{:href => "/manage_invoice"} Manage Invoice
+          %li.active
+            %span
+              = "Create #{@invoice_type.capitalize}"
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-dollar-sign
+        = "Create #{@invoice_type.capitalize}"
+.ling_mcnt
+  .hpanel
+    .panel-body.m-b-none.p-lg
+      .invoice_create
+        = nested_form_for(@invoice, :url => '/create_invoice', :html=>{:class => "form bs-docs-example"}) do |f|
+          %div  
+            .invoice_header_sec 
+              .row.m-b
+                .col-md-6.left_sec
+                  .change_logo
+                    - if @project.present?
+                      = hidden_field_tag :referrence_page, "project"
+                    - else
+                      = hidden_field_tag :referrence_page, "#{@deal.present? ? 'deal' : ''}"
+                    = f.hidden_field :is_sent
+                    = f.hidden_field :invoice_type, value: "#{@invoice_type}"
+
+                    = f.file_field :image,:class=> "col-md-12 form-control", :style => "height: 100%;position: relative;display:none;"
+                    - if @pre_invoice.present? && @pre_invoice.logo_url.present?
+                      - sty = "background: gray none repeat scroll 0 0; color: #fff; cursor: pointer;font-size: 11px;display:block;position:absolute;width:100%;text-align:center;"
+                      = image_tag @pre_invoice.logo_url, :id=>"previewlogo"
+                    - else
+                      - sty = "background: gray none repeat scroll 0 0; color: #fff; cursor: pointer; font-size: 11px;display:none;position:absolute;width:100%;text-align:center;"
+                      = image_tag "/assets/new-ui/default-invoice-logo.png", :id=>"previewlogo", :style => "cursor:pointer; max-width: 90px;"
+                    %img#preview_img{:src => "#", :height => "98px", :width => "98px", :style =>"display:none;"}/
+                    %span#preview_change_logo{:style => sty}
+                      Click to Change
+                .col-md-6.text-right
+                  .top_bal_due_sec.text-right
+                    %p
+                      %strong Balance Due
+                    .total_amount
+                      %strong
+                        %font.cur_ty
+                          =@current_organization.default_currency 
+                        %font.ttl_amnt
+                          0.00
+              .row
+                .col-md-4
+                  .inv_bill_from
+                    %label.control-label{:for => "input"} 
+                      = "#{@invoice_type.capitalize} Number"
+                    .form-group
+                      .input-group
+                        .input-group-addon
+                          %span #
+                        = f.text_field  :invoice_no, :required => true, title: "#{@invoice_type.capitalize} Number", :maxlength => 30, :onblur =>"check_uniqueness_of_invoice(this.value)", placeholder:"Enter #{@invoice_type.capitalize} Number", class: "form-control"
+                    #invoice_no_error{:style=>"display:none;font-size:11px; color:#FF0000"}
+                .col-md-4
+                  .inv_bill_from
+                    %label.control-label{:for => "input"} Select Currency
+                    .form-group
+                      .input-group
+                        .input-group-addon
+                          %span.fal.fa-dollar-sign
+                        = select(:currency_type, :type, @cur, {:selected => @current_organization.default_currency.present? ? @current_organization.default_currency : 'USD'}, :class => "btn btn-default form-control", :onchange =>"check_currency(this.value)") 
+                        /= f.text_field  :invoice_no, :required => true, title: "Currency", :maxlength => 30, :onchange =>"check_uniqueness_of_invoice(this.value)"
+                .col-md-4
+                  - if @invoice_type == "invoice"
+                    .inv_bill_from
+                      %label.control-label{:for => "input"} Purchase Order Number
+                      .form-group
+                        .input-group
+                          .input-group-addon
+                            %span #
+                          = f.text_field  :po_number, title: "Purchase Order Number", :maxlength => 30, placeholder:"Enter Purchase Order Number", :size => 30, class: "form-control"
+              
+
+            .row.bill_from_sec
+              .col-md-4
+                %label.control-label{:for => "input"} Billing From
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-building
+                    = f.text_field  :company_name, :value => @current_organization.name, :required => true,:class => "form-control", :maxlength => 60, placeholder:"Company Name"
+                #company_name_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+              .col-md-4
+                %label.control-label{:for => "input"} Company Address
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-home
+                    = f.text_area  :company_address, :rows => "3", :columns => "10", :value => @current_organization.get_location, :required => true,:class => "form-control"
+                #company_address_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+              .col-md-4
+                %label.control-label{:for => "input"} Due Date
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-calendar
+                    = f.text_field  :due_date, :required => true, :onkeydown=>"disable_text(event);", class: "form-control", value: "#{f.object.due_date.present? ? f.object.due_date.strftime('%m/%d/%Y') : ''}"
+                #due_date_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+
+            .row.bill_to_sec
+              .col-md-4
+                - if @contact.present?
+                  %label.control-label{:for => "input"} Bill To
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-user
+                      =text_field_tag :bill_to, @contact.full_name,:class=>"form-control", :onkeydown =>"return false;", :onkeyup =>"return false;", :class=>"form-control"
+                  #bill_to_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+                  =f.hidden_field :contact_id, value: @contact.id
+                  =f.hidden_field :contact_type, value: "IndividualContact"
+                  %div{style:"height: 20px;"}
+                - else
+                  %label.control-label{:for => "input"} Bill To
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-user
+                      =text_field_tag :bill_to,"",:class=>"typeahead custom-frm-inner form-control",:onkeyup=>"return onlycharactersWithApostrophe(event)",:onkeydown=>"return onlycharactersWithApostrophe(event)", "data-provide"=> "typeahead" , :autocomplete=>"off", :required => true, placeholder:"Add a customer to send the invoice", style:"padding-right: 0;"
+                  #bill_to_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+                  =f.hidden_field :contact_id
+                  =f.hidden_field :contact_type
+                  %div{style:"height: 20px;"}
+              .col-md-4.bill_to_details
+                .form-group
+                  %label.control-label{:for => "input"}
+                    %b Select Opportunity
+                  .form_fld
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-user
+                      - if @deal.present?
+                        = select_tag "deal_id", options_for_select([[@deal.title, @deal.id]], @deal.id), :class=>"form-control"
+                      - else
+                        = select_tag "deal_id", nil, :prompt => "- Select Opportunity -", :class=>"form-control", :disabled => "disabled"
+                  .cc_txt.text-right.text-success
+                    %a.link_col.cc_link{href: "javascript:void(0)"} Cc
+                .cb
+              .col-md-4.cc_sec
+                %label.control-label{:for => "input"} 
+                  Cc 
+                  %span.cc_close ×
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = f.text_field  :cc_mail_id, :class => "custom-frm-inner", placeholder:"Separate the emails using comma(,)", style:"padding-right:5px;", :class=>"form-control"
+
+            - if @invoice_type == "invoice"
+              .row.bill_to_sec
+                .col-md-4.bill_to_project_details
+                  %label.control-label{:for => "input"}
+                    %b Select Project
+                  .form-group
+                    .input-group.invoice_deal_projects
+                      .input-group-addon
+                        %span.fal.fa-briefcase
+                      - if @project.present? && @projects.present?
+                        = f.select :project_id, options_for_select( @projects.map{|prj| [prj.name,prj.id]}, @project.id), {:prompt => "- Select Project -"}, {:class=>"form-control"}
+                      - elsif @projects.present?
+                        = f.select :project_id, options_for_select( @projects.map{|prj| [prj.name,prj.id]}), {:prompt => "- Select Project -"}, {:class=>"form-control"}
+                      - else
+                        = f.select :project_id, options_for_select( @current_organization.projects.map{|prj| [prj.name,prj.id]}), {:prompt => "- Select Project -"}, {:class=>"form-control"}
+                .col-md-4
+                  %label.control-label{:for => "input"}
+                    %b Start Date
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-calendar
+                      = f.text_field  :start_date, :required => true, :onkeydown=>"disable_text(event);",:class=>"form-control custom-frm-inner datetimepicker", value: "#{f.object.start_date.present? ? f.object.start_date.strftime('%m/%d/%Y') : ''}"
+                .col-md-4
+                  %label.control-label{:for => "input"}
+                    %b End Date
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-calendar
+
+
+                      = f.text_field  :end_date, :required => true, :onkeydown=>"disable_text(event);",:class=>"form-control custom-frm-inner datetimepicker", value: "#{f.object.end_date.present? ? f.object.end_date.strftime('%m/%d/%Y') : ''}"
+                .col-md-4
+
+                  .form-group
+                    %a.btn.btn-info{onclick: "get_invoice_line_items()",:href=>"javascript:void(0)"}
+                      Get Line Items
+                    
+
+          .add_bill_sec.m-t-xl
+            .table-responsive
+              - i = 0
+              %table.table.table-bordered.table-striped#invoice-items
+                %thead
+                  %tr
+                    %td.td_col.col_1 Description
+                    %td.td_col.col_2 Qty/Spent hrs
+                    %td.td_col.col_3 Price
+                    %td.td_col.col_4 Total
+                    %td.td_col.col_5 
+                %tbody.invoice-line-item-rows
+                  = f.fields_for :invoice_items, :wrapper => false  do |task_form|
+                    %tr.fields
+                      %td.td_col.col_1
+                        = task_form.text_area :description, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :rows => 3, :columns => 10,:style => "outline: none;", class: "form-control"
+                      %td.td_col.col_2
+                        = task_form.text_field :qty, :size => 10,:class => "quantity form-control",:onkeydown=>"return numbersonly(event)", :oninput => "sum_quantity($(this).val(),$(this))", maxlength:"7"
+                        = task_form.hidden_field :job_time_log_id
+                      %td.td_col.col_3
+                        = task_form.text_field :rate, :size => 10,:class => "rate decimal_only form-control", :oninput => "sum_rate($(this).val(),$(this))", :onblur => "sum_rate($(this).val(),$(this));"
+                      %td.td_col.col_4
+                        = task_form.hidden_field :amount,:class => "hidden_amount"
+                        %span.display_sum.amount
+                          = task_form.object.qty * task_form.object.rate if task_form.object.qty.present? && task_form.object.rate.present?
+                        /- if i != 0
+                      %td.td_col.col_5
+                        = link_to "javascript:void(0)", :onclick => "remove_items($(this))", :class=>"delete_line_item" do
+                          %span.glyphicon.glyphicon-trash{style:"margin-right: 0;", title:"Remove this item"}
+                        - i+=1
+                        .cb
+              .col-md-12
+                = f.link_to_add "+ Add item(s) to the bill/list", :invoice_items, :class=>"add_item","data-target"=>"#invoice-items","data-block"=>"tr","data-class"=>".row"
+            /= link_to 'Add another bill', "javascript:void(0)"
+          .cb
+          .add_note_sec.row.m-t
+            .col-md-3
+              / %label.control-label{:for => "input"} Message Displayed in the Invoice (Add Note)
+              %label.control-label{:for => "input"} Add a Note
+              .form-group
+                = f.text_area :notes, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:class => "form-control", rows: "6"
+            .col-md-3
+              %label.control-label{:for => "input"} Terms & Conditions (if any)
+              .form-group
+                = f.text_area :terms_and_condition, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:class => "form-control", rows: "6"
+            .col-md-6.calculation_sec
+              .sub_total_sec.row.m-b
+                .col-md-6.text-right
+                  %strong Subtotal
+                .col-md-6.text-right
+                  %strong 
+                    %font.sb_cur
+                      =@current_organization.default_currency    
+                    %span#sub_total 0.00
+              = hidden_field_tag "total_payable_amount"
+              / .form-group
+              /   .col-md-6.padlft
+              /     .tax_sec.fl
+              /       .fl.percnt %
+              /       .fl.tax_percnt Discont Percent
+              /       .cb
+              /     .tax_input.fr 
+              /       = f.text_field  :discount, title: "Discount",:class => "tax", :oninput => "sum_discount($(this).val(),$(this))", :onblur => "return onlyfloatnumbers(event,$(this));", maxlength:"2",:onkeydown=>"return numbersonly(event)", placeholder:"00"
+              /     .cb
+              /   .col-md-6.padlft.padrht
+              /     .fr.tax_amount_sec
+              /       %span =@current_organization.default_currency    
+              /       %span.discount_amount 0.00
+              /     .cb
+              /   .cb
+              / .cb
+              .form-group.row
+                .col-md-6
+                  .tax_sec.fl
+                    .fl.percnt %
+                    .fl.tax_percnt Tax Percent
+                    .cb
+                  .tax_input.fr 
+                    = f.text_field  :tax, title: "Tax",:class => "tax decimal_only form-control", :oninput => "sum_tax($(this).val(),$(this))", :onblur => "return onlyfloatnumbers(event,$(this));", placeholder:"0.00", maxlength:"5"
+                  .cb
+                .col-md-6
+                  .fr.tax_amount_sec
+                    %span 
+                    %font.tax_cur
+                      =@current_organization.default_currency    
+                    %span.tax_amount 0.00
+                  .cb
+              .form-group.tot_amount_payable.row
+                .col-md-6.text-right
+                  %strong Total Amount Payable 
+                .col-md-6.text-right
+                  %strong 
+                    %span.total_amount 
+                    %font.to_cur
+                      =@current_organization.default_currency      
+                    %font.ttl_amnt
+                      0.00
+          .form-layout-footer
+            = f.submit "Save", :class=>"btn btn-info", disable_with: "Sending...", :id => "submit_invoice", onclick: "return validate_form('send');"
+            = f.submit "Save and Send", :class=>"btn btn-info", disable_with: "Sending...", onclick: "return validate_form('save_and_send');", :id => "save_and_send"
+            = link_to 'Cancel', "/manage_invoice", :class => "btn btn-default" 
+      
+:javascript
+  $( ".custom-frm-inner" ).click(function() {
+    $(this).parent().next('.control-label').addClass("control-lbl-add-left")
+  });
+  $( ".custom-frm-inner" ).focusout(function() {
+    if($(this).val() == ""){
+      $(this).parent().next('.control-label').removeClass("control-lbl-add-left")
+    }else{
+      $(this).parent().next('.control-label').addClass("control-lbl-add-txt")
+    }
+  });
+  $('input,textarea').keypress(function() {
+    $('.do_not_allow').hide();
+  });
+  
+  $("#bill_to").keypress(function() {
+  $('#bill_to').addClass('loadinggif');
+   setTimeout(hideloader, 510);
+  });
+  function check_currency(cu)
+  {
+  
+  $(".cur_ty").text(cu)
+  $(".to_cur").text(cu)
+  $(".tax_cur").text(cu)
+  $(".sb_cur").text(cu)
+  }
+  function hideloader()
+  {
+   $('#bill_to').removeClass('loadinggif');
+  }
+  $("#bill_to").keyup(function() {
+   $("#contact_type").val($('#bill_to').val());
+  });
+
+  $('#bill_to.typeahead').typeahead([{
+    name: 'contacts',
+    minLength: 0,
+    limit: 500,
+    valueKey: 'name',
+    remote: {url: '/get_contacts/'+ #{current_user.organization.id if current_user.organization.present?}+ '?q=%QUERY&type=invoice'},
+    template: "<p style='word-wrap: break-word;'><strong>{{name}}</strong> - {{email}}</p>",
+    engine: Hogan
+    }]).on('typeahead:selected',onSelected).on('typeahead:opened',onOpened);
+  function onSelected($e,datum){
+    $("#invoice_contact_type").val(datum.contact_type);
+    $("#invoice_contact_id").val(datum.id);
+    
+    cont_type = $("#invoice_contact_type").val();
+    cont_id = $("#invoice_contact_id").val();
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      url: 'get_bill_to_details',
+        type: 'POST',
+        data: {cont_id: cont_id, cont_type: cont_type},
+        success: function(res) {
+            $(".bill_to_details").html(res);
+            $("#task_loader,.fixed_loader").hide();
+        },
+        error: function(res) {
+          $("#task_loader,.fixed_loader").hide();
+          alert("Unable to load contact details.");
+        }
+    }); 
+   
+  }
+  function onOpened($e){
+  $("#deal_contact_id").val("")
+  console.log('Opned');
+  }
+  $(function () {
+    var date = new Date();
+    var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    $('#invoice_due_date').datetimepicker({
+      format: 'MM/DD/YYYY',
+      autoclose: true,
+      minDate: date,
+      pickTime: false,
+    }).on("dp.change", function (e) {
+      $('#due_date_error').html('');
+    });
+  });
+  $('.datetimepicker').datetimepicker({ useCurrent: true,pickTime:false,  format: 'MM/DD/YYYY'}).on('change', function(){
+      $(this).blur();
+    });
+  
+  $("#bill_to").keyup(function() {
+    $("#invoice_contact_id").val("");
+    $("#invoice_contact_type").val("");
+    $(".bill_to_details").html("");
+  });
+
+  function sum_rate(val,n){
+    var qty_val = n.parents(".fields").find(".quantity").val();
+    var qty = parseInt(qty_val);
+    var rate = parseFloat(val);
+    var tax_amount = parseFloat($("#invoice_tax").val());
+    
+
+    var sum_amt =  qty * rate ;
+    
+    if(!isNaN(sum_amt)){
+      n.parents(".fields").find(".amount").text(sum_amt.toFixed(2));
+      n.parents(".fields").find(".hidden_amount").val(sum_amt.toFixed(2));
+    }else{
+      n.parents(".fields").find(".amount").text("");
+      n.parents(".fields").find(".hidden_amount").val("");
+    }
+    
+
+    var total_amount = parseFloat(0.0);
+    $(".amount").each(function() {
+      if(!isNaN($(this).text()) && $(this).text() != ""){
+        total_amount = parseFloat($(this).text()) + total_amount;
+      }else{
+        total_amount = total_amount
+      }
+    });
+    if(!isNaN(total_amount)){
+      $("#sub_total").html(total_amount.toFixed(2));
+
+    }
+
+
+    var discount_val = parseFloat($("#invoice_discount").val());
+    if(!isNaN(discount_val) && discount_val != ""){
+      var discount_amount = (parseFloat(total_amount) / 100) * parseFloat(discount_val);
+      $(".discount_amount").html(discount_amount);
+    }else{
+      var discount_amount = 0;
+      $(".discount_amount").html("0.00");
+    }
+    total_amount = total_amount - discount_amount;
+    $("#sub_total_discount").val(total_amount);
+    amount_payable(total_amount,tax_amount)
+  };
+
+  function sum_quantity(val,n){
+    var qty = parseInt(val);
+    var rate_val = n.parents(".fields").find(".rate").val();
+    var rate = parseFloat(rate_val);    
+    var tax_amount = parseFloat($("#invoice_tax").val());
+
+    var sum_amt =  qty * rate ;
+    if(!isNaN(sum_amt)){
+      n.parents(".fields").find(".amount").text(sum_amt.toFixed(2));
+      n.parents(".fields").find(".hidden_amount").val(sum_amt.toFixed(2));
+    }else{
+      n.parents(".fields").find(".amount").text("");
+      n.parents(".fields").find(".hidden_amount").val("");
+    }
+
+    var total_amount = parseFloat(0.0);
+    $(".amount").each(function() {
+      if(!isNaN($(this).text()) && $(this).text() != ""){
+        total_amount = parseFloat($(this).text()) + total_amount;
+      }else{
+        total_amount = total_amount
+      }
+    });
+    if(!isNaN(total_amount)){
+      $("#sub_total").html(total_amount.toFixed(2));
+    }
+
+    var discount_val = parseFloat($("#invoice_discount").val());
+    if(!isNaN(discount_val) && discount_val != ""){
+      var discount_amount = (parseFloat(total_amount) / 100) * parseFloat(discount_val);
+      $(".discount_amount").html(discount_amount);
+    }else{
+      var discount_amount = 0;
+      $(".discount_amount").html("0.00");
+    }
+    total_amount = total_amount - discount_amount;
+    $("#sub_total_discount").val(total_amount);
+    amount_payable(total_amount,tax_amount)
+  };
+  function sum_tax(val,n){
+    var tax_amount = parseFloat(val);
+    if(val >=100){
+      var tax_amt = val.split(".");
+      var int_val = tax_amt[0].slice(0,-1);
+      tax_amount = parseInt(int_val) + parseFloat("0."+tax_amt[1]);
+      $("#invoice_tax").val(tax_amount);
+    }
+    var total_amount = $("#sub_total_discount").val();
+    if(!isNaN(tax_amount) && tax_amount != ""){
+      var tax = (parseFloat(total_amount) / 100) * parseFloat(tax_amount) ;
+      $(".tax_amount").html(tax_amount.toFixed(2));
+    }else{
+      $(".tax_amount").html("0.00");
+    }
+    
+    amount_payable(total_amount,tax_amount)
+  };
+
+  function sum_discount(val,n){
+    var discount_amount = parseFloat(val);
+    var total_amount = $("#sub_total").text();
+    var tax_amount = parseFloat($("#invoice_tax").val());
+
+
+
+    if(!isNaN(discount_amount) && discount_amount != ""){
+      var discount = (parseFloat(total_amount) / 100) * parseFloat(discount_amount) ;
+      $(".discount_amount").html(discount.toFixed(2));
+      total_amount = total_amount - discount;
+    }else{
+      $(".discount_amount").html("0.00");
+    }
+    $("#sub_total_discount").val(total_amount);
+    $(".ttl_amnt").html(total_amount);
+    amount_payable(total_amount,tax_amount);
+  }
+  
+  function amount_payable(sub_amount,tax_amount){
+    var tot_amt = sub_amount;
+    if(!isNaN(tax_amount) && !isNaN(sub_amount) && tax_amount != ""){      
+      var tax = (parseFloat(sub_amount) / 100) * parseFloat(tax_amount) ;
+      if(!isNaN(tax)){
+        $(".tax_amount").html(tax.toFixed(2));
+        tot_amt = parseFloat(sub_amount) + parseFloat(tax);
+        $(".ttl_amnt").html((tot_amt).toFixed(2));
+      }else{
+        $(".tax_amount").html("0.00");
+      }
+    }else{
+      if(!isNaN(sub_amount) && sub_amount != ""){
+        if(/^[0-9]+$/.test(sub_amount)) {
+          $(".ttl_amnt").html(sub_amount.toFixed(2));
+        }else{
+          $(".ttl_amnt").html(sub_amount);
+        }
+      }
+    }
+    console.log(tot_amt);
+    $(".display_sum.amount").prop("title", $(".display_sum.amount").prev().val())
+    $("#total_payable_amount").val(tot_amt);
+  }
+
+
+  $("#invoice_image").change(function() {
+    readIMG(this);
+  });
+
+    
+  $( "#previewlogo, #preview_change_logo" ).on( "click", function() {
+    $( "#invoice_image" ).trigger( "click" );
+  });
+
+  function readIMG(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        $('#invoice_image').hide();
+        $('#preview_img').show().attr('src', e.target.result).css("position","absolute");
+        $('#preview_change_logo').show();
+      }
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function remove_items(n){
+    if (confirm('Are you sure to remove this item?')) {
+      n.parents(".fields").remove();
+      var total_amount = parseFloat(0.0);
+      $(".amount").each(function() {
+        if(!isNaN($(this).text()) && $(this).text() != ""){
+          total_amount = parseFloat($(this).text()) + total_amount;
+        }else{
+          total_amount = total_amount
+        }
+      });
+      if(!isNaN(total_amount)){
+        $("#sub_total").html(total_amount.toFixed(2));
+      }
+
+      var tax_amount = parseFloat($("#invoice_tax").val());
+      var total_amount = $("#sub_total").text();
+      if(!isNaN(tax_amount) && tax_amount != ""){
+        var tax = (parseInt(total_amount) / 100) * parseFloat(tax_amount) ;
+        $(".tax_amount").html(tax_amount.toFixed(2));
+      }else{
+        $(".tax_amount").html("0.00");
+      }
+      amount_payable(total_amount,tax_amount)
+    }else{
+      n.parents(".fields").show();
+    }
+  }
+
+  $("#submit_invoice").click(function( event ) {
+    event.stopPropagation();
+    var contact_id = $("#invoice_contact_id").val();
+    if(contact_id == ""){
+      alert("Make sure to select the \'Bill To\' address.");
+      return false;
+    }else{
+      return true;
+    }
+  });
+
+  function validate_form(form_activity){
+    if(form_activity == "send"){
+      $("#invoice_is_sent").val("false");
+    }else{
+      $("#invoice_is_sent").val("true");
+    }
+    var validate = 0;
+    var bill_to = $.trim($("#bill_to").val());
+    var company_name = $.trim($("#invoice_company_name").val());
+    var company_address = $.trim($("#invoice_company_address").val());
+    var due_date = $.trim($("#invoice_due_date").val());
+    var invoice_no = $.trim($("#invoice_invoice_no").val());
+    if (bill_to == "") {
+      $("#bill_to_error").html('Bill to can not be blank');
+      validate = 1;
+    }
+    if (company_name == "") {
+      $("#company_name_error").html('Company name can not be blank');
+      validate = 1;
+    }
+    if (company_address == "") {
+      $("#company_address_error").html('Company address can not be blank');
+      validate = 1;
+    }
+    if (due_date == "") {
+      $("#due_date_error").html('Due date can not be blank');
+      validate = 1;
+    }
+    if (invoice_no == "" || invoice_no == null || invoice_no == undefined) {
+      $("#invoice_no_error").html('Invoice number can not be blank');
+      validate = 1;
+    }else{
+      check_uniqueness_of_invoice(invoice_no);
+    }
+    if ($("#invoice_no_error").is(":visible")) {
+      validate = 1;
+    }
+      console.log(validate)
+    if (validate == 1) {
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+      return false;
+    } else {
+      if(form_activity == "send"){
+        $('#save_and_send').css('visibility','hidden');
+      }else{
+        $('#submit_invoice').css('visibility','hidden');
+      }
+      return true;
+    }
+  }
+  $('#bill_to').off('keyup').on('keyup',function(){
+     $('#bill_to_error').html('');
+  });
+  $('#invoice_company_name').off('keyup').on('keyup',function(){
+     $('#company_name_error').html('');
+  });
+  $('#invoice_company_address').off('keyup').on('keyup',function(){
+     $('#company_address_error').html('');
+  });  
+  $('#invoice_invoice_no').off('keyup').on('keyup',function(){
+     $('#invoice_no_error').html('');
+  });
+
+  function onlyfloatnumbers(e,ifield){
+    var evalue = ifield.val();
+    var regexPattern = /^\d{0,8}(\.\d{1,2})?$/;         
+    //Allow only Number as well 0nly 2 digit after dot(.)
+    if(regexPattern.test(evalue)) {
+      return true;
+    } else{
+      //ifield.parents(".fields").find("#rate_error").html("Invalid input")
+      var float_value = evalue.replace(/[^0-9.]/g, ''); 
+      if(float_value.indexOf('.') > -1){
+        var output = float_value.split('.');
+        output = output.shift() + '.' + output.join('');
+      }else{
+        var output = float_value;
+      }
+      ifield.val(output);
+      sum_rate(output,ifield);      
+      return false;
+    }
+  }
+
+  
+  $('#invoice_invoice_no,#invoice_po_number').keypress(function (e) {
+    var unicode = e.charCode ? e.charCode : e.keyCode;
+
+    if (unicode != 8 && unicode != 46) {
+        if ((unicode >= 65 && unicode <= 90) || (unicode >= 97 && unicode <= 122) || (unicode >= 48 && unicode <= 57)) {
+            return true;
+        } else {
+            return false;
+        }
+    } else if(unicode == 46){
+      return false;
+    }
+    else {
+        return true;
+    }
+  });
+
+
+  $(".cc_link").on('click',function(){
+    $(".cc_sec").show();
+  });  
+  $(".cc_close").on('click',function(){
+    $(".cc_sec").hide();
+    $(".cc_link").css("visibility","visible");
+  });  
+  $(function() {
+    $("#invoice_cc_mail_id").keydown(function(e) {
+        if (e.keyCode == 32) 
+            e.preventDefault();
+    });
+  });

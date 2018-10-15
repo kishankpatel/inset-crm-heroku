@@ -1,0 +1,43 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  license_type: MyString
+  license_key: MyText
+  user_limit: 1
+  installation_support: false
+  name: MyString
+  email: MyString
+  phone: MyString
+  gmt_offset: MyString
+  location: MyString
+  ip: MyString
+  referrer: MyText
+  transaction_id: MyText
+  transaction_status: MyString
+  invoice_id: 1
+  is_emailed: false
+  token: MyText
+  download_date: 2017-05-13 10:53:46
+  latitude: 1.5
+  longitude: 1.5
+
+two:
+  license_type: MyString
+  license_key: MyText
+  user_limit: 1
+  installation_support: false
+  name: MyString
+  email: MyString
+  phone: MyString
+  gmt_offset: MyString
+  location: MyString
+  ip: MyString
+  referrer: MyText
+  transaction_id: MyText
+  transaction_status: MyString
+  invoice_id: 1
+  is_emailed: false
+  token: MyText
+  download_date: 2017-05-13 10:53:46
+  latitude: 1.5
+  longitude: 1.5

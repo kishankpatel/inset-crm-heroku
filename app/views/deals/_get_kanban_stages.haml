@@ -1,0 +1,30 @@
+:css
+  .cstm-material-modal .modal-checkbox{margin-right:0;}
+.form-group
+  = hidden_field_tag "hdn_stage"  
+  - if @deal_statuses.present?
+    - @deal_statuses.each do |deal_status|
+      - if deal_status.is_kanban == true
+        - check_status = true
+      - else
+        - check_status = false
+      %span.col-md-6.modal-checkbox
+        = check_box_tag "lead_stage", "#{deal_status.id}", check_status,id: "lead_stage_#{deal_status.id}"
+        %label{for: "lead_stage_#{deal_status.id}"}
+          %span
+          = deal_status.name
+    
+.cb
+:javascript
+  var countChecked = function() {
+    var total = [];
+    $( "input[type=checkbox][name=lead_stage]:checked" ).each(function(){
+      total.push($(this).attr("value"));
+    });
+    $( "#hdn_stage" ).val(total);
+    if($( "input[type=checkbox][name=lead_stage]:checked" ).length == $( "input[type=checkbox][name=lead_stage]" ).length){
+      $("#checkAll").prop("checked","checked");
+    }     
+  };
+  //countChecked();   
+  $( "input[type=checkbox][name=lead_stage]" ).on( "click", countChecked );

@@ -1,0 +1,10 @@
+- if params[:message].present?
+  .col.col-lg-12.text-center{:style => "position: absolute; margin-top: 10%;"}
+    %strong.text-danger We are unable to connect with selected email provider. Access denied.
+.connect_to_email_page
+  .connect_to_email_banner
+  .connect_to_email_btn  
+    = link_to '/mail/index' do
+      = image_tag ('/assets/new-ui/connect_to_office365_btn.png'), alt: 'Outlook'
+  %p
+    Say Goodbye to switching between your Email & CRM Permanently

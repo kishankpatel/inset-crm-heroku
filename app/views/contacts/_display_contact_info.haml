@@ -1,0 +1,28 @@
+%h5 Contact information as follows:
+.table-responsive
+  %table.table
+    %thead
+      %tr
+        %td
+          %b Name:
+        %td=@contact.full_name
+      
+        %td
+          %b Email:
+        %td=@contact.email
+      %tr
+        %td
+          %b Company:
+        %td=@contact.company.present? ? @contact.company.name : "N/A"
+      
+        %td
+          %b City:
+        %td=@contact.address.present? ? @contact.address.city : ""
+      %tr
+        %td
+          %b State:
+        %td=@contact.address.present? ? @contact.address.state : ""
+      
+        %td
+          %b Country:
+        %td=@contact.country.present? ? @contact.country.name : ""

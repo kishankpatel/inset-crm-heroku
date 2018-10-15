@@ -1,0 +1,497 @@
+- basic_info = get_basic_info(@email)
+-if @m_type == 'inbox'
+  - @email_from = basic_info[:from].split("<")[1].gsub(">",'')
+  -@con = IndividualContact.where("email =?",@email_from).last
+  -if !@con.present?
+    -@con = Contact.where("email =?",@email_from).last
+  -if @con.present?
+    -if @con.class.name == "IndividualContact"
+      -to_param_id = @con.to_param
+      -@url = "/contact/#{to_param_id}"
+    -else
+      -to_param_id =  @con.to_class_param(CompanyContact.encrypted_id_key, @con.id)
+      -@url = "/company_contact/#{to_param_id}"
+    
+    - @name = @con.class.name == "IndividualContact" ? (@con.full_name.present? ? @con.full_name : @con.email) : @con.name	
+    .card{:style => "width: 22rem;border:1px solid #C0C0C0;"}
+      %a{:href=>"#{@url}"}
+        .card-body{:style=>"padding: 1.25rem"}
+          .col-md-12.text-center
+            - if @con.image.present?
+              .contactImage
+                = image_tag @con.image.image.url(:thumb),:class=>"img-circle m-b m-t-md"
+            -else
+              .contactProfileIcon
+                - unless @name.nil?
+                  - contact_letter = @name[0]
+                - else
+                  - contact_letter = @con[0]
+                - if @name.present?   
+                  %span.contact-profile-icon.img-circle{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+                    = contact_letter.upcase
+          .cb
+          %h5.card-title{:style=>"text-align:center"}
+            =@con.full_name
+            %br
+            -if @con.class.name == "IndividualContact"
+              .cont_type{:style => "background:#74d348"}
+                Contact
+            -else
+              .cont_type{:style => "background:#3498db"}
+                Company
+          .cb
+          %h6.card-subtitle.mb-2.text-muted{:style=>"text-align:center"} 
+            =@con.email
+-else
+  
+  -basic_info[:to].split(",").each_with_index do |to_m,i|
+    
+    -if i == 0
+      - @email_from = to_m.split("<")[1].gsub(">",'')
+    -else
+      - @email_from = to_m
+     
+    -@con = IndividualContact.where("email =?",@email_from.to_s).last
+    -if !@con.present?
+      -@con = Contact.where("email =?",@email_from).last
+    
+    -if @con.present?
+      -if @con.class.name == "IndividualContact"
+        -to_param_id = @con.to_param
+        -@url = "/contact/#{to_param_id}"
+      -else
+        -to_param_id =  @con.to_class_param(CompanyContact.encrypted_id_key, @con.id)
+        -@url = "/company_contact/#{to_param_id}"
+       
+      - @name = @con.class.name == "IndividualContact" ? (@con.full_name.present? ? @con.full_name : @con.email) : @con.name	
+      .card{:style => "width: 22rem;border:1px solid #C0C0C0;"}
+        %a{:href=>"#{@url}"}
+          .card-body{:style=>"padding: 1.25rem"}
+            .col-md-12.text-center
+              - if @con.image.present?
+                .contactImage
+                  = image_tag @con.image.image.url(:thumb),:class=>"img-circle m-b m-t-md"
+              -else
+                .contactProfileIcon
+                  - unless @name.nil?
+                    - contact_letter = @name[0]
+                  - else
+                    - contact_letter = @con[0]
+                  - if @name.present?   
+                    %span.contact-profile-icon.img-circle{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+                      = contact_letter.upcase
+            .cb
+            
+            %h5.card-title{:style=>"text-align:center"}
+              =@con.full_name
+              %br
+              -if @con.class.name == "IndividualContact"
+                .cont_type{:style => "background:#74d348"}
+                  Contact
+              -else
+                .cont_type{:style => "background:#3498db"}
+                  Company
+            .cb
+            %h6.card-subtitle.mb-2.text-muted{:style=>"text-align:center"} 
+              =@con.email
+     
+.cb
+%br
+.email-details
+  / Back button block
+  %div
+    %a#btn-email-back.btn.btn-default{:href => "javascript:", :style => "width: 10%;", :title => "Back"}
+      %i.fal.fa-level-up.fa-lg.fa-rotate-270{:style => "font-size: 20px;"}
+  / End back button block
+  - if params[:provider] == 'google'
+    .pull-right{:style => "margin-top:-58px;"}
+      %ul.mailbox-list.unstyled.inbox-pagination
+        %li.mt10.mb10
+          /- received = Time.at(basic_info[:received]).in_time_zone(current_user.time_zone)
+          /- current_time = Time.at(Time.now).in_time_zone(current_user.time_zone)
+          /- if received.year == Date.today.year
+          /  = (received < Date.today) ? received.strftime('%b %e') : received.strftime('%H:%M %p')
+          /- else
+          /  = received.strftime('%d/%m/%Y')
+          /= "(" + distance_of_time_in_words(received,current_time) + ")"
+        %li
+          .btn-group.fr
+            .detail_star_section.btn.btn-default.btn-sm
+              %span.star_icon{:class => "#{basic_info[:starred] ? 'starred' : 'not-starred'}", "data-starred" => "#{basic_info[:starred]}", "data-id" => "#{basic_info[:id]}"}= (basic_info[:starred] ? "<span class='email_icons stared_msg fas fa-star star'></span>".html_safe : "<span class='email_icons unstared_msg fal fa-star star'></span>".html_safe)
+            
+            %a#btn-reply-google.np-btn.btn.btn-default.btn-sm{"data-page-token" => "", :href => "#", :title => "Reply", :onclick => "$('#reply-mail-form')[0].reset();$('#reply-attachment-details').html('');"}
+              %i.fal.fa-reply.pagination-left
+            
+            %a#btn-forward-google.np-btn.btn.btn-default.btn-sm{"data-page-token" => "", :href => "#", :title => "Forward", :onclick => "$('#forward-mail-form')[0].reset();$('#forward-attachment-details').html('');"}
+              %i.fal.fa-forward.pagination-right
+          .cb
+    
+  %h3
+    = basic_info[:subject]
+  %div{:style => "border-top: 1px solid #d8d8d8;margin-top: 15px;"}
+  .message-body
+    .sender-info.mt10
+      %table.info-table
+        %tr
+          %td
+            %strong= basic_info[:from]
+        %tr
+          %td
+            %span to:
+            %span
+              = basic_info[:to]
+        - if basic_info[:cc].present?
+          %tr
+            %td
+              %span cc:
+              %span= basic_info[:cc]
+        - if basic_info[:bcc].present?
+          %tr
+            %td
+              %span bcc:
+              %span= basic_info[:bcc]
+
+    .email-body.mt10{style:"overflow-scroll"}
+      - email_body = get_email_content(@email)
+      = email_body
+
+- if params[:provider] == 'google'
+  / Reply
+  #google-reply-email.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :style => "display: none;min-height:500px;overflow-y:auto;", :tabindex => "-1"}
+    .modal-dialog.pop-lrg{style:"max-width:700px"}
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title Reply Message
+        = form_tag reply_email_path, :method => 'post', :id => 'reply-mail-form', :class => 'form-horizontal', :remote => true, :multipart => true do
+          .modal-body
+            = hidden_field_tag "reply_to_email", basic_info[:in_reply_to]
+            = hidden_field_tag "reply_to_subject", basic_info[:subject]
+            = hidden_field_tag "reply_to_message_id", basic_info[:msg_id]
+            = hidden_field_tag "is_reply_message", true
+            .form-group.ml-35
+              = label_tag :'email-to', 'To', class: 'col-lg-2 control-label'
+              .col-lg-10
+                = text_field_tag :to, basic_info[:in_reply_to] , :placeholder => 'Recipients', :class => 'form-control', :id => 'reply-email-to', :required => true#, :readonly => true
+            .form-group.ml-35
+              = label_tag :'email-cc', 'Cc', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_field_tag :cc, basic_info[:cc], :id => 'reply-email-cc', :class => 'form-control', :name => 'cc'
+            .form-group.ml-35
+              = label_tag :'email-bcc', 'Bcc', :class => 'col-lg-2 control-label  font-bold'
+              .col-lg-10
+                = text_field_tag :bcc, basic_info[:bcc], :id => 'reply-email-bcc', :class => 'form-control', :name => 'bcc'                
+            .form-group.ml-35
+              = label_tag 'email-subject', 'Subject', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                - subj = basic_info[:subject].include?("Re:") ? basic_info[:subject] : "Re: #{basic_info[:subject]}"
+                = text_field_tag :subject, subj, :id => 'reply-email-subject', :name => 'subject', :class => 'form-control', :placeholder => 'Subject'#, :readonly => true
+            .form-group.ml-35
+              = label_tag :'email-body', 'Message', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_area_tag :body, generate_reply_content(email_body, basic_info), :id => 'reply-email-body', :name => 'body', :class => 'form-control tinymce_reply', :placeholder => 'Type your message here.', :rows => "10", :cols => "30"
+            .form-group
+              #reply-attachment-details.col-lg-offset-2.col-lg-10
+              .col-lg-offset-2.col-lg-10
+                %span.btn.btn-default.green.fileinput-button
+                  %i.fal.fa-paperclip.fa.fa-white
+                  %span Attachment
+                  = file_field_tag :'files[]', :id => 'reply-attachments', :multiple => true
+          .modal-footer
+            .text-right
+              / <button class="btn btn-send" type="submit">Send</button>
+              %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Cancel
+              = submit_tag 'Send', :id => 'send-reply-email', :class => 'btn btn-send btn-primary'
+      / /.modal-content
+    / /.modal-dialog
+  / /.modal
+  / Forward
+  #google-forward-email.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :style => "display: none;min-height:500px;overflow-y:auto;", :tabindex => "-1"}
+    .modal-dialog.new_form_layout{:style => "width:55%;"}
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title Forward Message
+        = form_tag reply_email_path, :method => 'post', :id => 'forward-mail-form', :class => 'form-horizontal', :remote => true, :multipart => true do
+          .modal-body
+            = hidden_field_tag "reply_to_message_id", basic_info[:msg_id]
+            = hidden_field_tag "is_reply_message", true
+            .form-group
+              = label_tag :'email-to', 'To', class: 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_field_tag :to, '' , :placeholder => 'Recipients', :class => 'form-control', :id => 'forward-email-to', :required => true
+            .form-group
+              = label_tag :'email-cc', 'Cc', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_field_tag :cc, basic_info[:cc], :id => 'forward-email-cc', :class => 'form-control', :name => 'cc'
+            .form-group
+              = label_tag :'email-bcc', 'Bcc', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_field_tag :bcc, basic_info[:bcc], :id => 'forward-email-bcc', :class => 'form-control', :name => 'bcc'
+            .form-group
+              = label_tag 'email-subject', 'Subject', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                - subj = basic_info[:subject].include?("Fwd:") ? basic_info[:subject] : "Fwd: #{basic_info[:subject]}"
+                = text_field_tag :subject, subj, :id => 'forward-email-subject', :name => 'subject', :class => 'form-control', :placeholder => 'Subject'
+            .form-group
+              = label_tag :'email-body', 'Message', :class => 'col-lg-2 control-label font-bold'
+              .col-lg-10
+                = text_area_tag :body, generate_forward_content(email_body, basic_info), :id => 'forward-email-body', :name => 'body', :class => 'form-control tinymce_reply', :placeholder => 'Type your message here.', :rows => "10", :cols => "30"
+            .form-group
+              #forward-attachment-details.col-lg-offset-2.col-lg-10
+              .col-lg-offset-2.col-lg-10
+                %span.btn.green.fileinput-button
+                  %i.fal.fa-paperclip.fa.fa-white
+                  %span Attachment
+                  = file_field_tag :'files[]', :id => 'forward-attachments', :multiple => true
+          .modal-footer
+            .text-right
+              / <button class="btn btn-send" type="submit">Send</button>
+              %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Cancel
+              = submit_tag 'Send', :id => 'send-forward-email', :class => 'btn btn-send btn-primary'
+      / /.modal-content
+    / /.modal-dialog
+  / /.modal
+:javascript
+  var pd;
+  $(function () {
+    $("#btn-email-back").on("click", function () {
+      $("#task_loader,.fixed_loader").show();
+      var page_token, postData, searchQuery = $.trim($("#txt-email-search").val());
+      if ("#{params[:provider]}" == "google") {
+        page_token = pageToken[currentPage];
+      }
+
+      if (searchQuery == "") {
+        postData = {label_id: labelId, page_token: page_token, mail_type: mailType}
+      } else {
+        postData = {q: searchQuery}
+      }
+      pd = postData;
+      $.ajax({
+        url: "/emails/#{params[:provider]}/mail",
+        type: 'GET',
+        data: postData,
+        success: function (res) {
+          $(".email_details_header,.search_bar").show();
+          $("#email-content").html(res);
+          $(".mail-option").show();
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    });    
+    
+    $("#btn-reply-google").on("click", function () {
+      $("#google-reply-email").modal("show");
+    });
+
+    $("#btn-forward-google").on("click", function () {
+      $("#google-forward-email").modal("show");      
+    });
+
+
+    // $('#google-reply-email').on('shown.bs.modal', function() {
+    //     if (typeof tinyMCE != 'undefined') {
+    //       //alert('tinymce is correct')          
+    //       tinymce.EditorManager.editors = [];
+    //       $('#reply-email-body').wysiwyg({
+    //         rmUnusedControls: true,
+    //         controls: {
+    //           bold: { visible : true },
+    //           underline: { visible: true },
+    //           italic: { visible: true },
+    //           insertOrderedList: { visible: true },
+    //           insertUnorderedList: { visible: true },
+    //           undo: { visible: true },
+    //           redo: { visible: true },
+    //           indent: { visible: true },
+    //           outdent: { visible: true },
+    //           h1: { visible: true },
+    //           h2: { visible: true },
+    //           h3: { visible: true },
+    //           removeFormat: { visible: true },
+    //           increaseFontSize: { visible: true },
+    //           decreaseFontSize: { visible: true }
+    //         }
+    //       }); 
+    //        //$(tinymce.get('reply-email-body').getBody()).html('');
+    //        //$('#reply-email-body').val('')
+    //     } else {
+    //      // alert('tinymce is not correct')
+    //      setTimeout(arguments.callee, 50);
+    //     }
+    // })
+
+    // $('#google-forward-email').on('shown.bs.modal', function() {
+    //     if (typeof tinyMCE != 'undefined') {
+    //       //alert('tinymce is correct')          
+    //       tinymce.EditorManager.editors = [];
+    //       $('#forward-email-body').wysiwyg({
+    //         rmUnusedControls: true,
+    //         controls: {
+    //           bold: { visible : true },
+    //           underline: { visible: true },
+    //           italic: { visible: true },
+    //           insertOrderedList: { visible: true },
+    //           insertUnorderedList: { visible: true },
+    //           undo: { visible: true },
+    //           redo: { visible: true },
+    //           indent: { visible: true },
+    //           outdent: { visible: true },
+    //           h1: { visible: true },
+    //           h2: { visible: true },
+    //           h3: { visible: true },
+    //           removeFormat: { visible: true },
+    //           increaseFontSize: { visible: true },
+    //           decreaseFontSize: { visible: true }
+    //         }
+    //       }); 
+    //        //$(tinymce.get('reply-email-body').getBody()).html('');
+    //        //$('#reply-email-body').val('')
+    //     } else {
+    //      // alert('tinymce is not correct')
+    //      setTimeout(arguments.callee, 50);
+    //     }
+    // })
+
+
+    
+    $('#reply-email-body').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+    $('#forward-email-body').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+    $('#forward-mail-form').on('ajax:success', function(e, data, status, xhr){
+      $("#google-forward-email").modal("hide");
+    }).on('ajax:error',function(e, xhr, status, error){
+      console.log('error occured')
+    });
+
+
+    // Reply stuffs //
+    // $('#reply-mail-form').bind('form-pre-serialize', function (e) {
+    //   tinyMCE.triggerSave();
+    // });
+
+    var reply_options = {
+      target: '#output1', // target element(s) to be updated with server response
+      contentType: "application/x-www-form-urlencoded;charset=utf-8",
+      beforeSubmit: changeBtnTextReply, // pre-submit callback
+      success: showResponseReply, // post-submit callback
+      error: function (xhr) {
+        alert(xhr.responseText);
+        $("#send-reply-email").val("Send").prop("disabled", false);
+      }
+    };
+
+    // bind form using 'ajaxForm'
+    $('#reply-mail-form').ajaxForm(reply_options);
+
+    function changeBtnTextReply() {
+      $("#send-reply-email").val("Sending...").prop("disabled", true);
+    }
+
+    function showResponseReply(responseText, statusText, xhr, $form) {
+      $("#send-reply-email").val("Send").prop("disabled", false);
+      $("#google-reply-email").modal("hide");
+      $("#reply-mail-form")[0].reset();
+      $("#forward-attachment-details").html("");
+    }
+    // Forward stuffs //
+
+    // $('#forward-mail-form').bind('form-pre-serialize', function (e) {
+    //   tinyMCE.triggerSave();
+    // });
+
+    var reply_options = {
+      target: '#output1', // target element(s) to be updated with server response
+      contentType: "application/x-www-form-urlencoded;charset=utf-8",
+      beforeSubmit: changeBtnTextForward, // pre-submit callback
+      success: showResponseForward, // post-submit callback
+      error: function (xhr) {
+        alert(xhr.responseText);
+        $("#send-forward-email").val("Send").prop("disabled", false);
+      }
+    };
+
+    // bind form using 'ajaxForm'
+    $('#forward-mail-form').ajaxForm(reply_options);
+
+    function changeBtnTextForward() {
+      $("#send-forward-email").val("Sending...").prop("disabled", true);
+    }
+
+    function showResponseForward(responseText, statusText, xhr, $form) {
+      $("#send-forward-email").val("Send").prop("disabled", false);
+      $("#google-forward-email").modal("hide");
+      $("#forward-mail-form")[0].reset();
+      $("#reply-attachment-details").html("");
+    }
+    $("#reply-attachments").change(function () {
+      if ($(this)[0].files.length == 0) return false;
+      var attachmentContent = "";
+      $.each($(this)[0].files, function (key, value) {
+        attachmentContent += buildAttamantContent(value.name, formatBytes(value.size, 2));
+      });
+      $("#reply-attachment-details").html(attachmentContent);
+    });
+    $("#forward-attachments").change(function () {
+      if ($(this)[0].files.length == 0) return false;
+      var attachmentContent = "";
+      $.each($(this)[0].files, function (key, value) {
+        attachmentContent += buildAttamantContent(value.name, formatBytes(value.size, 2));
+      });
+      $("#forward-attachment-details").html(attachmentContent);
+    });
+    function buildAttamantContent(fileName, fileSize) {
+      return "<div class='col-xs-7' style='white-space: nowrap; padding: 3px 0'>" +
+          "<span>" + fileName + "</span></div>" +
+          "<div class='col-xs-4 col-xs-offset-1' style='padding: 3px 0'><span>" + fileSize + "</span></div>";
+    }    
+    function formatBytes(bytes, decimals) {
+      if (bytes == 0) return '0 KB';
+      var k = 1024; // or 1024 for binary
+      var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+    }
+  })
+
+  $(".star").on("click", function () {
+    var element = $(this);
+    var id = $(this).closest(".star_icon").data("id"),
+        starred = element.parent().data("starred");
+    $.ajax({
+      url: "/emails/#{params[:provider]}/" + id + "/toggle_star/",
+      type: "POST",
+      data: {starred: starred},
+      success: function (res) {
+        if (res.result) {
+          if(element.hasClass("stared_msg")){
+            element.removeClass("fas").addClass("fal");
+            element.removeClass("stared_msg").addClass("unstared_msg");
+
+          }else{
+            element.removeClass("fal").addClass("fas");
+            element.removeClass("unstared_msg").addClass("stared_msg");
+          }
+          element.parent().data("starred", !starred);
+        }
+      }
+    });
+  });

@@ -1,0 +1,63 @@
+%table.table.table-padded
+  %thead
+    %tr
+      %th #
+      %th Name
+      %th Type
+      %th Project
+      %th Due date
+      %th.text-center Actions
+  %tbody
+    - @jobs = @jobs.last(10)
+    - if @jobs.present?
+      - i = 0
+      - @jobs.each do |job|
+        - if job.is_completed
+          - sty = "text-decoration:line-through;"
+        - else
+          - sty = ""
+        %tr{:id => "job_"+job.id.to_s}
+          %td.num
+            = i+=1
+          %td{style: sty}
+            - unless job.is_completed && job.project.present?
+              = link_to job.name, project_project_job_path(job.project,job)
+            - else
+              = job.name
+          %td
+            /%span.status-pill.smaller.yellow
+            %span= job.project_job_type.present? ? job.project_job_type.name : "None"
+          %td
+            = job.project.present? ? job.project.name : ""
+          %td
+            -if job.due_date.present?
+              %span= job.due_date.strftime("%a, %d %b %Y")
+              %span.smaller.lighter= job.due_date.strftime("%H:%M %p")
+            - else
+              NA
+          %td.row-actions.text-center
+            - unless job.is_completed
+              - if job.project.present?
+                %a{:href => edit_project_project_job_path(job.project,job), :title => "Edit"}
+                  %span.fal.fa-edit
+                |
+              %a{:href => "javascript:void(0)", :onclick => "delete_job(#{job.project_id}, #{job.id})", :title => "Delete"}
+                %span.fal.fa-trash
+      - if @jobs.size == 10
+        %tr
+          %td.text-right{colspan: "6"}
+            %a{href:"/project_jobs/kanban"} View all
+    - else
+      %tr
+        %td{colspan: "6"}
+          .text-center
+            - if params[:job_by_duration].present? &&  params[:job_by_duration] == "all"
+              You haven't created any jobs yet.  
+            - elsif params[:job_by_duration].present? &&  params[:job_by_duration] == "upcoming"
+              Oh! You have no Upcoming jobs
+            -else  
+              Oops! There are no jobs
+              = params[:job_by_duration].present? ? params[:job_by_duration].capitalize() : "Today"
+            / %br
+            / =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "$('#task_referrer').val('Header');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#deal_title_task').prop('required','true');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');" do
+            /   +Create one

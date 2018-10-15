@@ -1,0 +1,60 @@
+- project_job_today_count = project_job_today
+- project_job_overdue_count = project_job_overdue
+- project_job_upcoming_count = project_job_upcoming
+=hidden_field_tag "today_job_count", project_job_today_count
+=hidden_field_tag "overdue_job_count", project_job_overdue_count
+=hidden_field_tag "upcoming_job_count", project_job_upcoming_count
+=hidden_field_tag "job_status_value", "all"
+=hidden_field_tag "job_assigned_to"
+=hidden_field_tag "job_year"
+=hidden_field_tag "job_quarter"
+%li#allJob.active.badge.badge-success
+  %a.fnt-white{"data-toggle" => "tab", href: "#all", onclick: "display_project_jobs('all');add_css('all');"}
+    All
+    %span#allBadge
+      (
+      - if project_job_all.nil?
+        0
+      - else
+        = project_job_all
+      )
+%li#todayJob.badge.badge-warning
+  %a.fnt-white{"data-toggle" => "tab", href: "#today", onclick: "display_project_jobs('today');add_css('all');"}
+    Today
+    %span#todayBadge
+      (
+      - if project_job_today_count.nil?
+        0
+      - else
+        =project_job_today_count
+      )
+%li#overdueJob.badge.badge-danger
+  %a.fnt-white{"data-toggle" => "tab", href: "#overdue", onclick: "display_project_jobs('overdue');add_css('all');"}
+    Overdue
+    %span#overdueBadge
+      (
+      - if project_job_overdue.nil?
+        0
+      - else
+        =project_job_overdue
+      )
+%li#upcomingJob.badge.badge-success
+  %a.fnt-white{"data-toggle" => "tab", href: "#upcoming", onclick: "display_project_jobs('upcoming');add_css('all');"}
+    Upcoming
+    %span#upcomingBadge
+      (
+      - if project_job_upcoming_count.nil?
+        0
+      - else
+        =project_job_upcoming_count
+      )
+%li#completedJob.badge.badge-primary
+  %a.fnt-white{"data-toggle" => "tab", href: "#completed", onclick: "display_project_jobs('completed');add_css('all');"}
+    Completed
+    %span#completedBadge
+      (
+      - if project_job_completed.nil?
+        0
+      - else
+        =project_job_completed
+      )

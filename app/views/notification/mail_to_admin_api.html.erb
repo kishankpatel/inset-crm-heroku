@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>Contact Andolasoft</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Trebuchet MS'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p>
+                  Hi Admin,
+                </p>
+                <p style="color:#666666">
+                  A hot lead contacted through <b><%= @source%></b>. 
+                </p>
+                <p>
+                Please find the below information:
+                </p>
+                 <p>
+                  <b>Name:</b> <%=@contact_name%>
+                </p>
+                 <p>
+                  <b>Email:</b> <%=@contact_email%>
+                </p>
+                 <p>
+                 <b> Phone:</b> <%=@contact_phone%>
+                </p>
+                <%if @initial_note.present?%>
+                  <p>
+                    <b>Description: </b><%=@initial_note%>
+                  </p>
+                 <%end%>
+                <p>
+                 <b> URL:</b> <%=@link%>
+                </p>
+                <a href="<%=@link%>" target="_blank" style="cursor: pointer;text-decoration: none;border: 1px solid #01447a;color: #FFFFFF;font-weight: bold;margin-top: 20px;padding: 15px 140px;text-align: center;background: #277dc2;margin: 40px auto;font-size: 16px;display:block;">
+			            Go to Lead
+	              </a>
+            
+			
+                <div style="clear:both;height:5px"></div>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

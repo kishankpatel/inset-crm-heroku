@@ -1,0 +1,146 @@
+.top-kanban-bar.white-sticky-header.fixed-in-app-header
+  .total_amount_sec.fr.text-center
+    Total open opportunities value:
+    %span.btn.btn-outline.btn-info.btn-xs{id: "total_open_opportunities_amount"}
+    .amount_info
+      %span.tooltip-custom{title:"The amount is converted as per the default currency set. This converted amount may vary from the real conversion. Only open opportunities are calculated."} ?
+  = link_to "#dealModal", "data-toggle" => "modal", "onclick" => "$('#lead_referrer').val('Header');$('#new_deal')[0].reset();$('.error').html('');$('#deal_first_name').attr('disabled', false);reset_deal_popup_info();show_lead_fields();", class: "btn btn-default mr10 fr" do
+    New
+  .fl.filter_by_user_pipeline
+    .fl.lead-stage  
+      - if @current_user.is_admin?  
+        = select_tag "filter_by_user", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]} + ['All'], :selected => @current_user.id),:class=>"apply_filter filter_user btn btn-default", :disabled => @current_user.is_user?
+    .fl.btn-group.btn-toggle{style: "margin-left:15px;"}
+      %button.btn.btn-primary.leadtype.active All
+      %button.btn.btn-default.leadtype Open
+    .cb
+  .fr.actions_pipeline
+    %span
+      %a#additional_links{"data-toggle" => "modal", href: "#BulkLeadModal", rel: "popup", title: "Bulk lead upload"}
+        %span{type: "button"} 
+          %span.cwkp-sprite.bulk-lead-upload
+    %span
+      %a#leads_export_btn{"data-toggle" => "modal", href: leads_path(format: "csv"), style: "text-decoration:none;"}
+        %span.cwkp-sprite.export-to-csv.p5{type: "button",rel: "tooltip", title: "Export to CSV" }
+    %span 
+      %a{href: "javascript:void(0)", onclick: "show_list_view();reset_all_deal_filter();reset_filter_val();highlight_leads()", title: "Show List view"}
+        %span.link_to_list_view.cwkp-sprite.list_view-icon
+      /%a{href: "javascript:void(0)", onclick: "show_funnel_chart();", title: "Show funnel chart"}
+      /  .link_to_list_view.fr.glyphicon.glyphicon-stats{style: "font-size: 18px;margin: 5px 15px 0;"}
+  .cb
+.kanban_view
+  = render partial: "get_kanban_view"
+#dealmoveModal.modal.fade.margin-top-20{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      .color-line
+      -@deal= DealMove.new
+      = form_for(@deal,:url=>move_lead_path,  :remote => true,:html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"move_deal_popup"}) do |f|
+        =hidden_field_tag :new_initr_id
+        =hidden_field_tag :new_assign_id
+        =hidden_field_tag :mass_deal_ids
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title{style:"display:inline-block;vertical-align:middle;"}
+            %span.fal.fa-exchange
+            MOVE LEAD
+        .modal-body
+          %input{:type=>"hidden",:name=>"deal_id",:value=>"",:id=>"deal_id_move"}
+          %input{:type=>"hidden",:name=>"flag_id",:value=>"0",:id=>"flag_id"}
+          %div{id:"chk_radio_act",class: "error",style: "display:none;margin-top:-14px;"}
+
+          .cb
+            -dealstatuses = current_user.organization.deal_statuses
+            .form-group{style:"margin-top:0;"}
+              - dealstatuses.each do |ds|
+                .modal-radio.radio.radio-info.radio-inline{:class => "show_all deal_s_#{ds.id}"}
+                  =f.radio_button :deal_status ,ds.id,:required=>true,:onclick => "change_assign_drop('#{ds.name}');"
+                  %label{:for => "deal_move_deal_status_#{ds.id}"}
+                    %span
+                    =ds.name
+
+
+          .cb#finish_working{style: "display:none"}
+
+            .col-md-4.p0
+              .form-group
+                =f.check_box :is_current ,:class=> ""
+                Finished working
+          .cb
+            .form-group#mv_dl_asign
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-user
+                = select_tag "assigned_to_user", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]}), :prompt => '- Users -',:class=>"form-control",:required=>true
+          .cb
+            .form-group
+              %label{:for => "deal_move_note"} Note
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-pen-fancy
+                =f.text_area :note,:html=>{:maxlength=> "80"}, :style=> "resize: none;height:100px;",:rows=>"3" , :class=>"form-control"
+              %i.bar
+          .cb
+          .form-layout-footer{style:"margin-top: 20px;"}
+            %button.btn.btn-info{type: "submit", "data-disable-with" => "Saving...", onclick: "return chk_radiobtn();", style:"margin-bottom: 0px;"} Save
+            %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal", style:"margin-bottom: 0px;"}
+              Cancel
+
+
+= render :partial => "tab_settings_kanban"
+:javascript
+  $("#filter_by_user").on('change',function(){
+    $("#task_loader,.fixed_loader").show();
+    var user_id = $(this).val();
+    var s_type = $(".leadtype.active").text();
+    $.ajax( {
+      type: "GET",
+      url: "/deals/get_kanban_view",
+      data: {user_id: user_id, open_all_type: s_type},
+      success: function(result) {
+        $(".kanban_view").html(result);
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(res) {
+          alert("Some error has been occured.");
+          $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  });
+  $('.btn-toggle').click(function() {
+    $(this).find('.btn').toggleClass('active');
+    if ($(this).find('.btn-primary').size()>0) {
+      $(this).find('.btn').toggleClass('btn-primary');
+    }
+    $(this).find('.btn').toggleClass('btn-default');
+    var s_type = $(".leadtype.active").text();
+    $("#task_loader,.fixed_loader").show();
+    var user_id = $("#filter_by_user").val();
+    $.ajax( {
+      type: "GET",
+      url: "/deals/get_kanban_view",
+      data: {user_id: user_id, open_all_type: s_type},
+      success: function(result) {
+        $(".kanban_view").html(result);
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(res) {
+        alert("Some error has been occured.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  });
+  $('.leadtype').each(function () {
+    var txt = "#{escape_once(cookies[:open_all_type])}"
+    if(txt == ""){
+      if ($(this).text() == "All") {
+        $(this).removeClass('btn-default').addClass('active btn-primary');
+      }
+    }else{
+      $(this).removeClass('active btn-primary').addClass('btn-default');
+      if ($(this).text() == txt) {
+        $(this).removeClass('btn-default').addClass('active btn-primary');
+      }
+    }
+  });

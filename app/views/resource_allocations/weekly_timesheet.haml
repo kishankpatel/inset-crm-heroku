@@ -1,0 +1,37 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up        
+      %h2.font-light.m-b-xs
+        %i.fal.fa-calendar-alt
+        Weekly Timesheet
+      %small
+.content
+  .hpanel.hblue
+    .panel-body
+      .col-md-12
+        .col-md-12.cont_box
+          .col-md-8.pull-left
+            %strong{style: "font-size:20px"}
+              .fal.fa-calendar
+              Weekly Timesheet
+              %span#wt_start_dt
+                =@start_date.strftime("%d %b")
+              =" - "
+              %span#wt_end_dt
+                =@end_date.strftime("%d %b")
+              %a.vertical-align{href: "javascript:",:onclick=>"get_weekly_timesheet('prev')"}
+                .fal.fa-angle-left{style: "font-size:30px"}
+              %a.vertical-align{href: "javascript:",:onclick=>"get_weekly_timesheet('next')"}
+                .fal.fa-angle-right{style: "font-size:30px"}
+          .col-md-4.pull-right
+            Resource: 
+            %br
+            -users = @current_organization.users.collect {|i| [ ((i.id==@current_user.id ? 'me' : (i.full_name.present? ? i.full_name : i.email))), i.id ]}
+            =select_tag :resource_id, options_for_select(users), {:class => "form-control", :required => true,:onchange=>"get_weekly_timesheet('current')",:selected=>@current_user.id}
+        .cb
+        .col-md-12.div_weekly_timesheet.cont_box
+          = render :partial=>'get_weekly_timesheet',:locals=>{:start_date=>@start_date,:end_date=>@end_date,timesheet: @timesheet,user: @current_user,:project_jobs=>@project_jobs}
+=render :partial=>'project_jobs/time_logs_list'

@@ -1,0 +1,144 @@
+/ .container.activities_page
+/   .white-sticky-header.fixed-in-app-header
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/activities"} Activities
+      %h2 
+        %span.fal.fa-building
+        Activities
+      %small.fl
+        Displaying activities 
+        %span.activity_duration_txt
+          for "This Month" with filtered by users "All"
+      .text-left.col-md-12
+        - if @current_user.is_admin?
+          .btn-group
+            %button.btn.btn-default.activity_range_txt{type: "button"}
+              This Month
+            %button.btn.btn-default.dropdown-toggle{"data-toggle" => "dropdown", type: "button"}
+              %span.caret
+              
+            %ul#activity_menu.dropdown-menu{role: "menu"}
+              
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "thisweek"} This week
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "lastweek"} Last week
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "thismonth"} This Month
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "lastmonth"} Last Month
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "thisquarter"} This Quarter
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "lastquarter"} Last Quarter
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "thisyear"} This Year
+              %li
+                %a.activity_range{href: "javascript:void(0)", "data-value" => "lastyear"} Last Year
+              %li
+                %a{href: "javascript:void(0)", id: "contacted_custom_date", :onclick => "event.preventDefault();event.stopPropagation();$('#activity_custom_date').toggle();"}
+                  Custom Date
+                  = image_tag "/assets/new-ui/arrow_down_for_select.png"
+              %li#activity_custom_date{style: "display:none;"}
+                =text_field_tag "activity_filter_from","",value: "",class: "form-control",placeholder: "From", :onclick => "event.stopPropagation();", :onkeydown=>"disable_text(event);"
+                .cb10
+                =text_field_tag "activity_filter_to","",value: "",class: "form-control",placeholder: "To", :onclick => "event.stopPropagation();", :onkeydown=>"disable_text(event);"
+                .cb10
+                %button.btn.btn-primary{class: "filterSelectDropdow",type: "button",rel: "tooltip", title: "Filter", onclick: "activity_validate_date();" } 
+                  Search
+            =hidden_field_tag "selected_activity_range","thismonth"
+            =hidden_field_tag "hdn_activity_filter_from",""
+            =hidden_field_tag "hdn_activity_filter_to",""
+            .cont_top_r.fr
+              = select_tag "fiter_user", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email.split("@")[0], c.id ]} + ['All'], :selected => @current_user.is_user? ? @current_user.id : 'All'),:class=>"activity_filter filter_by_user btn btn-default", :disabled => @current_user.is_user?
+          .cb
+
+  .col-md-12.activity_page
+    .hpanel.hgreen
+      .panel-heading
+        %span.far.fa-chart-line
+        Activity Stream
+      .panel-body.activity-stream-section
+        #activity-div.table-responsive
+          -@source="activities"
+          =render :partial=>"activity_all",:objects=>{source: @source}
+
+:javascript
+  
+  $("#hdn_activity_filter_from").val('');
+  $("#hdn_activity_filter_to").val('');
+  $(".activity_filter").on('change', function() {
+    fetch_activity_by_filter();
+  });
+  $('#activity_filter_from').datetimepicker({
+    format: 'DD-MM-YYYY',
+    pickTime: false,
+  })
+  $('#activity_filter_to').datetimepicker({
+    format: 'DD-MM-YYYY',
+    pickTime: false,
+  })
+  function activity_validate_date(){
+    var startDate = $('#activity_filter_from').val();
+    var endDate = $('#activity_filter_to').val();
+    if (startDate > endDate){
+      alert("From date should be less than to date.")
+    }else{
+      event.stopPropagation();
+      fetch_activity_by_filter();
+      $('.report_range_txt').text('Custom Date');
+      $('.report_range_btn').removeClass('open');
+      $('#hdn_activity_filter_from').val($('#activity_filter_from').val());
+      $('#hdn_activity_filter_to').val($('#activity_filter_to').val());
+      $('.activity_range_txt').text('Custom Date');
+      $('.duration_option').removeClass('open');
+    }
+  }
+  function fetch_activity_by_filter(){
+    var filter_type = $("#selected_activity_range").val();
+    var filter_user_id = $("#fiter_user").val();
+    var filter_from = $("#activity_filter_from").val();
+    var filter_to = $("#activity_filter_to").val();
+    $.ajax({
+      type: "GET",
+      url: "#{activities_path}",
+      dataType: 'json',
+      data: {filter_duration: filter_type, filter_user_id: filter_user_id, filter_from: filter_from, filter_to: filter_to},
+      async: true,
+      beforeSend: function(){
+        $('.v_more').hide();
+      },
+      success: function(data){},
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+        if($("#activity_filter_from").val() != "" && $("#activity_filter_to").val() != ""){
+          $(".activity_duration_txt").text("from \"" + $('#activity_filter_from').val() + " to " + $('#activity_filter_to').val() + "\" with filtered by users \"" + $("#fiter_user option:selected").text() + "\"");
+        }else{
+          $(".activity_duration_txt").text("for \"" + $('.activity_range_txt').text().trim() + "\" with filtered by users \""+ $("#fiter_user option:selected").text() + "\"");
+        }
+        $("#activity-div.table-responsive").html(data.responseText);
+        $('.v_more').show();
+      }
+    });
+  }
+  $(".activity_range").on('click', function(){
+    $("#selected_activity_range").val($(this).data("value"));
+    $("#hdn_activity_filter_from").val('');
+    $("#hdn_activity_filter_to").val('');
+    $(".activity_range_txt").html($(this).text());
+    $("#activity_filter_from").val('');
+    $("#activity_filter_to").val('');
+    $("#activity_custom_date").hide();
+    fetch_activity_by_filter();
+  });

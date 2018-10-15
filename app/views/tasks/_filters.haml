@@ -1,0 +1,83 @@
+.btn-group
+  .dropdown-toggle.f_menu{"data-toggle" => "dropdown", type: "button",onclick: "reser_all_submenu();$('.main_menu').show()"}
+    %span.fal.fa-filter.fa-2x{:title => "Filter"}
+  /- if current_user.is_admin? || current_user.is_super_admin?        
+  %ul.dropdown-menu.main_menu{role: "menu"}
+    %li.arrow_top
+    %li.dropdown-submenu
+      %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "show_hide_submenu('deal_type');"} Lead Type
+      #dtype
+        .arrow_left.deal_arw
+        %ul#cre_by_app.dropdown-menu
+          - current_user.organization.deal_statuses.order("name").each do |dtype|
+            %li
+              %a{href: "javascript:void(0)",onclick: "check_radio_button(#{dtype.id},'deal_type')",class: "taskFilterSelectDropdow"}
+                %input{id:"deal_type_#{dtype.id}", class: "deal_by_c",type: "radio", value: "#{dtype.id}",d_type: "#{dtype.name}", name: "deal_type"}
+                  - dl_type = dtype.name
+                  - if dl_type.length > 12
+                    %span{title: dl_type}
+                      =dl_type.truncate(15)
+                  - else
+                    = dl_type
+    %li.dropdown-submenu
+      %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "show_hide_submenu('assigned');"} Assigned To
+      #asg
+        .arrow_left.asg_arw
+        %ul.dropdown-menu
+          - all_org_users.each do |assg_by|
+            %li
+              %a{href: "javascript:void(0)",onclick: "check_radio_button(#{assg_by.id},'assigned')",class: "taskFilterSelectDropdow"}
+                %input{id:"assg_by_#{assg_by.id}", class: "asg_by_c",type: "radio", value: "#{assg_by.id}",a_name: "#{assg_by.full_name}",name: "assg_by"}
+                  - asn_usr = assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split("@")[0]
+                  - if asn_usr.length > 13
+                    %span{title: asn_usr}
+                      =asn_usr.truncate(13)
+                  - else
+                    = asn_usr
+    %li.dropdown-submenu
+      %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "show_hide_submenu('task_type');"} Task Type
+      #tsk
+        .arrow_left.tsk_arw
+        %ul#cre_by_app.dropdown-menu
+          - current_user.organization.task_types.order("name").each do |tsk_type|
+            %li
+              %a{href: "javascript:void(0)",onclick: "check_radio_button(#{tsk_type.id},'task_type')",class: "taskFilterSelectDropdow"}
+                %input{id:"task_type_#{tsk_type.id}", class: "task_by_c",type: "radio", value: "#{tsk_type.id}",t_type: "#{tsk_type.name}", name: "task_type"}
+                  =tsk_type.name
+    %li.date_show.dropdown-submenu{onclick: "show_hide_submenu('date');"}
+      %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Any Time
+      #dt
+        .arrow_left.date_arw
+        %ul.dropdown-menu
+          %li
+            %a{href: "javascript:void(0)",onclick: "check_radio_button('past_week','date')" ,class: "taskFilterSelectDropdow"}  
+              %input{id:"past_week", class: "date_c",type: "radio", value: "Past Week",name: "date"}
+              Past Week
+          %li
+            %a{href: "javascript:void(0)",onclick: "check_radio_button('past_two_weeks','date')",class: "taskFilterSelectDropdow"}  
+              %input{id:"past_two_weeks", class: "date_c",type: "radio", value: "Past Two Weeks",name: "date"}
+              Past Two Weeks
+          %li
+            %a{href: "javascript:void(0)",onclick: "check_radio_button('past_three_weeks','date')",class: "taskFilterSelectDropdow"}  
+              %input{id:"past_three_weeks", class: "date_c",type: "radio", value: "Past Three Weeks", name: "date"}
+              Past Three Weeks
+          %li
+            %a{href: "javascript:void(0)",onclick: "check_radio_button('past_month','date')",class: "taskFilterSelectDropdow"}  
+              %input{id:"past_month", class: "date_c",type: "radio", value: "Past Month",name: "date"}
+              Past Month
+          %li
+            %a{href: "javascript:void(0)",onclick: "check_radio_button('past_year','date')",class: "taskFilterSelectDropdow"}  
+              %input{id:"past_year", class: "date_c",type: "radio", value: "Past Year",name: "date"}
+              Past Year
+               
+
+  / %a{"data-toggle" => "modal", href: "#taskModal", onclick: "$('#task_form')[0].reset();$('#clicked_button_ref').val(check_active_tab());$('#email_err').html('');",rel: "tooltip", title: "Add a task"}
+  /   %span.p5       
+  /     %span.fal.fa-tasks
+.btn-group
+  = link_to tasks_path(format: "csv"), :id => "task_export_btn", title:"Export to CSV", :class=>"list_view_btn m-l-xs" do
+    %span.fal.fa-upload.fa-2x
+  %a.m-l-xs{"data-toggle" => "tab", href: "#all", onclick: "add_css('all');$.removeCookie('task_page_tab');", title:"List View"}
+    %span.fal.fa-list.fa-2x
+  %a.m-l-xs{"data-toggle" => "tab", href: "#calendarView", onclick: "$('#calendar_filter_type').val('');add_css('calendar');", title:"Calender View"}
+    %span.fal.fa-calendar.fa-2x

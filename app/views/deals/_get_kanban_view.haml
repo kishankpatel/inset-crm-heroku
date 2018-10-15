@@ -1,0 +1,253 @@
+- unless @deal_statuses.present?
+  - @deal_statuses = @current_organization.deal_statuses.where("name NOT IN (?)", ['won', 'lost']).order("original_id")
+#kanbanCanvas
+  #kanbanContainer
+    #kanbanStages.kanban.animate-panel{"data-child"=>"hpanel", "data-effect"=>"fadeInDown"}
+      %table
+        %tbody
+          %tr
+            %td
+              .stages.ready
+                - params[:user_id] = @current_user.id if(!params[:user_id].present?)
+                %ul{:style => ""}
+                  - total_amount=[]
+                  - @deal_statuses.each do |deal_status|
+                    %li.showWeighted{"data-stage-id" => deal_status.id}
+                      %span.stagename{title: deal_status.name}
+                        = deal_status.name
+                      %b
+                        - if params[:user_id].present? && params[:user_id] != 'All'
+                          - total_deals = @current_organization.deals.joins(:deals_contacts).where("deals.is_active = true and deals.deal_status_id = #{deal_status.id} and ((deals.assigned_to = #{params[:user_id]} or deals.initiated_by = #{params[:user_id]} ) or (deals_contacts.contactable_type = 'IndividualContact' and deals_contacts.contactable_id in (select id from individual_contacts where owner_id = #{params[:user_id]})))")
+                        - else
+                          - total_deals = @current_organization.deals.by_is_active.where(deal_status_id: deal_status.id)
+                        - if cookies[:open_all_type].present?
+                          - if cookies[:open_all_type] == "Open"
+                            - total_deals = total_deals.where("is_won IS NULL")
+                        = total_deals.count
+                      %br
+                        %small
+                          = @current_organization.default_currency
+                          - lead_amount = lead_stage_total_amount(deal_status, params[:user_id])
+                          = number_with_delimiter(lead_amount, :delimiter => ',')
+                          - total_amount << lead_amount
+                        .amount_info.fr
+                          %span.tooltip-custom{title:"The amount is converted as per the default currency set. This converted amount may vary from the real conversion. Only open opportunities are calculated."} ?
+                  /=debug(total_amount)
+                  #total_open_amount{style:"display:none"}
+                    = @current_organization.default_currency
+                    = number_with_precision(total_amount.sum, :delimiter => ',', :precision => 2)
+          %tr
+            %td#dealsContainer
+              .deals.hasScrollbar.ready.narrow
+                .emptyPipeline.hidden
+                .dealsTable
+                  - @deal_statuses.each do |deal_status|
+                    - if params[:user_id].present? && params[:user_id] != 'All'
+                      - deals = @current_organization.deals.joins(:deals_contacts).where("deals.is_active = true and deals.deal_status_id = #{deal_status.id} and ((deals.assigned_to = #{params[:user_id]} or deals.initiated_by = #{params[:user_id]} ) or (deals_contacts.contactable_type = 'IndividualContact' and deals_contacts.contactable_id in (select id from individual_contacts where owner_id = #{params[:user_id]})))").order("deals.updated_at desc")
+                    - else
+                      - deals = @current_organization.deals.by_is_active.where(deal_status_id: deal_status.id).order("updated_at DESC")
+                    - if cookies[:open_all_type].present?
+                      - if cookies[:open_all_type] == "Open"
+                        - deals = deals.where("is_won IS NULL")
+                    .stage.droppable_stage{name: "#{deal_status.name}"}
+                      
+                      - deals.each do |deal|
+                        .hpanel
+                          .panel-body.draggable_lead{id: "status_#{deal.id}", draggable: "true", name: "#{deal.id}",:data=>{opportunity: "#{deal.title}",opportunity_id: "#{deal.id}"}}
+                            
+                            %a.front{:draggable => "false", :href => "/leads/#{deal.to_param}"}
+                              %strong 
+                                %span.col-md-12.p0{title:deal.title}  
+                                  = deal.title.truncate(20)
+                                %small
+                                  .fl.lead_name
+                                    - deal_contact = deal.deals_contacts.first.contactable if deal.deals_contacts.present?
+                                    - if deal_contact.present? && deal_contact.class.name == "IndividualContact"
+                                      - ld_name = deal_contact.full_name.present? ? deal_contact.full_name : deal_contact.email
+                                      - if ld_name.present?
+                                        %span{title: ld_name}
+                                          = ld_name.truncate(15)
+                                  - deal_amount = deal.amount.present? ? number_to_currency(deal.amount.to_f, precision: 2).gsub("$", "") : 0
+                                  - if deal_amount != 0  
+                                    .fr.value
+                                      - if deal.currency_type == 'S$'
+                                        - currency = 'SGD($)'
+                                      - elsif deal.currency_type == '€'
+                                        - currency = 'EUR(€)'
+                                      - elsif deal.currency_type == 'INR'
+                                        - currency = 'INR'
+                                      - elsif deal.currency_type == '£'
+                                        - currency = 'GBP(£)'
+                                      - elsif deal.currency_type == 'DZD'
+                                        - currency = 'DZD'
+                                      - else
+                                        - currency = 'USD($)'
+                                      
+                                      %span.text-success{title:"Amount #{currency}"}
+                                        = deal.currency_type
+                                        = deal_amount
+                                  .cb
+                              - if deal.is_won.to_s.present?  
+                                %small
+                                  .fr
+                                    %span.kanban_stage_status{:class=>deal.is_won ? "won" : "lost"}
+                                      = deal.is_won ? "Won" : "Lost"
+                                  .cb
+
+       
+:javascript
+  //initialize_tooltipster();
+  $('#dealmoveModal').on('show.bs.modal', function (e) {
+    $("#deal_move_note").val("")
+  });
+  $('#move_deal_popup').bind('ajax:complete', function(evt, data, status, xhr){
+    //alert('complete')
+    $("#dealmoveModal").modal('hide');    
+    show_kanban_view();
+  });
+  function change_assign_drop(obj)
+  {
+    //alert(obj);
+    var ini_id = $("#new_initr_id").val();
+    var assn_id = $("#new_assign_id").val();
+    $("#flag_id").val(1);
+    if(obj == "Won" || obj == "Lost" ){
+      $('#assigned_to_user').removeAttr('required');
+      $('#mv_dl_asign').fadeOut("slow");
+    }else
+    {
+      $('#assigned_to_user').prop('required',true);
+      $('#mv_dl_asign').fadeIn("slow");
+    }
+    if(obj == "Junk"){$('#assigned_to_user').val(ini_id);}else{ $('#assigned_to_user').val(assn_id); }
+    if($("#flag_id").val() == "1")
+    {
+      $("#chk_radio_act").hide();
+    }
+    if(obj == "Not Qualified" || obj == "Lost" || obj == "Junk"){
+     $('#deal_move_note').prop('required',true);
+     }else{$('#deal_move_note').prop('required',false);}
+  }
+  function chk_radiobtn()
+  {
+    var chak_flag = $("#flag_id").val();
+    if(chak_flag == "0")
+    {
+      $("#chk_radio_act").show();
+      $("#chk_radio_act").html('Please select an option from below!')
+      return false;
+    }
+    
+  }
+  
+  
+  function deleteLead(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $.ajax({
+        url: '/delete_lead/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          //$("#status_"+id).remove();
+          show_kanban_view();
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  }
+
+  // Implement drag and drop functionality
+  $( function() {
+    $( ".draggable_lead" ).draggable({helper: "clone",
+      containment: "div.kanban_view",
+      start: function(e, ui)
+        {
+          $(ui.helper).css({"border":"1px solid #999","box-shadow":"0 0 10px #777","-ms-transform":"rotate(7deg)","-webkit-transform":"rotate(7deg)","transform":"rotate(7deg)","background":"#f1f1f1"});
+        }
+    });
+    $( ".droppable_stage" ).droppable({
+      drop: function( event, ui ) {
+        //retrieve the lead_id and status name from draggable lead and dropable status
+        lead_id = ui.draggable.attr("name");
+        opportunity_name = ui.draggable.attr("data-opportunity")
+        opportunity_id = ui.draggable.attr("data-opportunity_id")
+        status = $(this).attr("name");
+        var cur_lead;
+        cur_lead = "status_"+lead_id.toString();
+        x = $("#"+cur_lead).closest(".droppable_stage").attr("name");
+        if(x == status){
+          $(".draggable_lead").css({"z-index":"0","cursor":"default"});
+          $( ".droppable_stage .status_content" ).css({"border":"1px solid #e5e5e5"});
+          //alert("Opps! Lead has already the dropped Status");
+          return false;
+        }
+        $('#task_loader,.fixed_loader').show();
+        var user_id=$("#filter_by_user").val();
+        $.ajax( {
+          type: "POST",
+          url: "/change_lead_status?user_id="+user_id,
+          data: {lead_id: lead_id, status: status},
+          success: function(result) {
+            $(".kanban_view").html(result);
+            $('#task_loader,.fixed_loader').hide();
+            //$(document).trigger("add-alerts", [{'message': "" ,'priority': 'success'}]);
+            //$(".alert.alert-success ul").html("").html("Lead has been moved successfully.");
+            show_alert_message("success","Lead has been moved successfully.");
+            $('#taskModal').modal('show');
+            fillTaskFields(lead_id,opportunity_name)
+          },
+          error: function(res) {
+              alert("Some error has been occured.");
+              $('#task_loader,.fixed_loader').hide();
+          }
+        });
+      }
+    });
+  } );
+  
+  // Display movable Lead as the top of all other Lead
+  $( ".draggable_lead" ).mousedown(function(){
+    $(this).css({"z-index":"1","cursor":"crosshair"});
+  });
+  $( ".draggable_lead" ).click(function(){
+    $(".draggable_lead").css({"z-index":"0"});
+    $(this).css({"z-index":"1","cursor":"crosshair"});
+  });
+  $(".draggable_lead").bind('drag',function( event ){
+    $( ".droppable_stage .status_content" ).css({"border":"1px solid #0099CB"});
+    $( this ).closest(".status_content").css({"border":"1px solid #e5e5e5"});
+  });
+
+  function highlight_leads(){
+    $("#leads_kanban_view").removeClass("activ_menu");
+    $("#leads").addClass("activ_menu");
+    $("#leads .lds").css({"background-position":"5px -21px","color":"#000"});
+  }
+
+  function get_kanban_stages(){
+    $("#dealsettingKanbanModal .modal-body").html("<div style='text-align:center'><img src='../assets/ajax-loader2.gif'></div>");
+    $.ajax( {
+      type: "POST",
+      url: "/get_kanban_stages",
+      success: function(result) {
+        $("#dealsettingKanbanModal .modal-body").html(result);
+      },
+      error: function(res) {
+          alert("Some error has been occured.");
+      }
+    });
+  }
+  
+  function show_modal(){
+    $('#dealsettingKanbanModal').modal('show');
+  }
+
+  $(document).ready(function () {   
+    // $('.tooltip-custom').tooltipster({
+    //   theme: 'tooltipster-noir',
+    //       maxWidth: 360   
+    // });
+  });
+  $("#total_open_opportunities_amount").text($("#total_open_amount").text());

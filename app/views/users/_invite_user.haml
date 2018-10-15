@@ -1,0 +1,82 @@
+#inviteuserModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-user-plus
+          Invite a Person
+      =render :partial=>'/users/invite_user_form',:locals=>{:from_getting_started_page=>false}
+      
+:javascript
+  $('#inviteuserModal').on('hidden.bs.modal', function () {
+    $("#user_admin_type_2").click();
+  })
+  $('#user_invite_form').bind('ajax:success', function(evt, data, status, xhr){
+  $('#loader').hide();
+  $("#inviteuserModal").modal('hide');
+  window.location.href ="/users";
+  });
+
+  $('#user_invite_form').bind('ajax:error', function(e, xhr, status, error){
+    //window.location.href ="/users/pricing";
+  });
+
+  $('#user_invite_form').bind('ajax:before', function(evt, data, status, xhr){
+  $('#loader').show();
+  });
+
+  $("#user_invite_form").bind("ajax:complete", function(evt, data, status, xhr) {
+  if(data.responseText !== " "){
+    show_alert_message("warning",data.responseText);
+    //$(".show-alert").show();
+    //$(".show-msg").html(data.responseText);
+  }
+  $('#loader').hide();
+  });
+   
+  validate_email_field();
+  $('#new_user_group_field').click(function(event){
+    $('#job-type-dropdown-menu').show();
+    $('#job-group-dropdown-menu').hide();
+  });
+
+  $('#new_user_group_field').keypress(function(e) {
+    if(e.which == 13) {
+      create_custom_user_group($.trim($(this).val()));
+      $('#user_group_sec').click();
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  function create_custom_user_group(new_val){
+    $.ajax({
+      url: '/settings/save_group',
+      type: 'POST',
+      async: true,
+      data: {name: new_val },
+      success: function(res) {
+        if(res != "Please enter name"){
+          $(".user-drop-down-menu li").last().after("<li class='sel_user_role' value='" + res+ "' tabindex='0' style='padding-left:15px;'>"+ new_val +"</li>")
+          show_alert_message("success", "A new user group has been inserted to your Organization.");
+          $('#new_user_group_field').val("");
+          $("#user_role_id").val(res);
+          $("#new_user_group_toggle").val(new_val);
+          $("#new_user_group_toggle").css("text-indent","35px");
+        }else{
+          $(".user-drop-down-menu").show();
+          $("#user_group_sec").css("border","1px solid #F00").focus().val();
+          show_alert_message("danger", res);
+          $(".job-group-toggle").prop("placeholder","Job Group");
+        }
+      },
+    });
+  }
+  $(".sel_user_role").click(function(event){
+    $("#user_role_id").val($(this).val());
+    $("#new_user_group_toggle").val($(this).html());
+    $("#new_user_group_toggle").css("text-indent","35px");
+  });

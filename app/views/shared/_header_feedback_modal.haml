@@ -1,0 +1,99 @@
+:css 
+  .star-rating{
+      font-size: 0;
+  }
+  .star-rating__wrap{
+      display: inline-block;
+      font-size: 1.5rem;
+  }
+  .star-rating__wrap:after{
+      content: "";
+      display: table;
+      clear: both;
+  }
+  .star-rating__ico{
+      float: right;
+      padding-left: 5px;
+      cursor: pointer;
+      color: #FFB300;
+  }
+  .star-rating__ico:last-child{
+      padding-left: 0;
+  }
+  .star-rating__input{
+      display: none;
+  }
+  .star-rating__ico:hover:before,
+  .star-rating__ico:hover ~ .star-rating__ico:before,
+  .star-rating__input:checked ~ .star-rating__ico:before
+  {
+      content: "\f005";
+  }
+#feedback_modal.modal.fade.feeback_modal.in{:role => "dialog"}
+  .modal-dialog
+    / Modal content
+    .modal-content
+      .bnr_header
+        Cool, we'd love to hear from you !
+        %p
+          Contact us 24/7 via email at
+          %a{:href => "mailto:support@parkpointsoftware.com"} support@parkpointsoftware.com          
+
+          %br/
+          Or By filling the from below.
+      / = form_for(Feedback.new, :url => '/save_feedback', :html=>{:id => "feedback_form",:class => 'form', :method => :post, :remote => true}) do |f|
+      .feedback_form{:style => "padding: 25px 15px; text-align: center;"}
+        %h5 Overall Rating
+        .star-rating
+          .star-rating__wrap
+            %input#star-rating-5.star-rating__input{:name => "rating", :type => "radio", :value => "5"}
+            %label.star-rating__ico.fa.fa-star-o.fa-lg{:for => "star-rating-5", :title => "5 out of 5 stars"}
+            %input#star-rating-4.star-rating__input{:name => "rating", :type => "radio", :value => "4"}
+            %label.star-rating__ico.fa.fa-star-o.fa-lg{:for => "star-rating-4", :title => "4 out of 5 stars"}
+            %input#star-rating-3.star-rating__input{:name => "rating", :type => "radio", :value => "3"}
+            %label.star-rating__ico.fa.fa-star-o.fa-lg{:for => "star-rating-3", :title => "3 out of 5 stars"}
+            %input#star-rating-2.star-rating__input{:name => "rating", :type => "radio", :value => "2"}
+            %label.star-rating__ico.fa.fa-star-o.fa-lg{:for => "star-rating-2", :title => "2 out of 5 stars"}
+            %input#star-rating-1.star-rating__input{:name => "rating", :type => "radio", :value => "1"}
+            %label.star-rating__ico.fa.fa-star-o.fa-lg{:for => "star-rating-1", :title => "1 out of 5 stars"}
+        = text_area_tag :feedback_message, '',:placeholder => "Enter Your Feedback Here", :style => "overflow: hidden; min-height: 2em; height: 68px;"
+        %div
+          %button.btn.btn-default.btn_hover_link{"data-dismiss" => "modal", :onclick => "closePopup();clearFeedbackData();"} Cancel
+          %button.btn.btn-primary.btn_hover_link{:onclick => "saveFeedbackData();"} Submit
+
+:javascript
+  function saveFeedbackData(){
+    var message = $("#feedback_message").val();
+    var rating = $("[name=rating]:checked").val();
+    var feedback_page = window.location.pathname;
+    feedback_page = feedback_page.split('/')[1]
+    if (feedback_page == "" || feedback_page == undefined || feedback_page == null){
+      feedback_page = 'dashboard'
+    }
+    if(rating != null && rating != undefined && rating != ""){
+      if(message != null && message != undefined && message != ""){
+        $.ajax({
+          type: "POST",
+          url: "/save_feedback" ,
+          data: {rating: rating, message: message, feedback_page: feedback_page},
+          success: function(result) {
+            $("#feedback_modal").modal('hide');
+            $("#feedback_message").val('');
+            $("[name=rating]").removeAttr('checked');
+          },
+          complete: function(result) {
+            $("#feedback_modal").modal('hide');
+            $("#feedback_message").val('');
+            $("[name=rating]").removeAttr('checked');
+          },
+          error: function(result) {
+            $("#feedback_modal").modal('hide');
+          }
+        });
+      }else{
+        alert("Please provide your feedback!");
+      }
+    }else{
+      alert("Please provide a rating!");
+    }
+  }

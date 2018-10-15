@@ -1,0 +1,288 @@
+= stylesheet_link_tag   "bootstrap-formhelpers", :media => "all"
+= stylesheet_link_tag   "bootstrap-formhelpers.min", :media => "all"
+
+
+/= javascript_include_tag "bootstrap-formhelpers-currencies"
+= javascript_include_tag "bootstrap-formhelpers"
+= javascript_include_tag "bootstrap-formhelpers.min"
+= hidden_field_tag "sub_total_discount"
+
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li.active
+            %span
+              = "#{@invoice_type.capitalize} Details"
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-dollar-sign
+        = "#{@invoice_type.capitalize} Details - #{@invoice.invoice_no}"
+
+.ling_mcnt
+  .hpanel
+    .panel-body.m-b-none.p-lg
+      .invoice_create
+        = nested_form_for(@invoice, :url => '/create_invoice', :html=>{:class => "form bs-docs-example"}) do |f|
+          - if @invoice.status.present? && @invoice.status.downcase == "paid"
+            .row{:style => "text-align: center; color: rgb(0, 0, 0); font-weight: bold; font-size: 22px;"}
+              PAID
+          .row  
+            .invoice_header_sec
+              .row.m-b
+                .col-md-6.left_sec
+                  .change_logo
+                    = hidden_field_tag :referrence_page, "#{@deal.present? ? 'deal' : ''}"
+                    = f.hidden_field :is_sent
+                    = f.hidden_field :invoice_type, value: "#{@invoice_type}"
+                    - if @invoice.logo_url.present?
+                      - sty = "background: gray none repeat scroll 0 0; color: #fff; cursor: pointer;font-size: 11px;display:block;position:absolute;width:100%;text-align:center;"
+                      = image_tag @invoice.logo_url, :id=>"previewlogo"
+                    - elsif @pre_invoice.present? && @pre_invoice.logo_url.present?
+                      - sty = "background: gray none repeat scroll 0 0; color: #fff; cursor: pointer;font-size: 11px;display:block;position:absolute;width:100%;text-align:center;"
+                      = image_tag @pre_invoice.logo_url, :id=>"previewlogo"
+                    - else
+                      - sty = "background: gray none repeat scroll 0 0; color: #fff; cursor: pointer; font-size: 11px;display:none;position:absolute;width:100%;text-align:center;"
+                      = image_tag "/assets/new-ui/default-invoice-logo.png", :id=>"previewlogo", :style => "cursor:pointer;"
+                .col-md-6.text-right
+                  .top_bal_due_sec.text-right
+                    %p
+                      %strong Balance Due
+                    .total_amount
+                      %strong
+                        %font.cur_ty
+                          = "#{@invoice.currency}"
+                        %font.ttl_amnt
+                          = @invoice.total_amount.to_s
+              .row
+                .col-md-4
+                  .inv_bill_from
+                    %label.control-label{:for => "input"}
+                      = "#{@invoice_type.capitalize} Number"
+                    .form-group
+                      .input-group
+                        .input-group-addon
+                          %span #
+                        = f.text_field  :invoice_no, :required => true, title: "#{@invoice_type.capitalize} Number", :maxlength => 30, :onkeydown =>"return false;", :onkeyup =>"return false;", placeholder:"Enter #{@invoice_type.capitalize} Number", class: "form-control"
+                .col-md-4
+                  .inv_bill_from
+                    %label.control-label{:for => "input"} Currency
+                    .form-group
+                      .input-group
+                        .input-group-addon
+                          %span.fal.fa-dollar-sign
+                        = select(:currency_type, :type, @cur, {:selected => @invoice.currency.present? ? @invoice.currency : 'US$'}, :class => "btn btn-default form-control",:disabled => true)
+                .col-md-4
+                  .inv_bill_from
+                    %label.control-label{:for => "input"} Purchase Order Number
+                    .form-group
+                      .input-group
+                        .input-group-addon
+                          %span #
+                        = f.text_field  :po_number, title: "Purchase Order Number", :maxlength => 30, :onkeydown =>"return false;", :onkeyup =>"return false;", placeholder:"Enter Purchase Order Number", class: "form-control"
+
+            .row.bill_from_sec
+              .col-md-4
+                %label.control-label{:for => "input"} Billing From
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-building
+                    = f.text_field  :company_name, :value => @current_organization.name, :required => true,:class => "form-control", :maxlength => 60, placeholder:"Company Name", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                #company_name_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+
+              .col-md-4
+                %label.control-label{:for => "input"} Company Address
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-home
+                    = f.text_area  :company_address, :rows => "3", :columns => "10", :value => @invoice.company_address, :required => true,:class => "form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                #company_address_error{:style=>"display:block;font-size:11px; color:#FF0000"}
+              .col-md-4
+                %label.control-label{:for => "input"} Due Date
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-calendar
+                    = f.text_field  :due_date, :required => true, :onkeydown =>"return false;", :onkeyup =>"return false;",:value=> @invoice.due_date.present? ? @invoice.due_date.strftime("%m/%d/%Y") : "", class: "form-control"
+
+            .row.bill_to_sec
+              .col-md-4
+                %label.control-label{:for => "input"} Bill To
+                .form-group
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-user
+                    =text_field_tag :bill_to, @contact.full_name,:class=>"typeahead custom-frm-inner form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                =f.hidden_field :contact_id
+                =f.hidden_field :contact_type
+                %div{style:"height: 20px;"}
+              .col-md-4.bill_to_details
+                - if @deal.present?
+                  %label.control-label{:for => "input"} 
+                    %b Select Opportunity
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-user
+                      =text_field_tag :deal_id, @deal.title,:class=>"typeahead custom-frm-inner form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                - else
+                  %label.control-label{:for => "input"}
+                    %b Select Opportunity
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-user
+                      = select_tag "deal_id", nil, :prompt => "- Select Opportunity -", :class=>"form-control", :disabled => "disabled"
+                    .cc_txt
+                      .link_col.cc_link Cc
+                  .cb
+              .col-md-4.padlft.cc_sec{style: "display: block"}
+                - if @invoice.cc_mail_id.present?
+                  %label.control-label{:for => "input"} 
+                    Cc
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-envelope
+                      = f.text_field  :cc_mail_id, :class => "custom-frm-inner form-control", placeholder:"Separate the emails using comma(,)", style:"padding-right:5px;", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                .cb
+              .cb
+            - if @invoice_type == "invoice"
+              .row.bill_to_sec
+                .col-md-4.bill_to_details
+                  %label.control-label
+                    %b Project
+                  .form-group
+                    .input-group
+                      .input-group-addon
+                        %span.fal.fa-briefcase
+                      - if @invoice.project.present?
+                        =text_field_tag :project_id, @invoice.project.name,:class=>"typeahead custom-frm-inner form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                      -else  
+                        = f.select :project_id, nil, :prompt => "-  Project -", :class=>"form-control", :onkeydown =>"return false;", :onkeyup =>"return false;", :disabled => "disabled"
+                      
+                .col-md-4
+                  .form-group
+                    %label.control-label{:for => "input"}
+                      %b Start Date
+                    .form_fld
+                      .input-group
+                        .input-group-addon
+                          %span.fal.fa-calendar
+                        = f.text_field  :start_date, :required => true,:class=>"form-control", :onkeydown =>"return false;", :onkeyup =>"return false;",:value=> @invoice.start_date.present? ? @invoice.start_date.strftime("%m/%d/%Y") : ""
+                .col-md-4
+                  .form-group
+                    %label.control-label{:for => "input"}
+                      %b End Date
+                    .form_fld
+                      .input-group
+                        .input-group-addon
+                          %span.fal.fa-calendar
+                        = f.text_field  :end_date, :required => true,:class=>"form-control", :onkeydown =>"return false;", :onkeyup =>"return false;",:value=> @invoice.end_date.present? ? @invoice.end_date.strftime("%m/%d/%Y") : ""
+          .add_bill_sec.m-t-xl
+            .invoice-line-item-rows.table-responsive
+              - i = 0
+              %table.table.table-bordered.table-striped
+                %thead
+                  %th
+                    %td.td_col.col_1 Description
+                    %td.td_col.col_2 Quantity
+                    %td.td_col.col_3 Price
+                    %td.td_col.col_4 Total
+                    %td.td_col.col_5 
+                %tbody
+                  = f.fields_for :invoice_items do |task_form|
+                    %tr
+                      %td
+                        %span.td_col.col_1
+                          = task_form.text_area :description, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :rows => 3, :columns => 10,:style => "outline: none;", :onkeydown =>"return false;", :onkeyup =>"return false;", class: "form-control"
+                        %span.td_col.col_2
+                          = task_form.text_field :qty, :size => 10,:class => "quantity form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                        %span.td_col.col_3
+                          = task_form.text_field :rate, :size => 10,:class => "rate decimal_only form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                        - if task_form.object.qty.present? && task_form.object.rate.present?
+                          %span.td_col.col_4
+                            = task_form.hidden_field :amount, value: (task_form.object.qty * task_form.object.rate), :class => "hidden_amount"
+                            %span.display_sum.amount
+                              = (task_form.object.qty * task_form.object.rate)
+                        %span.td_col.col_5
+                        - i+=1
+                        .cb
+                  / = f.link_to_add "+ Add item(s) to the bill/list", :invoice_items, :class=>"add_item"
+                  /= link_to 'Add another bill', "javascript:void(0)"
+          
+          .cb
+          .add_note_sec.row.m-t
+            .col-md-3
+              / %label.control-label{:for => "input"} Message Displayed in the Invoice (Add Note)
+              %label.control-label{:for => "input"} Add a Note
+              .form-group
+                = f.text_area :notes,:class => "form-control", :onkeydown =>"return false;", :onkeyup =>"return false;", rows: "6"
+            .col-md-3
+              %label.control-label{:for => "input"} Terms & Conditions (if any)
+              .form-group
+                = f.text_area :terms_and_condition,:class => "form-control", :onkeydown =>"return false;", :onkeyup =>"return false;", rows: "6"
+              .cb
+            - @tax = (@invoice.tax.to_f * (@invoice.total_amount.to_f - @invoice.tax.to_f) / 100).round(2)
+            .col-md-6.calculation_sec
+              .sub_total_sec.row.m-b
+                .col-md-6.text-right
+                  %strong Subtotal
+                .col-md-6.text-right
+                  %strong 
+                    %font.sb_cur
+                      =@invoice.currency
+                      %span#sub_total= (@invoice.total_amount.to_f - @tax.to_f).round(2)
+              = hidden_field_tag "total_payable_amount", (@invoice.total_amount.to_f - @tax.to_f)
+              .form-group.row
+                .col-md-6
+                  .tax_sec.fl
+                    .fl.percnt %
+                    .fl.tax_percnt Tax Percent
+                    .cb
+                  .tax_input.fr 
+                    = f.text_field  :tax, title: "Tax",:class => "tax decimal_only form-control", :onkeydown =>"return false;", :onkeyup =>"return false;"
+                  .cb
+                .col-md-6
+                  .fr.tax_amount_sec
+                    %span 
+                    =@invoice.currency
+                    %span.tax_amount
+                      = (@invoice.tax.to_f * (@invoice.total_amount.to_f - @invoice.tax.to_f) / 100).round(2)
+                  .cb
+              
+              .form-group.tot_amount_payable.row
+                .col-md-6.text-right
+                  %strong Total Amount Payable 
+                .col-md-6.text-right
+                  %strong 
+                    %span.total_amount 
+                    %font.to_cur
+                      = "#{@invoice.currency} " + @invoice.total_amount.to_s
+                  .cb
+                .cb
+              .cb
+            .cb
+          .form-layout-footer
+            - if @invoice.status.present? && (@invoice.status.downcase != "paid" && @invoice.status.downcase != "cancelled")
+              - if @invoice.status == "Resend" || @invoice.is_sent == true
+                %a.btn.btn-info{ :"data-confirm"=> "Are you sure to send the invoice again?", href: "/resend_invoice/#{@invoice.id}",:style=>"cursor: pointer;"}
+                  Resend
+              - else
+                %a.btn.btn-info{:"data-confirm"=> "Are you sure to send invoice mail?",href: "/resend_invoice/#{@invoice.id}",:style=>"cursor: pointer;"}
+                  Send
+              %a.btn.btn-info{:"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{@invoice.id}",:style=>"cursor: pointer;"} 
+                Paid
+              %a.btn.btn-info{:"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{@invoice.id}?type=confirm",:style=>"cursor: pointer;"}
+                Paid & Confirm
+              %a.btn.btn-default{:"data-confirm"=> "Are you sure to cancel this invoice?",href: "/cancel_invoice/#{@invoice.id}",:style=>"cursor: pointer;"}
+                Cancel
+            - elsif @invoice.status.present? && @invoice.status.downcase == "paid"
+              %a.btn.btn-info{href: "/download_invoice?id=#{@invoice.id}",:style=>"cursor: pointer;"}
+                Download
+    

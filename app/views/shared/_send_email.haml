@@ -1,0 +1,434 @@
+/ /=javascript_include_tag 'bootstrap-wysihtml5-0.0.3'
+/ /= stylesheet_link_tag 'bootstrap-wysihtml5'
+#SendEmailModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "SendEmailModal", role: "dialog", tabindex: "-1"}
+  - if !@current_user.smtp_config.present?
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title
+            No email account is setup, please proceed to create one
+          .setup_email_address
+            .set_up_by_email
+              .set_up_email_header
+                %a{href:"/auth/google/"} 
+                  %img.gmail_icon{src:"/assets/gmail_logo.png", alt:"Gmail logo"}
+                  Gmail
+              .set_up_email_body
+                %p
+                  Enables you to send emails from your own address. The 'From' field will show the email you authorize here. 
+              %hr{style:"border-color: #aaa;"}
+              .set_up_email_header
+                %a.set_up_email_other{href:"javascript:void(0)"} 
+                  Other
+              .set_up_email_body
+                %p
+                  When choosing the 'other' option to connect to a smtp server, ask your email administrator to provide you with the server name, port information. Then, We will verify your email address and enable you to send email.  
+              / .or-divider OR
+            .set_up_by_wus
+              .set_up_email_header
+                %a.email_via_wus{href:"javascript:void(0)"} Default
+              .set_up_email_body
+                %p
+                  Lets you send emails from InSetCRM address. You won't receive emails on this address. 
+              .set_up_by_wus_checkbox_sec.new_form_layout
+                .form-layout-footer
+                  .checkbox.checkbox-inline
+                    %input#agree_cond{name: "agree", type: "checkbox", :style => "position: absolute;"}
+                    %label{for: "agree_cond"} 
+                      %span
+                      Please make sure you send your emails to correct & active email ids. Avoid bounce backs to keep using this feature.
+                  .set_up_email_footer_sec.fl
+                    %a.btn.btn-info.set_up_email_btn{href:"/setup_email_with_inset", disabled:"true"} I Agree
+                    %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Cancel
+                  .cb
+          .set_up_email_by_smtp.new_form_layout
+            = form_for(SmtpConfiguration.new, :url => "configure_user_smtp", :html=>{:class => "form cmn_new_popup_form"}, :method => :post, remote: true) do |f|
+              %p{style: "margin-bottom:10px"} Enter SMTP details here
+              .row
+                .form-group.col-md-6.padrht
+                  .form_fld
+                    %span.cwkp-sprite.lead_name
+                    =f.text_field :smtp_host, :required => true , placeholder:"Host", :class=>"form-control"
+                .form-group.col-md-6.padlft
+                  .form_fld
+                    %span.cwkp-sprite.lead_name
+                    =f.text_field :port, :required => true, placeholder: "Port", :class=>"form-control", maxlength: "4",:onkeyup=>"return numbersonly(event)",:onkeydown=>"return numbersonly(event)"
+                .cb
+              .row
+                .form-group.col-md-6.padrht
+                  .form_fld
+                    %span.cwkp-sprite.lead_name
+                    =f.text_field :user_name,:class=>"form-control", placeholder:"User name"
+                  %div{id:"email_err_usr",class: "error"}
+                .form-group.col-md-6.padlft
+                  .form_fld
+                    %span.cwkp-sprite.lead_email
+                    =f.email_field :email, :required => true, :class=>"form-control", placeholder:"Email"
+                .cb
+              .row
+                .form-group.col-md-6.padrht
+                  .form_fld
+                    %span.cwkp-sprite.psw_icon
+                    =f.password_field :password,:class=>"form-control wus_password_field", placeholder:"Password"
+                .cb
+              .modal-footer.form-layout-footer
+                .fl
+                  %a.back_to_set_email{href:"javascript:void(0)", :class=>"btn btn-default", style:"margin-bottom: 0;"}
+                    %span
+                      < Back
+                .fr  
+                  %a{href:"#", "aria-hidden" => "true","data-dismiss" => "modal", :class=>"btn btn-default", style:"margin-bottom: 0;"}
+                    %span
+                      Cancel
+                  =f.submit "Save", :class=>"btn btn-primary smtp_submit_btn", :disable_with => "Please wait ...", style:"margin-bottom: 0;"
+                .cb
+
+  - else
+    - if @current_user.email_account.present? && @current_user.smtp_config == 'google'
+      .modal-dialog
+        .modal-content
+          .color-line
+          .modal-header
+            %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+              %i.fal.fa-times.fa-2x
+            %h4.modal-title Send Email
+            = form_tag "/emails/google/send_mail", :method => 'post', :id => 'send-mail-popup', :class => 'form-horizontal compose-mail-form', :remote => true, :multipart => true do
+              .form-group
+                %label{:for => ""} From
+                = text_field_tag :from, @current_user.email_account.email, :class => 'form-control'
+              .form-group
+                %label{:for => ""} To
+                = text_field_tag :to, '', :placeholder => 'Recipients', :class => 'form-control', :id => 'to', :required => true
+              .form-group
+                %label{:for => ""} Cc
+                = text_field_tag :cc, '', :id => 'email-cc', :class => 'form-control', :name => 'cc'
+              .form-group
+                %label{:for => ""} Bcc
+                = text_field_tag :bcc, '', :id => 'email-bcc', :class => 'form-control', :name => 'bcc'
+              .form-group
+                %label{:for => ""} Subject
+                = text_field_tag :subject, '', :id => 'email-subject', :name => 'subject', :class => 'form-control', :placeholder => 'Subject'
+              .form-group
+                %label{:for => ""} Message
+                = text_area_tag :body, '', :id => 'ckeditor1', :name => 'body', :placeholder => 'Type your message here.', :class => "form-control ckeditor1", :style => "resize:none;"
+              .form-group
+                .form-layout-footer
+                  %span.btn.green.fileinput-button
+                    %i.fa.fa-paperclip.fa.fa-white
+                    %span Attachment
+                    = file_field_tag :'files[]', :id => 'email-attachments', :multiple => true
+              .form-group
+                #attachment-details.col-lg-offset-2.col-lg-10
+              .form-layout-footer.mt-3
+                = submit_tag 'Send', :id => 'send-email', :class => 'btn btn-primary'
+                %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Cancel
+        / /.modal-content
+    - else
+      .modal-dialog.pop-lrg
+        .modal-content
+          .color-line
+          - sendmail = Contact.new()
+          = form_for(sendmail,:url=>"/send_email", :html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"send-mail-popup",:multipart => true}) do |f|
+            = hidden_field_tag "tmp_file_ids"
+            =hidden_field_tag "mailer_id"
+            =hidden_field_tag "mailer_type"
+            =hidden_field_tag "email_contact_id"
+            =hidden_field_tag "email_contact_type"
+            
+            %input{:type=>"hidden",:id=>"contact_id_send_mail_popup",:name=> "contact_id_send_mail_popup"}
+            .modal-header.header_icon
+              %span.clse_pop.fr{"aria-hidden" => "true", "data-dismiss" => "modal"}
+                %i.fal.fa-times.fa-2x
+              %h4.modal-title
+                %span.fal.fa-envelope
+                Send Email
+            .modal-body.send_email_popup
+              %div
+                .form-group.m-b-none
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = email_field_tag :to, "",:required => true, readonly: true, style: "cursor:not-allowed;" , class: "form-control"
+                  %label{id:"email_err_to",class: "error"}
+                .m-b
+                  %a.cc_link{href: "javascript:", id: "cc_link", onclick: "show_cc_bcc('cc')", :class=>"link_col", style: "display: inline-block;"} Cc
+                  %a.bcc_link{href: "javascript:", id: "bcc_link", onclick: "show_cc_bcc('bcc')", :class=>"link_col"} Bcc
+              .row.displaynone#cc_bcc_div
+                .form-group.col-md-12#cc_div
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = email_field_tag :cc, "",:class=> "send_email_field", placeholder: "Cc", class: "form-control"
+                  %span.link_col{onclick: "hide_cc_bcc('cc')",style: "cursor:pointer;"} Remove Cc
+                  %a.bcc_link{href: "javascript:", id: "add_bcc", onclick: "show_cc_bcc('bcc')", :class=>"link_col"} | Add Bcc
+                  %label{id:"email_err_cc",class: "error"}
+                .form-group.col-md-12#bcc_div
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = email_field_tag :bcc,"",:class=> "send_email_field", placeholder:"Bcc", class: "form-control"
+                  %span.link_col{onclick: "hide_cc_bcc('bcc')",style: "cursor:pointer;"} Remove Bcc
+                  %a.cc_link{href: "javascript:", id: "add_cc", onclick: "show_cc_bcc('cc')", :class=>"link_col", style: "display: inline-block;"} 
+                    | Add Cc
+                  %label{id:"email_err_bcc",class: "error"}
+              .form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-pen-nib
+                  = text_field_tag :subject, "", :required => true ,:html=>{:maxlength=> "100"}, :style=> "resize: none;", :rows=>"4", placeholder: "Subject", class: "form-control"
+              .form-group.m-b-none
+                %label
+                  .cb10
+                  Message
+                .full_width
+                  .input-group.full_width
+                    = text_area_tag :message, "",:required => true,:style=> "resize:none;", class: "form-control"
+                %label{id:"email_err_msg",class: "error"}
+                / #upload_attach_file{:style=>"width:37%;"}
+                /   = file_field_tag :attachment,:onclick =>"show_delete_btn()",:class=>"form-control btn-metis-7 btn-file",:style=>"margin-top:170px;border:none;padding-left:0;height:30px;"
+                / .delete_file{style: "display:none;margin-top:5px;"}
+                /   %a{href: "javascript:void(0)", onclick: "clearFileInputField('upload_attach_file')"}
+                /     Delete File
+              .form-group
+                .input-group
+                  #multiple_upload{style:"positon:relative;"}
+                    %span.fal.fa-cloud-upload{title:""}
+            .modal-footer
+              %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+              %button.btn.btn-info{type: "submit", disable_with: "Please wait...", id: "send_email_submit_btn", onclick: "return validate_send_email()"} 
+                Send
+                
+#output_send_email
+
+:javascript
+  $('#SendEmailModal').on('shown.bs.modal', function (e) {
+    $("#from").attr("readonly","readonly").css("cursor","not-allowed");
+    $("#to").attr("readonly","readonly").css("cursor","not-allowed");
+  })
+
+  $('#SendEmailModal').on('hidden.bs.modal', function () {
+    $(".ajax-file-upload-statusbar").remove();
+    $("#tmp_file_ids").val("");
+    $(".set_up_by_wus_checkbox_sec").hide();
+    if($("#agree_cond").is(":checked")){
+      $("#agree_cond").click();
+    }
+    $(".setup_email_address").show();
+    $(".set_up_email_by_smtp").hide();
+  })
+  function show_delete_btn(){
+    $('.delete_file').show();
+  }
+  $(function() {
+    $("#attachment").on('change',function (){
+      var fileName = $(this).val();
+      $('.delete_file').show();
+    });
+  });
+  function clearFileInputField(tagId) {
+  document.getElementById(tagId).innerHTML =
+    document.getElementById(tagId).innerHTML;
+    $(".delete_file").hide();
+  }
+
+  // $('#message').wysiwyg({
+  //   rmUnusedControls: true,
+  //   controls: {
+  //     bold: { visible : true },
+  //     underline: { visible: true },
+  //     italic: { visible: true },
+  //     insertOrderedList: { visible: true },
+  //     insertUnorderedList: { visible: true } 
+  //   }
+  // });
+  $('#message').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+  $("#SendEmailModal").on('shown.bs.modal', function () {
+    $('.delete_file').hide();
+  });
+
+  $("#multiple_upload").uploadFile({
+    url:"/upload_multiple_note_attach",
+    multiple:true,
+    fileName:"myfile",
+    showDelete: true,
+    returnType: "json",
+    dragDrop:false,
+    //showAbort:false,
+    showDone:false,
+    deletelStr: "",
+    abortStr: "",
+    uploadButtonClass:"ajax-file-upload-green",
+    onSubmit:function(files)
+    {
+      $("#send_email_submit_btn").prop("disabled","disabled");
+    },
+    onSuccess:function(files,data,xhr)
+    {
+      
+      tempids=[];
+      if(data["message"] =="success")
+      {
+        
+        if($("#tmp_file_ids").val() != "")
+        {
+        tempids= $("#tmp_file_ids").val().split(",");
+        addItem = data["id"];
+        tempids.splice(tempids.length,1, addItem);
+        $("#tmp_file_ids").val(tempids);
+        }
+        else
+        {
+          $("#tmp_file_ids").val(data["id"]);
+        }
+        //set_required_for_file_descrption(this);
+      }
+      $("#send_email_submit_btn").removeAttr("disabled","disabled");
+      
+    },
+    deleteCallback: function (data, pd) {
+    var tempids=[]; 
+    tempids= $("#tmp_file_ids").val().split(",");
+    removeItem = data["id"];
+    tempids.removeByValue(removeItem);
+    $("#tmp_file_ids").val(tempids);    
+    
+      $.post("/delete_temp_note_attach?tf_id=" + data["id"], {op: "delete",id: data["id"]},
+         function (resp,textStatus, jqXHR) {});
+       pd.statusbar.hide(); //You choice.
+       $("#show_file_name").hide();
+    }
+  });
+
+  Array.prototype.removeByValue = function(val) {
+    for(var i=0; i<this.length; i++) {
+        if(this[i] == val) {
+            this.splice(i, 1);
+            break;
+        }
+    }
+  }
+
+  // $('#email-body').wysiwyg({
+  //   rmUnusedControls: true,
+  //   controls: {
+  //     bold: { visible : true },
+  //     underline: { visible: true },
+  //     italic: { visible: true },
+  //     insertOrderedList: { visible: true },
+  //     insertUnorderedList: { visible: true },
+  //     undo: { visible: true },
+  //     redo: { visible: true },
+  //     indent: { visible: true },
+  //     outdent: { visible: true },
+  //     h1: { visible: true },
+  //     h2: { visible: true },
+  //     h3: { visible: true },
+  //     removeFormat: { visible: true },
+  //     increaseFontSize: { visible: true },
+  //     decreaseFontSize: { visible: true }
+  //   }
+  // });
+  $('#email-body').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+  $("#email-attachments").change(function () {
+    if ($(this)[0].files.length == 0) return false;
+    var attachmentContent = "";
+    $.each($(this)[0].files, function (key, value) {
+      attachmentContent += buildAttamantContent(value.name, formatBytes(value.size, 2),key);
+    });
+    $("#attachment-details").html(attachmentContent);
+  });
+
+  function buildAttamantContent(fileName, fileSize, obj) {
+    return "<div class='col-xs-7' style='white-space: nowrap; padding: 3px 0'>" +
+        "<span>" + fileName + "</span></div>" +
+        "<div class='col-xs-4 col-xs-offset-1' style='padding: 3px 0'><span>" + fileSize + "</span></div>";
+  }
+
+  function formatBytes(bytes, decimals) {
+    if (bytes == 0) return '0 KB';
+    var k = 1024; // or 1024 for binary
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+  }
+
+
+
+  var mailOptions = {
+    target: '#output1', // target element(s) to be updated with server response
+    contentType: "application/x-www-form-urlencoded;charset=utf-8",
+    beforeSubmit: changeBtnText, // pre-submit callback
+    complete: showMailResponse, // post-submit callback
+    error: function (xhr) {
+      alert(xhr.responseText);
+      $("#send-email").val("Send").prop("disabled", false);
+    }
+  };
+
+  // bind form using 'ajaxForm'
+  $('.compose-mail-form').ajaxForm(mailOptions);
+
+  function changeBtnText() {
+    $("#send-email").val("Sending...").prop("disabled", true);
+  }
+
+  function showMailResponse(responseText, statusText, xhr, $form) {
+    $("#send-email").val("Send").prop("disabled", false);
+    $('#SendEmailModal').modal('hide');
+    $(".compose-mail-form")[0].reset();
+    $("#attachment-details").html("");
+    show_alert_message("success","Up Up & Away! Your email has been sent. Let's wait for a reponse!");
+  }
+
+  $(".email_via_wus").on('click', function(){
+    $(".set_up_by_wus_checkbox_sec").slideToggle('slow');
+
+  })
+  $("#agree_cond").on('click', function(){
+    if($("#agree_cond").is(":checked")){
+      $(".set_up_email_btn").removeAttr("disabled");
+    }else{
+      $(".set_up_email_btn").attr("disabled", "disabled");
+    }
+  })
+
+  $(".set_up_email_other").on('click', function(){
+    $("#new_smtp_configuration")[0].reset();
+    $(".setup_email_address").slideToggle('slow');
+    $(".set_up_email_by_smtp").show();
+  })
+  $(".back_to_set_email").on('click', function(){
+    $(".setup_email_address").show();
+    $(".set_up_email_by_smtp").hide();
+  })
+
+  $("#new_smtp_configuration").bind('ajax:complete', function( evt, data, status, xhr) {
+    if(data['responseText'] == "choosed_gmail"){
+      show_alert_message("danger", "Seems like you want to setup gmail smtp. Please use gmail authentication.");
+      $(".back_to_set_email").click();
+      $("#new_smtp_configuration")[0].reset();
+    }else
+    if(data['responseText'] == "success"){
+      show_alert_message("success", "SMTP setting configured successfully.");
+      window.location.reload();
+    }else{
+      show_alert_message("danger", "SMTP host and Port didn't matched! Please try again.");
+    }
+  });

@@ -1,0 +1,35 @@
+= form_tag "/tasks/" + @task.id.to_s, :method=>"delete", :id=>"task_delete", :remote => true do |f|
+  .color-line
+  .modal-header
+    %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+      %i.fal.fa-times.fa-2x
+    %h4.modal-title
+      %span.fal.fa-trash-alt
+      - tasks=@current_organization.tasks.where("parent_id=? And due_date >= ?", @task.parent_id, @task.due_date)
+      - if @task.recurring_type != "none" && tasks.count > 0
+        Do you want to delete all recurring task(s)?
+      - else
+        Do you want to delete this task?
+    =hidden_field_tag "delete_all_recurring", ""
+  .modal-body
+  .modal-footer
+    %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+    - if @task.recurring_type != "none" && tasks.count > 0
+      = submit_tag "Delete all", class: "btn btn-info", disable_with: "Please wait...", onclick: "$('#delete_all_recurring').val('true');$('#delete_task_no').hide();", id: "delete_task_yes"
+      = submit_tag "Only this one", class: "btn btn-default", disable_with: "Please wait...", onclick: "$('#delete_all_recurring').val('false');$('#delete_task_yes').hide();", id: "delete_task_no"
+    - else
+      = submit_tag "Yes", class: "btn btn-info", disable_with: "Please wait...", onclick: "$('#delete_all_recurring').val('true');$('#delete_task_no').hide();", id: "delete_task_yes"
+:javascript
+  $(function(){
+    $("#task_delete").bind("ajax:complete", function(evt, data, status, xhr){
+      tab_name="all"
+      $( "ul.nav-tabs li" ).each(function() {
+        if($(this).hasClass( "active" ))
+          tab_name = $(this).attr("id");
+      });
+      var task_tab = tab_name.split('Task')[0];
+      load_task_tabs(task_tab, true);
+      $("#confirmTaskDelete").modal("hide");
+      //window.location.reload();
+    });
+  })

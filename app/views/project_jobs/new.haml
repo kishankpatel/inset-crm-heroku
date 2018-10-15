@@ -1,0 +1,22 @@
+- action =  @project_job.new_record? ? "create" : "update" 
+- method =  @project_job.new_record? ? "post" : "put"
+- is_remote = false
+= form_for @project_job, :url =>{ action: action},  :class => "form",:method=>method,:id=>"project-job-form",:remote=>is_remote do |f|
+  .ling_mcnt.create_new_job_page
+    .new_form_layout
+      
+      .new_proj_header.hpanel
+        .panel-body.p-sm
+          %a{href: @project_job.new_record? ? "/projects/#{@project.id}/jobs" : "/projects/#{@project.id}/jobs/#{@project_job.id}"}
+            %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+          / %span.cwkp-sprite.create_job_heading_icon
+          %h4.m-n
+            %span.pe-7s-note2
+            = @project_job.new_record? ? "CREATE A NEW JOB" : "Update JOB"
+
+      
+    .hpanel.hblue
+      .cmn_new_popup_form.panel-body
+        = render :partial => "form",:locals=>{f: f}
+=render :partial=>'/project_jobs/job_repeat_modal'
+=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}

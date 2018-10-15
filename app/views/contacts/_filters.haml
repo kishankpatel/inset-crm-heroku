@@ -1,0 +1,82 @@
+/ #list_view
+/   %div.header.fixed-in-app-header
+/     / .col-md-6
+/     /   .lead-page
+/     /     .top-list-bar 
+/     /       .lead-stage
+/     /         %ul.nav.nav-tabs
+/     /           %li.contacts_tab.my_cont.active{"data-tab" => "my_contacts","data-toggle"=>"tab",href: "#contacts-list"}
+/     /             %span
+/     /               My Contacts
+/     /           %li.contacts_tab.all_cont{"data-tab" => "all_contacts","data-toggle"=>"tab",href: "#contacts-list"}
+/     /             %span
+/     /               All
+/     .fr
+/       .fl
+/         %span
+/           %span.dropdown{title: "Import Contact", "data-toggle" => "dropdown",:class=>"convert_to_project"}  
+/             Import Contacts
+/             %i.fa.fa-sort-desc.dropdown-toggle{"aria-hidden" => "true"}
+/           %ul.dropdown-menu{role: "menu",}
+/             %li.arrow_top
+/             %li
+/               %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from Zoho CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('zoho_crm')"} Zoho CRM
+/             %li.divider
+/             %li
+/               %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from Sugar CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('sugar_crm')"} Sugar CRM
+/             %li.divider
+/             %li
+/               %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from FatFree CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('fatfree_crm')"} FatFree CRM
+/             %li.divider
+/             %li
+/               %a{href: "/contacts/gmail", title: "Import Contact from Gmail"}
+/                 Import Contact from Gmail
+/             %li.divider
+/             %li
+/               %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from other CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('other_crm')"} Other CRM
+/       .fl  
+/         %span{:style => "margin-top: 7px; padding: 3px 5px;"}
+/           %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Bulk Contact Upload",href: "javascript:void(0)",:class=>"convert_to_project", onclick: "open_crm_modal('bulk_contact')"}
+/             Bulk Contact Upload
+/       .fl  
+/         %span  
+/           %a#contacts_export_btn{href: contacts_path(format: "csv"), title: "Export all your Contacts"}
+/             %span.cwkp-sprite.bulk-lead-upload
+/       .cb
+/     .clearfix{style: "clear:both"}
+/     .reset_search.reset_cont_search x
+
+
+
+.pull-right
+  %span.dropdown.btn.btn-default.btn-xs{title: "Import Contact", "data-toggle" => "dropdown",:class=>"convert_to_project"}  
+    Import Contacts
+    %i.fal.fa-sort-desc.dropdown-toggle{"aria-hidden" => "true"}
+  %ul.dropdown-menu{role: "menu",}
+    %li.arrow_top
+    %li
+      %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from Zoho CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('zoho_crm')"} Zoho CRM
+    %li.divider
+    %li
+      %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from Sugar CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('sugar_crm')"} Sugar CRM
+    %li.divider
+    %li
+      %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from FatFree CRM",href: "javascript:void(0)",:style=>"cursor: default;", onclick: "open_crm_modal('fatfree_crm')"} FatFree CRM
+    %li.divider
+    %li
+      %a{href: "/contacts/gmail", title: "Import Contact from Gmail"}
+        Import Contact from Gmail
+    %li.divider
+    %li
+      %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Import Contact from other CRM",href: "javascript:void(0)",:style=>"", onclick: "open_crm_modal('other_crm')"} Other CRM
+  ///////////////////////
+  %span{:style => ""}
+    %a.btn.btn-default.btn-xs{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip", title: "Bulk Contact Upload",href: "javascript:void(0)",:class=>"convert_to_project", onclick: "open_crm_modal('bulk_contact')"}
+      Bulk Contact Upload
+  
+  %span  
+    %a#contacts_export_btn.btn.btn-default.btn-xs{href: contacts_path(format: "csv"), title: "Export all your Contacts"}
+      %span.bulk-lead-upload.pe-7s-upload
+  
+  / .clearfix
+  / .reset_search.reset_cont_search{style: "display:none"} x

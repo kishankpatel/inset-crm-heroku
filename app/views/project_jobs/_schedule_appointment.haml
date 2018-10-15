@@ -1,0 +1,101 @@
+#scheduleModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "projectJobModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y:scroll;"}
+  .modal-dialog
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %span.cwkp-sprite.proj_heading_icon
+        %h4.modal-title
+          %span.fal.fa-calendar-alt
+          SCHEDULE APPOINTMENT
+      - @project_job = ProjectJob.new(:organization_id=>@current_organization.id,:project_id=>project.id)
+      -@project = project
+      /-@project_job = ProjectJob.new
+      - action =  @project_job.new_record? ? "create" : "update" 
+      - method =  @project_job.new_record? ? "post" : "put"
+      /"/projects/#{project.id}/jobs"
+      = form_for @project_job,  url: "/projects/#{project.id}/jobs", :class => "form",:method=>method,:id=>"project-job-form-schedule",:remote=>true do |f|
+        .modal-body
+          .row
+            .col-md-12.p-xxs
+              .form-group.col-md-12
+                .control-label
+                  Job Name
+                .input-group
+                  .input-group-addon
+                    %span.pe-7s-portfolio.proj_name{title: "Give a name to this job"}
+                  =f.text_field :name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a name to this job", :maxlength => "180"
+          .row        
+            .form-group.col-md-6
+              .control-label
+                Due Date
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-calendar{title: "Due date"}
+                = f.text_field :due_date,:class=>"form-control custom-frm-inner datetimepicker1", id: "end-datetimepicker", autocomplete: "off",onchange: "change_mnth_days('datetimepicker1', 'end_date');",:onkeydown => "disable_text(event);", placeholder: "Select Due date",:value=>@project_job.due_date.present? ? @project_job.due_date.in_time_zone(@current_user.time_zone).strftime("%m/%d/%Y") : ""
+            .form-group.col-md-3
+              .control-label
+                Start Time
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-calendar{title: "Start Time"}
+                %input.wid60.minute-input{name: "due_date_start_time",:placeholder=>"hh:mm",:onclick=>'',:onblur=>"",value: "08:00"}
+            .form-group.col-md-3
+              .control-label
+                End Time
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-calendar{title: "End Time"}
+                %input.wid60.minute-input{name: "due_date_end_time",:placeholder=>"hh:mm",:onclick=>'',:onblur=>"",value: "08:30"}
+            / .form-group.col-md-6
+            /   .control-label
+            /     Estimated Hour
+            /   .form_fld 
+            /     %span.cwkp-sprite.proj-est-hr{title: "Estimated Hours"}
+            /     = f.text_field :estimate_hour,:class=>"form-control custom-frm-inner", id: "estimate-datetimepicker", autocomplete: "off",onkeydown:"return numeric_decimal_colon(event)" ,:type=>"text",:placeholder=>"hh:mm",:onblur=>"checkMinuteValue(this)" ,:onkeypress=>"return numeric_decimal_colon_keypress(event)" ,:value=> getHourMinuteFromMinutes(@project_job.estimate_minutes)
+          .row        
+            .form-group.col-md-6
+              .control-label
+                Assigned To
+              .input-group.cmn_selct_fld
+                .input-group-addon
+                  %span.pe-7s-add-user{title: "Attendees"}
+                - @project_job.assigned_to = !@project_job.assigned_to.present? && @project.project_manager_id.present? ? @project.project_manager_id : @project_job.assigned_to
+                =f.select :assigned_to_users, @project.project_users.map{|p|p.user}.compact.collect {|i| [ ((i.id==@current_user.id ? 'me' : (i.full_name.present? ? i.full_name : i.email))), i.id ]}, {}, :class => "form-control", :required => true,:multiple=>true
+          
+            .form-group.col-md-6
+              .input-group.cmn_selct_fld
+                = f.check_box :is_client_included, :class=>"i-checks"
+                Include Client?
+          =f.hidden_field :is_schedule_appoint,value: true
+          =f.hidden_field :project_job_group_id
+          - jt = @current_organization.project_job_types.where(:original_id=> 1).first
+          - if jt.present?
+            =f.hidden_field :project_job_type_id,:value=>jt.id
+
+          /=debug(@current_organization.project_job_types.where(:original_id=> 1).first)
+        .modal-footer
+          = hidden_field_tag "submit_type","save"
+          %a.btn.btn-default{href: @project_job.new_record? ? "/projects/#{@project.id}/jobs" : "/projects/#{@project.id}/jobs/#{@project_job.id}", "aria-hidden" => "true","data-dismiss" => "modal"}
+            Cancel
+          = submit_tag @project_job.new_record? ? "Save & Exit" : "Update", class: "btn btn-primary save-job-btn-schedule", disable_with: "Please wait...", :onclick => "$('.save-job-btn-schedule').removeAttr('disable_with')"
+
+:javascript
+  var nwdate = new Date();
+  nwdate.setDate(nwdate.getDate() - 1); 
+  var start_date = new Date();
+  $("#datetimepicker-due").datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on("dp.change", function (e) {
+    start_date = new Date(e.date);
+    $(this).blur();
+    //alert(start_date);
+  });
+
+  $(function(){
+    $('.minute-input').timepicker({ timeFormat: 'H:i' ,'step': 15,'scrollDefault': '08:00'});
+    $("#project-job-form-schedule").bind("ajax:complete", function(evt, data, status, xhr){
+      $("#scheduleModal").modal('hide');
+      window.location.reload();
+       
+    });
+  });

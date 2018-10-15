@@ -1,0 +1,43 @@
+#confirmContactDelete.WUSConfirmPopup
+  .confirm_content_sec
+    = form_tag "/delete_selected_contacts",  :class => "form",:method=>"post",:id=>"contact_delete", :remote => true do |f|
+      .confirm_body_sec
+        .confirm_close.confirm_close_btn{onclick:"$('#confirmContactDelete').hide()"} × 
+        .confirm_bo_icon
+          /%img{src:"/assets/new-ui/confirm_bo.png", alt:"confirm_bo"}
+        .confirm_msg_sec{style:"top: 5px;"}
+          Are you sure you want to delete the contact(s)?
+          %br
+            All the associated data would be lost.
+          = hidden_field_tag "contact_ids_to_delete",""
+          = hidden_field_tag "contact_id_to_delete",""
+        .confirm_footer.text-right
+          = submit_tag "Ok", class: "confirm_ok btn", onclick:"$('#confirmContactDelete').hide()", style:"margin-bottom:0;"
+          %a.confirm_cancel.confirm_close{href:"javascript:void(0)", onclick:"$('#confirmContactDelete').hide()"} Cancel
+
+
+/ #confirmContactDelete.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+/   .modal-dialog.new_form_layout
+/     .modal-content
+/         .modal-header
+/           %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+/           %span.cwkp-sprite.delete_header_icon.fl
+/           %h4.modal-title
+/             Are you sure you want to delete the contact(s)?
+/             %br
+/             All the associated data would be lost.
+/           .cb
+/         .modal-body
+/           %div
+/             .navbar-left.form-layout-footer
+/               %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+/           .cb
+:javascript
+  $(function(){
+    $("#contact_delete").bind("ajax:complete", function(evt, data, status, xhr){
+        if(data.responseText == "success"){
+          $('#confirmContactDelete').modal('hide');
+          window.location.reload();
+        }
+    });
+  })

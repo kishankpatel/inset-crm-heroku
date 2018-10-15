@@ -1,0 +1,598 @@
+.row
+  .col-lg-8
+    .hpanel.hgreen
+      .panel-body
+        .row
+          .col-md-3
+            .panel-body.text-center
+              - manager = @project_job.project.project_manager
+              - get_char =  manager.present? ? (manager.full_name.present? ? manager.full_name.strip.downcase[0] : manager.email.downcase[0]) : "n"
+              - color_code = manager.present? ? manager.get_user_color_code(get_char) : "#000"
+              
+              - if manager.present? && manager.image.present? && manager.image.image.present?
+                %img.img-circle.img-small{:alt => "logo", :src => manager.image.image.url(:thumb)}
+              - else
+                .lead-profile-icon{:style => "background:" + color_code}
+                  = get_char.upcase
+              .m-t-sm
+                %strong{:style => "word-wrap: break-word;"} 
+                  
+                  = manager.present? ? (manager.full_name.present? ? manager.full_name : manager.email) : "NA"
+                %p.small
+                  Project Manager
+                  %br 
+                  = @project_job.created_at.strftime("%b %d, %Y %H:%M %p")
+            
+          .col-md-9
+            .row
+              .col-md-4
+                %strong
+                  Project :
+                .small{:title=>@project_job.project.present? ? @project_job.project.name : ""}
+                  %a{href: "/projects/#{@project_job.project_id}"}
+                    = @project_job.project.present? ? @project_job.project.name.truncate(25) : "NA"              
+              .col-md-4
+                %strong
+                  Contact Associated :
+                .small
+                  - if @project_job.project.individual_contact.present?
+                    = link_to @project_job.project.individual_contact.name, "/contact/" + @project_job.project.individual_contact.to_param, :title => @project_job.project.individual_contact.name
+                  - else
+                    NA
+              .col-md-4
+                %strong
+                  Opportunity :
+                .small
+                  - if @project_job.project.deal.present?
+                    = link_to truncate(@project_job.project.deal.title, :length => 20, :ommission => "..."), "/leads/" + @project_job.project.deal.to_param, :title => @project_job.project.deal.title
+                  - else
+                    NA
+            %hr
+            .row.job_details_top_sec
+              .col-md-4
+                %strong
+                  Job Type
+                .control-label
+                  
+                  %span.project_job_type_name
+                    = @project_job.project_job_type.present? ? @project_job.project_job_type.name : ""
+                  %span.dropdown  
+                    %span.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer", onclick: "get_job_types(#{@project_job.id})"}
+                    %ul.dropdown-menu
+                      %li.arrow_top
+                      .job_type_list
+                        =image_tag "ajax-loader2.gif"
+
+              .col-md-4
+                %strong
+                  Estimated Hour(s)
+                .small.project_info_fields
+                  -estimate_minute = @project_job.estimate_minutes.present? ? ((@project_job.estimate_minutes / 60).to_s + ":" + (@project_job.estimate_minutes % 60).to_s ) : "00:00"
+                  = text_field_tag "estimate_minutes",estimate_minute  , "data-value" => @project_job.estimate_hour ,:class=>" " ,onkeydown:"return numeric_decimal_colon(event)" ,:type=>"text",:placeholder=>"hh:mm",:onblur=>"checkMinuteValue(this)"  ,:onkeypress=>"return numeric_decimal_colon_keypress(event)" 
+                  %a.edit_proj_field{href:"javascript:void(0)"}
+                    %span.fal.fa-pencil.fr
+                  .save_cancel_btn_sec
+                    %a.cont_save_btn.btn.btn-xs.btn-success{href:"javascript:void(0)"} 
+                      %i.fal.fa-check-circle
+                    %a.cont_cancel_btn.btn.btn-xs.btn-success{href: "javascript:void(0)"}
+                      %i.fal.fa-times-circle
+              
+              .col-md-4
+                %strong
+                  Priority
+                .small
+                  %span.project_job_pri_col{:class=>"job_pri_#{@project_job.id} #{@project_job.priority}"}
+                  %spa{:class=>"project_job_pri_#{@project_job.id}"}
+                    = @project_job.priority
+                  %span.dropdown
+                    %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+                    %ul.dropdown-menu{:style => "left: -8px;min-width: 80px !important;"}
+                      %li.arrow_top
+                      %li{:onclick => "change_priority(\"#{@project_job.id}\", \"High\")", :style => "cursor:pointer;padding:0 10px"} High
+                      %li.divider
+                      %li{:onclick => "change_priority(\"#{@project_job.id}\", \"Medium\")", :style => "cursor:pointer;padding:0 10px"} Medium
+                      %li.divider
+                      %li{:onclick => "change_priority(\"#{@project_job.id}\", \"Low\")", :style => "cursor:pointer;padding:0 10px"} Low
+                    %span
+            %hr
+            .row
+              .col-md-4
+                %strong
+                  Status
+                .small
+                  %span.project_job_status{title: @project_job.status}
+                    = @project_job.status
+                    %span.dropdown
+                      %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+                      %ul.dropdown-menu
+                        %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"New\")"}
+                          %a{:href => "javascript:void(0)", :style => "cursor:default"} New
+                        %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"In Progress\")"}
+                          %a{:href => "javascript:void(0)", :style => "cursor:default"} In Progress
+                        %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Resolved\")"}
+                          %a{:href => "javascript:void(0)", :style => "cursor:default"} Resolved
+                        %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Blocked\")"}
+                          %a{:href => "javascript:void(0)", :style => "cursor:default"} Blocked
+                        %li{:onclick => "change_status_in_job_details(\"#{@project_job.id}\", \"Closed\")"}
+                          %a{:href => "javascript:void(0)", :style => "cursor:default"} Closed
+              
+              .col-md-4
+                %strong
+                  Job Group
+                .small
+                  %span.project_job_group_name
+                    - if @project_job.project_job_group.present?  
+                      %span{title: @project_job.project_job_group.name}  
+                        = @project_job.project_job_group.name.truncate(20)
+                  %span.dropdown
+                    %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown",onclick: "list_project_job_group('#{@project_job.id}')"}
+                    %ul.dropdown-menu
+                      %li.arrow_top
+                      .list_project_job_group
+                        =image_tag "ajax-loader2.gif"
+      .panel-body      
+        .col-md-12
+          .row
+            .pull-left
+              #description-div
+                =raw @project_job.description
+            .pull-right
+              = link_to "javascript:void(0)", :id => "showcollapsDescription" do
+                Collapse Description
+                %span.glyphicon.glyphicon-chevron-up
+    .hpanel.hgreen
+      .panel-body
+        .row
+          .col-md-10.padnon.pull-left.timelog-stat.p-xxs
+            =render :partial=>"project_jobs/project_job_time_stat",:locals=>{project_job: @project_job}
+          #timelogdiv.pull-right.col-md-2.p-xxs
+            %a.btn.btn-default{:onclick=>"get_time_log_form(#{@project_job.id})",:href=>"#timeLogModal", :data=>{:toggle=>"modal" }}
+              %span.fal.fa-clock
+              Time Entry
+        .col-md-12.padleft.list_job_time_log.p-xxs
+          =render :partial=>"project_jobs/list_job_time_log",:locals=>{project_job: @project_job}
+    .hpanel.hgreen.m-b-none
+      .panel-heading
+        Comments
+      .panel-body
+        .user-comment
+          #reply_content
+            #showhidemorereply
+              - i = 0
+              - if (job_comments = @project_job.comments).count > 0
+                - job_comments.each do |c|
+                  - if c.comment.present?
+                    .replay_sec.job_details_top_sec.social-talk.col-md-12
+                      .media.social-profile.clearfix
+                        .pull-left.user-task-pf.col-md-2.text-right
+                          %span.replay_count.badge
+                            = i += 1
+                        
+                          - get_char =  c.user.present? ? (c.user.full_name.present? ? c.user.full_name.strip.downcase[0] : c.user.email.downcase[0]) : "n"
+                          - color_code = c.user.present? ? c.user.get_user_color_code(get_char) : "#000"
+                          - color_code = color_code.present? ? color_code : "#ccc"
+                          - if c.user.present? && c.user.image.present? && c.user.image.image.present?
+                            %span.user-profile
+                              %span.userImage
+                                = image_tag c.user.image.image.url(:thumb), :alt=>"",onerror: "this.src='/assets/no_user200.png';this.onerror=null;"
+                          - else
+                            .lead-profile-icon.fl{:style => "background:" + color_code}
+                              = get_char.upcase
+
+                          
+                        .pull-left.col-md-9
+                          .media-body
+                            %span.relayed_by.font-bold
+                              = c.user.present? ? (c.user.full_name.present? ? c.user.full_name : c.user.email) : "NA"
+                            %small.text-info Replied
+                            %br
+                            %small.text-muted
+                              = c.created_at.strftime("%b %d, %Y %H:%M %p") if c.present? && c.created_at.present?                  
+                      
+                            %div
+                              = raw c.comment
+                            %div
+                              - comment_files = c.note.flatten.map{|s|s.note_attachments}.flatten
+                              - comment_files.each do |file|
+                                - file_type = file.attachment_file_name.present? ? file.attachment_file_name.split(".").last : "NA"
+                                / Show image in pop up if images are in following format
+                                - if file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg" || file_type.downcase == "tiff" || file_type.downcase == "gif" || file_type.downcase == "bmp" || file_type.downcase == "ppm" || file_type.downcase == "pgm" || file_type.downcase == "pbm" || file_type.downcase == "pnm"
+                                  %a{"data-target" => "#ViewImageModal", "data-toggle" => "modal", href: "javascript:void(0)",onclick: "view_image('#{file.attachment.url}', '#{file.attachment_file_name}' )", title: "View - #{file.attachment_file_name}", style:"height: 50px;display: inline-block;"} 
+                                    %img{src:file.attachment.url,style:"height:auto;width:50px;max-height: 100%;"}
+                                - else
+                                  %a{href: file.attachment.url, download:file.attachment.url, title:"Download - #{file.attachment_file_name}" }
+                                    %span.cwkp-sprite{class: "file_#{file_type.downcase}"}
+                      %hr
+                      
+    .hpanel.hgreen.m-b-none
+      .panel-heading
+        Add New Comment
+      .panel-body          
+        %div#comments
+          = form_for [@project_job, @comment], :html => {:id => "my-awesome-dropzone", :class=> "dropzone cmn_new_popup_form job_comments_form", :enctype=>"multipart/form-data", :remote=>true, style:"padding-bottom:60px;"} do |f|
+            
+            .row
+              .col-md-12
+                .comment_err_msg.error
+                = f.text_area :comment, :cols => 80, :rows => 6
+                = hidden_field_tag "project_job_id", @project_job.id.to_s
+                = hidden_field_tag "comment[user_id]", current_user.id.to_s
+            .row
+              .col-md-3.form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-battery-half{title: "Status", class:""}
+                  = f.select :status, options_for_select([["New", "New"], ["In Progress", "In Progress"], ["Close", "Close"], ["Resolve", "Resolve"], ["Blocked", "Blocked"]], @project_job.status),{}, {:required => true, :class => "form-control"}
+              .col-md-3.form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-user{title: "Assigned to", class:""}
+                  = f.select :assigned_to, options_for_select(@project_job.project.project_users.map{|p|p.user}.compact.collect {|c| [ c.id == @current_user.id ? "me" : (c.full_name.present? ? c.full_name : c.email), c.id ]}, @project_job.assigned_to),{},{ :class => "form-control", :required => true, prompt: "Assigned to", selected: @project_job.assigned_to}
+              .col-md-6.form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-thumbtack
+                  .form-control
+                    %span
+                      Priority
+                    %span{class: "modal-radio", style:""}
+                      = f.radio_button :priority, 'low', :checked => true
+                      %label{for: "comment_priority_low"}
+                        %span
+                        Low
+                    %span{class: "modal-radio", style:""}  
+                      = f.radio_button :priority, 'medium'
+                      %label{for: "comment_priority_medium"}
+                        %span
+                        Medium
+                    %span{class: "modal-radio", style:""}
+                      = f.radio_button :priority, 'high'
+                      %label{for: "comment_priority_high"}
+                        %span
+                        High
+              .cb
+            
+            %div
+              .form-group
+                .control-label
+                  Notify via Email
+              = f.hidden_field :notify_email_ids
+              .form-group.modal-checkbox
+                %span{class: "modal-checkbox checkbox checkbox-inline"}
+                  = check_box_tag "checkAll", "",false
+                  %label{for: "checkAll"} 
+                    %span
+                    All
+                - @project_job.project.project_users.map{|p|p.user}.compact.each do |u|
+                  %span{class: "modal-checkbox checkbox checkbox-inline notify-email-job"}  
+                    = check_box_tag "notify_email_ids", u.id, false, :name => "notify_email_ids", :id=>"notify_email_#{u.id}"
+                    %label{for: "notify_email_#{u.id}"}
+                      %span
+                      = u.id == @current_user.id ? "me" : u.full_name.present? ? u.full_name : u.email.split("@")[0]
+            %div.dropzone-file-area.dz-preview
+              #drop-file-errror
+              .drag_and_drop_div.m-b-xs
+                /%input{:name=>"file", :type=>"file"}
+                / Change /upload-target to your upload address
+                Upload files below
+                /%form.dropzone{:action => "/"}
+                .dropzone-previews
+                /= f.hidden_field :images
+            .cb
+            .form-layout-footer{:style=>"position:relative;"}
+              %div{:style=>"position:absolute;top:100px"}
+                = f.submit "Post comment",:class=>"btn btn-info", :id => "comment-submit-btn", style:"cursor:pointer;", :disable_with => "Please wait..."
+                %a{href: "/projects/#{params[:project_id]}/jobs", "aria-hidden" => "true", style:"cursor:pointer;"}
+                  Cancel
+  .col-md-4
+    .hpanel.hgreen.m-b-none
+      .panel-section      
+        .project_details_right_sec
+          %section
+            .top_right_short_cut_icon.fnt-20.tooltip-demo
+              %span.mlr-5
+                = link_to "javascript:void(0)", :onclick => "fetch_job_content('#{@project_job.id}', 'refresh')", :title => "Reload","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                  /%span.cwkp-sprite.job-refresh-icon
+                  %span.fal.fa-sync
+              %span.mlr-05
+                = link_to edit_project_project_job_path(@project_job.project,@project_job), :title => "Edit","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                  %span.fal.fa-pencil
+              - if @project_job.status != "Resolved"  
+                %span.mlr-05
+                  = link_to "javascript:void(0)", :onclick => "change_status_in_job_details('#{@project_job.id}', 'Resolved')", :title => "Resolve","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                    %span.fal.fa-flag
+              - if @project_job.status != "Closed"    
+                %span.mlr-05
+                  = link_to "javascript:void(0)", :onclick => "change_status_in_job_details('#{@project_job.id}', 'Closed')", :title => "Close","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                    %span.fal.fa-check
+              %span.mlr-05
+                = link_to delete_project_job_path(@project_job.id), :method => "delete", :title => "Delete this job", "data-confirm" => "Are you sure?","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                  %span.fal.fa-trash
+              - if @project_job.status != "Blocked"  
+                %span.mlr-05
+                  = link_to "javascript:void(0)", :onclick => "update_catchup_later_in_job_details('#{@project_job.id}')", :title => "Blocked","data-toggle"=>"tooltip", "data-placement"=>"top" do
+                    %span.fal.fa-hand-paper
+              %span.mlr-05{"data-toggle"=>"tooltip", "data-placement"=>"top",:title=>"Re-Allocate Resource"}
+                = link_to "#reAllocateResourceModal",:data=>{:toggle=>"modal"},:onclick=>"get_reallocate_resource(#{@project_job.id},'all')" do
+                  %span.fal.fa-object-ungroup
+              %span.mlr-05{"data-toggle"=>"tooltip", "data-placement"=>"top",:title=>"Create new Job"}
+                = link_to "#projectJobModal",:data=>{:toggle=>"modal"},:onclick=>"$('form#project-job-form')[0].reset();;$('.error').html('');fillProjectJobFields(#{@project_job.project_id})" do
+                  %span.fal.fa-plus
+                
+
+      .panel-body
+        %section
+          %strong Assigned to
+          .small
+            - if @project_job.assigned_user.present?
+              - user_name =  @project_job.assigned_user.id == @current_user.id ? "me" : (@project_job.assigned_user.full_name.present? ? @project_job.assigned_user.full_name : @project_job.assigned_user.email)
+              - color_code = @project_job.assigned_user.get_user_color_code(user_name.downcase[0])
+              - if @project_job.assigned_user.present? && @project_job.assigned_user.image.present? && @project_job.assigned_user.image.image.present?
+                %span.user-profile
+                  %span.userImage
+                    = image_tag @project_job.assigned_user.image.image.url(:thumb), :alt=>"", :title => "#{user_name}",:onError=>"this.src='/assets/new-ui/user.png'; this.onerror=null;"
+              - else
+                %span.lead-profile-icon.ass_lead{:style => "background:" + color_code}
+                  = user_name.upcase[0]
+              %span{ title: user_name, :class=> "project_job_ass_#{@project_job.id}"}
+                = user_name.truncate(20)
+            %span.dropdown  
+              %span.caret.dropdown-toggle{"data-toggle" => "dropdown", style:"cursor:pointer", onclick: "get_assigned_user(#{@project_job.id})"}
+              %ul.dropdown-menu
+                %li.arrow_top
+                .assigned_user_list
+                  =image_tag "ajax-loader2.gif"
+        %hr
+        %section.row
+          .col-md-6
+            %strong Start date
+            .small
+              %span.display_start_date
+                = @project_job.start_date.present? ? @project_job.start_date.to_date.strftime("%b %d, %a") : "Date not set"
+              %span.dropdown
+                %span.start_date_for_job
+              %span.fal.fa-calendar
+          .col-md-6
+            %strong Due date
+            .small
+              %span.display_due_date
+                /= @project_job.due_date.to_date
+                /=@project_job.due_date
+                = @project_job.due_date.present? ? @project_job.due_date.to_date.strftime("%b %d, %a") : "Date not set"
+              %span.dropdown
+                %span.due_date_for_job.caret.dropdown-toggle{"data-toggle" => "dropdown"}
+                %span.fal.fa-calendar
+            
+              
+        %hr
+        %section
+          .row
+            .pull-left.col-md-9
+              %strong Job Progress
+              .small
+                .fl.project_job_progress.progress.m-t-xs.full.progress-striped.progress-small.col-md-12.p0
+                  .progress-bar.progress-bar-warning{style:"width:#{@project_job.progress.present? ? @project_job.progress : 0}%","aria-valuemax"=>"100", "aria-valuemin"=>"0", "aria-valuenow"=>"#{@project_job.progress.present? ? @project_job.progress : 0}", :role=>"progressbar"}
+            .pull-right.col-md-3
+              %span.show_progress
+                = "#{@project_job.progress.present? ? @project_job.progress : 0}%"
+              %span.dropdown
+                %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+                %ul.dropdown-menu
+                  %li.arrow_top
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"10\")", :style => "cursor:pointer;padding:0 10px"} 10%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"20\")", :style => "cursor:pointer;padding:0 10px"} 20%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"30\")", :style => "cursor:pointer;padding:0 10px"} 30%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"40\")", :style => "cursor:pointer;padding:0 10px"} 40%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"50\")", :style => "cursor:pointer;padding:0 10px"} 50%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"60\")", :style => "cursor:pointer;padding:0 10px"} 60%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"70\")", :style => "cursor:pointer;padding:0 10px"} 70%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"80\")", :style => "cursor:pointer;padding:0 10px"} 80%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"90\")", :style => "cursor:pointer;padding:0 10px"} 90%
+                  %li.divider
+                  %li{:onclick => "update_job_progress(\"#{@project_job.id}\", \"100\")", :style => "cursor:pointer;padding:0 10px"} 100%
+          .cb
+        %hr
+        %section
+          .row
+            .col-md-12
+              - files = @project_job.comments.map{|p|p.note}.flatten.map{|s|s.note_attachments}.flatten
+              .pull-left
+                %strong File(s) in this Job
+                / %br
+                / %small.files_count
+                /   = files.count
+                /   Files
+              .pull-right  
+                %span.fal.fa-paperclip
+            .col-md-12.mt10.tooltip-demo
+              - files.flatten.each do |file|
+                .col-md-3.text-center.mb10.p0
+                  - file_type = file.attachment_content_type.present? ? file.attachment_content_type.split("/").last : "NA"
+                  - if file_type.downcase == "doc" || file_type.downcase == "docx"
+                    - file_title = "Document"
+                    - file_class = "fal fa-file-word text-info"
+                  - elsif file_type.downcase == "zip"
+                    - file_title = "ZIP File"
+                    - file_class = "fa-file-archive text-primary"
+                  - elsif file_type.downcase == "xls" || file_type.downcase == "csv"
+                    - file_title = "Excel Sheet"
+                    - file_class = "fa-file-excel text-success"
+                  - elsif file_type.downcase == "exe"
+                    - file_title = "Application"
+                    - file_class = "fa-file-alt text-primary-2"
+                  - elsif file_type.downcase == "txt"
+                    - file_title = "Text"
+                    - file_class = "fa-file-alt text-primary"
+                  - elsif file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg"
+                    - file_title = "Image"
+                    - file_class = "fa-file-image text-warning"
+                  - elsif file_type.downcase == "pdf"
+                    - file_title = "Pdf"
+                    - file_class = "fa-file-pdf text-danger"
+                  - elsif file_type.downcase == "ppt" || file_type.downcase == "pptx"
+                    - file_title = "Presentation"
+                    - file_class = "fa-file-powerpoint text-danger"
+                  - elsif file_type.downcase == "mp4" || file_type.downcase == "wmv" || file_type.downcase == "flv" || file_type.downcase == "avi" || file_type.downcase == "mov"
+                    - file_title = "Video"
+                    - file_class = "fa-file-video text-primary-2"
+                  - elsif file_type.downcase == "mp3" || file_type.downcase == "wav" || file_type.downcase == "wma"
+                    - file_title = "Audio"
+                    - file_class = "fa-file-audio text-warning"
+                  - else
+                    - file_title = file_type
+                    - file_type = "other"
+                    - file_class = "fa-file-alt text-info"
+                  .pull-left.display_attached_file
+                    %a{href: file.attachment.url, download:file.attachment.url, "data-toggle"=>"tooltip", title:"Download - #{file.attachment_file_name}" }
+                      %span.fal.fa-3x{class: "#{file_class} file_#{file_type.downcase}"}
+                      %span{class: "file-name file_#{file_type.downcase}"}
+                        = file.attachment_file_name
+                    / %span.cwkp-sprite{class: "file_#{file_type.downcase}", title: file_title}
+                    / %a{href: file.attachment.url, download:file.attachment.url, style:"height: 50px;display: inline-block;", title:"Download - #{file.attachment_file_name}" }          
+
+                    / - file_type = file.attachment_file_name.present? ? file.attachment_file_name.split(".").last : "NA"
+                    / / Show image in pop up if images are in following format
+                    / - if file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg" || file_type.downcase == "tiff" || file_type.downcase == "gif" || file_type.downcase == "bmp" || file_type.downcase == "ppm" || file_type.downcase == "pgm" || file_type.downcase == "pbm" || file_type.downcase == "pnm"
+                    /   %a{"data-target" => "#ViewImageModal", "data-toggle" => "modal", href: "javascript:void(0)",onclick: "view_image('#{file.attachment.url}', '#{file.attachment_file_name}' )", title: "View - #{file.attachment_file_name}", style:"height: 50px;display: inline-block;"} 
+                    /     %img{src:file.attachment.url,style:"height:auto;width:50px;max-height: 100%;"}
+                    / - else
+                    /   %a{href: file.attachment.url, download:file.attachment.url, style:"height: 50px;display: inline-block;", title:"Download - #{file.attachment_file_name}" }
+                    /     %span.fal.fa-file-excel{class: "file_#{file_type.downcase}"}
+          .cb
+        %hr
+        %section.activity
+          .row
+            .col-md-12
+              .activity-info
+                %strong Activities
+                %span.fal.fa-tasks
+            .col-md-12
+              .activity-info
+                %strong.text-muted Last Updated:
+                .small
+                  = @project_job.updated_at.strftime("%b %d, %Y at %H:%M %p")
+            .col-md-12
+              .activity-info
+                %strong.text-muted Created:
+                .small
+                  = @project_job.created_at.strftime("%b %d, %Y at %H:%M %p")
+            -if(@project_job.status == "Resolved" && @project_job.resolved_at.present?)
+              .col-md-12
+                .activity-info
+                  %strong.text-muted Resolved:
+                  .small
+                    = @project_job.resolved_at.strftime("%b %d, %Y at %H:%M %p")
+            -if(@project_job.status == "Closed" && @project_job.closed_at.present?)
+              .col-md-12
+                .activity-info
+                  %strong.text-muted Closed:
+                  .small
+                    = @project_job.closed_at.strftime("%b %d, %Y at %H:%M %p")
+        %hr
+        %section.involve-people
+          .row.tooltip-demo
+            .col-md-12
+              .activity-info.mb10
+                %strong People Involved
+              - if @project_job.created_user.present?
+                - created_user = @project_job.created_user
+                - created_user_name = created_user.full_name.present? ? created_user.full_name : created_user.email
+                - title = "#{created_user.id == @project_job.project.project_manager_id ? (created_user_name + ' (Project Manager)') : created_user_name}"       
+                - if created_user.image.present?
+                  %span.mr10.mb10{"data-toggle"=>"tooltip",:title=>title}
+                    %img.img-circle.img-small{:alt => "logo", :src => created_user.image.image(:thumb),:onError=>"this.src='/assets/new-ui/user.png';this.onerror=null;"}
+                - else
+                  %span.contact-small-profile-icon.img-small.mr10.mb10{style: "background: #{created_user.get_user_color_code(created_user_name[0].downcase)} !important", "data-toggle"=>"tooltip",:title=>title }
+                    =created_user_name[0].upcase
+
+      -if @project_job.project.project_type == 'Administrative' && @project_job.contactable.present?
+        .hpanel.hgreen.m-b-none
+          .panel-body
+            %section
+              = render :partial=> 'contacts/contact_card', :locals=>{:contact => @project_job.contactable}
+          
+
+:javascript
+  var prj_job_id = "#{@project_job.id}";
+  $(function(){
+    initiateProjectDetailsForms();
+    initiateJobsForm()
+    $(".project_info_fields input").attr("readonly","readonly");
+    $(".edit_proj_field").click(function(){
+      $(".edit_proj_field").hide();
+      $(this).next(".save_cancel_btn_sec").show();
+      $(this).parent(".project_info_fields").find("input").removeAttr("readonly").focus();
+    })
+    $(".project_info_fields").on("mouseover", function(){
+      if($(".save_cancel_btn_sec").is(':visible')){
+        $(".edit_proj_field").hide();
+      }else{
+        $(this).closest(".project_info_fields").find(".edit_proj_field").show();
+      }
+    })
+    $(".project_info_fields").on("mouseout", function(){
+      $(".edit_proj_field").hide();
+    })
+
+    $(".cont_cancel_btn").click(function(){
+    var txt_field = $(this).closest(".project_info_fields").find("input");
+    txt_field.attr("readonly","readonly").val(txt_field.data("value"));
+    $(".save_cancel_btn_sec").hide();
+  })
+  $(".cont_save_btn").click(function(){
+    var text_field = $(this).closest(".project_info_fields").find("input");
+    text_field.attr("readonly","readonly");
+    $(".save_cancel_btn_sec").hide();
+    var data_val = text_field.val();
+    var data_field = text_field.prop("name");
+    if(text_field.val() != text_field.data('value')){
+      $.ajax({
+        type: "POST",
+        url: "/update_estimated_hours",
+        data: {project_job_id: "#{@project_job.id}", value: data_val},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(response)
+        {
+          if( data_field == "estimate_minutes" ){
+            $(".job_detail_page").html(response);
+            $("#reAllocateResourceModal").modal("show")
+            get_reallocate_resource(prj_job_id,'all')
+          }
+          $("#task_loader,.fixed_loader").hide();
+
+        },
+        error: function(data) {
+          text_field.val(text_field.data("value"));
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  })
+  });
+  $('form.job_comments_form').on('ajax:before', function() {
+    return checkCommentsExists()
+  });
+  
+  function list_project_job_group(project_job_id){
+    $.ajax({
+      url: "/list_project_job_group",
+      data: {project_job_id: project_job_id, status: status},
+      success: function(data){ 
+        $(".list_project_job_group").html(data);
+      },
+      error: function(data){
+        alert('Got an error while changing job group.');
+      }
+    });
+  }

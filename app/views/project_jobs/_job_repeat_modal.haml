@@ -1,0 +1,65 @@
+#jobRepeatModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "projectModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content.con-box1
+      .color-line       
+      .modal-header.header_icon
+        %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal", :onclick => "$('#project_job_is_repeat').attr('checked', false).val('false');"} ×
+        %div
+          
+          %h4.modal-title 
+            %span.pe-7s-repeat
+            JOB REPEAT
+      .modal-body
+        = form_for @project_job, :url => { :action => :create},  :class => "form",:method=>"post",:html => {:id=>"project-job-repeat-form"} do |f|
+          = f.fields_for :project_job_repeat do |p|              
+            .row
+              .form-group
+                .input-group
+                  %span.input-group-addon
+                    %span.pe-7s-news-paper
+                  = select_tag "job_repeat_type", options_for_select([["Weekly", "weekly"], ["Monthly", "monthly"], ["Quarterly", "quarterly"], ["Yearly", "yearly"]]), :class => "form-control", :required => true, :style => "cursor:pointer;"
+            .row
+              .form-group
+                .input-group   
+                  %span.input-group-addon
+                    %span.fal.fa-calendar.proj-est-hr
+                  = text_field_tag "job_repeat_start", "",:class=>"form-control custom-frm-inner proj-timepicker datetimepicker", id: "repeat-datetimepicker", autocomplete: "off", placeholder: "Starts", :onkeydown=>"disable_text(event);", :value => Time.now.strftime("%m/%d/%Y")
+            .row
+              .col-md-6.p-xxs
+                .col-md-4.p-xxs
+                  %span{class: "modal-radio radio radio-inline"}
+                    = radio_button_tag "repeat_end", 'after', "checked"
+                    %label{for: "repeat_end_after"}
+                      %span
+                      Ends after
+                .col-md-8.p-xxs
+                  = text_field_tag "job_repeat_occurrences", "",:class=>"form-control custom-frm-inner proj-timepicker", autocomplete: "off", :maxlength => 3, :onkeydown=>"return numbersonly(event);", :onkeyup=>"$('#occurrence_err').text('');validate_number();", :value => 1, :placeholder => "No. of occurrences"
+                .cb
+                %span{:id => "occurrence_err", :style => "color:#f00;font-size:12px;"}
+              .col-md-6.p-xxs
+                .col-md-4.p-xxs
+                  %span{class: "modal-radio radio radio-inline"}
+                    = radio_button_tag "repeat_end", 'on'
+                    %label{for: "repeat_end_on"}
+                      %span
+                      Ends on
+                .col-md-8
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-calendar
+                    = text_field_tag "job_repeat_end_on", "",:class=>"form-control custom-frm-inner datetimepicker1", id: "end-on-datetimepicker", autocomplete: "off", :onkeydown=>"disable_text(event);", :disabled => "disabled", :placeholder => "Set an end date"
+                .cb
+                %span.error{:id => "end_on_err"}
+
+              .cb  
+            .row.occ_msg
+              %p You can repeat maximum of 365 occurrences from the above chosen options starting from Today.
+            .row
+              .form-layout-footer
+                = button_tag "Save", id: "save-repeat-btn", class: "btn btn-info", disable_with: "Please wait...", :onclick => "return validate_repeat_form(event)"
+                %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal", :onclick => "$('#project_job_is_repeat').attr('checked', false).val('false');"} Cancel
+
+:javascript
+  var nwdt = new Date();
+  nwdt.setDate(nwdt.getDate() - 1); 
+  $('#repeat-datetimepicker').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY',pickTime: false})

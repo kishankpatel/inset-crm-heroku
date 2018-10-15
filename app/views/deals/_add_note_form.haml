@@ -1,0 +1,52 @@
+- unless @note.present? 
+  - @note = Note.new
+= form_for(@note,:url=> @note.new_record? ? "/add_notes" : "/update_deal_note/#{@note.id}", :remote=> @note.new_record? ? true : false, :html=>{:class => "form cmn_new_popup_form",:method => @note.new_record? ? "post" : "put",:id=>"new-notes-popup",:multipart => true}) do |f|
+  = hidden_field_tag :notable_type, "Deal"
+  = hidden_field_tag :notable_id, @deal.id.to_s
+  = hidden_field_tag :remove_file_ids
+  .modal-header
+    %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+      %i.fal.fa-times.fa-2x
+    %h4.modal-title{style:"display:inline-block;"}
+      %span.fal.fa-clipboard-list
+      - if @note.new_record?  
+        ="Add Note".upcase  
+      - else 
+        = "UPDATE NOTE"
+  .modal-body
+    .show_title_sec{style: "display:none;"}
+      .row  
+        .form-group.col-md-12
+          .input-group
+            .input-group-addon
+              %span.fal.fa-clipboard-check
+            =f.text_field :title, :required => true, placeholder:"Note Title", class: "form-control"
+      .row
+        .form-group.col-md-12
+          .input-group
+            .input-group-addon
+              %span.fal.fa-clipboard
+            = f.select :note_type_id, @current_organization.note_types.collect {|c| [ c.name, c.id ]}, {:include_blank => 'Note Type'},  :required => "true", :class=>"form-control"
+    .row  
+      .form-group.col-md-12
+        .input-group
+          .input-group-addon
+            %span.fal.fa-envelope
+          =hidden_field_tag "hidden_note","",name: "note[notes]"
+          =f.text_area :notes, :required => true, :style=> "resize: none;    width: 100%;outline: none;", :rows=>"4",:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Write your message", class: "form-control"
+    .cb              
+    .form-layout-footer{style:"margin-top: 5px;"}
+      =hidden_field_tag "note_from_deal", true
+      - if @note.new_record?  
+        =hidden_field_tag "temp_file_ids", "", class: "temp_file_ids"
+        .show_attachment_error{style: "color: red;"}
+        %div{:style=>"overflow:auto;width:100%"}
+          #fileuploader
+            %span.fal.fa-cloud-upload
+        #show_file_name
+        .cb
+      %div{:style=>"margin-top:15px;"}
+        %button.btn.btn-info{type: "submit", disable_with: "Please wait...", id: "notes_submit_btn"} 
+          = @note.new_record? ? "Save" : "Update"
+        %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+          Cancel

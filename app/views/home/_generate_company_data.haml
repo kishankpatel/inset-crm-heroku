@@ -1,0 +1,128 @@
+%tr.details-tr
+  %td{colspan:7}
+    %table.table.white-table.table-hover.org-details-listing.dataTable{style:'width:92% !important;border:2px solid #e0e5e9;margin-left:5%;'}
+      %thead
+        %tr
+          %th{style:"width:20%;text-align: left !important;"} Name
+          %th{style:"width:10%;text-align: left !important;"} Type
+          %th{style:"width:20%;text-align: left !important;"} Opportunity
+          %th{style:"width:20%;text-align: left !important;"} Assigned To
+          %th Next Action
+          %th Stage
+      %tbody
+        - if @contacts.present? || @leads.present?
+          - @leads.each do |l_id|
+            - l = IndividualContact.find_by_id l_id
+            - deal = l.deals_contacts.last.deal if l.deals_contacts.present?
+            - other_deals = l.deals_contacts.where("deal_id!=?",l.deals_contacts.last.deal.id).count if deal
+            %tr
+              %td{style:"text-align: left;"}
+                .fl.user-profile
+                  - image_url = deal.deals_contacts.present? && deal.deals_contacts.first.contactable.image.present? ? deal.deals_contacts.first.contactable.image.image.url(:icon) : l.present? && l.image.present? ? l.image.image.url(:icon) : ""
+                  - display_name = l.full_name.present? ? l.full_name : l.email.split("@")[0]
+                  - if image_url.present?
+                    .fl.userImage
+                      = image_tag image_url, :alt=>""
+                  -else
+                    - first_char = display_name.chars.first
+                    %div.profileImage{:style => "background: #{deal.get_color_code(first_char.downcase)} !important;font-size:18px;"}
+                      = first_char.upcase
+                .fl.menu_name.top-pf.ml-3
+                  - link_url = deal.present? && deal.deals_contacts.present? ? deal.deals_contacts.first.contactable.to_param : l.to_param
+                  %a{href: "/contact/"+link_url}
+                    %span{title: display_name}
+                      = display_name.length > 25 ? display_name[0..22] + ".." : display_name
+                .cb                
+              %td
+                %span.label.label-primary
+                  Lead
+              %td
+                - if l.deals_contacts.present?
+                  = l.deals_contacts.last.deal.title
+                  - if other_deals.present? && other_deals > 0
+                    %a{:href=>"/contact/#{l.to_param}?view_more=true", :style=>'font-size:11px;color:#344a54;'}
+                      = "+" + other_deals.to_s + " more..."
+                - else
+                  NA
+              %td{style:"text-align: left;"}              
+                - if deal.present?
+                  - assign_user_name = deal.assigned_user.present? ? (deal.assigned_user.full_name.present? ? deal.assigned_user.full_name : deal.assigned_user.email.split("@")[0]) : "NA"
+                  .fl
+                    - if deal.assigned_user.present?
+                      - if deal.assigned_user.image.present? && deal.assigned_user.image.image.present?
+                        %span.user-profile
+                          %span.userImage
+                            = image_tag deal.assigned_user.image.image.url(:icon), :alt=>"", :title => "#{assign_user_name}", :style => "cursor:pointer;"
+                      -else
+                        %span.org-pf-icon{title: "#{assign_user_name}", style: "background: #{deal.assigned_user.get_user_color_code(assign_user_name.downcase[0])}"}
+                          = assign_user_name[0].upcase
+                  .fl
+                    = deal.assigned_user.present? ? (deal.assigned_user.full_name.present? ? deal.assigned_user.full_name : deal.assigned_user.email.split("@")[0]) : "NA"
+                  .cb
+                - else
+                  NA
+              %td
+                - if deal.present?
+                  - if deal.last_task.present?
+                    - txt = deal.last_task.name
+                  - else
+                    - txt = "No-Action"
+                  %div.labelTaskType.tasktype{class: "label#{txt}"}
+                    = txt
+                - else
+                  NA
+              %td
+                - if deal.present?
+                  = deal.deal_status_name.present? ? deal.deal_status_name : "NA"
+                - else
+                  NA
+          - @contacts.each do |c|
+            - deal = c.deals_contacts.last.deal if c.deals_contacts.present?
+            - other_deals = c.deals_contacts.where("deal_id!=?",c.deals_contacts.last.deal.id).count if deal
+            %tr
+              %td{style:"text-align: left;"}
+                .fl.user-profile
+                  - image_url = deal.present? && deal.deals_contacts.present? && deal.deals_contacts.first.contactable.image.present? ? deal.deals_contacts.first.contactable.image.image.url(:icon) : c.present? && c.image.present? ? c.image.image.url(:icon) : ""
+                  - display_name = c.full_name.present? ? c.full_name : c.email.split("@")[0]
+                  - if image_url.present?
+                    .fl.userImage
+                      = image_tag image_url, :alt=>""
+                  -else
+                    - first_char = display_name.chars.first
+                    %div.profileImage{:style => "background: #{Contact.get_color_code(first_char.downcase)} !important;font-size:18px;"}
+                      = first_char.upcase
+                .fl.menu_name.top-pf.ml-3
+                  - link_url = deal.present? && deal.deals_contacts.present? ? deal.deals_contacts.first.contactable.to_param : c.to_param
+                  %a{href: "/contact/"+link_url}
+                    %span{title: display_name}
+                      = display_name.length > 25 ? display_name[0..22] + ".." : display_name
+                .cb
+              %td
+                %span.label.label-success
+                  Contact
+              %td
+                - if c.deals_contacts.present?
+                  = c.deals_contacts.last.deal.title
+                  - if other_deals && other_deals > 0
+                    %a{:href=>"/contact/#{c.to_param}?view_more=true", :style=>'font-size:11px;color:#344a54;'}
+                      = "+" + other_deals.to_s + " more..."
+                - else
+                  NA
+              %td{style:"text-align: left;"}                
+                - if deal.present?
+                  = deal.assigned_user.present? ? (deal.assigned_user.full_name.present? ? deal.assigned_user.full_name : deal.assigned_user.email.split("@")[0]) : "NA"
+                - else
+                  NA
+              %td
+                - if deal.present?
+                  = deal.last_task.present? ? deal.last_task.name : "No-Action"
+                - else
+                  NA
+              %td
+                - if deal.present?
+                  = deal.deal_status_name.present? ? deal.deal_status_name : "NA"
+                - else
+                  NA
+        - else
+          %tr
+            %td{colspan:5} No data available

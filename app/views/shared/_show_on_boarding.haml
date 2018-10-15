@@ -1,0 +1,439 @@
+.onboarding_page
+  - if request.fullpath.include?("leads") && !request.fullpath.include?("leads/") 
+    .user_onbording_container.onboarding_leads
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_leads.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          All your lead at one place
+        .user_onbording_desc
+          This is where most of the action is...
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_add_lead
+      .user_onboarding_icon.onboarding_add_lead_header
+        %img{src:"/assets/new-ui/onboarding_add_lead_header.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_up
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Create a new Lead
+        .user_onbording_desc
+          Because it's so Easy.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+      .user_onboarding_arrow.user_onboarding_arrow_down
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onboarding_icon.onboarding_plus_icon
+        %img{src:"/assets/new-ui/onboarding_plus_icon.png"}
+    
+    .user_onbording_container.onboarding_leads_action
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_lead_action.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Take Actions!
+        .user_onbording_desc
+          Manage your Leads in the best possible way,
+          %br
+          with a range of useful actions. 
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_filter_lead
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_filter.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_up
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Apply a Filter
+        .user_onbording_desc
+          There're a ton of options to choose from.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Finish
+
+  - if params[:controller] == "deals" && params[:action] == "show"
+    .user_onbording_container.onboarding_leads_activity
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onb_lead_details_activity_stream.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_right
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          Your Own Activity monitor
+        .user_onbording_desc
+          Every thing that happened to a Lead/Opportunity, comes right here. Get a Glance anytime.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_leads_task
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onb_lead_details_task_list.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_right
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          All relavent Tasks, Together
+        .user_onbording_desc
+          Every single task related to a lead/opportunity is listed at one place, to make things easier for you.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_leads_assigned_to
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onb_lead_details_people_involed.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          Your entire Team, On-board
+        .user_onbording_desc
+          Every one that has a stake in your lead/opportunity is available. From the person involved to everyone in loop.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_leads_add_note
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onb_lead_details_quick_note.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Leave a Note or two...
+        .user_onbording_desc
+          Attaching a file or just leaving a quick note is so easy! Hardly takes a second.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_leads_send_email
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onb_lead_details_email.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Send an Email Anytime
+        .user_onbording_desc
+          Have the need to reach out to your lead?
+          %br
+          Just send an Email right form here!
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Finish
+
+  - if params[:controller] == "projects" && params[:action] == "index"
+    .user_onbording_container.onboarding_projects
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_projects.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          All your Projects at one place!
+        .user_onbording_desc
+          Every project is listed in a beautiful way.
+          %br
+          And there's more... Click on 
+          %i.fal.fa-plus-square-o.fs_20{"aria-hidden" => "true"}
+          to check out the Project Tasks.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_add_project
+      .user_onboarding_icon.onboarding_add_project_header
+        %img{src:"/assets/new-ui/onboarding_add_project_header.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_up
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Create a New Project
+        .user_onbording_desc
+          It's easy & hardly takes a second.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+      .user_onboarding_arrow.user_onboarding_arrow_down
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onboarding_icon.onboarding_plus_icon
+        %img{src:"/assets/new-ui/onboarding_plus_icon.png"}
+    
+    .user_onbording_container.onboarding_projects_action
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_project_action.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Take Actions...
+        .user_onbording_desc
+          Super quick actions with very useful results. 
+          %br
+          Just click on 3dot(...) menu to explore.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_project_details
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_project_details.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Your Projects...in Detail
+        .user_onbording_desc
+          The Projects Detail view is a great way to know more about every project of yours. 
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_project_board_view
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_project_board_view.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          The Projects Board View
+        .user_onbording_desc
+          For times when you wish to know about every project in brief. Very useful!
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_project_add_job
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_project_add_job.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Push the Projects into Action
+        .user_onbording_desc
+          Add a Job/Project Task with just a click from the Projects Listing page.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Finish
+
+
+
+
+
+
+
+
+
+
+  - if params[:controller] == "tasks" && params[:action] == "index"
+    .user_onbording_container.onboarding_tasks
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_tasks.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      
+      .user_onbording_body  
+        .user_onbording_header
+          All your Tasks at one place!
+        .user_onbording_desc
+          Tasks from all your Leads/Opportunities are listed here at one place.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_add_task
+      .user_onboarding_icon.onboarding_add_task_header
+        %img{src:"/assets/new-ui/onboarding_add_task_header.png"}
+      .user_onboarding_arrow.user_onboarding_arrow_up
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Create a New task
+        .user_onbording_desc
+          It's super easy & only takes a second. 
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+      .user_onboarding_arrow.user_onboarding_arrow_down
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onboarding_icon.onboarding_plus_icon
+        %img{src:"/assets/new-ui/onboarding_plus_icon.png"}
+    
+    .user_onbording_container.onboarding_tasks_action
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_task_action.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Take Actions...
+        .user_onbording_desc
+          No task is complete without an action. It's Easy!
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+
+    .user_onbording_container.onboarding_task_filter
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_filter.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Filter your Tasks
+        .user_onbording_desc
+          So that you only get to see the tasks that matter. 
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_task_calendar_view
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_task_calendar_view.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Tasks in Calendar View
+        .user_onbording_desc
+          Get all your tasks integrated in a beautiful calendar view. It's super cool.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Got it
+          %a.skip{href:"javascript:void(0)"} Skip
+    .user_onbording_container.onboarding_task_tab
+      .user_onboarding_icon
+        %img{src:"/assets/new-ui/onboarding_task_tab.png"}
+      .user_onboarding_arrow
+        %img{src:"/assets/new-ui/onboarding_arrow_right.png"}
+      .user_onbording_body  
+        .user_onbording_header
+          Tasks in Tabs
+        .user_onbording_desc
+          Set up different tabs as per the Task Status & get to know where you stand.
+        .user_onbording_footer
+          %a.got_it{href:"javascript:void(0)"} Finish
+
+
+:javascript
+  // Lead listing page
+  $(".skip").click(function(){
+    $(".onboarding_page").hide();
+  })
+
+  $(".onboarding_leads .got_it").click(function(){
+    $(".onboarding_leads").hide();
+    $(".onboarding_add_lead").show();
+  })
+
+  $(".onboarding_add_lead .got_it").click(function(){
+    $(".onboarding_add_lead").hide();
+    $(".onboarding_leads_action").show();
+  })
+
+  $(".onboarding_leads_action .got_it").click(function(){
+    $(".onboarding_leads_action").hide();
+    $(".onboarding_filter_lead").show();
+  })
+
+  $(".onboarding_filter_lead .got_it").click(function(){
+    $(".onboarding_filter_lead").hide();
+  })
+
+
+  // Lead details page
+  $(".onboarding_leads_activity .got_it").click(function(){
+    $(".onboarding_leads_activity").hide();
+    $(".onboarding_leads_task").show();
+  })
+
+  $(".onboarding_leads_task .got_it").click(function(){
+    $(".onboarding_leads_task").hide();
+    $(".onboarding_leads_assigned_to").show();
+  })
+
+  $(".onboarding_leads_assigned_to .got_it").click(function(){
+    $(".onboarding_leads_assigned_to").hide();
+    $(".onboarding_leads_add_note").show();
+    $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+  })
+
+  $(".onboarding_leads_add_note .got_it").click(function(){
+    $(".onboarding_leads_add_note").hide();
+    $(".onboarding_leads_send_email").show();
+    $('html,body').scrollTop(0);
+  })
+  $(".onboarding_leads_send_email .got_it").click(function(){
+    $(".onboarding_leads_send_email").hide();
+  })
+
+  //Projects page
+
+  $(".onboarding_projects .got_it").click(function(){
+    $(".onboarding_projects").hide();
+    $(".onboarding_add_project").show();
+  })
+
+  $(".onboarding_add_project .got_it").click(function(){
+    $(".onboarding_add_project").hide();
+    $(".onboarding_projects_action").show();
+  })
+
+  $(".onboarding_projects_action .got_it").click(function(){
+    $(".onboarding_projects_action").hide();
+    $(".onboarding_project_details").show();
+  })
+
+  $(".onboarding_project_details .got_it").click(function(){
+    $(".onboarding_project_details").hide();
+    $(".onboarding_project_board_view").show();
+  })
+
+  $(".onboarding_project_board_view .got_it").click(function(){
+    $(".onboarding_project_board_view").hide();
+    $(".onboarding_project_add_job").show();
+  })
+  $(".onboarding_project_add_job .got_it").click(function(){
+    $(".onboarding_project_add_job").hide();
+  })
+
+
+
+
+
+  $(".onboarding_tasks .got_it").click(function(){
+    $(".onboarding_tasks").hide();
+    $(".onboarding_add_task").show();
+  })
+
+  $(".onboarding_add_task .got_it").click(function(){
+    $(".onboarding_add_task").hide();
+    $(".onboarding_tasks_action").show();
+  })
+
+  $(".onboarding_tasks_action .got_it").click(function(){
+    $(".onboarding_tasks_action").hide();
+    $(".onboarding_task_filter").show();
+  })
+
+  $(".onboarding_task_filter .got_it").click(function(){
+    $(".onboarding_task_filter").hide();
+    $(".onboarding_task_calendar_view").show();
+  })
+
+  $(".onboarding_task_calendar_view .got_it").click(function(){
+    $(".onboarding_task_calendar_view").hide();
+    $(".onboarding_task_tab").show();
+  })
+  $(".onboarding_task_tab .got_it").click(function(){
+    $(".onboarding_task_tab").hide();
+  })

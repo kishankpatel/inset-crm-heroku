@@ -1,0 +1,48 @@
+.modal-header
+  %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+  %h4.modal-title Edit Plugin
+.modal-body
+  = form_for(@plugin, :url => '', :html=>{:class => 'form', onsubmit: 'updatePlugin(); return false;'}) do |f|
+    = hidden_field_tag "hdn_id", @plugin.id
+    .row#plugin_error
+    .row
+      .form-group.col-md-12
+        =f.text_field :title, :required => true, :class=> 'col-md-12 form-control', :maxlength=> '50', :style=> 'height:41px; resize: none;', :placeholder => 'Plugin Title*', id: "edit_plugin_title"
+    .row
+      .form-group.col-md-12
+        =f.text_area :description, :required => true, :class=> 'col-md-12 form-control', :maxlength=> '50', :style=> 'resize: none;', :placeholder => 'Plugin Description*', id: "edit_plugin_desc", :rows => "5"
+    .row
+      .form-group.col-md-12
+        %label Active
+        =f.check_box :is_active, :id => "edit_plugin_active"
+    .modal-footer
+      .pull-left
+        %button.btn.btn-primary.btn-success{type: 'submit', id: 'deal_submit_btn'} Save
+        %a.btn.btn-default{style: 'top:0px ', href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'}
+          %span.c_links
+            Cancel
+:javascript
+  function updatePlugin() {
+    var id = $("#hdn_id").val();
+    var title = $("#edit_plugin_title").val();
+    var desc = $("#edit_plugin_desc").val();
+    if ($('#edit_plugin_active').is(":checked")){
+      var is_active = true    
+    }else{
+      var is_active = false
+    }
+    $.ajax({
+      url: '/update_plugin',
+      type: 'POST',
+      data: {id:id, plugin_title: title, plugin_desc: desc, is_active: is_active},
+      success: function(res) {
+        $("#editPluginModal").modal('hide');
+        $('#editPluginModal').on('hidden.bs.modal', function () {
+          $('#plugins').html('').html(res);
+        })
+      },
+      error: function(res) {
+        $("#plugin_error").show();
+      }
+    });
+  }

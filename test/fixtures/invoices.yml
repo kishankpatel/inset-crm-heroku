@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  user_id: 
+  contact_id: 
+  currency: MyString
+  invoice_no: MyString
+  invoice_item: 
+  due_date: 2016-10-26
+  cc_mail_id: MyString
+  status: MyString
+  notes: MyText
+  terms_and_condition: MyText
+  transaction_date: 2016-10-26
+
+two:
+  user_id: 
+  contact_id: 
+  currency: MyString
+  invoice_no: MyString
+  invoice_item: 
+  due_date: 2016-10-26
+  cc_mail_id: MyString
+  status: MyString
+  notes: MyText
+  terms_and_condition: MyText
+  transaction_date: 2016-10-26

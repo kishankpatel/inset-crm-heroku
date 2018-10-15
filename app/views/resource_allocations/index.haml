@@ -1,0 +1,16 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up        
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-layer-group
+        Resource Allocations
+      %small
+.content
+  .hpanel.hblue
+    .panel-body
+      %div.div_resource_allocation.col-md-12
+        = render :partial=>'get_all_user_allocation',:locals=>{:start_date=>@start_date,:end_date=>@end_date}
+  

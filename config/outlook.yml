@@ -1,0 +1,15 @@
+development:
+  app_name: 'Inset_WUS_Dev'
+  client_id: '5f656a86-bdb7-46bb-975a-130b848bbed1'
+  client_secret: 'nvudU842$[$vhwNUZDEK74+'
+production:
+  # app_name: 'Inset_Production'
+  # client_id: 'e68ad4c0-1dee-462b-8542-818b45111a57'
+  # client_secret: 'ngcgVOQVDS10^;wewU656)['
+  app_name: 'Inset_Production'
+  client_id: '46167db0-3926-4385-b990-e67ff565270a'
+  client_secret: 'yetevWTLR5-!uiBUI7847}{'
+staging:
+  app_name: 'Inset_Staging'
+  client_id: '69e4f445-e57a-4228-8b1b-9c44077d5707'
+  client_secret: 'xajFJFBNX94=*;wbroH596-'

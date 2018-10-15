@@ -1,0 +1,25 @@
+defaults: &defaults
+  host: "localhost:3000"
+  host_url: "http://localhost:3000"
+  host_web_url_secure: "http://localhost:3000"
+  marketing_url: "http://localhost:3000"
+
+development:
+  <<: *defaults
+
+staging:
+  <<: *defaults
+  
+  host: "insetstaging.parkpointsoftware.com"
+  host_url: "http://insetstaging.parkpointsoftware.com"
+  host_web_url_secure: "https://insetstaging.parkpointsoftware.com"
+  marketing_url: "http://stageinsetcrm.com"
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
+  host: "inset.parkpointsoftware.com.com"
+  host_url: "http://inset.parkpointsoftware.com"
+  host_web_url_secure: "https://inset.parkpointsoftware.com"
+  marketing_url: "https://stageinsetcrm.com"

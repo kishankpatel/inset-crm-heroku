@@ -1,0 +1,637 @@
+.col-md-9
+  .row
+    .row
+      .hpanel.hgreen
+        .col-md-3
+          .hpanel{:title => "#{@new_ds.present? ? @new_ds.name : ""} Leads"}
+            .panel-body
+              - new_chart = @new_deals != 0 && @total_leads != 0
+              .table-responsive
+                %table.table
+                  %thead
+                    %tr
+                      %th
+                        = @new_ds.present? ? @new_ds.name : ""
+                      %th
+                        = @new_deals
+                  %tbody
+                    %tr
+                      %td{colspan: "2"}
+                        %span.chart.new-chart.load-percent{"data-percent" => "#{new_chart ? (@new_deals.to_f / @total_leads.to_f * 100.0).round : 0}"}                        
+                        %div.percent.text-center
+                          = new_chart ? (@new_deals.to_f / @total_leads.to_f * 100.0).round : 0
+              
+        .col-md-3{:title => "#{@qualified_ds.present? ? @qualified_ds.name : ""} Leads"}
+          .hpanel
+            .panel-body
+              - qualify_chart = @qualified_deals != 0 && @total_leads != 0
+              .table-responsive
+                %table.table
+                  %thead
+                    %tr
+                      %th
+                        = @qualified_ds.present? ? @qualified_ds.name : ""
+                      %th
+                        = @qualified_deals
+                  %tbody
+                    %tr
+                      %td{colspan: "2"}
+
+                        %span.chart.qualified-chart.load-percent{"data-percent" => "#{qualify_chart ? (@qualified_deals.to_f / @total_leads.to_f * 100.0).round : 0}"}
+                          %div.percent.text-center
+                            = qualify_chart ? (@qualified_deals.to_f / @total_leads.to_f * 100.0).round : 0
+              
+        .col-md-3{:title => "Won Leads"}
+          .hpanel
+            .panel-body
+              - won_chart = @won_deals != 0 && @total_leads != 0
+              .table-responsive
+                %table.table
+                  %thead
+                    %tr
+                      %th Won
+                      %th 
+                        = @won_deals
+                  %tbody
+                    %tr
+                      %td{colspan: "2"}
+                        %span.chart.won-chart.load-percent{"data-percent" => "#{won_chart ? (@won_deals.to_f / @total_leads.to_f * 100.0).round : 0}"}
+                          %div.percent.text-center
+                            = won_chart ? (@won_deals.to_f / @total_leads.to_f * 100.0).round : 0
+              
+        .col-md-3{:title => "Lost Leads"}
+          .hpanel
+            .panel-body
+              - lost_chart = @lost_deals != 0 && @total_leads != 0
+              .table-responsive
+                %table.table
+                  %thead
+                    %tr
+                      %th Lost
+                      %th
+                        = @lost_deals
+                  %tbody
+                    %tr
+                      %td{colspan: "2"}
+                        %span.chart.lost-chart.load-percent{"data-percent" => "#{lost_chart ? (@lost_deals.to_f / @total_leads.to_f * 100.0).round : 0}"}
+                        %div.percent.text-center
+                          = lost_chart ? (@lost_deals.to_f / @total_leads.to_f * 100.0).round : 0
+        
+    .col-md-12
+      .hpanel
+        .panel-heading
+          Task list
+        .panel-body.task-list
+          
+          .tasklist-btn
+            %span.all
+              %a.btn.w-xs.btn-info{href: "javascript:void(0)", onclick: "fetch_tasks('all')"}
+                %i.fal.fa-list{"aria-hidden" => "true"}
+                All
+            %span.today.activeTaskTab
+              %a.btn.w-xs.btn-success{href: "javascript:void(0)", onclick: "fetch_tasks('today')"}
+                %i.fal.fa-tasks{"aria-hidden" => "true"}
+                Today
+            %span.overdue
+              %a.btn.w-xs.btn-warning{href: "javascript:void(0)", onclick: "fetch_tasks('overdue')"}
+                %i.fal.fa-exclamation-triangle{"aria-hidden" => "true"}
+                Overdue
+            %span.upcoming
+              %a.btn.w-xs.btn-primary2{href: "javascript:void(0)", onclick: "fetch_tasks('upcoming')"}
+                %i.fal.fa-paw{"aria-hidden" => "true"}
+                Upcoming
+            %a.learn-more.fr.btn.w-xs.btn-primary{:href => tasks_path} View Task Listing
+          .row
+            #fetch_tasks_list.box{:style => "height:65%;overflow-y:auto;"}
+              = render :partial => "tasks_list"
+    .col-md-12
+      .hpanel
+        .panel-heading
+          Job list
+        .panel-body.task-list
+          .joblist-btn
+            %span.all
+              %a.btn.w-xs.btn-info{href: "javascript:void(0)", onclick: "fetch_jobs('all')"}
+                %i.fal.fa-list{"aria-hidden" => "true"}
+                All
+            %span.today.activeTaskTab
+              %a.btn.w-xs.btn-success{href: "javascript:void(0)", onclick: "fetch_jobs('today')"}
+                %i.fal.fa-tasks{"aria-hidden" => "true"}
+                Today
+            %span.overdue
+              %a.btn.w-xs.btn-warning{href: "javascript:void(0)", onclick: "fetch_jobs('overdue')"}
+                %i.fal.fa-exclamation-triangle{"aria-hidden" => "true"}
+                Overdue
+            %span.upcoming
+              %a.btn.w-xs.btn-primary2{href: "javascript:void(0)", onclick: "fetch_jobs('upcoming')"}
+                %i.fal.fa-paw{"aria-hidden" => "true"}
+                Upcoming
+            %a.learn-more.fr.btn.w-xs.btn-primary{:href => "/project_jobs/kanban"} View Job Listing
+          .row
+            #fetch_jobs_list.box
+              = render :partial => "/project_jobs/user_jobs_list"
+  .col-md-7 
+    .hpanel
+      .panel-heading
+        Usage
+      .panel-body.usage_summary
+        .usage
+          .frame
+            .glintcontent
+              %canvas#doughnutChart
+  .col-md-5.summary
+    .hpanel
+      .panel-heading
+        %i.fal.fa-glasses.fa-2x
+        = @filter_type + " Summary"
+      .panel-body
+        .social-talk
+          .media.social-profile.clearfix
+            %a.pull-left
+              %i.fal.fa-phone-square.fa-2x.text-warning
+              
+            .media-body
+              %span.font-bold Total Calls
+              %small.text-muted.pull-right.font-extra-bold 
+                = @task_call_count
+              .social-content
+                - if @task_call_count > 0
+                  = link_to tasks_url(:type=>"all", :t_type=>@current_organization.task_types.where(:name => "Call").first.id), :style=>"color:#78808A", :target => "_blank",:class=>"pull-right" do
+                    Read
+                    %i.fal.fa-caret-right{"aria-hidden" => "true"}
+        
+      .panel-body
+        .social-talk
+          .media.social-profile.clearfix
+            %a.pull-left
+              %i.fal.fa-calendar-check.fa-2x.text-success
+              
+            .media-body
+              %span.font-bold Total Appointments
+              %small.text-muted.pull-right.font-extra-bold 
+                = @task_apointment_count
+              .social-content
+                - if @task_apointment_count > 0
+                  = link_to tasks_url(:type=>"all", :t_type=>@current_organization.task_types.where(:name => "Appointment").first.id), :style=>"color:#78808A", :target => "_blank",:class=>"pull-right" do
+                    Read
+                    %i.fal.fa-caret-right{"aria-hidden" => "true"}
+            
+      .panel-body
+        .social-talk
+          .media.social-profile.clearfix
+            %a.pull-left
+              %i.fal.fa-clipboard-list.fa-2x.text-primary
+              
+            .media-body
+              %span.font-bold Total Leads To Nurture
+              %small.text-muted.pull-right.font-extra-bold 
+                = @new_deals
+              .social-content
+                - if @new_deals > 0
+                  = link_to leads_url, :onclick => "document.cookie='dt_range=3m';",:style=>"color:#78808A", :target => "_blank",:class=>"pull-right" do
+                    Read
+                    %i.fal.fa-caret-right{"aria-hidden" => "true"}
+      .panel-body
+        .social-talk
+          .media.social-profile.clearfix
+            %a.pull-left
+              %i.fal.fa-tasks.fa-2x.text-primary2
+              
+            .media-body
+              %span.font-bold Last Lead Closed
+              %small.text-muted.pull-right.font-extra-bold 
+                = @new_deals
+              .social-content
+                - unless @last_deal.present?
+                  Yet to close
+                - if @last_deal.present?
+                  %span{title: @last_deal.title, class: "tooltip", style: "cursor:pointer;"}
+                    = link_to @last_deal.title.truncate(35), "leads/" + @last_deal.to_param, :style =>"text-transform:none;",:class=>"pull-left"
+             
+.col-md-3
+  .row
+    .col-md-12
+      .hpanel.hgreen
+        .panel-body.total-profile-no
+          .text-center
+            - won_chart = @won_deals != 0 && @total_leads != 0
+            %span.right-won-chart.load-percent{"data-percent" => "#{won_chart ? (@won_deals.to_f / @total_leads.to_f * 100.0).round : 0}"}
+          
+          %div.percent.total_percent.text-center
+            = won_chart ? (@won_deals.to_f / @total_leads.to_f * 100.0).round : 0
+          .row
+            .col-xs-6.text-left{:title => "Total Leads"}
+              
+              %small.stat-label
+                Total
+              %h4
+                = @total_leads
+            .col-xs-6.text-right{:title => "Won Leads"}
+              
+              %small.stat-label
+                Won
+              %h4
+                = @won_deals
+            
+  .row
+    .col-md-12
+      .hpanel.hgreen
+        .panel-heading
+          Recent Leads
+        .panel-body.upcoming-task-sechedule
+          
+          - if @four_weeks_leads.present?
+            - @four_weeks_leads.each do |lead|
+              .social-talk
+                .media.social-profile.pull-left
+                  %a.pull-left{href: "/leads/#{lead.to_param}"}
+                    %i.fal.fa-calendar.fa-3x.text-success
+                    %br
+                    = lead.created_at.strftime("%b")
+                .media-body
+                  %span.font-bold
+                    -lname = truncate(lead.title, :length => 20, :ommission => "...")
+                    = link_to lname, "/leads/#{lead.to_param}", :target => "_blank", title: lead.title
+                  %br
+                  %small
+                    - name = truncate(lead.contact_name, :length => 25, :ommission => "...")
+                    - individual_contact = IndividualContact.find_by_id(lead.individual_contact_id)
+                    - link_contact = lead.deals_contacts.present? ? lead.deals_contacts.first.contactable.to_param : individual_contact.to_param
+                    
+                    = link_to truncate(name, :length => 19, :ommission => "..."), "/contact/#{link_contact}", :target => "_blank", title: lead.contact_name
+              .clearfix
+              %hr
+            %div.text-right
+              - if @four_weeks_leads.count == 7
+                = link_to "View More", "/leads" 
+                
+          - else
+            %li
+              %p
+                No leads found
+.clearfix
+:javascript
+  $('#send_request_trigger').bind('ajax:complete', function(evt, data, status, xhr){
+    show_alert_message("success", "User upgrade request successfully sent.")
+  });
+  $('.aaa').click(function(){
+    window.location.href='/users/pricing';
+  })
+  $(function() {
+    if("#{request.xhr?}" == "0"){
+      fetch_tasks('all','onload')
+    }else{
+      fetch_tasks('today','onload')
+    }
+    /* New deals chat */
+    $('.new-chart').easyPieChart({
+      easing: 'easeOutBounce',
+      onStep: function(from, to, percent) {
+        $(this.el).find('.percent').text("#{@new_deals != 0 && @total_leads != 0 ? (@new_deals.to_f / @total_leads.to_f * 100.0).round : 0}");
+      },
+      lineWidth: 5,
+      barColor: "#5DCEF1"
+    });
+    var chart = window.chart = $('.new-chart').data('easyPieChart');
+    $('.js_update').on('click', function() {
+      chart.update(Math.random()*200-100);
+    });
+
+    /* Qualified deals chat */
+    $('.qualified-chart').easyPieChart({
+      easing: 'easeOutBounce',
+      onStep: function(from, to, percent) {
+        $(this.el).find('.percent').text("#{@qualified_deals != 0 && @total_leads != 0 ? (@qualified_deals.to_f / @total_leads.to_f * 100.0).round : 0}");
+      },
+      lineWidth: 5,
+      barColor: "#CBDFB3"
+    });
+    var chart = window.chart = $('.qualified-chart').data('easyPieChart');
+    $('.js_update').on('click', function() {
+      chart.update(Math.random()*200-100);
+    });
+
+    /* Won deals chat */
+    $('.won-chart').easyPieChart({
+      easing: 'easeOutBounce',
+      onStep: function(from, to, percent) {
+        $(this.el).find('.percent').text("#{@won_deals != 0 && @total_leads != 0 ? (@won_deals.to_f / @total_leads.to_f * 100.0).round : 0}");
+      },
+      lineWidth: 5,
+      barColor: "#FBAA2C"
+    });
+    var chart = window.chart = $('.won-chart').data('easyPieChart');
+    $('.js_update').on('click', function() {
+      chart.update(Math.random()*200-100);
+    });
+
+    /* Lost deals chat */
+    $('.lost-chart').easyPieChart({
+      easing: 'easeOutBounce',
+      onStep: function(from, to, percent) {
+        $(this.el).find('.percent').text("#{@lost_deals != 0 && @total_leads != 0 ? (@lost_deals.to_f / @total_leads.to_f * 100.0).round : 0}");
+      },
+      lineWidth: 5,
+      barColor: "#FD8C8F"
+    });
+    var chart = window.chart = $('.lost-chart').data('easyPieChart');
+    $('.js_update').on('click', function() {
+      chart.update(Math.random()*200-100);
+    });
+
+    /* Right side total won deals chat */
+    $('.right-won-chart').easyPieChart({
+      easing: 'easeOutBounce',
+      onStep: function(from, to, percent) {
+        $(this.el).find('.percent').text("#{@won_leads != 0 && @total_leads != 0 ? (@won_leads.to_f / @total_leads.to_f * 100.0).round : 0}");
+      },
+      lineWidth: 5,
+      barColor: "#718AF9",
+      trackColor: "#DCDCDC"
+    });
+    var chart = window.chart = $('.right-won-chart').data('easyPieChart');
+    $('.js_update').on('click', function() {
+      chart.update(Math.random()*200-100);
+    });
+  });
+
+  function fetch_tasks(type,page=''){
+    var filter_type = $('.filter_dashboard option:selected').val();
+    var filter_user_id = $('.filter_user option:selected').val();
+    $.ajax({
+      type: "GET",
+      url: "/fetch_tasks",
+      dataType: 'json',
+      data: {task_type: type, filter_type: filter_type, filter_user_id: filter_user_id},
+      async: true,
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data){},
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        if(page=='onload' && "#{@tasks.count}" == "0"){
+          fetch_tasks('all')
+        }else{
+          $("#fetch_tasks_list").html(data.responseText);
+          $(".tasklist-btn").find("span").removeClass('activeTaskTab');
+          $("."+type).addClass('activeTaskTab');
+        }
+      }
+    });
+  }
+
+  function fetch_jobs(type,page=''){
+    var filter_type = $('.filter_dashboard option:selected').val();
+    var filter_user_id = $('.filter_user option:selected').val();
+    $.ajax({
+      type: "GET",
+      url: "/fetch_jobs",
+      dataType: 'json',
+      data: {job_by_duration: type, filter_type: filter_type, filter_user_id: filter_user_id},
+      async: true,
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data){},
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        if(page=='onload' && "#{@jobs.count}" == "0"){
+          fetch_jobs('all')
+        }else{
+          $("#fetch_jobs_list").html(data.responseText);
+          $(".joblist-btn").find("span").removeClass('activeTaskTab');
+          $("."+type).addClass('activeTaskTab');
+        }
+      }
+    });
+  }
+
+  function edit_popup(id){
+      $.ajax({
+        type: "POST",
+        url: "/edit_task",
+        dataType: 'json',
+        async: true,
+        data: {task_id: id},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          $("#edit_task_form_content").html(data.responseText);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+
+  function delete_task(id){
+    if(confirm("Do you want to delete the task?")){
+        $.ajax({
+        type: "DELETE",
+        url: "/tasks/"+id,
+        dataType: 'json',
+        async: false,
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+          $(document).trigger("add-alerts", [{'message': "Task has been deleted successfully." ,'priority': 'success'}]);
+          show_alert_message('success',"Task has been deleted successfully.");
+          $("#task_"+id).remove();
+        }
+      });
+    }
+  }
+  function delete_job(project_id,id){
+    if(confirm("Do you want to delete this job?")){
+        $.ajax({
+        type: "DELETE",
+        url: "/projects/"+project_id+"/jobs/"+id,
+        dataType: 'json',
+        async: false,
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message('success',"Job has been deleted successfully.");
+          $("#job_"+id).remove();
+        }
+      });
+    }
+  }
+
+  
+  /***********************************************************/
+  // var programmingSkills = [
+  //   {
+  //       value: #{@cmpl_tasks_percentage==0 ? 1 : @cmpl_tasks_percentage},
+  //       label: 'Tasks Completed (#{@completed_tasks})',
+  //       color: '#3399FF'
+  //   },
+  //   {
+  //       value: #{@call_percentage==0 ? 1 : @call_percentage},
+  //       label: 'Call Completed (#{@task_call_count})',
+  //       color: '#FFC575'
+  //   },
+  //   {
+  //       value: #{@total_leads_percentage==0 ? 1 : @total_leads_percentage},
+  //       label: 'Total Leads (#{@total_leads})',
+  //       color: '#944DDB'
+  //   },
+  //   {
+  //       value: #{@won_percentage==0 ? 1 : @won_percentage},
+  //       label: 'Won Leads (#{@won_deals})',
+  //       color: '#99CC00'
+  //   },
+  //   {
+  //       value: #{@lostdeal_percentage==0 ? 1 : @lostdeal_percentage},
+  //       label: 'Lost Leads (#{@lost_deals})',
+  //       color: '#FF3300'
+  //   },
+  // ];
+
+  // var donutSize = 300;
+  // var donut = $('#svg').donut({
+  //     donutSize: donutSize,
+  //     center: {
+  //         x: donutSize / 2,
+  //         y: donutSize / 2
+  //     },
+  //     radius: donutSize * 0.3 / 1,
+  //     data: programmingSkills
+  // });
+
+  // donut.startShowAnimation(function(){
+  //   //$('button').attr('disabled', false);
+  // });
+  var doughnutData = {
+    labels: [
+        "Tasks Completed",
+        "Call Completed",
+        "Total Leads",
+        "Won Leads",
+        "Lost Leads"
+    ],
+    datasets: [
+      {
+          data: [#{@completed_tasks}, #{@task_call_count}, #{@total_leads}, #{@won_deals}, #{@lost_deals}],
+          backgroundColor: [
+              "#62cb31",
+              "#91dc6e",
+              "#a3e186",
+              "#e0e0e0",
+              "#cbcbcb"
+          ],
+          hoverBackgroundColor: [
+              "#57b32c",
+              "#57b32c",
+              "#57b32c",
+              "#6a6c6f",
+              "#7a7c7f"
+          ]
+      }]
+  }
+  var doughnutOptions = {
+    responsive: true
+  };
+
+  var ctx = $('#doughnutChart');
+  ctx.height(400);
+  new Chart(ctx, {type: 'doughnut', data: doughnutData, options:doughnutOptions});
+
+  function load_summary_section(){
+        $.ajax({
+          type: "POST",
+          url: "/summary",
+          dataType: 'json',
+          async: true,
+          beforeSend: function(){
+            //$("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            //$("#task_loader").hide();
+          },
+          complete: function(data) {
+            $(".summary_data").html(data.responseText);
+          }
+        });
+
+    }
+
+    function load_header_count(){
+
+        //header_count
+        if($("#show_header_count").val() == 1){
+         $.ajax({
+          type: "POST",
+          url: "/load_header_count_section",
+          async: true,
+          beforeSend: function(){
+            //$("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            //$("#task_loader").hide();
+          },
+          complete: function(data) {
+            $(".header_user_data").html(data.responseText);
+          }
+        });
+      }
+      //end header count
+  }
+
+  function load_dashboard_task_widget(){    
+    $.ajax({
+      type: "POST",
+      url: "/task_widget_page",
+      dataType: 'json',
+      async: true,
+      beforeSend: function(){
+        //$("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        //$("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#task_header").html(data.responseText);
+      }
+    });
+  }
+
+  function get_activity_data()
+  {
+    //Ajax3.call();
+  }

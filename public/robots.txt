@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /sitemap
+Sitemap: 
+Disallow: /plugin/*
+Disallow: /save_user
+Disallow: /password
+
+Sitemap: https://www.wakeupsales.com/sitemap.xml

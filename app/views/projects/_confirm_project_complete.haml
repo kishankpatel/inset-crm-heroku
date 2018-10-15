@@ -1,0 +1,15 @@
+#confirmProjectComplete.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      = form_tag complete_mass_project_projects_path,  :class => "form",:method=>"PUT",:id=>"complete_projects", :remote => true do |f|
+        .modal-header
+          %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+          %span.cwkp-sprite.complete_header_icon
+          %h4.modal-title{style: "display:inline-block;"} Do you want to complete the selected project(s)?
+        .modal-body
+          = hidden_field_tag "project_ids_to_complete",""
+          %div
+            .navbar-left.form-layout-footer
+              = submit_tag "Ok", class: "btn btn-info", disable_with: "Please wait..."
+              %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+          .cb

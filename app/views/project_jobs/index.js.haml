@@ -1,0 +1,87 @@
+:javascript
+  select_filter_from_cookies();
+  $(document).ready(function(){
+    t = $('#job_assigned_to').val("#{params[:assigned_to]}");
+    document.cookie="job_assigned_to="+t.val();
+    document.cookie="t_type=#{params[:t_type]}";
+    $('input[name="filterTasks"]').removeAttr('checked');
+    
+    if(#{params[:type].present?} == true){
+      display_project_jobs("#{params[:type]}")
+    }
+  });
+  function select_filter_from_cookies(){
+    if(("#{cookies[:priority]}" == "true" ) || ("#{cookies[:status]}" == "true" ) || ("#{cookies[:cre_by]}" == "true" ) || ("#{cookies[:asg_by]}" == "true" ) || ("#{cookies[:proj]}" == "true" ) || ("#{cookies[:daterange]}" == "true" ) || ("#{cookies[:last_tch]}" == "true" ) || ("#{cookies[:dtrange_from]}" == "true" && "#{cookies[:dtrange_to]}" == "true")){
+      if("#{cookies[:cre_by]}" == "true" ){
+        var cre_split = "#{cookies[:cre_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<cre_split.length;i++)
+        {
+          $("#cre_by_"+cre_split[i]).prop("checked", true)
+        }        
+
+        $(".tag_filter").show();
+        $(".created_by_tag").show();
+        $("#created_by_tag_txt").html("#{cookies[:cre_by_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:asg_by]}" == "true" ){
+        var asg_split = "#{cookies[:asg_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<asg_split.length;i++)
+        {
+          $("#assg_by_"+asg_split[i]).prop("checked", true)
+        }
+      
+        $(".tag_filter").show();
+        $(".assigned_to_tag").show();
+        $("#assigned_to_tag_txt").html("#{cookies[:asg_by_txt]}".split('|').join(','));
+      }
+
+      if("#{cookies[:proj]}" == "true" ){
+        var proj_split = "#{cookies[:proj_val]}".slice(0,-1).split('|');
+        for(var i=0;i<proj_split.length;i++)
+        {
+          $("#proj_"+proj_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".proj_tag").show();
+        $("#proj_tag_txt").html("#{cookies[:proj_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:priority]}" == "true" ){
+        var priority_split = "#{cookies[:priority_val]}".slice(0,-1).split('|');
+        for(var i=0;i<priority_split.length;i++)
+        {
+          $("#priority_"+priority_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".priority_tag").show();
+        $("#priority_tag_txt").html("#{cookies[:priority_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:status]}" == "true" ){
+        var status_split = "#{cookies[:status_val]}".slice(0,-1).split('|');
+        for(var i=0;i<status_split.length;i++)
+        {
+          $("#status_"+status_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".status_tag").show();
+        $("#status_tag_txt").html("#{cookies[:status_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:daterange]}" == "true" ){
+        var daterange_id = "#{cookies[:dt_range]}".toLowerCase().split(' ').join('_');
+        $("#"+daterange_id).prop("checked", true)
+        $(".tag_filter").show();
+        $(".date_tag").show();
+        $("#date_tag_txt").html("#{cookies[:dt_range_txt]}")
+      }
+
+      if("#{cookies[:dtrange_from]}" == "true" ){
+        $(".tag_filter").show();
+        $(".date_range_tag").show();
+        $("#project_from").val("#{cookies[:dt_range_from]}");
+        $("#project_to").val("#{cookies[:dt_range_to]}");
+        $("#from_tag_txt").html("#{cookies[:dt_range_frm_txt]} to #{cookies[:dt_range_to_txt]}");
+      }
+    }
+  }

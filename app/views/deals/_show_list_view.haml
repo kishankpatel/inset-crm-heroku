@@ -1,0 +1,110 @@
+.list_view
+  .col-md-12
+    #alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+      %button.close{onclick: "$('#alert-msg').hide();$('task_loader,.fixed_loader').hide();"} x
+      #msg_div
+    #filter_msgdeals.col-md-offset-0{style: "text-align: center;display:none"}
+    =hidden_field_tag "individual_filter_present", @filter_msg.present?
+    - if @filter_msg.present?
+      #individual_filter_msg.col-md-offset-0{style: "text-align: center"}
+        =@filter_msg.html_safe
+        =link_to "RESET", "/leads", class: "btn btn-xs btn-warning"
+    
+    
+    .tablisting.task_tab
+      .lead-stage
+        .row
+          .col-md-6
+            %ul.nav.nav-tabs
+              - if params[ :type] == "inactive_deals"
+                %li#inactive_deals.active
+                  %a{"data-toggle" => "tab", href: "#junk_deals",onclick: "get_deals('inactive_deals');" , id: "inactive_dealsDeals"} 
+                    %span.badge#badge_junk
+                      = attention_deals_count
+                    Leads need attention
+              -else
+                %li#my_deals_tab{onclick: "get_deals('my_deals');"}
+                  %a{id: "myDeals","data-toggle": "tab", href: "#my_deals"}
+                    My Leads
+                    /%span#badge_my_deals.badge_count
+                /- if @current_user.is_admin?  
+                %li#all_tab{onclick: "get_deals('all');"}
+                  /%span{id: "allDeals"}
+                  %a{id: "allDeals","data-toggle": "tab", href: "#my_deals"}
+                    All
+                  /%span#badge_all.badge_count
+                = hidden_field_tag "hdn_tab",""
+                = hidden_field_tag "hdn_tab_name",""
+          .col-md-6.text-right
+            / %div.text-right
+            /   %a.ml-5{:href => ""}
+            /     %i.fal.fa-filter.fa-2x
+            /   %a.ml-5{:href => ""}
+            /     %i.fal.fa-upload.fa-2x
+            /   %a.ml-5{:href => ""}
+            /     %i.fal.fa-download.fa-2x
+            /   %a.ml-5{:href => ""}
+            /     %i.fal.fa-file-pdf.fa-2x
+            /   %a.ml-5{:href => ""}
+            /     %i.fal.fa-dumbbell.fa-2x
+            =render :partial=>"filters"
+        .tab-content.panel-body
+          =hidden_field_tag "all_div_val","0"
+          =hidden_field_tag "my_deals_div_val","1"
+          -if current_user.deal_setting
+            - @current_user.deal_setting.tabs.split(",").each do |ds_id|
+              - if (deal_status = DealStatus.get_deal_name(ds_id,@current_user.organization.id)).present?
+                - ds_tab = deal_status.name.downcase.gsub(' ','_')
+                =hidden_field_tag ds_tab + "_div_val","0"
+          =hidden_field_tag "filter_get_val","0"
+          =hidden_field_tag 'hdndeals', 'mydeals'
+          =hidden_field_tag 'opp'
+          - if params[:type] == "inactive_deals"
+            #inactive_deals_content.w-box.tab-pane.in.active
+          - else
+            #my_deals.w-box.tab-pane.in.active
+            #all_deals.w-box.tab-pane.in
+            #working_deals.w-box.tab-pane.in
+            #un_assigned_deals.w-box.tab-pane.in
+            -if(!@current_user.deal_setting.nil?)
+              - @current_user.deal_setting.tabs.split(",").each do |ds_id|
+                - deal_status = DealStatus.get_deal_name(ds_id,@current_user.organization.id)
+                - if deal_status.present?
+                  %div{:id => deal_status.name.downcase.gsub(' ','_') + "_deals", :class=> "w-box tab-pane in"}
+      .cb
+    
+
+
+  =hidden_field_tag "deal_quarter"
+  =hidden_field_tag "deal_year"
+  = render :partial => "tab_settings"
+  = render :partial => "shared/label"
+  = render :partial => "shared/move_deal"
+  = render :partial => "deals/change_assignee"
+  = render :partial => "deals/confirm_deal_delete"
+  #quickeditModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "quickeditModal", role: "dialog", tabindex: "-1"}
+    .modal-dialog.new_form_layout
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title{style:"display:inline-block;"} 
+            %span.cwkp-sprite.header-edit-icon
+            QUICK EDIT
+        .modal-body
+          #deal_content
+
+:javascript
+  $(document).ready(function() {
+    $(".dropdown-toggle").dropdown();
+  }); 
+  function highlight_kanban(){
+    $("#leads").removeClass("activ_menu");
+    $("#leads_kanban_view").addClass("activ_menu");
+    $("#leads_kanban_view .kanban_view").css({"background-position":"-115px -169px","color":"#000"});
+  }
+  
+  function hide_sec_menu(){
+    $(".sec_mnu").hide();
+  }

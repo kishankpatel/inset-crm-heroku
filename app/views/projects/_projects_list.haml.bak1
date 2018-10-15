@@ -1,0 +1,298 @@
+%table#example2.table.table-striped.table-bordered.table-hover{:id=>"projectDataTable", "data-source"=>projects_url(format: 'json',params: {cuser: current_user.id,assigned_to: params[:assigned_to], created_by: params[:created_by], cre_by: cookies[:cre_by], cre_by_val: cookies[:cre_by_val], asg_by: cookies[:asg_by], asg_by_val: cookies[:asg_by_val], lead: cookies[:lead], lead_val: cookies[:lead_val], daterange: cookies[:daterange], dt_range: cookies[:dt_range],last_touch: cookies[:last_touch],last_tch: cookies[:last_tch], status: cookies[:status], status_val: cookies[:status_val], label_type: cookies[:label_type], user_label: cookies[:user_label], user_label_val: cookies[:user_label_val]})}
+  %thead
+    %tr
+      %th #Sl.
+      %th
+        .checkbox
+          %input#checkbox1{:type => "checkbox"}/
+          %label{:for => "checkbox1"}
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %small.text-muted
+              %b.caret
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Delete
+      %th Project Name
+      %th Opportunity Associated
+      %th Lead Associated
+      %th Description
+      %th #Users
+      %th #Jobs
+      %th Status
+      %th Last Activity
+  %tbody
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61
+    %tr
+      %td #1
+      %td
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %i.fa.fa-ellipsis-h
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            %li
+              %a{:href => ""} Complete
+            %li
+              %a{:href => ""} Add Users
+            %li
+              %a{:href => ""} Delete
+        .checkbox
+          %input#checkbox2{:type => "checkbox"}/
+          %label{:for => "checkbox2"}
+      %td
+        %a{:href => "", :title => "testing project"} testing project
+        %br/
+        Created by
+        %span{:title => "Matthew Brennan"}
+          Matthew Brennan
+          %br/
+          on May 22, @ 09:42 am
+      %td
+        %a{:href => "", :title => "2018 Tax Return"} 2018 Tax Return
+      %td
+        %a{:href => "", :title => "lola conchita"} lola conchita
+      %td
+        %span{:title => "test by andolasoft. Please ignore it"} test by andolasoft. Please ignore it
+      %td 2
+      %td 5
+      %td Started
+      %td 61

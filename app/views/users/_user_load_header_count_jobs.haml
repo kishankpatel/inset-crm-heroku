@@ -1,0 +1,58 @@
+.row.pf_right_sec
+  / - if @allowed_user && @task_count > 0
+  /   - url_task = "/tasks"
+  /   - sty = ""
+  / - else
+  /   - url_task = "javascript:void(0)"
+  /   - sty = "color:#999;cursor:default;"
+  .hpanel.hgreen
+    .panel-body.t_s_f
+      .row
+        .col-md-3
+          .hpanel.hbggreen
+            .panel-body
+              .text-center
+                %h5 This Week
+                %p.text-big.font-light
+                  =@this_week_jobs
+       
+        / - if @allowed_user #&& @new_deals > 0
+        /   - url_ndeal = "/leads"
+        /   - sty = "margin-right:0px;"
+        / - else
+        /   - url_ndeal = "javascript:void(0)"
+        /   - sty = "margin-right:0px;cursor:default;color:#999;"
+        .col-md-3
+          .hpanel.hbgyellow
+            .panel-body
+              .text-center
+                %h5
+                  Today
+                %p.text-big.font-light
+                  =@today_jobs
+        
+        / - if @allowed_user 
+        /   - url_qdeal = "/leads"
+        /   - sty = "margin-right:0px;"
+        / - else
+        /   - url_qdeal = "javascript:void(0)"
+        /   - sty = "margin-right:0px;cursor:default;color:#999;"
+        .col-md-3
+          .hpanel.hbgred
+            .panel-body
+              .text-center
+                %h5
+                  Overdue
+                %p.text-big.font-light
+                  =@overdue_jobs
+        .col-md-3
+          .hpanel.hbgblue
+            .panel-body
+              .text-center
+                %h5
+                  Completed
+                %p.text-big.font-light
+                  =@completed_jobs
+        
+  .cb
+.cb

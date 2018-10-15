@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>Confirmation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Arial'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td height="50" style="text-align:center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height: 50px;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p>
+                  Hi InSet CRM Support Team,
+                </p>
+                <p >
+                  Congratulations! A new InSet CRM Cloud user has signed up; please find the details below:
+                </p>
+                <p><b>First Name:</b> <%=@user.first_name%></p>
+                <p><b>Last Name:</b> <%=@user.last_name%></p>
+                <p><b>Email:</b> <%=@user.email%></p>
+                <%@organization = @user.organization%>
+                <p><b>Organization:</b> <%=@organization.present? ? @organization.name : ""%></p>
+                <p><b>Organization Type:</b> <%=@organization.present? && @organization.organization_type.present? ? OrganizationType.find_by_id(@organization.organization_type).name : ""%></p>
+                <p><b>Organization Size:</b> 
+                  <%=@organization.present? && @organization.size_id.present? ? CompanyStrength.find_by_id(@organization.size_id).range : ""%>
+                </p>
+                <!-- <p><b>Phone Number:</b> <%=@organization.present? && @organization.phone.present? ? @organization.phone.phone_no : ""%></p> -->
+                <p><b>Sign up mode:</b> <%= @sign_up_mode %></p>
+                <p><b>Location:</b> 
+                  <%=@geo_code.present? && @geo_code["region_name"].present? ? @geo_code["region_name"] + "," : "" %>
+                  <%=@geo_code.present? && @geo_code["city"].present? ? @geo_code["city"] + "," : "" %>
+                  <%=@geo_code.present? && @geo_code["country_name"].present? ? @geo_code["country_name"] + "," : "" %>
+                  latitude: <%=@geo_code.present? ? @geo_code["latitude"] : ""%>,
+                  longitude:<%=@geo_code.present? ? @geo_code["longitude"] : ""%>, 
+                  IP:<%=@geo_code.present? ? @geo_code["ip"] : ""%></p>
+                <p><b>Timezone:</b> <%=@geo_code.present? ? @geo_code["time_zone"] : ""%></p>
+                <div style="clear:both;height:5px"></div>
+                <p>
+                  Best,
+                  <br>
+                  The InSet CRM Team
+                </p>
+                
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

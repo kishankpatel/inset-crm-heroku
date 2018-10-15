@@ -1,0 +1,89 @@
+- from_getting_started_page = false if(local_assigns[:from_getting_started_page].nil?)
+= form_for(User.new, :url => invite_user_path(), :html=>{:class => "form cmn_new_popup_form", :id=>"user_invite_form"}, :method => :post, :remote => true) do |f|
+  .modal-body
+    #alert-msg.alert.fade.in.alert-danger.show-alert{style: "display:none;"}
+      %button.close{onclick: "$('#alert-msg').hide();$('#loader').hide();"} x
+      #msg_div.show-msg
+    %p{style: "margin-bottom:10px"} Enter the user details here
+    .row
+      .form-group.col-md-6.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-inbox
+          =f.text_field :first_name, :required => true ,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"First name", :class=>"form-control",:maxlength=> "20",:onkeydown=>"return onlycharacters(event)"
+      .form-group.col-md-6.padlft
+        .input-group
+          .input-group-addon
+            %span.fal.fa-inbox
+          =f.text_field :last_name, :required => true, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder: "Last name", :class=>"form-control",:maxlength=> "20",:onkeydown=>"return onlycharacters(event)"
+      .cb
+    .row
+      .form-group.col-md-6.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-envelope
+          =f.email_field :email, :required => true, :class=>"form-control", placeholder:"Email"
+        %div{id:"email_err_usr",class: "error"}
+      .form-group.col-md-6.padlft
+        .input-group
+          .input-group-addon
+            %span.fal.fa-phone
+          =f.text_field :work_phone,:class=>"bfh-phone form-control","data-format"=>" (ddd) ddd dddd dddd", :onblur => "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:onclick =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Phone"
+      .cb
+    .row
+      .form-group.col-md-6.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-globe
+          = f.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones,  { prompt: "- Select Time Zone -", :default=> @current_user.time_zone }, :required => true, :class=>"form-control"
+      
+      .form-group.col-md-6.padlft{style:"margin-top: 12px;"}
+        
+        .modal-radio.fl
+          %label{style:"margin-right: 10px;font-size:12px;"}
+            User Group
+          =f.radio_button :admin_type, "2", :checked => true, :onclick => "$('#show_dropdown').hide();"
+          %label{:for => "user_admin_type_2"}
+            %span
+            Admin
+        -@roles=@current_organization.roles.select("id, name") if @current_organization.present?
+        -unless @roles.blank?
+          .modal-radio.fl
+            =f.radio_button :admin_type, "3", :onclick => "$('#show_dropdown').show();"
+            %label{:for => "user_admin_type_3"}
+              %span
+              User
+          .form-group.padrht.navbar-left#show_dropdown{style: "display:none;margin-top: 20px;"}
+            .form_fld.cmn_selct_fld
+              #roles_div
+                = render :partial => "/users/roles_div", :locals => { :f => f}
+              /=f.hidden_field :role_id
+              / #user_group_sec.dropdown.form_fld.cmn_selct_fld.form-control{style:"height: 47px;border:none;padding-right: 0;"}
+              /   / %input.dropdown-toggle{"data-toggle" => "dropdown", :type => "text", "aria-expanded" => "false", :style =>"height: 30px;cursor: default;text-indent: 35px;background: #fff;", :onclick => "$('#new_user_group_field').focus();", :id => "new_user_group_toggle", :placeholder => "Department", :required => true, :onkeydown=>"$('#new_user_group_field').focus();return false;", :class => "form-control custom-frm-inner", :readonly => true}
+              /   /   %span.cwkp-sprite.job_type{title: "Job Type"}
+              /   / %ul{:class=>"dropdown-menu user-drop-down-menu", :id => "job-type-dropdown-menu", :style => "width:100%;margin-top:0px;max-height:150px;overflow-y:auto;"}
+              /   /   %li{:class=>"dropdownjs-add", :id => "type-li", :tabindex=>"-1"}
+              /   /     %input{:name => "custom-add", :id => "new_user_group_field", :class => "custom-add-type", :placeholder=>"+ Add New", :onclick => "event.stopPropagation();", :style => "width:100%;border:3px solid #ddd;", :class => "form-control"}
+              /   /   #roles_div
+              /   /     = render :partial => "/users/roles_div"
+        -else
+          = link_to "Click", "/settings#create_group"
+          to create a group
+      .cb
+  -if(from_getting_started_page == true)
+    .modal-footer
+      %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+        %i.icon-chevron-left>
+        Prev
+      %button.pager-next.btn.w-xs.btn-success.add_more{type: "submit"}
+        %i.icon-chevron-right>
+        Save & add more
+      %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+        %i.icon-chevron-right>
+        Next
+      .cb
+  -else
+    .modal-footer
+      %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal", :class=>"btn btn-default"}
+        Cancel
+      =f.submit "Send", :class=>"btn btn-info", :disable_with => "Please wait ...",:onclick=> "return validate_email('user_email')"

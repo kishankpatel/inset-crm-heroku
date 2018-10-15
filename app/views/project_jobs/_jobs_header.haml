@@ -1,0 +1,43 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      .row
+        .col-md-3
+          %h2.font-light.m-b-xs Project Jobs
+          %small
+            %a{:href => "/projects/#{@project.id}"}
+              =@project.name
+        .col-md-6.text-center
+          .tasks-tabs
+            %ul
+              = render :partial => "job_tab_data"
+            .cb 
+        .col-md-3
+          #hbreadcrumb.pull-right
+            %ol.hbreadcrumb.breadcrumb
+              / %li
+              /   %a{:href => "/projects/#{@project.id}/jobs"} Project Jobs
+              - if request.fullpath.include? "kanban"  
+                %li
+                  %a{:href => "/projects/#{@project.id}/jobs"} List View
+                -if params[:ktype] == "status"
+                  %li.active
+                    %span Status Kanban
+                -else
+                  %li
+                    %a{:href => "/projects/#{@project.id}/jobs/kanban/?ktype=status"} Status Kanban
+                -if params[:ktype] == "stage"
+                  %li.active
+                    %span Stage Kanban
+                -else
+                  %li
+                    %a{:href => "/projects/#{@project.id}/jobs/kanban/?ktype=stage"} Stage Kanban
+              - else
+                %li
+                  %span List View
+                %li.active
+                  %a{:href => "/projects/#{@project.id}/jobs/kanban/?ktype=status"} Status Kanban
+                %li.active
+                  %a{:href => "/projects/#{@project.id}/jobs/kanban/?ktype=stage"} Stage Kanban
+           
+           

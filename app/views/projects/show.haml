@@ -1,0 +1,352 @@
+=render partial: "/projects/create_project_popup"
+-content_for :title,@project.name
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/projects"} Projects
+          %li.active
+            %span Detail View
+      %h2.font-light.m-b-xs Project Detail
+      .small 
+        =@project.name
+      /.pull-right.col-md-12
+      /  =render :partial=>"filters"
+    .p-sm.m-t
+      .panel-body
+        .opp_status_bar_sec
+          = render partial: "project_status_bar"
+.row      
+  .col-md-12
+    .col-lg-9
+      .hpanel.hgreen
+        .panel-heading
+          Project Details: 
+          =@project.name
+          .small
+        .panel-body
+          .pull-right
+            %button.btn.btn-success.btn-xs 
+              =@project.status
+            / %a.btn.btn-default.btn-xs{href: "/projects/#{project}"}
+            /   %i.fa.fa-pencil
+            /   Edit
+          %h2.m-t-none
+            =@project.name
+          %small
+            =@project.description
+          .row
+            .col-md-8.pull-left
+              .small.m-t-xs
+                %strong Managed by:
+                - hash = Hash[@current_organization.admins.collect{|ps| [ps.id,ps.full_name.present? ? ps.full_name : ps.email]}]
+                %a{:href => "#","data-id"=>@project.id, "data-name" => @project.project_manager_id, "data-source" => hash.to_json, :class=>"#{@current_user.is_admin? || @current_user.is_super_admin? ? 'project_manager_name' : ''}"}
+                  =@project.project_manager.present? ? @project.project_manager.full_name.present? ? @project.project_manager.full_name : @project.project_manager.email : 'N/A'
+                / %a.project_manager_name{href: "#", id: @project.project_manager_id}
+                /   =@project.project_manager.present? ? @project.project_manager.name.present? ? @project.project_manager.name : @project.project_manager.email : 'N/A'
+                %br
+                %strong Create by:
+                =@project.created_user.name.present? ? @project.created_user.name : @project.created_user.email
+                %br/
+                %strong Client:
+                - if @project.linked_with == "Opportunity" 
+                  = link_to(@project.deal.title, "/leads/"+@project.deal.to_param, :title => @project.deal.title)
+                - elsif @project.linked_with == "Contact"   
+                  = link_to(@project.individual_contact.name, "/contact/"+@project.individual_contact.to_param, :title => @project.individual_contact.name)
+                    
+                -elsif @project.linked_with == "Organization"
+                  = link_to(@project.company_contact.name, "/company_contact/"+@project.company_contact.to_param, :title => @project.company_contact.name)
+                  
+                -else
+                  = "N/A"
+                / - if @deal.present? && @contact.present?
+                /   = @contact.class.name == "IndividualContact" ? (@contact.full_name.present? ? @contact.full_name : @contact.email) : @contact.name
+                / - else
+                /   = "N/A"
+                
+            .col-md-4.pull-right.text-right
+              %a.btn.btn-xs.btn-default{:href=>"/projects/#{@project.id}/jobs"}
+                Job Listing
+              = link_to "#projectJobModal", "data-toggle" => "modal", "onclick" => "$('#new_project_job')[0].reset();$('.error').html('');fillProjectJobFields(#{@project.id})",:class=>'btn btn-xs btn-default' do
+                New Job
+
+              .dropdown.text-left.diblock.m-l-sm
+                %a.btn.btn-xs.btn-default.dropdown-toggle{:role=>"dropdown","data-toggle" => "dropdown", :href => "javascript:"}
+                  %span.pe-7s-more
+                %ul.dropdown-menu{:role => "menu"}
+                  %li
+                    %a{:href => "#scheduleModal", "data-toggle" => "modal", :title => "Schedule an Appointment"}
+                      %span.fal.fa-calendar-check
+                      Schedule an Appointment
+                  - if @project.project_type != 'Administrative'
+                    %li
+                      %a{:href => "javascript:void(0)", :onclick => "update_project('#{@project.id}','complete')", :rel => "tooltip", :title => "Mark this project as \"Complete\""}
+                        %span.pe-7s-check
+                        Complete
+                    
+                    %li
+                      %a{:href => "javascript:", :onclick => "add_project_user('#{@project.id}')", :style => "cursor:pointer;", :title => "Add new Users to this project"}
+                        %span.pe-7s-add-user
+                        Add Users
+                    %li
+                      %a{:href => "#projectModal", "data-toggle" => "modal", :title => "Edit Project", :onclick => "open_edit_project_popup('#{@project.id}')"}
+                        %span.fal.fa-pen
+                        Edit
+                    
+                    %li
+                      %a{:href => "javascript:void(0)", :onclick => "archive_project('#{@project.id}')", :rel => "tooltip", :title => "Delete this project"}
+                        %span.fal.fa-trash
+                        Delete
+                
+
+          .clearfix 
+      .hpanel.hyellow
+        %div
+          %ul.nav.nav-tabs
+            %li.active
+              %a{"aria-expanded" => "true", "data-toggle" => "tab", :href => "#tab-1",:onclick=>"get_jobs_kanban_view(#{@project.id});"}
+                %span.fal.fa-suitcase
+                Jobs
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-2",:onclick=>"getResourceUtilization();"}
+                %span.fal.fa-users
+                Res. Utilization
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-3",onclick: "get_resource_allocation('current',#{@project.id});"}
+                %span.fal.fa-clock
+                Res. Allocation
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#project_notes",onclick: "load_activity_cum_projects(#{@project.id}, 'quick_notes')"}
+                %span.fal.fa-sticky-note
+                Notes 
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-5",onclick: "load_activity_cum_projects(#{@project.id}, 'activity_stream')"}
+                %span.fal.fa-chart-line
+                Activity
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-6",onclick: "load_activity_cum_projects(#{@project.id}, 'emails')"}
+                %span.fal.fa-envelope
+                Emails
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-7",onclick: "load_activity_cum_projects(#{@project.id}, 'files')"}
+                %span.fal.fa-file-alt
+                Files
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", :href => "#tab-8",onclick: "load_activity_cum_projects(#{@project.id}, 'invoices')"}
+                %span.fal.fa-file-invoice
+                Invoice
+          
+          .tab-content
+            #tab-1.tab-pane.active
+              .panel-body
+                #project-detail-contents
+            #tab-2.tab-pane
+              .panel-body
+                .resources-list
+            #tab-3.tab-pane
+              .panel-body
+                .div_resource_allocation
+            #project_notes.tab-pane
+              .panel-body.project_quick_notes
+            #tab-5.tab-pane
+              .panel-body.project_activity_stream
+            #tab-6.tab-pane
+              .panel-body.project_emails
+            #tab-7.tab-pane
+              .panel-body.project_files
+            #tab-8.tab-pane
+              .panel-body.project_invoices
+
+    .col-lg-3
+      // statistics
+      .hpanel.hgreen
+        .panel-heading
+          .panel-tools
+          Project Statistics
+        .panel-body
+          %div
+            %i.pe-7s-cash.fa-4x
+            %h1.m-xs.text-success 
+              =@project.deal.present? ? @project.deal.currency_type : "$"
+              =@project.deal.present? && @project.deal.amount.present? ? number_to_currency(@project.deal.amount.to_f, precision: 2).gsub("$", "") : 0
+          =render :partial=>"projects/job_time_stat",:locals=>{project: @project}
+      .hpanel.hgreen
+        .panel-heading
+          .panel-tools
+          Project Activities
+        .panel-body.tooltip-demo
+          %h4.text-primary Project Details
+          %p.text-primary
+            %strong Start Date:
+            = @project.start_date.strftime("%b %d, %Y") if @project.start_date.present?
+          %p.text-primary
+            %strong Last Activity:
+            = @project.updated_at.strftime("%b %d, %Y %H:%M %P")
+          %p.text-primary
+            %strong User(s):
+            / = @project.project_users.map{|p|p.user}.compact.count
+            - @project.project_users.each do |puser|
+              - user= puser.associated_user
+              - if user
+                - user_name =  user.full_name.present? ? user.full_name : user.email
+                - title = "#{user.id == @project.project_manager_id ? (user_name + ' (Project Manager)') : user_name}"
+                -if user.image.present?
+                  %span.mr10{"data-toggle"=>"tooltip",:title=>title}
+                    %img.img-circle.img-small.mt5{:alt => "logo", :src => user.image.image(:thumb),:onError=>"this.src='/assets/new-ui/user.png';this.onerror=null;"}
+                -else
+                  %span.contact-small-profile-icon.img-small.mr10.mt5{style: "background: #{user.get_user_color_code(user_name[0].downcase)} !important", "data-toggle"=>"tooltip",:title=>title }
+                    =user_name[0].upcase
+          %p.text-primary
+            %strong Job(s):
+            = @project.project_jobs.count
+          %p.text-primary
+            %strong Lead:
+            = @project.individual_contact.present? ? @project.individual_contact.name : "NA"
+          %p.text-primary
+            %strong Opportunity:
+            - if @project.deal.present? 
+              %span{title:@project.deal.title}
+                = truncate(@project.deal.title, :length => 30, :ommission => "...")
+            - else
+              = "NA"
+          .text-right
+            
+      / .row
+      /   .font-bold.m-b-sm
+      /     .hpanel
+      /       .panel-heading
+      /         Users Involved
+      /       - if @project.project_users.present?
+      /         - @project.project_users.each do |puser|
+      /           - user= puser.associated_user
+      /           - if user
+      /             - user_name =  user.full_name.present? ? user.full_name : user.email
+      /             - color_code = user.get_user_color_code(user_name.downcase[0])
+      /             - color_code = color_code.present? ? color_code : "#ddd"
+      /             .col-md-6
+      /               .panel-body.text-center.contact-panel
+      /                 -if user.profile_image.present?
+      /                   %img.img-circle.img-small{:alt => "logo", :src => user.profile_image,:onError=>"this.src='/assets/new-ui/user.png';this.onerror=null;"}
+      /                 -else
+      /                   .user_img.text-center
+      /                     %span.name_txt.img-circle.img-small{style: "background: #{user.get_user_color_code(user_name[0].downcase)} !important"}
+      /                       =user_name[0]
+      /                 .m-t-sm{title: user_name}
+      /                   %strong 
+      /                     = user_name.truncate(21) if user_name.present?
+      /                   %p.small 
+      /                     -if(user.id == @project.project_manager_id)
+      /                       ="Project Manager"
+      /                     / -else
+      /                     /   =user.organization_name
+                        
+                          
+
+
+/= render partial: "cta_buttons",:locals=>{project: @project}
+=render :partial=>'add_user_modal'
+=render :partial => "/project_jobs/schedule_appointment", :locals => {:project => @project}
+/=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}
+=hidden_field_tag :project_id, @project.id
+=hidden_field_tag :utilization_project_id,@project.id
+:javascript
+  
+  $(document).ready(function() {
+  var project_id = $('#project_id').val()
+  get_jobs_kanban_view(project_id)
+  // get_project_jobs(project_id)
+  });
+  // function activateTab(data){
+  //   $(".cont_tabs a").removeClass("active");
+  //   $("."+data+"-tab").addClass("active");
+  // }
+
+  $('.project_manager_name').editable({
+      url: '/update_project_manager',
+      pk: $('.project_manager_name').attr('data-id'),
+      title: 'Select Project Manager',
+      type: 'select',
+      value: '#{@project.project_manager_id if @project.project_manager_id.present?}',
+      placement: 'top',
+      emptytext: 'Select Project <anager',
+      data: {custom: 'text'},
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please select company size';
+
+      },
+      success: function(data) {
+        $('.project_manager_name').html(data);
+      },
+      error: function(data) {
+        //alert('error')
+        /* actions on validation error (or ajax error) */
+        var msg = '';
+        if(data.errors) { //validation error
+          $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+        }
+        else if(data.responseText) { //ajax error
+        msg = data.responseText;
+      }
+    }
+    });
+
+  function changeProjectStageDetails(id, stage_id){
+    $("#task_loader, .fixed_loader").show();
+    $.ajax({
+      url: "/change_proj_stage_from_details",
+      data: {id: id,stage_id: stage_id},
+      success: function(data){ 
+        $(".opp_status_bar_sec").html(data);
+        $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+      }
+    });
+  }
+
+  function open_edit_project_popup(id){  
+
+    $.ajax({
+      url: '/projects/open_project_popup',
+      type: 'GET',
+      async: true,
+      data: {id: id},
+      beforeSend: function(){
+        $("#task_loader, .fixed_loader").show();
+      },
+      success: function(res) {
+        $("#project-form-div").html(res);
+        $("#projectModal").find(".modal-title").html('<span class="fal fa-briefcase"></span> EDIT PROJECT');
+         $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+      }
+    });
+  }
+
+  function load_activity_cum_projects(id,type){
+    $.ajax({
+      type: "POST",
+      url: "/project_widget",
+      data: {id: id, tab_type: type},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        $(".project_"+type).html(data.responseText);
+        $("#task_loader,.fixed_loader").hide();
+        $(".modal-backdrop").remove();
+      }
+    });
+  }

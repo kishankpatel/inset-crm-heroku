@@ -1,0 +1,340 @@
+= stylesheet_link_tag "/assets/fullcalendar"
+= stylesheet_link_tag "/assets/tipped"
+= javascript_include_tag "/assets/fullcalendar.min"
+= javascript_include_tag "/assets/tipped"
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/calendar"} Calendar
+          
+        /=render :partial=>"filters"
+      %h2
+        %i.fal.fa-user-tie
+        Calendar
+      %small
+.content
+  .row
+    .col-lg-12
+      .hpanel.hgreen
+        .panel-body
+          #calendar_content.body{:style => "background:#fff;display:flex;"}
+            #task_calendar_view.col-md-9.fl
+            #calendar_filter.col-md-3.fr
+              %div
+                %h5 SHOW ON MY CALENDAR
+              %ul.list-unstyled
+                %li
+                  .checkbox.checkbox-inline
+                    %input.task-checkbox#chk_office365{:onclick => "filter_calendar(this)", :type => "checkbox", :value => "Office365",:checked=>true}
+                    %label{for: "chk_office365"}
+                      Office 365
+                %li
+                  %span.checkbox.checkbox-inline
+                    %input.task-checkbox#chk_google{:onclick => "filter_calendar(this)", :type => "checkbox", :value => "Google",:checked=>true}
+                    %label{for: "chk_google"}
+                      Google
+                - project = @current_organization.projects.last
+                -if project.present?
+                  %li
+                    %span
+                      = link_to "#projectJobModal", "data-toggle" => "modal", "onclick" => "$('form#project-job-form')[0].reset();$('.error').html('');",:class=>'btn btn-xs btn-default' do
+                        Add Project Job
+                %li
+                  %span
+                    =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "$('#task_referrer').val('Header');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#deal_title_task').prop('required','true');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');",:class=>'btn btn-xs btn-default' do
+                      Add Task
+                      
+=render :partial => "tasks/task_edit_popup"
+- if(project.present?)
+  = render :partial => "project_jobs/project_job_popup",:locals=>{:project_id => project.id}
+#editEventModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.modal-m
+    =form_tag 'edit_calendar_event',class: 'form',id: 'edit_calendar_event_form',remote: true do |f|
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          #alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+            %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal", onclick: "$('#alert-msg').hide();$('#loader').hide();"} ×
+          %h4.modal-title
+            %span.fal.fa-tasks
+            %span#task-title
+              EDIT EVENT
+
+        .modal-body#form_content
+          .row
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-sticky-note
+                =text_field_tag :event_name 
+                =hidden_field_tag :event_id
+                =hidden_field_tag :event_source
+                =hidden_field_tag :organizer
+          .row
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-calendar
+                =text_field_tag :event_start
+          .row
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-calendar
+                =text_field_tag :event_end
+        .modal-footer
+          %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+            Cancel
+          =submit_tag "Update", :disable_with => "Please wait ...", :class => "btn btn-info"
+
+#deleteEventModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.modal-m
+    =form_tag 'delete_calendar_event', class: 'form',id: 'delete_calendar_event_form',remote: true do |f|
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          #alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+            %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal", onclick: "$('#alert-msg').hide();$('#loader').hide();"} ×
+          %h4.modal-title
+            %span.fal.fa-tasks
+            %span#task-title
+              DELETE EVENT
+
+        .modal-body#form_content
+          .row
+            
+            Are you sure to remove the event
+            %label#event_name
+            ="?"
+            =hidden_field_tag :event_id
+            =hidden_field_tag :event_source
+        .modal-footer
+          %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+            Cancel
+          =submit_tag "Delete", :disable_with => "Please wait ...", :class => "btn btn-info"
+:javascript
+  
+  $(document).ready(function(){
+    get_calendar_view(true, true)
+    $('#event_start').datetimepicker({
+      format: 'MM/DD/YYYY HH:mm',
+      autoclose: true
+    });
+    $('#event_end').datetimepicker({
+      format: 'MM/DD/YYYY  HH:mm',
+      autoclose: true
+    });
+    $("form#edit_calendar_event_form").bind("ajax:success", function(evt, data, status, xhr){
+      if(data.status == "success"){
+        $("#editEventModal").modal("hide")
+        window.location.reload();
+      }
+      if(data.status == "error"){
+        $("#editEventModal").modal("hide")
+        show_alert_message("error",data.message)
+      }
+    });
+    $("#delete_calendar_event_form").bind("ajax:success", function(evt, data, status, xhr){
+      if(data.status == "success"){
+        $("#deleteEventModal").modal("hide")
+        window.location.reload();
+      }
+      if(data.status == "error"){
+        $("#deleteEventModal").modal("hide")
+        show_alert_message("error",data.message)
+      }
+    });
+  });
+  $(document).on('click','.tpd-tooltip .in-entity-modal', function() {
+    if ($('#calendar').length !== 0) Tipped.hideAll();
+  });
+
+  function edit_event(event_id,event_name,event_source,event_start,event_end,organizer)
+  {
+    
+    $("#editEventModal").modal("show")
+    $("#editEventModal").find("#event_name").val(event_name)
+    $("#editEventModal").find("#event_id").val(event_id)
+    $("#editEventModal").find("#event_source").val(event_source)
+    var date_start = new Date(event_start)
+    var date_end = new Date(event_end)
+    if(event_end != 'null')
+    {
+      $("#editEventModal").find("#event_end").val(date_end.toString('MM/dd/yyyy HH:mm'))
+    }
+    else
+    {
+        $("#editEventModal").find("#event_end").val('')
+    }
+    if(date_start != 'null')
+    {
+      //alert(date)
+      $("#editEventModal").find("#event_start").val(date_start.toString('MM/dd/yyyy HH:mm'))
+    }
+    else
+    {
+      $("#editEventModal").find("#event_start").val('')
+    }
+  }
+  function delete_event(event_id,event_name,event_source)
+  {
+
+    $("#deleteEventModal").modal("show")
+    $("#deleteEventModal").find("#event_name").val(event_name)
+    $("#deleteEventModal").find("#event_id").val(event_id)
+    $("#deleteEventModal").find("#event_source").val(event_source)
+  }
+  function filter_calendar(obj){
+    
+    get_all_calendar_data()
+  }
+  function get_all_calendar_data()
+  {
+    get_calendar_view($("#chk_office365:checked").length > 0, $("#chk_google:checked").length > 0)
+    
+  }
+  function get_calendar_view(office_source, google_source)
+  {
+    $('#task_calendar_view').html('')
+
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+    var filter = $("#calendar_filter_type").val();
+    var calendar = $('#task_calendar_view').fullCalendar({
+    header: {
+        left: 'today prev,next',
+        center: 'title',
+        right: 'agendaDay,agendaWeek,month'
+    },      
+    eventClick: function(data, event, view) {
+      var element = $(event.currentTarget);
+      if(data.linked_to == "ProjectJob")
+      {
+
+        get_project_job(data.project_job_id)
+      }
+      if(data.linked_to == "Task")
+      {
+        $('#taskEditModal').modal('show');
+        edit_popup_task(data.task_id);
+      }
+    
+    },
+    eventRender: function(event, element, date ) {
+      data = event;
+      $(".fc-event-inner").css('color',data.color);
+      $(".fc-event-title").css('color',data.textColor);
+      if(data.event_source == 'Google')
+      {
+       $(element).append("<span class='fab fa-google fl'></span>")
+      }
+      else if(data.event_source == 'Office365')
+      {
+       $(element).append("<span class='fab fa-microsoft fl'></span>")
+      }
+      $(element).append("<span class='fal fa-pencil fr'  onclick=\"edit_event('" + data.id + "','" +data.title +"','"+ data.event_source +"','"+ data.start +"','"+ data.end +"','" + data.organizer +"')\"></span>")
+
+      if(event.linked_to == "")
+      {
+        $(element).append("<span class='fal fa-trash fr'  onclick=\"delete_event('" + data.id + "','" +data.title +"','"+ data.event_source +"')\"></span>")
+      }
+      element.find(".fc-event-title").css('margin-left', '4px');
+      element.attr('title', event.tip);    
+      
+      var content = data.title+'<br>Source: ' + data.event_source + '<br>'
+      if(data.linked_to != "ProjectJob" && data.linked_to != "Task")
+      {
+        content +=  'Start Date:'+data.start ;
+        if(data.organizer.email != "")
+        {
+          content += '<br>Organizer: ' + data.organizer.email
+        }
+
+      }
+      else if (data.linked_to == 'ProjectJob')
+      {
+        content +=  'Name:'+data.info+'<br>' +'Assigned to:'+data.assign_to+'<br>'  +'Linked to:'+data.linked_to+'<br>Link:' +'<br><a target=_blank href=' + data.details+'>' + data.details+'</a>'+'<br>' + 'Status:'+data.status+'<br>' + 'Stage:'+data.stage+'<br>';
+      }
+      else if (data.linked_to == 'Task')
+      {
+        content +=  'Name:'+data.info+'<br>' +'Assigned to:'+data.assign_to+'<br>'  +'Link:'+'<br><a  href=javascript:void(0) onclick=' + data.details+'>' + data.info+'</a>'+'<br>' + 'Status:'+data.status+'<br>' + 'Stage:'+data.stage+'<br>';
+      }
+      
+        // 'View Task»'
+        Tipped.create(element, content, {
+          // skin: 'light',
+          border: { size: 2, color: '#777777', opacity: 1 },
+          shadow: { opacity: .1 },
+          hideOn: 'click-outside',
+          maxWidth: 370,
+          width: 360,
+          radius: false,
+          close: true,
+          showOn: 'click',
+          onShow: function(content, element) {
+            $(element).addClass('highlight');
+          },
+          afterHide: function(content, element) {
+            $(element).removeClass('highlight');
+          }
+        });
+      element.find(".fc-event-time").html(event.start_time);
+      title = event.title
+      if(title.length > 7){
+        title = title.substring(0,7) + "..";
+      } 
+      element.find(".fc-event-title").html(title);
+      if(event.is_complete == true){
+       // element.css("text-decoration", " line-through");
+        element.find(".fc-event-time").before('');
+      }else{
+        element.find(".fc-event-time").before('');
+      }
+      // $(".fc-day").css("height", "132px");
+      // element.find(".fc-event-time").before("");
+
+      // element.find(".fc-event-title").after("" + event.tasktype + "").after(" Assigned To:  " + event.assign_to + " ")
+      },
+      editable: true,
+      eventSources: [
+      // your event source
+        {
+          url: '/get_all_calendar_data.json',
+          type: 'POST',
+          data : {office_source: office_source , google_source: google_source},
+          beforeSend: function() {
+              $("#task_loader,.fixed_loader").show();
+          },
+          error: function() {
+              alert('there was an error while fetching events!');
+          },
+          complete: function(res) {
+            console.log(res)
+            $("#task_loader,.fixed_loader").hide();
+            if(filter == "all"){
+              $('#spanfilterall').addClass('displaynone')
+              $('#spanfilterreset').removeClass('displaynone')
+            } else {
+              $('#spanfilterall').removeClass('fc-state-active')
+            }
+          },
+          textColor: '#fff' // a non-ajax option
+        }
+        // any other sources...
+
+      ],timeFormat: 'H(:mm)',
+      textColor: '#fff'
+  });
+  }

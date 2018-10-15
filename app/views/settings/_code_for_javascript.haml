@@ -1,0 +1,32 @@
+%div
+  %h3
+    Implement WakeUpSales API in your website.
+  %hr
+  %p{style: "font-size: 16px;"}
+    If you want to get your website contact users as a lead in your CRM just call the JS API, those contacts will automatically save as lead for your CRM
+  %div{style: "width: 50%;margin: 30px;background: #eee;padding: 20px;border-radius: 5px;"}
+    %p.cmt
+      = "# Method to find location"
+    %p
+      $.getJSON('http://freegeoip.net/json/?callback=?', function(data) {
+    
+    %p.cmt
+      = "# Call API to save Contact information."
+    %p
+      &nbsp $.post("http://www.wakeupsales.com/api/create_download_lead",
+    %p
+      &nbsp {
+    %p.cmt
+      = "# Get email and country name."
+    %p
+      &nbsp&nbsp&nbsp email: email,
+    %p
+      &nbsp&nbsp&nbsp country_code: data['country_code']
+    %p
+      &nbsp },
+    %p
+      &nbsp function(res){
+    %p
+      &nbsp });
+    %p
+      });

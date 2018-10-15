@@ -1,0 +1,318 @@
+%div
+  .col-md-12
+    .table-responsive{style: "border:none;"}
+      .fr
+        / = text_field_tag "search_org","", placeholder:"Search..."
+      .cb
+      %table#organizationList.table.table-hover{style: "border: 1px solid #E0DEDE; background: #fff;","data-source"=>organizations_url(format: 'json',params: {filter_by: params[:filter_by], filter_by_plan: params[:filter_by_plan]})}
+        %thead
+          %tr
+            %th 
+            %th{style:"cursor:pointer"} Org. Name
+            %th{width: "20%"} Email
+            %th{style:"cursor:pointer"} Date Signed up
+            %th{style:"cursor:pointer"} Plan
+            %th Amount
+            %th Location
+            %th Google/Linkedin/Regular sign up
+            %th{style:"cursor:pointer"} Last activity date
+            %th No of user invited
+            / %th No of lead created
+            / %th No of contacts created
+            / %th No of tasks created
+        %tbody
+:javascript
+    var organizationDataTable=$('#organizationList').dataTable({
+      oLanguage: {"sLengthMenu": "_MENU_", "sProcessing": "<img alt='loader' src='/assets/ajax-loader.png'>" },
+      bProcessing: false,
+      bServerSide: true,
+      bJQueryUI: true,
+      sAjaxSource: $('#organizationList').data('source'),
+      bLengthChange: false,
+      oLanguage: { 
+        "sSearch": "" ,
+        oPaginate: {
+          sPrevious: "Prev"
+        }
+      },
+      aoColumnDefs: [
+        {
+          aTargets: [0],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              if(row[17] == "true")
+                return "<div class='dropdown'><div class='dropdown-toggle' data-toggle='dropdown'><div class='vertical_dot'></div></div><ul aria-labelledby='menu1' class='dropdown-menu' role='menu'><li><a style='cursor:pointer' rel='tooltip' href='javascript:void(0)' onclick=\"get_org_form('" + row[0] + "')\" data-toggle='modal' data-id='" + row[0] + "'>Admin Permission</a></li><li class='divider'></li><li><a href='javascript:void(0)' onclick='delete_organization("+row[0]+", $(this))'>Delete</a></li><li class='divider'></li><li><a href='javascript:void(0)' onclick='cancel_organization("+row[0]+", $(this))'>Cancel Plan</a></li></ul></div>";
+              else
+                return "<div class='dropdown'><div class='dropdown-toggle' data-toggle='dropdown'><div class='vertical_dot'></div></div><ul aria-labelledby='menu1' class='dropdown-menu' role='menu'><li><a style='cursor:pointer' rel='tooltip' href='javascript:void(0)' onclick=\"get_org_form('" + row[0] + "')\" data-toggle='modal' data-id='" + row[0] + "'>Admin Permission</a></li><li class='divider'></li><li><a href='javascript:void(0)' onclick='delete_organization("+row[0]+", $(this))'>Delete</a></li></ul></div>";
+            }
+        },
+        {
+          aTargets: [1],
+          bSortable: true,
+            mRender: function(data, type, row ){
+              if(row[12] == "true")
+                str = "<span class='cwkp-sprite org-tick' title='Restrictions updated by admin' class='tooltip'></span><a href='/organization/"+row[0]+"/users' class='change-color-ll'>"+row[1]+"</a>"
+              else
+                str = "<a href='/organization/"+row[0]+"/users' class='change-color-ll'>"+row[1]+"</a>"
+              return str
+            }
+        },
+        {aTargets: [2],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              //return row[2]
+              if(row[2].length > 25)
+                var org_email = row[2].substring(0,22) + "...";
+              else
+                var org_email = row[2];
+              var str = "<div title='"+row[2]+"'>"+org_email+"</div>";
+              if(row[18] == "true")
+                str = str + "<div style='color:red'>Cancelled Subscription</div>"
+              if(row[15] == "true")
+                str = str + "<div style='color:red'>Bounced Email</div>"
+              return str;
+            }
+        },
+        {aTargets: [3],
+          bSortable: true,
+            mRender: function(data, type, row ){
+              return row[3]
+              }
+        },
+        {aTargets: [4],
+          bSortable: true,
+            mRender: function(data, type, row ){
+              return row[13]
+              }
+        },
+        {aTargets: [5],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              return row[19]
+              }
+        },
+        {aTargets: [6],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              return row[14]
+              }
+        },
+        {aTargets: [7],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              return row[5]
+              }
+        },
+        {aTargets: [8],
+          bSortable: true,
+            mRender: function(data, type, row ){
+              return "<div>"+row[6]+"</div><div>Total Activity: "+row[16]+"</div>"
+              return row[6]
+              }
+        },
+        {aTargets: [9],
+          bSortable: false,
+            mRender: function(data, type, row ){
+              return row[7]
+              }
+        },
+        // {aTargets: [9],
+        //     mRender: function(data, type, row ){
+        //       return row[8]
+        //       }
+        // },
+        // {aTargets: [10],
+        //     mRender: function(data, type, row ){
+        //       return row[9]
+        //       }
+        // },
+        // {aTargets: [11],
+        //     mRender: function(data, type, row ){
+        //       return row[10]
+        //       }
+        // },
+      ],
+      fnPreDrawCallback: function() { 
+      $("#organizationList_filter input").attr("placeholder", "Search...");
+      $('#task_loader,.fixed_loader').show();},
+      fnDrawCallback: function() {
+        $('#task_loader,.fixed_loader').hide();
+        //$(".org_count").html(organizationDataTable.fnSettings().fnRecordsDisplay());
+        $('span').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+
+      },
+      fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        $('#task_loader,.fixed_loader').hide();
+        $(nRow).addClass('task_row');
+         $(nRow).hover(
+          function() {
+          $(this).find("div.action_task").show();
+          }, function() {
+          $(this).find("div.action_task").hide();
+         });
+         
+      }
+    });
+
+    function fnShowHide( iCol )
+  {
+      //var type = $.camelCase('#{escape_once(params[:type])}');
+      //alert('#{escape_once(params[:type])}'.capitalize())
+      /* Get the DataTables object again - this is not a recreation, just a get of the object */
+      var oTable = $('#organizationList').dataTable();
+      var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+      oTable.fnSetColumnVis( iCol, bVis ? false : true );
+      //var column = oTable.column( $(this).attr('data-column') );
+      //column.visible( ! column.visible() );  
+         
+      $('#search_org').keyup(function(){
+        oTable.search($(this).val()).draw() ;
+      })
+  }
+  function get_org_form(id){
+    $.ajax({
+        type: "GET",
+        url: "org_permission_form",
+        dataType: 'json',
+        data: {org_id: id},
+        async: false,
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+         
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {          
+          $('#updatePermissionModal').modal('show');
+          $('#org_permission_content').html(data.responseText);
+          $("#task_loader,.fixed_loader").hide();
+        }
+    });
+  }
+
+  function update_org(id,type){
+    //data: {org_id: id, user_allowed_by_admin: user_allowed_by_admin, extend_trial_days: extend_trial_days},
+
+    //var user_allowed_by_admin = $("#organization_user_allowed_by_admin").val();
+    var extend_trial_days = $("#organization_extend_trial_days").val();
+    var users_limit = $("#organization_users_limit").val();
+    var leads_limit = $("#organization_leads_limit").val();
+    var tasks_limit = $("#organization_tasks_limit").val();
+    var contacts_limit = $("#organization_contacts_limit").val();
+    var projects_limit = $("#organization_projects_limit").val();
+    var proj_tasks_limit = $("#organization_proj_tasks_limit").val();
+    var allow_gmail = $("#organization_allow_gmail").val();
+    var allow_invoice = $("#organization_allow_invoice").val();
+    var allow_email_tracking = $("#organization_allow_email_tracking").val();
+    var allow_web_to_lead = $("#organization_allow_web_to_lead").val();
+
+    if(type=="prefessional")
+      data = {org_id: id, users_limit: users_limit, type: type}
+    else if(type=="trial")
+      data = {org_id: id, users_limit: users_limit, extend_trial_days: extend_trial_days, type: type}
+    else
+      data = {org_id: id, users_limit: users_limit, leads_limit: leads_limit, tasks_limit: tasks_limit, contacts_limit: contacts_limit, projects_limit: projects_limit, proj_tasks_limit: proj_tasks_limit, allow_gmail: allow_gmail, allow_invoice: allow_invoice, allow_email_tracking: allow_email_tracking, allow_web_to_lead: allow_web_to_lead, type: type}
+    $.ajax({
+        type: "POST",
+        url: "update_org",
+        dataType: 'json',
+        data: data,
+        async: true,
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+         $('#updatePermissionModal').modal('show');
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          $('#updatePermissionModal').modal('hide');
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success", "It's done! You have set new admin permissions for the organization.")
+        }
+    });
+  }
+
+  function filter_org_by(filter_by){
+    var filter_by_plan = $(".filter_by_plan_txt").text();
+    if(filter_by_plan.indexOf("All") >= 0){
+      filter_by_plan = ""
+    }else{
+      filter_by_plan = filter_by_plan
+    }
+    $.ajax( {
+      type: "POST",
+      url: "/get_organizations" ,
+      data: {filter_by: filter_by, filter_by_plan: filter_by_plan},
+      success: function(result) {
+        $(".filter_by_txt").html(filter_by);
+        $(".org_datatable").html(result);
+      }
+    });
+  }
+
+  function filter_org_by_plan(filter_by_plan){
+    var filter_by = $(".filter_by_txt").text();
+    if(filter_by.indexOf("All") >= 0){
+      filter_by = ""
+    }else{
+      filter_by = filter_by
+    }
+    $.ajax( {
+      type: "POST",
+      url: "/get_organizations" ,
+      data: {filter_by: filter_by, filter_by_plan: filter_by_plan},
+      success: function(result) {
+        $(".filter_by_plan_txt").html(filter_by_plan);
+        $(".org_datatable").html(result);
+      }
+    });
+  }
+
+  function delete_organization(id, obj){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          type: "POST",
+          url: "/delete_organization",
+          dataType: 'json',
+          async: false,
+          data: {id: id},
+          complete: function(data)
+          {
+            show_alert_message("success", "Organization deleted  successfully.");
+            obj.closest(".task_row").remove();
+            $("#task_loader,.fixed_loader").hide();
+          }
+        });
+      }
+    })
+  }
+  function cancel_organization(id, obj){
+    wus_confirm('Are you sure to cancel the subscription plan?', function (confirmed){
+      if(confirmed){
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          type: "POST",
+          url: "/cancel_organization",
+          dataType: 'json',
+          async: false,
+          data: {org_id: id},
+          complete: function(data)
+          {
+            show_alert_message("success", "Organization deleted  successfully.");
+            obj.closest(".task_row").remove();
+            $("#task_loader,.fixed_loader").hide();
+          }
+        });
+      }
+    })
+  }  

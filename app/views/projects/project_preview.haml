@@ -1,0 +1,269 @@
+#wrap
+  #content
+    .outer
+      .inner
+        .row
+          .col-lg-12
+            #alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+              %button.close{onclick: "$('#alert-msg').hide();$('#task_loader,.fixed_loader').hide();"} x
+              #msg_div
+            #task_header
+              .box{style: "border:0"}
+                .tabbable.task_tab
+                  %ul.nav.nav-tabs
+                    %li{style: "font-size:18px;color:#F59106;margin: -2px 4% -2px 0px;"}
+                      =image_tag "deal_small.png",:alt=>""
+                      Projects
+                %div{style: "border-bottom:1px solid #DDD;margin-top:5px"}
+                = render :partial => "project_preview_list"
+                .row{style: "margin: 14px;"}
+                  .col-md-6
+                    /%button.btn.btn-primary.pull-right{type: "button", "data-disable-with" => "Saving...", onclick: "return validate_fields()"} Confirm
+                    = link_to "Confirm",save_projects_path,:class=>"btn btn-primary btn-success pull-right", :onclick=> "return validate_fields()"
+                   
+                  .col-md-6
+                    =link_to "Cancel",destroy_all_temp_project_path,:class=>"btn btn-default pull-left", :confirm => "Do you want to cancel and delete all the projects?",:method=>"delete"
+                
+                
+=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}
+
+:javascript
+   $(document).ready(function(){
+     //$.fn.editable.defaults.mode = 'inline';
+     $('#dataTableIncoming').dataTable( {
+       //"aoColumns": [{sWidth: '20px'}, {sClass: 'col-md-2'}, null,null, null,{sClass: 'col-md-2'}, {sClass: 'col-md-3'}, null,null, null,null, null,null, null,null, null,null],
+       //"sScrollX": "100%",
+       //"sScrollXInner": "110%",
+       //"bScrollCollapse": true
+     } );   
+     $('#div_scroll').niceScroll({cursorcolor:"#7e7e7e", autohidemode: false, bouncescroll: true,cursorwidth: "10px", background: "#f8f8f8"});
+     
+     $('.project_name').editable({
+      url: '/save_project_data',
+      pk: 1,
+      title: 'Enter Name',
+      type: 'text',
+      placement: 'right',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter Name';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_short_name').editable({
+      url: '/save_project_data',
+      pk: 2,
+      title: 'Enter Name',
+      type: 'text',
+      placement: 'right',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter Short Name';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_start_date').editable({
+      url: '/save_project_data ',
+      pk: 3,
+      title: 'Enter start date ',
+      type: 'date',
+      placement: 'bottom',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter start date ';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_end_date').editable({
+      url: '/save_project_data ',
+      pk: 4,
+      title: 'Enter end date ',
+      type: 'date',
+      placement: 'bottom',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter start date ';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    
+    $('.project_opportunity').editable({
+      url: '/save_project_data ',
+      pk: 5,
+      title: 'Enter Opportunity ',
+      type: 'text',
+      placement: 'right',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter Opportunity';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_contact_email').editable({
+      url: '/save_project_data',
+      pk: 6,
+      title: 'Enter email',
+      type: 'text',
+      data: {custom: 'text'}, 
+      placement: 'left',
+      validate: function(value) {
+        var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter email';
+        if (reg.test($.trim(value)) == false) 
+        {          
+          return 'Please enter valid email id';
+        }
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_estimate_hour').editable({
+      url: '/save_project_data',
+      pk: 7,
+      title: 'Enter Estimate Hour',
+      type: 'number',
+      data: {custom: 'number'}, 
+      placement: 'left',
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter Estimate Hour';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_default_job_type').editable({
+      url: '/save_project_data',
+      pk: 8,
+      title: 'Enter Job Type',
+      type: 'text',
+      data: {custom: 'text'}, 
+      source: '/get_project_job_types',
+      placement: 'left',
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter Estimate Hour';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_description').editable({
+      url: '/save_project_data ',
+      pk: 9,
+      title: 'Enter description ',
+      type: 'textarea',
+      placement: 'left',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter description';
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_team_emails').editable({
+      url: '/save_project_data ',
+      pk: 10,
+      title: 'Enter team emails ',
+      type: 'text',
+      placement: 'left',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+       //var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter email';
+        //if (reg.test($.trim(value)) == false) 
+        if(!validateMultipleEmailsTildSeparated($.trim(value)))
+        {          
+          return 'Please enter valid email ids';
+        }
+      },
+      success: successEditable,
+      error: errorEditable
+    });
+    $('.project_is_completed').editable({
+      url: '/save_project_data ',
+      pk: 11,
+      title: 'Enter completion status',
+      type: 'select',
+      placement: 'left',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+       if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter completion status';
+      },
+      source: [{value: 'true',text:'true'},{value: 'false',text:'false'}],
+      success: successEditable,
+      error: errorEditable
+    });
+    
+    
+    $('a.project_stage').editable({
+        url: '/save_project_data',    
+        pk: 12,
+        title: 'Select stage',   
+        data: {custom: 'Select stage'}, 
+        validate: function(value) {
+          if($.trim(value) == '')
+            return 'Please select stage';
+        },
+        success: function(response, newValue) {
+        },
+        source: '/get_project_stages'
+    });
+    
+     
+   });
+  function successEditable(data){
+    var newsource = data.split('-');
+    var o = new Option(newsource[0],newsource[0]);
+    /// jquerify the DOM object 'o' so we can use the html method        
+    $(o).html(newsource[1]);
+    
+    $(o).prop('selected', true)
+  }
+  function errorEditable(data){
+    var msg = '';
+    if(data.errors) { //validation error
+      $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+    } 
+    else if(data.responseText) { //ajax error
+      msg = data.responseText;
+    }
+   }
+  function validateEmail(field) {
+    //var regex=/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i;
+    var regex= /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    console.log(field)
+    if (regex.test($.trim(field)) == false)
+    {
+      return false; 
+    }
+    else
+    {
+    return true;
+    }
+    //return (regex.test($.trim(field))) ? true : false;
+  }
+  function validateMultipleEmailsTildSeparated(value) {
+    var result = value.split("~");
+    alert(result)
+    for(var i = 0;i < result.length;i++){
+      console.log(validateEmail(result[i]))
+      if(result[i] != "" && !validateEmail(result[i])) 
+      {
+        return false; 
+      }
+    }              
+    return true;
+  }

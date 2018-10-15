@@ -1,0 +1,90 @@
+:css
+  body {background: #fff;font-family: 'Roboto'}
+  .q_message.successMsgeBook{
+      background-color: #2ecc71;
+      box-sizing: border-box;
+      left: 5%;
+      position: fixed;
+      top: 64px;
+      width: 90%;
+      z-index: 999999999;
+      display: none;
+  }
+  .q_message.errorMsgeBook{
+      background-color: #D61D4F;
+      box-sizing: border-box;
+      left: 5%;
+      position: fixed;
+      top: 64px;
+      width: 90%;
+      z-index: 999999999;
+      display: none;
+  }
+  .message_text_holder{
+      color:#FFFFFF;
+      font-family: 'Roboto';
+      font-size: 19px;
+      padding: 26px 30px;
+  }
+  .message_text_inner{
+      text-align: center;
+  }
+  .platform-info{
+      text-align: center;
+      font-size: 24px;
+      font-family: 'Roboto';
+      color: #3f4a58;
+  }
+.wakeupsale-alert
+  .q_message.successMsgeBook
+    %div
+      .message_text_holder{:style => "position:relative;"}
+        .message_text
+          .message_text_inner
+            Thanks for writing to us. Cheers!
+        %div{:onclick => "close_message();", :style => "cursor: pointer;font-size: 13px;font-weight: bold;position: absolute;right: 10px;top: 10px;"} X
+  .q_message.errorMsgeBook
+    %div
+      .message_text_holder{:style => "position:relative;"}
+        .message_text
+          .message_text_inner
+            A problem has been occurred while submitting your data.
+        %div{:onclick => "close_message();", :style => "cursor: pointer;font-size: 13px;font-weight: bold;position: absolute;right: 10px;top: 10px;"} X
+.body_container
+  .report_a_bug  
+    .banner-image.report_a_bug_banner
+      %h1
+        Report a Bug
+    %div{:style => "padding: 0;"}
+      .wrapper
+        .cnt_all_osc.active.fl.lft_cnt_ig
+          %section
+            %div{:style => "margin:20px 0"}
+              %h2{:style => "color:#000; text-align:center;"} If something isn’t working in WakeUpSales CRM, we want to know about it!
+              %p{:style => "text-align:center;"} We are committed to a bug-free product and always welcome improvement feedback. Your ideas, suggestions, and comments are very important to us. Thank you for helping us improve WakeUpSales CRM! If you have an issue with the WakeUpSales, please report it to our WakeUpSales support team.
+              %p{:style => "text-align:center;"}
+                We also welcome your feedback and comments in our
+                %a{:href => "https://groups.google.com/forum/#!forum/support_wakeupsales", :target => "_blank"} forum
+            .cb
+              %h2{:style => "text-align:center;"}
+                Write to Us
+
+            = form_for(@bug_report,:url=>"/save_bug_report",:html=>{:class => "get-quote-form",:method=>"post"}) do |f|
+              .field-box  
+                = f.text_field  :name, :required => true, :placeholder=>"Name"
+              .field-box
+                = f.email_field :email, :required => true, :placeholder=>"Email", id: "email",:autocomplete => "off"
+              .field-box
+                / = f.select("bug_type", ["UI/UX Issues", "Functionality", "Others"], "Others", {prompt: '- Bug Type -'}, required: true)
+                /= f.select :bug_type, options_for_select([['UI/UX Issues','UI/UX Issues'],['Functionality','Functionality'],['Others','Others']], "Others"), prompt: '- Bug Type -', required: true
+                = f.select :bug_type, options_for_select([["UI/UX Issues", "UI/UX Issues"], ["Functionality", "Functionality"], ["Others", "Others"]],:selected => "Others"), {prompt: '- Bug Type -'},{:required => true}
+              .service-fild-box
+                %span Problem(s) You have faced:
+                = f.text_area :comments, required: true, rows: 10
+              %button#contact-btn.submit-btn{:onclick => "report_bug();", :type => "submit", :disable_with => "Submitting...."} Report
+              #loader-index{:style => "display:none; text-align:center;margin-top:15px;"}
+                %img{:alt => "loader", :src => "../assets/ajax-loader2.gif"}/
+        .cb
+
+
+ 

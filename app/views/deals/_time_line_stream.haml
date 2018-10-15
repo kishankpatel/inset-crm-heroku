@@ -1,0 +1,592 @@
+/ :css
+/   .cont_activity_sec .timeline-centered:before {
+/     top: 40px;
+/   }
+/= javascript_include_tag 'jquery.nicescroll.min'
+.cb
+- @activities = get_deal_activity_stream_new(@deal.id)
+- match = ""
+-@activities_date = @activities.group_by{|d| d.activity_date.beginning_of_day}
+-i=0
+%div
+  .cont_activity_sec
+    #div
+      - if @activities_date.present?
+        - @activities_date.each do |dt, activity|
+          - user_timezone = @current_user.time_zone.present? ? @current_user.time_zone : "Kolkata"
+          .activityRoot{:id => "activityId#{i}"}
+            - i += 1
+            
+            - if dt
+              - unless match == dt.strftime("%b %d, %Y")
+                - today = Time.zone.now.strftime('%Y-%m-%d')
+                - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                
+                .cont_act_dt.badge.badge-default 
+                  - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                    = f_date = "Today"
+                  - else
+                    - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                      = f_date = "Yesterday"
+                    - else
+                      - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                        = f_date = dt.strftime("%b %d")
+                      - else
+                        = f_date = dt.strftime("%b %d, %Y")
+                  - match = dt.strftime("%b %d, %Y")
+               
+                -activity.each_with_index do |activity,i|
+                  - if((activity.activity_type == "Task") && ( activity.activity_status != "Create"  ) )
+                    - task = Task.where(:id=>activity.activity_id).first
+                    - if task.present?
+                      / %article.timeline-entry
+                      /   .timeline-entry-inner
+                      /     .timeline-icon
+                      /       %span.img-circle.img-thumbnail.task-s15
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                          
+                            %h5
+                              - if activity.activity_status == "Update"     
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Updated by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase               
+                              - else
+                                - user = User.where("id=?",task.created_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              %a
+                                /%span.cwkp-sprite.tag-arrow-icon
+                                #{ task.is_completed == true && activity.activity_status == "Complete" ? "Completed task" : (  activity.activity_status == "Assign" ? "Created Task and Assigned to" : "Updated Task" ) }
+                                -if(activity.activity_status == "Assign")
+                                  - if task.user.present?
+                                    - tuser = task.user
+                                    - encrypt_user_id = AESCrypt.encrypt(tuser.id, "userid").gsub("/","-").strip
+                                    %a{href: "/profile/#{encrypt_user_id}"}
+                                      = tuser.first_name 
+                                    %b • 
+                                    %span.due_date
+                                      Due on  #{task.due_date.strftime("%a %d %b %Y @ %H:%M") if task.due_date.present?}
+                          .panel-footer
+                            - deal= Deal.find(task.deal_id)
+                            = deal.title+" / "+task.title
+                            -if task.is_completed == true && activity.activity_status == "Complete" && task.outcome.present?
+                              %div.alert-block.outcome
+                                %h5 Outcome
+                                =escape_once(task.outcome.html_safe)
+                        / .cont_act_info
+                        /   .fl
+                        /     = "#{f_date} at"
+                        /     = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                        /   .fr
+                        /   .cb
+                  - if((activity.activity_type == "Task") && ( activity.activity_status == "Create"  ) )
+                    - task = Task.where(:id=>activity.activity_id).first
+                    - if task.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                          / .timeline-icon
+                          /   %span.img-circle.img-thumbnail.task-s15
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            %h5
+                              - if activity.activity_status == "Create"     
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase               
+                              - else
+                                - user = User.where("id=?",task.created_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              %a
+                                %span.cwkp-sprite.tag-arrow-icon
+                                #{ task.is_completed == true && activity.activity_status == "Complete" ? "Completed task" : (  activity.activity_status == "Assign" ? "Created Task and Assigned to" : "Created Task" ) }
+                                -if(activity.activity_status == "Assign")
+                                  - if task.user.present?
+                                    - tuser = task.user
+                                    - encrypt_user_id = AESCrypt.encrypt(tuser.id, "userid").gsub("/","-").strip
+                                    %a{href: "/profile/#{encrypt_user_id}"}
+                                      = tuser.first_name 
+                                    %b • 
+                                    %span.due_date
+                                      Due on  #{task.due_date.strftime("%a %d %b %Y @ %H:%M") if task.due_date.present?}
+                                
+                                  
+                            
+                          .panel-footer
+                            - deal= Deal.find(task.deal_id)
+                            = deal.title+" / "+task.title
+                            -if task.is_completed == true && activity.activity_status == "Complete" && task.outcome.present?
+                              %div.alert-block.outcome
+                                %h5 Outcome
+                                =escape_once(task.outcome.html_safe)
+                        / .cont_act_info
+                        /   .fl
+                        /     = "#{f_date} at"
+                        /     = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                        /   .fr
+                        /   .cb
+                  -if(activity.activity_type == "Note")
+                    - attachment = Note.find activity.activity_id
+                    -if attachment.title.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+
+                            %h5
+                              - user = User.where("id=?",attachment.created_by).first
+                              - if user.present?
+                                - user_name = user.full_name.present? ? user.full_name : user.email
+                                - is_cur_user = (user == @current_user)
+                                %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                  - if user.image.present?  
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - else
+                                    .lead-details-page 
+                                      %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                        = user_name[0].upcase
+                              %a
+                                %span.cwkp-sprite.tag-arrow-icon
+                                Created note
+                              %p 
+                                - if ((@current_user.is_admin? || activity.activity_user_id == @current_user.id) && !activity.is_available?)
+                                  %div{class:"note_#{activity.id}",style: "",title: "#{attachment.title.html_safe}"}
+                                    = escape_once(attachment.title.html_safe)
+                                  /%a.note_title{class:"note_#{activity.id}",href: "javascript:void(0)",id: activity.id,style: "border-bottom:1px none #0088CC;"}
+                                -elsif activity.is_available?
+                                  %strike
+                                    = escape_once(attachment.title.html_safe)
+
+                                -else
+                                  = escape_once(attachment.title.html_safe)
+                                -if ((activity.created_at.to_time != activity.updated_at.to_time) && !activity.is_available?)
+                                  %div
+                                    %i{id: "edit_note_#{activity.id}",style: "color:#989898 "}
+                                      (
+                                      Edited at
+                                      = activity.updated_at.strftime("%I:%M %p")
+                                      )
+                                -else
+                                  %i{id: "edit_note_#{activity.id}",style: "color:#989898 "}
+                          .panel-footer
+                            .lead_att_sec
+                              -if attachment.note_attachments.present? 
+
+                                - if attachment.is_public
+                                  -attachment.note_attachments.each do |at|
+                                    - file_type = at.attachment_file_name.present? ? at.attachment_file_name.split(".").last : "other"
+                                    %a{href: at.attachment.url,target: "_blank"}
+                                      %span.cwkp-sprite.tooltip{class: "file_#{file_type.downcase}", title:at.attachment_file_name}
+
+                                -elsif (@deal.associated_users.include?@current_user.id) || (@current_user.is_admin? || @current_user.is_super_admin?)
+                                  -attachment.note_attachments.each do |at_i|
+                                    - file_type = at_i.attachment_file_name.present? ? at_i.attachment_file_name.split(".").last : "other"
+                                    %a{href: at_i.attachment.url,target: "_blank"}
+                                      %span.cwkp-sprite.tooltip{class: "file_#{file_type.downcase}", title:at_i.attachment_file_name}
+                            
+                  -if((activity.activity_type == "Deal") && ( activity.activity_status != "Create"  ) )
+                    - deal = Deal.find activity.activity_id
+                    -if deal.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+
+                            %h5
+                              - if activity.activity_status == "Update"
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Updated by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - elsif activity.activity_status == "Re-assign"  
+                                - user = User.where("id =?",activity.activity_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Re-assigned by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - else
+                                - user = User.where("id=?",deal.initiated_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              %a
+                                %span.cwkp-sprite.tag-arrow-icon
+                                #{activity.activity_status == "Assign" ? ( activity.activity_user_id.present? ?  "Created Opportunity and Assigned" : "Created Opportunity and Yet to assign the opportunity"    ) : (activity.activity_status == "Re-assign" ? "Reassigned Opportunity" : (  activity.activity_status == "Update"   ?  "Updated Opportunity"   :  "d"))} 
+                                - if activity.activity_status == "Assign" || activity.activity_status == "Re-assign"
+                                  /- user = User.where("id=?",deal.assigned_to).first
+                                  - user =User.where("id=?",activity.activity_user_id).first if activity.activity_user_id
+                                  - if user.present?
+                                    - encrypt_user_id = AESCrypt.encrypt(user.id, "userid").gsub("/","-").strip
+                                    to 
+                                    %a{href: "/profile/#{encrypt_user_id}"}
+                                      #{(user_name=user.id) == current_user.id ? "me" : user.full_name}
+                          .panel-footer
+                            = deal.title
+                        / .cont_act_info
+                        /   .fl
+                        /     = "#{f_date} at"
+                        /     = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                        /   .fr
+                        /   .cb
+                  -if(activity.activity_type == "IndividualContact")
+                    - contact = @current_organization.individual_contacts.where("id=?",activity.activity_id).first
+                    - if contact.present?  
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            %h5
+                              - user = User.where("id=?",activity.activity_user_id).first
+                              - if user.present?
+                                - user_name = user.full_name.present? ? user.full_name : user.email
+                                - is_cur_user = (user == @current_user)
+                                %div.fl{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                  - if user.image.present?  
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - else
+                                    .lead-details-page 
+                                      %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                        = user_name[0].upcase
+                              %a
+                                Created contact
+                          .panel-footer
+                            = link_to contact.full_name, "/contact/#{contact.to_param}"
+                        
+   
+                  -if(activity.activity_type == "DealTransaction")
+                    - deal_move = DealTransaction.where("id=? AND is_activity_display=?", activity.activity_id, true).first
+                    - if deal_move.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            %h5
+                              - user = User.where("id=?",activity.activity_user_id).first
+                              - if user.present?
+                                - user_name = user.full_name.present? ? user.full_name : user.email
+                                - is_cur_user = (user == @current_user)
+                                %div.fl{ title: "By: #{is_cur_user ? 'Me' : user_name}"}     
+                                  - if user.image.present?  
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                  - else
+                                    .lead-details-page 
+                                      %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                        = user_name[0].upcase
+                              %a
+                                %span.cwkp-sprite.tag-arrow-icon
+                                Opportunity moved to 
+                                = deal_move.deal_status.present? ? deal_move.deal_status.name : ""
+                            
+                          .panel-footer
+                            = deal_move.deal.title
+                          
+                  -if(activity.activity_type == "DealClosed")
+                    - deal = Deal.find activity.activity_id
+                    .vertical-timeline-block
+                      .vertical-timeline-icon.navy-bg
+                        %i.fal.fa-calendar
+                      .vertical-timeline-content
+                        .p-sm
+                          %span.vertical-date.pull-right
+                            = "#{f_date} at"
+                            %br
+                            %small
+                              = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                          %h5
+                            - user = User.where("id=?",activity.activity_user_id).first
+                            - if user.present?
+                              - user_name = user.full_name.present? ? user.full_name : user.email
+                              - is_cur_user = (user == @current_user)
+                              %div.fl{ title: "By: #{is_cur_user ? 'Me' : user_name}"}     
+                                - if user.image.present?  
+                                  %span.user-profile
+                                    %span.userImage
+                                      = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                  %span.user-profile
+                                    %span.userImage
+                                      = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                - else
+                                  .lead-details-page 
+                                    %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                      = user_name[0].upcase
+                            %a
+                              %span.cwkp-sprite.tag-arrow-icon
+                              Opportunity has been marked as 
+                              = activity.activity_desc
+                        .panel-footer
+                          = deal.title
+                          - if deal.lost_reason.present?
+                            %br
+                            %br
+                            %b Reason:
+                            = deal.lost_reason
+                          - if deal.lost_comment.present?
+                            %br
+                            %b Comment:
+                            = deal.lost_comment
+
+                  -if(activity.activity_type == "MailLetter")
+                    - mail_letter = MailLetter.find activity.activity_id
+                    .vertical-timeline-block
+                      .vertical-timeline-icon.navy-bg
+                        %i.fal.fa-calendar
+                      .vertical-timeline-content
+                        .p-sm
+                          %span.vertical-date.pull-right
+                            = "#{f_date} at"
+                            %br
+                            %small
+                              = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                          %h5
+                            - user = User.where("id=?",activity.activity_user_id).first
+                            - if user.present?
+                              - user_name = user.full_name.present? ? user.full_name : user.email
+                              - is_cur_user = (user == @current_user)
+                              %div.fl{ title: "Assigned To: #{is_cur_user ? 'Me' : user_name}"}     
+                                - if user.image.present?  
+                                  %span.user-profile
+                                    %span.userImage
+                                      = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                  %span.user-profile
+                                    %span.userImage
+                                      = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                - else
+                                  .lead-details-page 
+                                    %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                      = user_name[0].upcase
+                            %a
+                              %span.cwkp-sprite.tag-arrow-icon
+                              Mail Sent to 
+                              -if(!mail_letter.contact_info.nil?)
+                                -contact_info =mail_letter.contact_info
+                                - if contact_info['contact_type'].to_s == "individual_contact"
+                                  - contact = IndividualContact.find_by_id contact_info['contact_id'].to_s
+                                  - url = contact_info['contact_type'].to_s + "/" + contact.to_param
+                                - else
+                                  - contact = CompanyContact.find_by_id contact_info['contact_id'].to_s
+                                  - url = contact_info['contact_type'].to_s + "/" + contact.to_param + "?type=company"
+                                %a{href: "/#{url}"}
+                                  =contact_info['full_name']
+                          
+                          
+                          %p
+                            - if (sent_email_opens = activity.sent_email_opens).present?
+                              .opened_mail
+                                = "Opened at: "
+                                = "#{f_date} at"
+                                = sent_email_opens.last.opened.to_datetime.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            /- activity.sent_email_opens.each do |sent_email_open|
+                            /  .opened_mail
+                            /    = "Opened at: "
+                            /    = "#{f_date} at"
+                            /    = sent_email_open.opened.to_datetime.in_time_zone(user_timezone).strftime("%I:%M %p")
+                        .panel-footer
+                          =mail_letter.subject
+
+      -else
+        %div{id: "no_act",style: "text-align:center;color:red;"}
+          No activities found for this opportunity.
+                   
+                   
+:javascript
+  $(function()
+  {
+    //$('#activity_info').niceScroll({cursorcolor:"#7e7e7e", autohidemode: false, bouncescroll: true,cursorwidth: "10px", background: "#f8f8f8"});
+    $('.panel-collapse').addClass('collapse');
+    $('#activity_info table:first').find("#collapse_icon").removeClass('icon-chevron-up').addClass('icon-chevron-down');
+    //$('a[rel="tooltip"],i,input:checkbox,button,div,span').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+  });
+
+   $('.day_astream').click(function(e){
+    $(this).children("#collapse_icon").toggleClass('icon-chevron-down icon-chevron-up');
+    });
+
+  
+  $('.edit').click(function(e){    
+    e.stopPropagation();
+    //$(this).parent().parent().find('a.note_title').editable('toggle');
+    $('.edit').hide();
+  });
+  $(document).on('click', function(){
+    //$('.edit').show();
+  })
+  function show_edit(id)
+  {
+    $("#show_edit_"+id).css("visibility","visible");
+    $("#show_trash_"+id).css("visibility","visible");
+    //$('.edit').hide();
+  }
+  function hide_edit(id)
+  {
+    $("#show_edit_"+id).css("visibility","hidden");
+    $("#show_trash_"+id).css("visibility","hidden");
+  }
+/ :css
+/   @media screen and (max-width:800px) {
+/     .table-responsive{overflow-x:auto;margin-bottom:0;border:none !important}
+/   }
+/   .outcome{
+/     color: #c09853;
+/     padding: 0px 35px 8px 14px;
+/     margin-top: 11px;
+/     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+/     background-color: #fcf8e3;
+/     border: 1px solid #fbeed5;
+/     -webkit-border-radius: 4px;
+/     -moz-border-radius: 4px;
+/     border-radius: 4px;
+/   }

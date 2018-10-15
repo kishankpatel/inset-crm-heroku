@@ -1,0 +1,18 @@
+%div
+  %h5
+    Resource Allocation
+  %table.table.table-stripped
+    -days_count = (end_date - start_date).to_i 
+    %tr
+      - (0..days_count).step(1) do |index|
+        %td
+          = (@start_date + (index).days).strftime("%m/%d/%Y")
+    %tr
+      -(0..days_count).step(1) do |index|
+        %td
+          -rs = resource_distributions.select{|rd| rd.allotted_date == (@start_date + (index).days)}
+          -if(rs.present?)
+            =(rs[0].allotted_time / 60).to_s + ":" + (rs[0].allotted_time % 60).to_s
+          -else
+            ="0"
+      

@@ -1,0 +1,208 @@
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Company Name
+          %h5 Please provide Company Name
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = comp.label :name, "Company Name"
+                = comp.text_field :name, :class=>"form-control", :placeholder => "Company Name", :required=>true
+          .row
+            .col-md-12{:id=>"#{create_source == 'contact' ? 'display_cont_comp_info' : 'display_comp_info'}"}
+        .modal-footer
+          - if create_source == 'contact'
+            %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+              %i.icon-chevron-left
+              Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_name",:id=>"#{create_source == 'contact' ? 'comp-next-btn' : 'comp-cont-next-btn'}"}
+            %i.icon-chevron-right
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Company Email
+          %h5 Please provide your Company Email
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = comp.label :email, "Company Email"
+                = comp.email_field :email, :class=>"form-control", :placeholder => "Company Email", :required=>true
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+            %i.icon-chevron-left>
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_email"}
+            %i.icon-chevron-right>
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Your Company Phone Number
+        .modal-body
+          = comp.fields_for :phones do |comp_phone|
+            = comp_phone.hidden_field :phone_type, :value => "Work"
+            .row
+              .col-md-4
+                .form-group
+                  = comp_phone.label :extension, "Area Code"
+                  = comp_phone.text_field :extension, :class=>"form-control", :placeholder=>"Area Code", onkeydown: "plusandnumbersonly(event);", :required=>true
+              .col-md-8
+                .form-group
+                  = comp_phone.label :phone_no, "Company Phone number"
+                  = comp_phone.text_field  :phone_no, :class=>"form-control", :placeholder=>"Company Phone number",:required=>true, onkeydown: "numbersonly(event);"
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+            %i.icon-chevron-left>
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_phone_field"}
+            %i.icon-chevron-right>
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Company Address
+          %h5 Please enter your organizations primary billing or shipping address
+        .modal-body
+          .row
+            = comp.fields_for :address do |comp_addr|
+              .col-md-12
+                .form-group
+                  = comp_addr.label :address,"Street Address"
+                  = comp_addr.text_field  :address, :class=>"form-control", :placeholder=>"Street Address"
+              .col-md-6
+                .form-group
+                  = comp_addr.label :city
+                  = comp_addr.text_field   :city, :class=>"form-control", :placeholder=>"City",:required=>true
+              .col-md-6
+                .form-group
+                  = comp_addr.label :state,"State / Province"
+                  = comp_addr.text_field   :state, :class=>"form-control", :placeholder=>"State / Province",:required=>true
+              .col-md-6
+                .form-group
+                  = comp_addr.label :zipcode,"Postal / Zip Code"
+                  = comp_addr.text_field  :zipcode, :class=>"form-control", :placeholder=>"Postal / Zip Code"
+              .col-md-6
+                .form-group
+                  = comp_addr.label :country_id , "Country"
+                  = comp_addr.select :country_id, Country.find(:all).collect {|c| [ c.name, c.id ]}, {},{:class => "form-control js-source-states", :placeholder => "Country"}
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+            %i.icon-chevron-left>
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_address_field"}
+            %i.icon-chevron-right>
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Company Size
+          %h5 Please provide Company Size
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = comp.label "Company Size"
+                = comp.select :company_strength_id, CompanyStrength.all.uniq(&:range).collect {|c| [ c.range, c.id ]}, {:include_blank => 'Company Size'}, :class=>"form-control"
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+            %i.icon-chevron-left>
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_size"}
+            %i.icon-chevron-right>
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Company Website
+          %h5 Please provide Company Website
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = comp.label "Company Website"
+                = comp.text_field  :website, :class=>"form-control", :placeholder=>"Company Website"
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+            %i.icon-chevron-left>
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "comp_website"}
+            %i.icon-chevron-right>
+            Next
+          .cb
+.slide
+  .hmodal-success
+    .modal-dialog
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h2.font-bold Social media details
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = comp.label :facebook_url
+                = comp.text_field :facebook_url, :class=>"form-control", :placeholder => "Enter facebook url"
+          .row
+            .col-md-12
+              .form-group
+                = comp.label :twitter_url
+                = comp.text_field :twitter_url, :class=>"form-control", :placeholder => "Enter twitter url"
+          .row
+            .col-md-12
+              .form-group
+                = comp.label :linkedin_url
+                = comp.text_field :linkedin_url, :class=>"form-control", :placeholder => "Enter linkedin url"
+          / %button.btn.btn-primary.m-r-md{:type => "button"}
+          /   %i.fa.fa-upload
+          /   %span.bold Yes
+          / %button.btn.btn-primary{:type => "button"}
+          /   %i.fa.fa-download
+          /   %span.bold No
+        .modal-footer
+          %a.comp-pager-prev.btn.w-xs.btn-success.fl#prevButton{:href => "javascript:void(0)"}
+            %i.icon-chevron-left
+            Prev
+          %a.comp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+            %i.icon-chevron-right>
+            Next
+          .cb

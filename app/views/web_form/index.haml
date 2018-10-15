@@ -1,0 +1,134 @@
+:css
+  body { background: #fff; }
+  ul.pagination { margin-top:0; }
+  .close { font-size: 16px; }
+  a { color: rgba(0, 68, 204, 0.69) }
+  .fixed_datatable_footer{position: fixed;bottom: 30px;width: 100%;padding-right: 200px;}
+  .dataTables_filter {
+    text-align: right;
+  }
+  .dataTables_filter input { margin-left:5px }
+.manage_web_form_page
+  .white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 30px;"} 
+    %span{style: "margin-top:5px"}  
+      .fl  
+        %span.curr_page_name
+          Manage Web Forms
+      .fr.navigation_sec
+        %a.tooltip{href: "/web_form/create", title:"Create a new Web Form in seconds."}
+          + Create Web Form
+        / %a{href: "javascript:void(0)", "data-toggle" => "modal", href: "#showFormGuideLines"}
+        /   %span.cwkp-sprite.link_guideline_icon
+        /   Form Guidelines
+      .cb
+  .web_form_listing 
+    %table.table.web_form_list.table-striped.table-hover
+      %thead
+        %tr
+          %th{style:"display:none"}
+          %th{style: "text-align:center"} #SL
+          %th
+            Form Name
+          %th
+            User Responsible
+          %th
+            Lead Source
+          %th.text-center
+            Lead Count (%)
+          %th.text-center
+            Get HTML Code
+          %th.text-center
+            Enable/Disable
+      %tbody
+        - if @web_forms.present?
+          - serial_no = 0
+          - @web_forms.each do |web_form|  
+            %tr
+              %td{style:"display:none"}
+                = web_form.id
+              %td{style: "text-align:center"}
+                = serial_no = serial_no + 1
+              %td
+                - web_form_name = web_form.form_name.present? ? web_form.form_name : ""
+                %span{title: web_form_name}
+                  = web_form_name.truncate(15)
+              %td
+                - res_user = web_form.user.full_name.present? ? web_form.user.full_name : web_form.user.email
+                %span{title: res_user}
+                  = res_user.truncate(20)
+              %td
+                = web_form.source_id.present? ? (web_form.source.name) : ""
+              %td.text-center
+                = deal_count = web_form.deals.present? ? web_form.deals.count : 0
+                = deal_count > 0 ? "(#{((deal_count.to_f/@total_deals.to_f)*100).round(2)}%)" : "(0)"
+              %td.text-center
+                %a{href: "javascript:void(0)", "data-toggle" => "modal", href: "#getHtmlCodeModal", onclick: "get_html_code(#{web_form.id},'code')"}
+                  Get HTML Code
+                %a{href: "javascript:void(0)", "data-toggle" => "modal", href: "#getHtmlCodeModal", onclick: "get_html_code(#{web_form.id},'layout')", :title=>"Click to preview the form"}
+                  %i.fal.fa-eye{"aria-hidden" => "true"}
+
+              %td.text-center
+                - form_visibility = web_form.is_active? ? "enable" : "disable"
+                %a{href: "web_form/enable_disable_form/#{web_form.form_unique_id}?form_action=#{form_visibility == "disable" ? "enable" : "disable"}"}
+                  = form_visibility == "disable" ? "Enable" : "Disable"
+
+#getHtmlCodeModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "inviteBetaCon", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title
+      .modal-body
+        .row
+          %div{style: "text-align:right;margin-right:15px"}
+            %a.copy-text{"data-clipboard-target" => ".display_html_code", :href => "javascript:void(0)", onclick: "flash_copy_message()"} Copy Text
+          .display_html_code
+        .row  
+      .modal-footer
+        %span.btn.btn-info{"aria-hidden" => "true", "data-dismiss" => "modal"} OK
+:javascript
+  $(document).ready(function() {
+    $(".web_form_list").dataTable({
+      aaSorting: [[0, 'desc']]
+    });
+  });
+  function flash_copy_message(){
+    show_alert_message("success", "All right..The HTML code has been copied successfully!")
+  }
+  function get_html_code(form_id, view_mode){
+    $(".display_html_code").html("<div style='text-align:center'><img src='/assets/ajax-loader2.gif' alt='Loading...'></div>");
+    $.ajax({
+      type: "POST",
+      url: "/get_html_code",
+      data: {form_id: form_id },
+      success: function(form) { 
+        if(view_mode == "code"){
+          $('.display_html_code').text(form);
+          $("#getHtmlCodeModal h4.modal-title").html("HTML Code");
+          $(".copy-text").show();
+          $(".display_html_code").css("border","1px solid #aaa");
+        }else{
+          $('.display_html_code').html(form);
+          $("#getHtmlCodeModal h4.modal-title").html("HTML View");
+          $(".copy-text").hide();
+          $('form').removeAttr('action').removeAttr('method');
+          $("form input[type='submit']").prop('disabled', true);
+          $(".display_html_code").css("border","none");
+        }
+      },
+      error: function(){
+        alert("Got an error while fetching form.!!!");
+      }
+    });
+  }
+  $(document).ready(function() {
+    if ($("body").height() < $(window).height()) {
+      $(".dataTables_info").parent().parent().addClass("fixed_datatable_footer");
+    }
+  });
+  $(function(){
+    new Clipboard('.copy-text');
+  });
+  

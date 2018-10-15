@@ -1,0 +1,29 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/projects"} Projects
+          - if request.fullpath.include? "kanban"  
+            %li.active
+              %a{:href => "/projects"} List View
+            %li.active
+              %span Kanban
+          -else
+            %li.active
+              %span List View
+            %li.active
+              %a{:href => "/projects/kanban"} Kanban
+        / =render :partial=>"filters"
+        / =link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');", class: "btn btn-default btn-xs create_project_temp" do
+        /   New
+        
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-chalkboard-teacher
+        Projects
+      %small 
+        - if request.fullpath.include? "kanban"  
+          Projects Kanban View
+        -else
+          Project listing

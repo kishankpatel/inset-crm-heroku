@@ -1,0 +1,109 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  }
+- sequence = 0
+#sortable  
+  - @current_organization.deal_statuses.where("name NOT IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc').each do |deal_status|
+    .col-md-12.ui-state-default.btn.btn-default.filterSelectDropdow.sortablee_lead{style: 'margin-bottom: 15px;background-color: #eee;padding:0px;cursor:move;', 'data-id' => deal_status.id, id: "btn_#{deal_status.id}"}
+      %div.fl{style: 'margin-right: 5px;font-weight: bold;background: rgb(170, 170, 170) none repeat scroll 0% 0%;border-radius: 3px 0px 0px 3px;padding: 10px;width: 35px;'}
+        = sequence = sequence + 1
+      %div{style: 'margin-top: 7px;font-size: 18px;'}
+        .fl{style: 'margin-right: 2px', value: deal_status.id, stage_name: deal_status.name, name: 'stage'}
+          .status_name.fl
+            = deal_status.name
+        .fr
+          /.......... Edit and delete button for status.............
+          %span.glyphicon.glyphicon-pencil.edit_status{onclick: "$('.text-danger').html('');", style: "cursor:pointer;", value: "#{deal_status.id}", data: { toggle: 'modal', target: '#editStageModal', id: deal_status.id, :name => deal_status.name, :color => deal_status.color.to_s, 'is-visible' => "#{deal_status.is_visible}", 'is-funnel-view' => "#{deal_status.is_funnel_view}"}}
+          %span.glyphicon.glyphicon-trash.delete_status{style: "cursor:pointer;", value: "#{deal_status.id}", onclick: 'deleteLeadStage(this)', data: { id: deal_status.id }}
+    .cb
+
+- @current_organization.deal_statuses.where("name IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc').each do |deal_status|
+  .col-md-12.ui-state-default.btn.btn-default.filterSelectDropdow{style: 'margin-bottom: 15px;background-color: #eee;padding:0px;', 'data-id' => deal_status.id, id: "btn_#{deal_status.id}"}
+    %div.fl{style: 'margin-right: 5px;font-weight: bold;background: rgb(170, 170, 170) none repeat scroll 0% 0%;border-radius: 3px 0px 0px 3px;padding: 10px;width: 35px;'}
+      = sequence = sequence + 1
+    %div{style: 'margin-top: 7px;font-size: 18px;'}
+      .fl{style: 'margin-right: 2px', value: deal_status.id, stage_name: deal_status.name, name: 'stage'}
+        .status_name.fl
+          = deal_status.name
+        .cb
+      .fr
+      .cb
+  .cb
+
+:javascript
+    var editButton;
+    $(function() {
+        $(".deal-color").minicolors({theme: 'bootstrap'});
+        $('#editStageModal').on('show.bs.modal', function (event) {
+          editButton = $(event.relatedTarget);
+          var stageName = editButton.data('name');
+          var stageid = editButton.data('id');
+          var stageColor = editButton.data('color');
+          var is_visible = editButton.data('is-visible');
+          var is_funnel_view = editButton.data('is-funnel-view');
+          $('#txt-edit-stage').val(stageName);
+          $('#deal_status_id').val(stageid);
+          $('#txt-deal-color').minicolors('value', stageColor);
+          $("#is_showable").prop("checked", is_visible);
+          $("#is_funnel").prop("checked", is_funnel_view);
+        });
+    });
+    function updateLeadStage(formObject) {
+        var color = $(formObject).find(".deal-color").val();
+        var leadStatus = $("#txt-edit-stage").val();
+        var leadId = $('#deal_status_id').val();
+        var is_visible = $("#is_showable").prop("checked");
+        var is_funnel_view = $("#is_funnel").prop("checked");
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          url: 'update_current_lead_status',
+            type: 'POST',
+            data: {id: leadId, name: leadStatus, is_visible: is_visible, color: color, is_funnel_view: is_funnel_view},
+            success: function(res) {
+              $("#task_loader,.fixed_loader").hide();
+              if(res.text == "not_allowed"){
+                $("#edit_error").show();                
+                $(".edit_submit_btn").removeAttr("disabled").text("Update");
+                $(".text-danger").html("You can not update 'Won' or 'Lost' as a lead stages.");
+              }else if(res.text == "stage_exists"){
+                $("#edit_error").show();                
+                $(".edit_submit_btn").removeAttr("disabled").text("Update");
+                $(".text-danger").html("Stage name already exists. Please enter different name.");
+              }else{
+                $("#editStageModal").modal('hide');
+                $("#sortable").find("#btn_"+leadId).find( ".status_name" ).html($.trim(res.name));
+                editButton.data('name', $.trim(res.name));
+                editButton.data('is-visible', res.is_visible);
+                editButton.data('color', res.color);
+                editButton.data('is-funnel-view', res.is_funnel_view);
+              }
+            },
+            error: function(res) {
+              $("#edit_error").show();
+            }
+        });
+    }  
+  
+  $( "#sortable" ).sortable({
+    stop: function(event, ui) {
+      // alert(1);
+      var data = {};
+      $("#sortable .sortablee_lead").each(function(i, el){
+        // alert($.trim($($(el).children()[1]).text()));
+        data[$.trim($($(el).children()[1]).text())] = $(el).index() + 1;
+      });
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: 'settings/update_stage_sequence_in_setting',
+        type: 'POST',
+        data: {sorted: data},
+        success: function(res) {
+          $("#sortable_stage").html(res);
+          $("#task_loader,.fixed_loader,.fixed_loader").hide();
+        }
+      });
+    },
+    helper : 'clone'
+  });

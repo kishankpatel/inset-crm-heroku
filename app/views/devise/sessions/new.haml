@@ -1,0 +1,31 @@
+:css
+  .checkbox label{padding-left:8px;}
+.login-container
+  .row
+    .col-md-12
+      .text-center.m-b-md
+        %h3 Please LOGIN To InSet CRM
+        //%small This is the best app ever!
+      .hpanel
+        .panel-body
+          = form_for(resource, :as => resource_name, :url => session_path(resource_name), :html=>{:class => "" , id: "loginForm"}) do |f|
+            .form-group
+              = f.label :email
+              = f.email_field :email, :required => true, :placeholder => "example@gmail.com", :required => "", :title => "Please enter your email",:class=>"form-control"
+              
+              %span.help-block.small Your unique email to app
+            .form-group
+              = f.label :password
+              = f.password_field :password, :required => true, :placeholder => "******", :required => "", :title => "Please enter your password",:class=>"form-control"
+              
+              %span.help-block.small Your strong password
+            - if devise_mapping.rememberable?
+              %div
+                = f.check_box :remember_me,:class=>"i-checks"
+                = f.label :remember_me do
+                  Remember login
+               
+                %p.help-block.small (if this is a private computer)
+            %button.btn.btn-success.btn-block Login
+            %a.btn.btn-default.btn-block{:href => "/users/sign-up"} Register
+        =render "devise/shared/links"

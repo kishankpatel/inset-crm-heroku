@@ -1,0 +1,371 @@
+/* kanban container */
+#kanbanCanvas #kanbanContainer .kanban table, #kanbanCanvas #kanbanContainer .kanban table td#dealsContainer {
+    width: 100%;
+    height: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages {
+    position: relative;
+    border-top: 1px #b9babb solid;
+    border-bottom: 1px #b9babb solid;
+    overflow: visible;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+#kanbanCanvas #kanbanContainer .kanban .stages.ready ul {
+    transition: opacity 0.14s ease-in;
+    opacity: 1;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul {
+    width: 100%;
+    display: table;
+    border-collapse: collapse;
+    table-layout: fixed;
+    height: 45px;
+    opacity: 0;
+    transition: opacity 0.07s linear;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li {
+    display: table-cell;
+    text-align: left;
+    color: #26292c;
+    padding: 6px 25px 6px 12px;
+    background-color: #f7f7f7;
+    background: url(/assets/new-ui/status-arrow.png) no-repeat 100% 0,linear-gradient(#fff, #f7f7f7);
+    background-size: 20px 100%, 100% 100%;
+    border-right: 1px #b9babb solid;
+    line-height: 1.3em;
+    overflow: visible;
+    vertical-align: middle;
+    position: relative;
+}
+li.showWeighted b {
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    color: #777;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper {
+    position: absolute;
+    top: 50%;
+    width: 200px;
+    margin-top: -16px;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper .goals {
+    position: absolute;
+    /*right: -35px;*/
+    width: 32px;
+    height: 32px;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper .goals .goalSummary {
+    display: block;
+    position: absolute;
+    width: 180px;
+    padding: 10px;
+    background-color: #404346;
+    opacity: 0;
+    z-index: 200;
+    border-radius: 6px;
+    transition: opacity 0.15s ease-in-out,top 0.01s linear 0.2s,right 0.01s linear 0.2s;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper .goals .goalSummary .chart {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper .goals .goalSummary span.title {
+    display: block;
+    min-height: 30px;
+    padding-right: 40px;
+    padding-bottom: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+#kanbanCanvas #kanbanContainer .kanban table, #kanbanCanvas #kanbanContainer .kanban table td#dealsContainer {
+    width: 100%;
+    height: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .goalsWrapper .goals .goalSummary span.smallTitle {
+    display: block;
+    margin-top: 10px;
+    padding-top: 6px;
+    border-top: 1px solid #404346;
+    font-size: 12px;
+    color: #b9babb;
+    font-weight: bold;
+}
+#kanbanCanvas #kanbanContainer .kanban table, #kanbanCanvas #kanbanContainer .kanban table td#dealsContainer {
+    width: 100%;
+    height: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .stagename {
+    font-size: 16px;
+    line-height: 21px;
+    font-weight: 600;
+    max-width: 100%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .stagevalue {
+    font-size: 13px;
+    line-height: 17px;
+    height: 13px;
+    width: 100%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .stagevalue .full {
+    position: absolute;
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+#kanbanCanvas #kanbanContainer .kanban .stages ul li .stagevalue .value {
+    position: absolute;
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 1;
+    transition: opacity 0.1s ease-in 0.05s;
+}
+
+
+
+
+#kanbanCanvas #kanbanContainer .kanban table, #kanbanCanvas #kanbanContainer .kanban table td#dealsContainer {
+    width: 100%;
+    height: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals.ready {
+    opacity: 1;
+    transition: opacity 0.2s ease-in;
+}
+/*#kanbanCanvas #kanbanContainer .kanban .deals.hasScrollbar {
+    overflow-x: auto;
+}*/
+#kanbanCanvas #kanbanContainer .kanban .deals, 
+#kanbanCanvas #kanbanContainer .kanban .projects,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs {
+    /*opacity: 0;*/
+    height: 100%;
+    transition: opacity 0.07s ease-out;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#kanbanCanvas #kanbanContainer .emptyPipeline {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable , 
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable {
+    width: 100%;
+    height: 100%;
+    display: table;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage:first-child, 
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage:first-child,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage:first-child {
+    border-left: none;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage, 
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage {
+    display: table-cell;
+    border-left: 1px solid transparent;
+    border-color: #e5e5e5;
+    text-align: left;
+    /*overflow: hidden;*/
+    background-color: transparent;
+    transition: background-color 0.05s ease-in-out;
+    position: relative;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul, 
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul   {
+    position: relative;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li.status-open, 
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li.status-deleted,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li.status-open, 
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li.status-deleted,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li.status-open, 
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li.status-deleted   {
+    border-bottom-color: #e5e5e5;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li  {
+    position: relative;
+    min-height: 50px;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+    width: 100%;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block ,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block {
+    display: block;
+    width: 100%;
+    position: relative;
+    min-height: 50px;
+    margin: 0;
+    border: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block {
+    padding: 8px;
+}
+
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .lead_name,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .opportunity,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .users,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .jobs,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .value,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .user
+
+{padding:0 8px;font-size: 12px}
+
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block .front,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .front,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front  {
+    display: block;
+    padding: 8px;
+    color: #26292c;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front  {
+    padding: 0;
+}
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .actions{display:none;height:15px;}
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block:hover .actions{
+display:block;
+padding: 0;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block a,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block a,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block a {
+    outline: none;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block .front strong ,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .front strong,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front strong {
+    font-weight: 600;
+    color: #444;
+    display: block;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block .front strong img,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .front strong img,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front strong img {
+    height: 16px;
+    margin: 2px 8px 0 0;
+    border-radius: 50%;
+    vertical-align: top;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block .front small,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .front small,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front small {
+    font-size: 12px;
+    line-height: 16px;
+    padding: 2px 0px;
+    color: #747678;
+    text-overflow: ellipsis;
+    display: block;
+    transition: color 0.1s ease-in-out;
+    font-weight: normal;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .block .front .detail,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .block .front .detail,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .block .front .detail {
+    margin-right: 5px;
+}
+
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .labels,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .labels,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .labels {
+    display: table-cell;
+    vertical-align: middle;
+    min-width: 1px;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li.activityHover .icon ,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable  .stage ul li.activityHover .icon,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable  .stage ul li.activityHover .icon {
+    margin: -16px 8px 0 0;
+    padding: 8px;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .icon,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .icon,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .icon {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 18px;
+    height: 16px;
+    margin: -8px 8px 0 0;
+    cursor: pointer;
+    cursor: hand;
+    z-index: 51;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li.warning .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li.warning .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li.warning .icon::after {
+    background-position: -72px 0;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li.activityHover .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li.activityHover .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li.activityHover .icon::after {
+    top: 50%;
+    left: 50%;
+    margin-left: -9px;
+    margin-top: -8px;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .icon::after,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .icon::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 16px;
+    content: '';
+    background-image: url(https://webapp.pipedriveassets.com/images/icons/activity-states.png?20141107);
+    background-size: 127px 16px;
+}
+#kanbanCanvas #kanbanContainer .kanban .deals .dealsTable .stage ul li .coachmark,
+#kanbanCanvas #kanbanContainer .kanban .projects .projectsTable .stage ul li .coachmark,
+#kanbanCanvas #kanbanContainer .kanban .projectjobs .projectJobsTable .stage ul li .coachmark  {
+    position: relative;
+    z-index: 1;
+}
+
+/*Kanban UI ends here*/

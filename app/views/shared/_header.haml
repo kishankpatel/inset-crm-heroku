@@ -1,0 +1,345 @@
+:javascript
+  $(function(){
+   //$('a[rel="tooltip"],i,input:checkbox,button,div').powerTip({placement: 'n'});
+   $(".slide_m").hide();
+   $(".nav.navbar-nav li a").hover(function(){
+     $(this).find(".slide_m").show('slide', { direction: 'right' }, 300);
+   },function(){
+     $(this).find(".slide_m").hide();
+   });
+   $('.f_menu').click(function() {
+    //$(this).preventDefault();
+    $(this).next('.dropdown-menu').toggle(100);
+    //$(this).find('.dropdown-menu').stop(true, true).slideToggle(100);
+    //e.preventDefault()
+   });
+  }); 
+  function send_mail(){
+    $('#task_loader,.fixed_loader').show();
+    $.ajax( {
+      type: "POST",
+      url: "/send_latest_blog_mail" ,
+      data: {},
+      success: function(result) {
+        $('#task_loader,.fixed_loader').hide();
+        show_alert_message('success',"Latest blog mail sent successfully.");
+      },
+      complete: function(result) {
+        $('#task_loader,.fixed_loader').hide();
+        
+      },
+      error: function(result) {
+        
+        $('#task_loader,.fixed_loader').hide();
+        
+      }
+    });
+  }
+%meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+%header{:style=>"position:fixed;top:0"}
+  - if user_signed_in? && current_user.organization.present?
+    %div
+      .row
+        .col-lg-12
+          .col-md-3
+            / %a.logo{:href => "javascript:void(0)", :title => "logo"}
+            =link_to (user_signed_in? ? "/dashboard" : "/"), class: "navbar-brand" do
+              =image_tag ("/assets/new-ui/wus-all-in-one.png"),alt: "WUS-logo", :style => "height:50px;", title: "CRM Application"
+          .col-md-9.padlft
+            = render :partial => "shared/top_header"
+          
+        .cb
+  - else
+    - if( (params[:action] == "unsubscribe" || params[:action] == "index" || params[:action] == "how_it_works" || params[:action] == "features" || params[:action] == "success_story"  || params[:action] == "success_story_ajay"  || params[:action] == "pricing_new" || params[:action] == "pricing_self_hosted" || params[:action] == "about_us" || params[:action] == "contact_us" || params[:action] == "security" || params[:action] == "integration" || params[:action] == "awards_and_recognitions" || params[:action] == "report_a_bug") && params[:controller] = "home" ) 
+      %nav.navbar.navbar-default.navbar-fixed-top
+        .wrapper
+          / Brand and toggle get grouped for better mobile display
+          .navbar-header.menu_lft_cnt
+            .signup-btn_mob_menu
+              %a{:href => "/users/sign-up", :title => "Sign Up Free"} Start My Free Account
+            .navbar-toggle.collapsed{"aria-expanded" => "false", "aria-label" => "Toggle navigation", "aria-controls" => "bs-example-navbar-collapse-1", "data-target" => "#bs-example-navbar-collapse-1", "data-toggle" => "collapse", :type => "button"}
+              .hamburger.hamburger--spin.js-hamburger
+                .hamburger-box
+                  .hamburger-inner
+            %a.navbar-brand{:href => "/"}
+              %img{:alt => "WUS-logo", :src => "/assets/new-ui/wus-all-in-one.png", :title => "CRM Application"}
+          / Collect the nav links, forms, and other content for toggling
+          #bs-example-navbar-collapse-1.collapse.navbar-collapse
+            %ul.nav.navbar-nav.menu_mid_cnt
+              %li.how-it-works-tab
+                %a{:href => "/how-it-works", :title => "How It Works"} How It Works
+              %li
+                %a{:href => "/features", :title => "Features"} Features
+              %li
+                %a{:href => "/success-story", :rel => "nofollow", :title => "Success Story"} Success Story
+              %li.dropdown.pricing_smenu
+                %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "javascript:void(0)", :role => "button"}
+                  Pricing
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    %a{href: "/pricing", title: "Cloud"}
+                      %strong
+                        Cloud
+                      %span The easiest edition to get started right away. Just sign up & you're in.
+                  %li
+                    %a{href: "/self-hosted", title: "Self-Hosted"}
+                      %strong
+                        Self-Hosted
+                      %span
+                        All the power of cloud CRM hosted on your own server. Setting up is easy!
+              %li.dropdown.more_smenu
+                %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "/pricing", :role => "button"}
+                  More
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    //http://demo.wakeupsales.com/
+                    %a{href: "/users/sign-up", title: "Try Live Demo"}
+                      %strong  Try Live Demo
+                      %span Get to know the CRM application, before actually signing up for it.
+                  %li.hoz_bar
+                    %a{href: "/awards-and-recognitions", title: "Awards & Recognitions"}
+                      %strong Awards & Recognitions
+                      %span Who doesn't like being recognised! It feels great.
+                  %li
+                    %a{href: "/security", title: "Security"}
+                      %strong Security
+                      %span Your data is important to you. And we know it. Security is on top of our priorities.
+                  %li
+                    %a{href: "http://blog.wakeupsales.com/", title: "Blog", target:"_blank"}
+                      %strong Blog
+                      %span All the latest updates, news & upcoming releases about the CRM goes here.
+                  %li
+                    %a{href: "/integrations", title: "Integrations"}
+                      %strong Integrations
+                      %span Modules that bring even more out of the Wakeupsales CRM. Super Powers!
+                  %li
+                    %a{href: "http://helpdesk.wakeupsales.com/", target:"_blank", title: "Help & Support"}
+                      %strong Help & Support
+                      %span We feel it's our duty to help our users in anyway possible.
+                  %li.hoz_bar
+                    %a{href: "/pricing", title: "FAQs", onclick: "$.cookie('more_link', 'true');"}
+                      %strong FAQ
+                      %span We thought it'd be good to put together all the frequently asked questions in one place.
+                  %li
+                    %a{href: "/contact-us", title: "Contact Us"}
+                      %strong Contact Us
+                      %span Need any help, walk-through or simply want to get in touch, this is your place.
+              %li
+                %a{:href => "https://calendly.com/support-wakeupsales/demo_walkthrough/10-17-2017?back=1", :target => "_blank", :title => "Schedule Demo"}
+                  %span.schedule_demo_img
+                  Schedule Demo
+            %ul.nav.navbar-nav.navbar-right.menu_rt_cnt
+              %li
+                %a{:href => "/users/sign-in", :title => "Sign In"} Sign In
+              %li.signup-btn
+                %a{:href => "/users/sign-up", :title => "Sign Up Free"} Start My Free Account
+          / /.navbar-collapse
+        / /.container-fluid
+    - else  
+      %div
+        .row
+          .col-lg-12
+            .col-lg-3
+              / %a.logo{:href => "javascript:void(0)", :title => "logo"}
+              =link_to (user_signed_in? ? "/dashboard" : "/"), class: "navbar-brand" do
+                =image_tag ("/assets/new-ui/wus-all-in-one.png"),alt: "WUS-logo", :style => "height:50px;", title: "CRM Application"
+            .col-lg-9.padlft
+              %ul.menu
+                - if action_name != "new_organization"
+                  .fl.menu_left_sec
+                    
+                    %li.how-it-works-tab
+                      %a{href: '/how-it-works', title: "How It Works"} How It Works
+                    %li.features-tab
+                      %a{href: features_path, title: "Features"} Features
+                    %li.success-story-tab
+                      %a{href: "/success-story", rel: "nofollow", title: "Success Story"} 
+                        Success Story
+                    / %li.features-tab
+                    /   %a{href: features_path , :id=>"feature", rel: "nofollow", title: "How It Works"} 
+                    /     How It Works
+                    / %li
+                    /   %a{href: "https://www.wakeupsales.com/security"}
+                    /     / Pricing
+                    /     Security
+                    / %li.integrations-tab
+                    /   %a{href: "/integrations", title: "Integrations"}
+                    /     Integrations
+                    /%li.free-download-tab
+                    /  %a{href: "/opensource/free-download", title: "Open Source"}
+                    /    Open Source
+                    %li.menu-bar.pricing-tab
+                      %a{href: "javascript:void(0)"}  
+                        Pricing
+                        %i.fal.fa-angle-down{"aria-hidden" => "true"} 
+                      %ul.cnt_box.cnt_box_pricing
+                        %li.hoz_bar{style: "padding: 5px 10px;"}
+                          .header-menu-pad
+                            %a{href: "/pricing", title: "Cloud"}
+                              Cloud
+                              .fl.header_menu_link
+                                %span.header_menu_icon.cloud
+                              .fl.header_menu_txt                            
+                                %span The easiest edition to get started right away. Just sign up & you're in.
+                              .cb
+                        %li.hoz_bar{style: "padding: 5px 10px;"}
+                          .header-menu-pad
+                            %a{href: "/self-hosted", title: "Self-Hosted"}
+                              Self-Hosted
+                              .fl.header_menu_link
+                                %span.header_menu_icon.self_hosted
+                              .fl.header_menu_txt
+                                %span All the power of cloud CRM hosted on your own server. Setting up is easy!
+                              .cb
+                    %li.menu-bar.other-menu
+                      %a{href: "javascript:void(0)"}  
+                        More
+                        %i.fal.fa-angle-down{"aria-hidden" => "true"} 
+                      %ul.cnt_box.cnt_box_more
+                        .col-md-12.padrht
+                          .col-md-6.padlft.padrht
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "/users/sign-up", title: "Try Live Demo"}
+                                  Try Live Demo
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.try_live_demo
+                                  .fl.header_menu_txt
+                                    %span Get to know the CRM application, before actually signing up for it.
+                                  .cb
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "/awards-and-recognitions", title: "Awards & Recognitions"}
+                                  Awards & Recognitions
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.award
+                                  .fl.header_menu_txt                            
+                                    %span Who doesn't like being recognised! It feels great.
+                                  .cb
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "/security", title: "Security"}
+                                  Security
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.security
+                                  .fl.header_menu_txt                            
+                                    %span Your data is important to you. And we know it. Security is on top of our priorities.
+                                  .cb
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "http://blog.wakeupsales.com/", title: "Blog", target:"_blank"}
+                                  Blog
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.blog
+                                  .fl.header_menu_txt                            
+                                    %span All the latest updates, news & upcoming releases about the CRM goes here.
+                                  .cb
+                          .col-md-6.padlft.padrht
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "/integrations", title: "Integrations"}
+                                  Integrations
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.integrations
+                                  .fl.header_menu_txt                            
+                                    %span Modules that bring even more out of the Wakeupsales CRM. Super Powers!
+                                  .cb
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "http://helpdesk.wakeupsales.com/", target:"_blank", title: "Help & Support"}
+                                  Help & Support
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.helpdesk
+                                  .fl.header_menu_txt                            
+                                    %span We feel it's our duty to help our users in anyway possible.
+                                  .cb
+                            %li.hoz_bar
+                              .header-menu-pad
+                                %a{href: "/pricing", title: "FAQs"}
+                                  FAQ
+                                  %sub{style: "bottom: 0px;left: -2px;"} s
+                                  /%div{style: "font-size:10px;margin-left: -2px;"}
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.faq
+                                  .fl.header_menu_txt                            
+                                    %span We thought it'd be good to put together all the frequently asked questions in one place.
+                                  .cb
+                            %li
+                              .header-menu-pad
+                                %a{href: "/contact-us", title: "Contact Us"}
+                                  Contact Us
+                                  .fl.header_menu_link
+                                    %span.header_menu_icon.support
+                                  .fl.header_menu_txt                            
+                                    %span Need any help, walk-through or simply want to get in touch, this is your place.
+                                  .cb
+                          .cb
+                        .cb
+                    %li
+                      %a{href: "https://calendly.com/support-wakeupsales/demo_walkthrough/10-17-2017?back=1", title: "Schedule Demo", target:"_blank"}
+                        %span.schedule_demo_img
+                        Schedule Demo
+                  .fr
+                    - unless request.path ==  "/users/sign-in"
+                      %li{style: "padding: 27px 10px;"}
+                        %a{:href => "/users/sign-in", title: "Sign In"} 
+                          Sign In
+                    - unless request.path == "/users/sign-up"  
+                      %li.signup-btn
+                        %a.cbtn-effect{:href => "/users/sign-up", title: "Sign Up Free"} Start My Free Account
+                  .cb
+
+:javascript
+  
+  $('#my-link').click(function (event) {
+    alert('Hooray!');    
+    event.preventDefault(); // Prevent link from following its href
+    track_logout();
+  });
+
+  var pathname = window.location.pathname; // Returns path only
+
+  if( pathname == "/success-story" ){
+    $(".success-story-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/features" ){
+    $(".features-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/how-it-works" ){
+    $(".how-it-works-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/self-hosted" ){
+    $(".self-hosted-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/pricing" ){
+    $(".pricing-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/integrations" ){
+    $(".integrations-tab > a").css("color","#66b053");
+  }
+  else
+  if( pathname == "/opensource/free-download" ){
+    $(".free-download-tab > a").css("color","#66b053");
+  }
+  $(".pricing-tab, .cnt_box_pricing").mouseover(function() {
+    $(".pricing-tab > a").css("color","#66b053");
+  }).mouseout(function() {
+    $(".pricing-tab > a").css("color","#333");
+  });
+  $(".other-menu, .cnt_box_more").mouseover(function() {
+    $(".other-menu > a").css("color","#66b053");
+  }).mouseout(function() {
+    $(".other-menu > a").css("color","#333");
+  });
+  $(".header-menu-pad a").mouseover(function() {
+    $(this).find(".header_menu_txt span").css("color","#333");
+  }).mouseout(function() {
+    $(this).find(".header_menu_txt span").css("color","#86878A");
+  });

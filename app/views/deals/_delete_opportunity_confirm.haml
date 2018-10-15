@@ -1,0 +1,36 @@
+.color-line
+.modal-header
+  %span.fr.clse_pop{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+    %i.fal.fa-times.fa-2x
+  %h4
+    %span.fal.fa-briefcase
+    DELETE OPPORTUNITY
+.modal-body.edit_contact_container
+  - deal_contact = @deal.deals_contacts.present? && @deal.deals_contacts.first.contactable
+  - lead_opportunities = deal_contact.deals_contacts if deal_contact.present?
+  - if lead_opportunities.present? && lead_opportunities.count == 1
+    - url = lead_path(@deal, :delete_type=>'convert_to_contact')
+    .radio
+      = radio_button_tag "delete_opportunities_contacts", "convert_to_contact", true, :class => "custom-frm-inner form-control"
+      %label{for: "delete_opportunities_contacts_convert_to_contact"}
+        Keep this lead as my contact?
+    .radio
+      = radio_button_tag "delete_opportunities_contacts", "remove_permanently", false, :class => "custom-frm-inner form-control"
+      %label{for: "delete_opportunities_contacts_remove_permanently"}
+        Remove this opportunity and lead permanently?
+  - else
+    - url = lead_path(@deal)
+    Do you want to remove this opportunity permanently?
+.modal-footer  
+  %a{href:"javascript:", "aria-hidden" => "true", "data-dismiss" => "modal", :class => "btn btn-default"}
+    Cancel
+  = link_to "Delete", url, :method => :delete, class: "btn btn-primary", id: "delete_opportunity_lead"
+:javascript
+  $('input[type=radio][name=delete_opportunities_contacts]').change(function() {
+    if (this.value == 'remove_permanently') {
+      $('#delete_opportunity_lead').attr('href', "#{lead_path(@deal, :delete_type=>'remove_permanently')}");
+    }
+    else {
+      $('#delete_opportunity_lead').attr('href', "#{lead_path(@deal, :delete_type=>'convert_to_lead')}");
+    }
+  });

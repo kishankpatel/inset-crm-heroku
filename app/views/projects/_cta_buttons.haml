@@ -1,0 +1,15 @@
+.crt_btn_btm
+  .ws_plus
+    .c_ttip
+      %span.label.label-default Create Project
+    =link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');", class: "create_project_temp" do
+      =image_tag "new-ui/project-Icon.png", class:"c_icn"
+      =image_tag "new-ui/plus.png", class:"add_icn"
+    -if(local_assigns[:project].present?)
+      .c_ttip
+        %span.label.label-default Create Job       
+        = link_to new_project_project_job_path(project), class: "create_project_temp" do
+          =image_tag "new-ui/job-Icon.png", class:"c_icn"
+          =image_tag "new-ui/plus.png", class:"add_icn"
+    
+

@@ -1,0 +1,17 @@
+.panel-heading.hbuilt
+  %h4.fl
+    Define Lost Reasons
+  .btn.btn-primary.btn-success.fr{ data: { toggle: "modal", target: "#addLostReason" }}
+    .glyphicon.glyphicon-plus-sign
+    Add Lost Reason
+  .cb
+.panel-body
+  .reasons
+    - if current_user.organization.lost_reasons.present?
+      - current_user.organization.lost_reasons.each do |lost_reason|
+        %div{style: "margin-bottom: 15px;background-color: #eee;font-size: 14px;border-radius: 5px;border: 1px solid rgb(153, 153, 153);padding: 10px 5px;height: 40px;cursor: pointer", id: "lost_reason_#{lost_reason.id}"}
+          .fl.reason_text
+            = lost_reason.reason
+          .fr
+            %span.glyphicon.glyphicon-pencil{value: "#{lost_reason.id}", data: { toggle: "modal", target: "#editLostReason", id: lost_reason.id, :reason => lost_reason.reason }}
+            %span.glyphicon.glyphicon-trash{value: "#{lost_reason.id}", onclick: "deleteLostReason(this)", title: "Delete", data: { id: lost_reason.id }}

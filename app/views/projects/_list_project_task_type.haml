@@ -1,0 +1,8 @@
+.jobs
+  - @project_task_types.each do |task_types|
+    .project_task_type{style: "", id: "task_types_#{task_types.id}"}
+      .fl.project_task_type_name
+        = task_types.name
+      .fr
+        %span.glyphicon.glyphicon-pencil{value: "#{task_types.id}", data: { toggle: "modal", target: "#editProjectTaskType", id: task_types.id, :name => task_types.name }}
+      .cb

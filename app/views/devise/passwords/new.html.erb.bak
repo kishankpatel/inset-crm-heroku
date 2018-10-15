@@ -1,0 +1,51 @@
+<style type="text/css">
+  body{overflow:hidden;}
+  .well {
+      background-color: #F5F5F5;
+      border: 1px solid #E3E3E3;
+      border-radius: 4px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+      margin-bottom: 20px;
+      min-height: 20px;
+      padding: 19px;
+  }
+  .transparent_w_logo {top: 240px;left: -70px;}
+</style>
+<div class="transparent_w_logo"></div>
+<div class="row contact_row new_form_layout forgot_password_page">
+    <div class="col-md-5 contact_div top_sec">
+      <a href="/">
+        <div class="wus_new_logo"></div>
+      </a>  
+      <a href="/" class="back_to_home_icon tooltip" title="Go Back to InsetCRM Home"><i class="fa fa-home" aria-hidden="true"></i></a>
+      <div class="cb"></div>
+      <div class="well" style="padding-top: 8px;">
+        <legend>
+          <span class="forgot_password_bo cwkp-sprite"></span>  
+          Forgot your password?
+        </legend>
+       <%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :post, :class => "form" }) do |f| %>
+          <div class="displaynone"><%= devise_error_messages!%></div>
+          <div class="form-group sign_up_field email_icn" style="margin-bottom:20px">
+              <%= f.email_field :email, :class=>"form-control", :placeholder => "Email",:required => true, :style=>"height:50px;font-size: 17px;" %>
+          </div>
+          
+           <div>
+             <button type="submit" class="btn btn-primary btn-success">
+               Send me reset password instructions
+               <span class="cwkp-sprite send_icon_1"></span>
+             </button>
+	          </div>	  
+      <% end %>
+    
+      </div>
+      <div class="facing_prob_sec">
+        <p>Facing any problem? Write to us at <span>"<a href="mailto:support@parkpointsoftware.com">support@parkpointsoftware.com</a>".</span></p>
+      </div>
+    </div>
+</div>
+<%=stylesheet_link_tag "home"%>
+
+
+
+

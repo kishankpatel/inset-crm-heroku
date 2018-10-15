@@ -1,0 +1,106 @@
+.col-md-12.pl0.mb10
+  .col-md-3.fl.pl0
+    %a.btn.btn-success.btn-xs{:href=>"javascript:void(0)",:onclick=>"get_resource_allocation('prev')"}
+      Prev
+    %a.btn.btn-success.btn-xs{:href=>"javascript:void(0)",:onclick=>"get_resource_allocation('next')"}
+      Next
+  .col-md-4.fl
+    %span
+      = radio_button_tag "allot_type","weekly", (!params[:allot_type].present? && params[:project_id].present?)  || params[:allot_type] == "weekly",:onclick=>"get_resource_allocation()"
+      %label{for: "allot_type_weekly"}
+        %span   
+          Weekly
+    %span
+      = radio_button_tag "allot_type","monthly", (!params[:allot_type].present? && !params[:project_id].present?)  || params[:allot_type] == "monthly",:onclick=>"get_resource_allocation()"
+      %label{for: "allot_type_monthly"}
+        %span   
+          Monthly
+    %span
+      = radio_button_tag "allot_type","next_thirty", params[:allot_type] == "next_thirty",:onclick=>"get_resource_allocation()"
+      %label{for: "allot_type_next_thirty"}
+        %span   
+          30 Days
+       
+  -if params[:project_id].present?
+    .col-md-5.fr
+      %table
+        %tr
+          %td{style:"text-align:right;width: 30px;"}
+            %div{style:"height:15px;width:15px;border:1px solid #353535;background-color:#ffffff"}
+          %td{style:"text-align:left;width: 80px"}
+            Available
+        
+          %td{style:"text-align:right;width: 30px"}
+            %div{style:"height:15px;width:15px;border:1px solid #353535;background-color:#00ffff"}
+          %td{style:"text-align:left;width: 80px"}
+            Booked
+        
+          %td{style:"text-align:right;width: 30px"}
+            %div{style:"height:15px;width:15px;border:1px solid #353535;background-color:#ff0000"}
+          %td{style:"text-align:left;width: 80px"}
+            OverLoaded
+        
+          %td{style:"text-align:right;width: 30px"}
+            %div{style:"height:15px;width:15px;border:1px solid #353535;background-color:#ccc8c8"}
+          %td{style:"text-align:left;width: 80px"}
+            Vacation
+%div
+  =hidden_field_tag :res_start_dt,start_date
+  =hidden_field_tag :res_end_dt,end_date
+  -if !params[:project_id].present? || (params[:project_id].present? && params[:project_id].to_i == 0)
+
+    - projects = ResourceDistribution.get_projects start_date,end_date,0,0,'all'
+  -else
+    
+    =hidden_field_tag :resource_project_id, params[:project_id]
+    -projects = [Project.where(:id=>params[:project_id]).first]
+
+  - if projects.present?
+    -project_colors = projects.map{|prj| {id: prj.id,name: prj.name, short_name: prj.short_name,color_code: "#"+SecureRandom.hex(3) ,is_archive: prj.is_archive?} }
+  .cb
+  .col-md-12{style: "width: 100%;overflow-x:scroll;padding:0px" }
+    %table.table.table-condensed.table-bordered
+      - days_count = (end_date - start_date).to_i 
+      - max_hours = @current_organization.resource_setting.hours_of_work
+      - weekends = @current_organization.resource_setting.week_off_days
+      %tr
+        %td Resources
+        - (0..days_count).step(1) do |index|
+          %td.resource-date
+            =raw (start_date + (index).days).strftime("%a") + "<br>" +(start_date + (index).days).strftime("%m") + "/" + (start_date + (index).days).strftime("%d") 
+            
+      
+      -users = @current_organization.users   
+
+      -users.each do |user|
+        -resource_distributions = ResourceDistribution.resource_allocations start_date,end_date,user.id,0,params[:project_id].present? && params[:project_id] != 0 ? params[:project_id] : 'all'
+        
+        %tr
+          %td.resource-person
+            = user.full_name.present? ? user.full_name : user.email
+          -if(params[:project_id].present? && params[:project_id].to_i != 0)
+            =render :partial=>'user_allocation',:locals=>{resource_distributions: resource_distributions,:start_date=>start_date,:end_date=>end_date,:days_count=>days_count,:max_hours=>max_hours,:weekends=>weekends,project_colors: project_colors}
+          -else
+            =render :partial=>'user_allocation_with_projects',:locals=>{resource_distributions: resource_distributions,:start_date=>start_date,:end_date=>end_date,:days_count=>days_count,:max_hours=>max_hours,:weekends=>weekends,project_colors: project_colors}
+  .cb
+  -if(!params[:project_id].present? || (params[:project_id].present? && params[:project_id].to_i == 0))
+    .col-md-12.cont_box
+      Projects: 
+      %ul.resource-projects-ul.col-md-12.pull-right
+        -if project_colors.present? && project_colors.count > 0
+          -project_colors.each do |prj_color|
+            %li
+              %a{href: "javascript:", onclick: "highlight_project_color(#{prj_color[:id]})"}
+                %div.pull-left{style: "border: 1px solid black;background: #{prj_color[:color_code]};width: 30px;height:15px;margin-right: 15px"} 
+                %span.pull-left
+                  =prj_color[:name]
+                  =prj_color[:is_archive] ? "(Archvied)" : ""
+                .cb
+:javascript
+  function highlight_project_color(project_id)
+  {
+    $(".project_id_color").removeClass("border-highlight")
+    $(".project_id_color").addClass("border-normal")
+    $(".project_color_"+project_id.toString()).removeClass("border-normal")
+    $(".project_color_"+project_id.toString()).addClass("border-highlight")
+  }

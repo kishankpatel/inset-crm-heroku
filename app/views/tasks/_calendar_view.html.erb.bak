@@ -1,0 +1,135 @@
+<%=stylesheet_link_tag "/assets/fullcalendar"%>
+<%=stylesheet_link_tag "/assets/tipped"%>
+<%=javascript_include_tag "/assets/fullcalendar.min"%>
+<%=javascript_include_tag "/assets/tipped"%>
+<div style="margin-left: 70%;position: absolute;margin-top: 6px;">
+   <!--  <span class="fc-button fc-button-agendaWeek fc-state-default" id="spanfilterall" unselectable="on" onclick= "$('#calendar_filter_type').val('all');display_tasks('calendar');">All</span> -->
+    <span class="fc-button fc-button-agendaWeek fc-state-default displaynone" id="spanfilterreset" unselectable="on" onclick= "$('#calendar_filter_type').val('');display_tasks('calendar');">Reset</span>
+</div>
+<div id="calendar_content" class="body" style="background:#fff;display:flex;">
+  <div id='task_calendar_view' class="col-md-9 fl">
+
+  </div>
+  <div id='calendar_filter' class='col-md-3 fr'>
+    <div>
+      <h5>SHOW ON MY CALENDAR</h5>
+      <% asg_to = []%>
+      <% asg_to = params[:asg_to].split(',') if params[:asg_to].present?%>
+      <ul> 
+        <% if @current_user.is_admin?%>
+          <li>
+            <label class="checkbox-inline">
+              <input type="checkbox" value="All" onclick="filter_calendar(this)" class="task-checkbox" <%= asg_to.include?('All') ? "checked" : ""%>> All
+            </label>
+          </li>
+        <% end %>
+        <li>
+          <label class="checkbox-inline">
+            <input type="checkbox" value="<%= @current_user.id %>" onclick="filter_calendar(this)" class="task-checkbox" <%= asg_to.include?(@current_user.id.to_s) ? "checked" : ""%>> My tasks
+          </label>
+        </li>
+        <% if @current_user.is_admin?%>
+          <% all_org_users.each do |user|%>
+            <% if user.id != @current_user.id %>
+              <li>
+                <label class="checkbox-inline">
+                  <input type="checkbox" value="<%= user.id %>" onclick="filter_calendar(this)" class="task-checkbox" <%= asg_to.include?(user.id.to_s) ? "checked" : ""%>> <%= user.full_name.present? ? user.full_name : user.email%>
+                </label>
+              </li>
+            <% end %>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+    var filter = $("#calendar_filter_type").val();
+    var calendar = $('#task_calendar_view').fullCalendar({
+      header: {
+          left: 'today prev,next',
+          center: 'title',
+          right: 'agendaDay,agendaWeek,month'
+      },      
+      eventClick: function(data, event, view) {
+        var element = $(event.currentTarget);
+      },
+      eventRender: function(event, element, date ) {
+        $(".fc-event-inner").css('color','#000000');
+        element.find(".fc-event-title").css('margin-left', '4px');
+        element.attr('title', event.tip);    
+        data = event;
+        var content = '<h5>'+data.title+'</h5>' + '<table class="tip_table" style="font-size:12px;width:100%"><tbody><tr><td class="tip_label">Linked to:</td><td>'+data.linked_to+'</td></tr><tr><td class="tip_label">Name:</td><td>'+data.lead_info+'</td></tr><tr><td class="tip_label">Assigned to:</td><td>'+data.assign_to+'</td></tr><tr><td class="tip_label">Start Date:</td><td>'+data.start_date+'</td></tr><tr><td class="tip_label">Start Time:</td><td>'+data.start_time+'</td></tr><tr><td class="tip_label">Status:</td><td>'+data.status+'</td></tr><tr><td class="tip_label">Stage:</td><td>'+data.deal_status+'</td></tr><tr><td class="tip_label">Details:</td><td>'+data.details+'</td></tr></tbody></table>';
+          // '<div style="width: 100%; height: 1px; background-color: #ccc; margin: 2px 0px 4px 0px"></div><div style="margin-left: 2px;"><span><a href="'+data.lead_url+'" style="font-weight: bold" id="viewLink">View Task»</a></span></div>'
+          Tipped.create(element, content, {
+            // skin: 'light',
+            border: { size: 2, color: '#777777', opacity: 1 },
+            shadow: { opacity: .1 },
+            hideOn: 'click-outside',
+            maxWidth: 370,
+            width: 360,
+            radius: false,
+            close: true,
+            showOn: 'click',
+            onShow: function(content, element) {
+              $(element).addClass('highlight');
+            },
+            afterHide: function(content, element) {
+              $(element).removeClass('highlight');
+            }
+          });
+        element.find(".fc-event-time").html(event.start_time);
+        title = event.title
+        if(title.length > 7){
+          title = title.substring(0,7) + "..";
+        } 
+        element.find(".fc-event-title").html(title);
+        if(event.is_complete == true){
+         // element.css("text-decoration", " line-through");
+          element.find(".fc-event-time").before('<i class="fa fa-check" style="color:#2cbf55;margin-left: 2px;" aria-hidden="true"></i>');
+        }else{
+          element.find(".fc-event-time").before('<i class="fa fa-square" style="color:#b8b8b8;margin-left: 2px;" aria-hidden="true"></i>');
+        }
+        // $(".fc-day").css("height", "132px");
+        // element.find(".fc-event-time").before("<img rel='tooltip' src=" + event.img + "  class='img-circle' style='height:24px;width:24px;margin-right: 3px;' title="+ event.assign_to +" />");
+
+        // element.find(".fc-event-title").after("<div style='font-weight: bold;padding-right: 4px;'>" + event.tasktype + "</div>").after("<div > Assigned To: <span style='color:#fff;font-weight:bold;'> " + event.assign_to + "</span> </div>")
+        },
+        editable: true,
+        eventSources: [
+        // your event source
+          {
+            url: '/calendar_data.json',
+            type: 'POST',
+            data : {deal_type :"<%=escape_once(params[:deal_type])%>",asg_to : "<%=escape_once(params[:asg_to])%>",task_type: "<%=escape_once(params[:task_type])%>" , filter_type: filter},
+            beforeSend: function() {
+                $("#task_loader,.fixed_loader").show();
+            },
+            error: function() {
+                alert('there was an error while fetching events!');
+            },
+            complete: function() {
+              $("#task_loader,.fixed_loader").hide();
+              if(filter == "all"){
+                $('#spanfilterall').addClass('displaynone')
+                $('#spanfilterreset').removeClass('displaynone')
+              } else {
+                $('#spanfilterall').removeClass('fc-state-active')
+              }
+            },
+            textColor: 'white' // a non-ajax option
+          }
+          // any other sources...
+
+        ],timeFormat: 'H(:mm)'
+    });
+
+    $(document).on('click','.tpd-tooltip .in-entity-modal', function() {
+      if ($('#calendar').length !== 0) Tipped.hideAll();
+    });
+</script>
+

@@ -1,0 +1,540 @@
+/=render partial: "contact_slide_listing" 
+/=render partial: "contact_details"
+= javascript_include_tag "skypeCheck"
+= hidden_field_tag 'contact', 'contact'
+= javascript_include_tag "jquery.uploadfile.min"
+= stylesheet_link_tag "uploadfile.min"
+/ .white-sticky-header.fixed-in-app-header
+/   %span
+/     %span.navigation_sec
+/       %a{href: "/list_companies"}
+/         Organization
+/       ="/"
+/     %span.curr_page_name
+/       = @contact_name = @contact.name.present? ? @contact.name : @contact.email
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-down
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/tasks"} Company
+          %li.active
+            %span Company Details
+      %h2.font-light.m-b-xs Company
+      %small Company Details
+.contact_detail_page
+  .ling_mcnt
+    .row
+      .col-md-4
+        .hpanel.hgreen
+          .panel-body    
+            .contact_detail_top_sec
+              .pfl_contact_detail
+                .div
+                  - @name = @contact.class.name == "IndividualContact" ? (@contact.full_name.present? ? @contact.full_name : @contact.email) : @contact.name.present? ? @contact.name : @contact.email
+                  .fl.cont_det_row 
+                    - if @contact.image.present?
+                      .contactImage
+                        = image_tag @contact.image.image.url(:thumb)
+                    - else
+                      %span.cwkp-sprite.cont_comp_icn
+                  .fl.cont_basic_info
+                    %h2.font-bold.m-t-none{title:@name}
+                      = @name.truncate(15)
+                    %div 
+                      - if @contact.country.present?
+                        %span.cont_country{title: @contact.country.name.size > 20 ? "#{@contact.country.name}" : ""}
+                          = @contact.country.name.truncate(20)
+                      - else
+                        %span Not Available
+                      %span  
+                        ="|"
+                        = @contact.created_at.strftime("%a - %b %d, %Y %H:%M:%S %p")
+                  .cb
+                  / .fr{style: "margin-top:12px"}
+                  /   .cont_top_r
+                  /     - cont_owner = @contact.owner.present? ? @contact.owner : @contact.initiator
+                  /     - if cont_owner.present?  
+                  /       .cont_top_r.cont_owner_sec
+                  /         .cont_top_r
+                  /           - cont_owner_name = cont_owner.full_name.present? ? cont_owner.full_name : cont_owner.email
+                  /           = hidden_field_tag "cont_owner_id", cont_owner.id
+                  /           - if cont_owner.image.present?
+                  /             %span.user-profile
+                  /               %span.userImage
+                  /                 = image_tag cont_owner.image.image.url(:thumb), :alt=>"", :title => "#{cont_owner.full_name.present? ? cont_owner.full_name : (cont_owner.email.present? ? cont_owner.email : '')}"
+                  /           -else
+                  /             -if cont_owner_name.present?  
+                  /               .lead-details-page 
+                  /                 .cont_top_r  
+                  /                   %span.assn-pf-icon{style: "background: #{cont_owner.get_user_color_code(cont_owner_name.downcase[0])}"}
+                  /                     = cont_owner_name[0].upcase
+                  /         .cont_top_r{style:"position: relative;top: 3px;"}
+                  /           %span{title: "#{cont_owner_name}", style:"font-size:14px;display: inline-block;margin-bottom: 4px;"}
+                  /             = cont_owner_name.truncate(20)
+                  /           %br
+                  /           %span.lead_owner_txt 
+                  /             = "#{@cont_type} Owner"
+                  /       .cont_top_r.dropdown.lead_owner_action
+                  /         .dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                  /           %span.cwkp-sprite.new_arrow_down
+                  /         %ul.dropdown-menu.pull-right
+                  /           %li.arrow_top{style:"left: auto;right: 0;"}
+                  /           - @current_organization.users.by_active.each do |user|  
+                  /             %li
+                  /               - usr_name = user.full_name.present? ? user.full_name : user.email
+                  /               %a.user_nm{:href => "javascript:void(0)", title: usr_name, "data-uid" => user.id, "data-cid" => @contact.id} 
+                  /                 = usr_name.truncate(15)
+                  /             %li.divider
+                            
+
+                  /     .cb
+                  /   .cont_top_r.dropdown
+                  /     .cont_visibility_icn.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                  /       %span.cwkp-sprite.visibility_action
+                  /       %span.cwkp-sprite.new_arrow_down
+                  /     = hidden_field_tag "contact_visibility", "#{@contact.is_public}"
+                  /     %ul.dropdown-menu.pull-right{style:"min-width: 100px;"}
+                  /       %li.arrow_top{style:"left: auto;right: 0;"}
+                  /       %li 
+                  /         %a{href:"javascript:void(0)", onclick:"change_cont_visibility('true')"} 
+                  /           %span{class: "modal-radio"}  
+                  /             = radio_button_tag "is_public","true", @contact.is_public, id:"contact_is_public_true"
+                  /             %label{for: "contact_is_public_true"}
+                  /               %span   
+                  /               Everyone can see
+                  /       %li.divider 
+                  /       %li 
+                  /         %a{href:"javascript:void(0)", onclick:"change_cont_visibility('false')"} 
+                  /           %span{class: "modal-radio"}  
+                  /             = radio_button_tag "is_public","false", !@contact.is_public, id:"contact_is_public_false"
+                  /             %label{for: "contact_is_public_false"}
+                  /               %span   
+                  /               I can see
+                  /   .cont_top_r.dropdown
+                  /     .cont_more_icn.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                  /       %span.cwkp-sprite
+                  /     %ul.dropdown-menu.pull-right{style:"min-width: 100px;"}
+                  /       %li.arrow_top{style:"left: auto;right: 0;"}
+                  /       %li 
+                  /         =link_to "/edit_company_contact/#{@contact.to_param}", class: "grey_act", style:"font-size: 12px;text-decoration:none" do
+                  /           %span.glyphicon.glyphicon-edit
+                  /           ="Edit #{@cont_type}"
+                  /       %li.divider
+                  /       / %li 
+                  /       /   %a{href:"javascript:void(0)", onclick:"$('#confirmContactDelete').show();$('#contact_id_to_delete').val('#{@contact.id}');"}
+                  /       /     %span.glyphicon.glyphicon-trash
+                  /       /     = "Delete #{@cont_type}" 
+                  .cb
+        .hpanel.hgreen
+          .panel-body    
+            .contact_detail_left_sec.fl
+              .contact_detail_sec.cont_box
+                %h4.font-bold.m-t-none
+                  Details
+                  / - if @contact.class.name == "IndividualContact"  
+                  /   =link_to "/edit_individual_contact/#{@contact.to_param}", class: "grey_act", style:"font-size: 12px;text-decoration:none", title: "Edit" do
+                  /     %span.cwkp-sprite.cont_edit_icn      
+                .cont_det_row
+                  %p
+                    %strong
+                      = @contact.get_location
+                  %p
+                    %strong
+                      Company Size:
+                    - if @contact.present? && @contact.company_strength.present?
+                      %span.company_strength 
+                        = @contact.company_strength.range
+                    - else
+                      %span.company_strength
+                        Not Available
+                .contact_detail_cntr
+                  .prf_img
+                    - if @contact.present? && @contact.linkedin_url.present?
+                      - linkedin_url = @contact.linkedin_url.include?("http") ? @contact.linkedin_url : "http://" + @contact.linkedin_url
+                      =link_to linkedin_url, target: "_blank" do
+                        .fl.soc_links_lin{title: "#{@contact.linkedin_url}", rel: "tooltip"}
+                    -else
+                      .fl.soc_links_lin.n_active
+                    - if @contact.present? && @contact.facebook_url.present?
+                      - facebook_url = @contact.facebook_url.include?("http") ? @contact.facebook_url : "http://" + @contact.facebook_url
+                      =link_to facebook_url, target: "_blank" do
+                        .fl.soc_links_fb{title: "#{@contact.facebook_url}", rel: "tooltip"}
+                    -else
+                      .fl.soc_links_fb.n_active
+                    - if @contact.present? && @contact.twitter_url.present?
+                      - twitter_url = @contact.twitter_url.include?("http") ? @contact.twitter_url : "http://" + @contact.twitter_url
+                      =link_to twitter_url, target: "_blank" do
+                        .fl.soc_links_twt{title: "#{@contact.twitter_url}", rel: "tooltip"}
+                    -else
+                      .fl.soc_links_twt.n_active
+                    - if @contact.present? && @contact.messanger_id.present?
+                      - messanger_id = "skype:#{messanger_id}?call"
+                      =link_to messanger_id do
+                        .fl.soc_links_skype{title: "#{@contact.messanger_id}", rel: "tooltip"}
+                    -else
+                      .fl.soc_links_skype.n_active
+                    .cb
+                  %p
+                    - if @contact.present?
+                      %span.cwkp-sprite.website.fade_icn{:title => "Website"}
+                      - if @contact.website.present?
+                        %span.web_url.truncate_content{title: "#{@contact.website}"}
+                          -if @contact.website.include?("http" || "https")
+                            =link_to @contact.website, target: "_blank", :class => "cont_website" do
+                              =@contact.website
+                          -else
+                            =link_to "//"+@contact.website, target: "_blank", :class => "cont_website" do
+                              =@contact.website
+                      - else
+                        %span.web_url.cont_website
+                          Not Available
+                  %p
+                    %strong
+                      Mobile:
+                    - if @mobile_phone.present? && @mobile_phone.first.phone_no.present?
+                      %span.web_url.truncate_content
+                        = link_to @mobile_phone.first.phone_no, "skype:+" + @mobile_phone.first.phone_no + "?call", title: "Click to call", :class=>"cont_mobile"
+                    - else
+                      %span.web_url.cont_mobile
+                        Not Available
+
+                  %p  
+                    %strong
+                      Work Phone:
+                    - if @work_phone.present? && @work_phone.first.phone_no.present?
+                      %span.web_url.truncate_content
+                        =link_to  @work_phone.first.phone_no, "skype:+" + @work_phone.first.phone_no + "?call", title: "Click to call", :class => "cont_work_phone"
+                    - else
+                      %span.web_url.cont_work_phone
+                        Not Available    
+
+                  %p 
+                    %strong
+                      Created on: 
+                    = @contact.created_at.strftime("%a %d, %Y")
+                  %p
+                    %strong
+                      First Touch on:
+                    = @contact.created_at.strftime("%a %d, %Y")
+                  =link_to "+ Add Project", "javascript:void(0)", :onclick=>"$('#projectModal').modal('show');$('#project_linked_with').val('Organization');showHideTypeRelationProject('Organization');$('select#project_company_contact_id').val(#{@contact.id}).trigger('change');", :class =>"convert_to_project btn btn-outline btn-primary btn-sm"
+        .hpanel.hgreen
+          .panel-body    
+            .contact_detail_sec.cont_box
+              .contact_detail_head
+                .fl
+                  %h4.font-bold.m-t-none                 
+                    Linked Contacts
+                .fr 
+                  =link_to "#connectContactModal", "data-toggle" => "modal", :class => "btn btn-success btn-sm" do
+                    + Link Contact   
+                  / - curr_country_id = @contact.country.present? ? @contact.country.id : ''
+                  / - org_state = @contact.address.present? ? @contact.address.state : ''
+                  / - org_city = @contact.address.present? ? @contact.address.city : ''
+                  / =link_to "#contactModal", "data-toggle" => "modal", "onclick" => "$('#new-contact')[0].reset();$('#email_err_i').html('');$('#company_added_info_div').css('display','none');display_company_div('hide');$('#company_contact_id').val(#{@contact.id});$('.company-name-typeahead').val('#{@contact.name.present? ? @contact.name : @contact.email}').attr('disabled','disabled');$('#website').val('#{@contact.website}');$('#company_strength').val('#{@contact.company_strength_id}');$('#country').val(#{curr_country_id});prefill_extension('#{curr_country_id}','extension_for_contact','extension_contact_popup');select_country_state('#{curr_country_id}', '#{org_state}');$('#city').val('#{org_city}');", :class => "btn btn-success btn-sm" do
+                  /   + Link Contact   
+                .cb
+              .contact_detail_cntr
+
+                - if @individual_contacts.present?  
+                  - @individual_contacts.each do |contact|  
+                    .cont_det_row  
+                      - cont_name = contact.full_name.present? ? contact.full_name : (contact.email.present? ? contact.email : '')
+                      - if contact.image.present?
+                        %span.user-profile.cont_top_r.diblock
+                          %span.userImage
+                            = image_tag contact.image.image.url(:thumb), :alt=>"", :title => cont_name
+                      -else
+                        -if cont_name.present?  
+                          .lead-details-page.cont_top_r.diblock
+                            .cont_top_r.diblock 
+                              %span.assn-pf-icon{style: "background: #{Contact.get_color_code(cont_name.downcase[0])}"}
+                                = cont_name[0].upcase
+                      .cont_top_r.diblock{title:cont_name}
+                        = link_to cont_name.truncate(20), "/contact/#{contact.to_param}", :class => "link_cont_name"
+                -elsif @contact.secondary_companies.present?
+                  -@contact.secondary_companies.each do |secondary_company|
+                    -contact = secondary_company.individual_contact
+                    - if(contact.present?)
+                      .cont_det_row  
+                        - cont_name = contact.full_name.present? ? contact.full_name : (contact.email.present? ? contact.email : '')
+                        - if contact.image.present?
+                          %span.user-profile.cont_top_r.diblock
+                            %span.userImage
+                              = image_tag contact.image.image.url(:thumb), :alt=>"", :title => cont_name
+                        -else
+                          -if cont_name.present?  
+                            .lead-details-page.cont_top_r
+                              .cont_top_r.diblock
+                                %span.assn-pf-icon{style: "background: #{Contact.get_color_code(cont_name.downcase[0])}"}
+                                  = cont_name[0].upcase
+                        .cont_top_r.diblock{title:cont_name}
+                          = link_to cont_name.truncate(20), "/contact/#{contact.to_param}", :class => "link_cont_name"
+                - else
+                  .cont_not_found_err
+                    %p No people added to this organization
+                    
+            /- if@contact.present? && @contact.address && @contact.address.country
+            /  .cont_box
+            /    %a{href: "https://maps.google.com/maps?q=#{@contact.address.address},#{@contact.address.city},#{@contact.address.state},#{@contact.address.country.name}", target: "_blank"}
+            /      %img{src: "https://maps.google.com/maps/api/staticmap?&size=246x112&sensor=true&maptype=terrain&markers=size:small|color:red|#{@contact.address.address},#{@contact.address.city},#{@contact.address.state},#{@contact.address.country.name}", style: "max-height:400px; max-width: 100%;width: 100%;"}
+      .col-md-8
+        .hpanel.m-b-none
+          %ul.nav.nav-tabs
+            %li.active
+              %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "load_activity_cum_deals('company_info')", :class=> "company_info-tab"}
+                %span.fal.fa-user-alt
+                Info
+                
+            %li
+              %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "load_activity_cum_deals('deals')", :class=> "deals-tab"}
+                %span.fal.fa-briefcase
+                Opportunities
+            %li
+              %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "load_activity_cum_deals('quick_notes')", :class=> "quick_notes-tab"}
+                %span.fal.fa-sticky-note
+                Notes
+            %li
+              %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "load_activity_cum_deals('task_list')", :class=> "task_list-tab"}
+                %span.fal.fa-tasks
+                Tasks
+            %li
+              %a{"aria-expanded" => "false", "data-toggle" => "tab", href: "javascript:void(0)", onclick: "load_activity_cum_deals('projects')", :class=> "projects-tab"}
+                %span.fal.fa-suitcase
+                Projects
+          .panel-body.brd-top-0
+            .activity_cum_deals_div
+        .cb
+= render :partial => "shared/edit_popup_contact"
+#confirmContactDelete.WUSConfirmPopup
+  .confirm_content_sec
+    = form_tag "/delete_selected_contacts",  :class => "form",:method=>"post",:id=>"contact_delete", :remote => true do |f|
+      .confirm_body_sec
+        .confirm_close.confirm_close_btn{onclick:"$('#confirmContactDelete').hide()"} × 
+        .confirm_bo_icon
+          /%img{src:"/assets/new-ui/confirm_bo.png", alt:"confirm_bo"}
+        .confirm_msg_sec
+          = "Are you sure you want to delete the #{@contact.deals_contacts.present? ? "Lead" : "Contact"} ?"
+          %br
+            All the associated data would be lost.
+          = hidden_field_tag "contact_id_to_delete",""
+        .confirm_footer.text-right
+          = submit_tag "Ok", class: "confirm_ok btn", onclick:"$('#confirmContactDelete').hide()"
+          %a.confirm_cancel.confirm_close{href:"javascript:void(0)", onclick:"$('#confirmContactDelete').hide()"} Cancel
+= render :partial => 'contacts/connect_contact_popup'
+:javascript
+
+  $(function(){
+    load_activity_cum_deals('company_info');
+  });
+
+
+
+  function load_activity_cum_deals(data){
+    $(".cont_tabs a").removeClass("active");
+    $("."+data+"-tab").addClass("active");
+    if(data=="deals")
+      $("#moreActivity").hide();
+    else if(data=="deals")
+      $("#moreActivity").show()
+    else
+      $("#moreActivity").show()
+    action="/company_widget"
+    $.ajax({
+
+        type: "POST",
+
+        url: action,
+
+        dataType: 'json',
+
+        data: {tab_type: data, id: "#{escape_once(@contact.to_param) if @contact.present?}", contact_type: "#{escape_once(@contact.class.name) if @contact.present?}", type: "#{@contact.present? && escape_once(@contact.class.name) == 'CompanyContact' ? 'company' : 'individual'}"},
+
+        async: true,
+
+        beforeSend: function(){
+
+          $("#task_loader,.fixed_loader").show();
+
+        },
+
+        success: function(data)
+
+        {
+
+         
+
+        },
+
+        error: function(data) {
+
+          $("#task_loader,.fixed_loader").hide();
+
+        },
+
+        complete: function(data) {
+
+          $(".activity_cum_deals_div").html(data.responseText);
+
+          $("#task_loader,.fixed_loader").hide();
+          //initialize_tooltipster();
+        }
+
+    });
+
+  }
+
+
+  $('.cont_company_strength').on('change', function() {
+    var comp_strength = $(this).val();
+    $.ajax({
+      type: "POST",
+      url: "/update_company_info",
+      data: {id: "#{@contact.id}", data_val: comp_strength, data_field: "cont_company_strength"},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#task_loader,.fixed_loader").hide();
+        show_alert_message("success","Contact information updated successfully.")
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  })
+
+
+
+  // -------------
+  $(".lead_info_fields input").attr("readonly","readonly");
+  $(".edit_cont_field").click(function(){
+    $(".edit_cont_field").hide();
+    $(this).next(".save_cancel_btn_sec").show();
+    $(this).parent(".lead_info_fields").find("input").removeAttr("readonly").focus();
+  })
+  $(".lead_info_fields").on("mouseover", function(){
+    if($(".save_cancel_btn_sec").is(':visible')){
+      $(".edit_cont_field").hide();
+    }else{
+      $(this).closest(".lead_info_fields").find(".edit_cont_field").show();
+    }
+  })
+  $(".lead_info_fields").on("mouseout", function(){
+    $(".edit_cont_field").hide();
+  })
+  $(".cont_cancel_btn").click(function(){
+    var txt_field = $(this).closest(".lead_info_fields").find("input");
+    txt_field.attr("readonly","readonly").val(txt_field.data("value"));
+    $(".save_cancel_btn_sec").hide();
+  })
+  $(".cont_save_btn").click(function(){
+    var text_field = $(this).closest(".lead_info_fields").find("input");
+    text_field.attr("readonly","readonly");
+    $(".save_cancel_btn_sec").hide();
+    var data_val = text_field.val();
+    var data_field = text_field.prop("name");
+    alert(data_val + ":" + data_field)
+    if(text_field.val() != text_field.data('value')){
+      $.ajax({
+        type: "POST",
+        url: "/update_company_info",
+        data: {id: "#{@contact.id}", data_val: data_val, data_field: data_field},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          $("#task_loader,.fixed_loader").hide();
+          text_field.data("value", data_val);
+          show_alert_message("success","Contact information updated successfully.")
+        },
+        error: function(data) {
+          text_field.val(text_field.data("value"));
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  })
+
+  function set_default_field(name,email){
+    $("#deal_first_name").val(name);
+    $("#deal_email").val(email);
+  }
+
+  $(".user_nm").click(function(){
+    var user_id = $(this).data('uid');
+    var contact_id = $(this).data('cid');
+    var cont_owner_id = $("#cont_owner_id").val();
+    if(cont_owner_id != user_id){
+      $(".confirm_msg_sec").css("top","5px");
+      $(".confirm_ok").html("Yeah! Let's do it.");
+      $(".confirm_cancel").html("Changed My Mind.");
+      wus_confirm('Are you sure you want to change the ownership of this organization?', function (confirmed){
+        if(confirmed){
+          $.ajax({
+            type: "POST",
+            url: "/change_company_ownership",
+            data: {user_id: user_id, contact_id: contact_id},
+            beforeSend: function(){
+              $("#task_loader,.fixed_loader").show();
+            },
+            error: function(data) {
+              $("#task_loader,.fixed_loader").hide();
+            },
+            complete: function(data) {
+              $(".cont_owner_sec").html(data.responseText);
+              $("#cont_owner").val($("#cont_owner_name").val());
+              show_alert_message('success', 'Ownership changed successfully.');
+              $("#task_loader,.fixed_loader").hide();
+            }
+          });
+        }
+      })
+    }  
+  })
+
+  $(function(){
+    $("#contact_delete").bind("ajax:complete", function(evt, data, status, xhr){
+      if(data.responseText == "success"){
+        show_alert_message("success", "#{@cont_type} and it's associated data has been deleted successfully.")
+        if("#{@cont_type}" == "Lead"){
+          window.location.href = "/leads";      
+        }else{
+          window.location.href = "/contacts";
+        }
+      }
+    });
+  })
+
+
+
+  function change_cont_visibility(val){
+    if( $("#contact_visibility").val() != val){
+      $.ajax({
+        type: "POST",
+        url: "/change_cont_visibility",
+        data: {id: "#{@contact.id}", is_public: val},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          $("#contact_visibility").val(val);
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","The visibility of this #{@cont_type} has been changed.")
+        },
+        error: function(data) {
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  }

@@ -1,0 +1,297 @@
+<link rel="stylesheet" type="text/css" href="/assets/org_pages.css">
+<style type="text/css">
+	.quick-instal-pg {
+	    padding: 40px 0;
+	    background: #EEF0F1;
+	}
+	.free-download-container{position:relative;text-align: center;font-family: "Roboto";min-height:400px;}
+	.free-download-container h1{font-family: 'Roboto';position: relative;font-size: 44px;color: #333333;margin: 0px;padding: 0px;padding-top: 48px;margin-bottom: 17px;}
+	.name_dl_osc, .mail_dl_osc { width: 100%;}
+	.e-mail{width:380px;font-size:20px;outline: none;}
+	.name{font-size: 20px;outline: none;}
+	.dwnd-btn-nx{text-align: center;}
+	.dwnd-btn-nx a{vertical-align:middle;padding: 15px 20px;margin-bottom: 7px;display: block;background: #078cff;border-radius: 4px;font-size: 22px;max-width: 450px;margin: 0px auto;}
+	.dwnd-btn-nx a:hover{-webkit-box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);-moz-box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);}
+	.name:focus, .e-mail:focus{border: #71ceae 2px solid;}
+	#contact_response_msg_dwn{position: absolute;padding:15px 20px;top:10px;left:24%;}
+	.width-49{width:49%;min-height:200px;padding: 20px;box-sizing:border-box;text-align: center;}
+	.installs-guide{padding: 20px 0px 0px;background: #F4F5F8}
+	.install-platform li{padding-left: 32px;line-height: 40px}
+	.install-platform li a{color:#333;}
+	.install-platform li a:hover{color:#333;}
+	.requirements ul{padding-left: 20px;}
+	ul.install-platform {display: inline-block;text-align: left;}
+	.requirements ul li ul li{line-height:30px;}
+	.requirements > ul > li{margin-bottom: 14px}
+	.requirements ul {padding-left: 20px;display: inline-block;text-align: left;}
+	.requirements > ul > li:last-child{margin-bottom: 0px}
+	.brd{border-right:1px solid #c3c4c6;}
+	.circle-img{width:43%;padding: 32px 20px 20px;box-sizing:border-box; text-align: center;display: table-cell;font-size: 15px;}
+	.a-quest-content{width:49%;padding: 20px;box-sizing:border-box; text-align: center;display: table-cell;vertical-align: middle;}
+	.circle-img img{width:40%;}
+	.circle-img h3{font-size: 30px;text-align: center;margin-top: 0px;}
+	.circle-img p{text-align: center;font-size: 15px;}
+	.a-quest-content img{width:10%;border-radius: 50%;-moz-border-radius: 50%;-webkit-border-radius: 50%;vertical-align: bottom;}
+	.a-quest-content div:first-child a img:hover{-webkit-box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);-moz-box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);box-shadow: -1px 7px 22px -4px rgba(0,0,0,0.75);}
+	.a-quest-content h3{font-size: 30px;text-align: center;margin-top: 25px;}
+	.a-quest-content p{text-align: center;font-size: 15px;}
+	.help-pages a{color:#333;text-decoration: underline;}
+	.help-pages a:hover{text-decoration: none}
+	.help-pages{text-align: center;margin-top:20px;font-size: 15px;}
+	.list-setup{font-size: 22px;line-height: 20px;margin-top: 0px;font-weight: bold;}
+	.a-quest-cont{display: table}
+	#loader-index + small{margin-top: 7px;text-align: center;display: block;font-size: 16px;color:grey;}
+	.run{color:#078cff;font-size: 27px;position: relative;margin-bottom: 17px;}
+	.run sup{font-size: 10px;position: absolute;}
+	.dwnd-btn-nx a{position: relative;}
+	.dwnd-icon{display: inline-block;margin-right: 17px;vertical-align: middle;}
+	.a-quest-content a {margin-right: 5px;}
+
+</style>
+<div class="top_mid_bg_shadow1 free_download_page" style="font-family:'Roboto'">
+	<div class="mid_content">
+		<div class="cb"></div>
+		<div class="free-download-container">
+			<div class="wrapper">
+				<div id="contact_response_msg_dwn"></div>
+				<h1>Download the Easiest CRM Tool, Completely FREE !</h1>
+				<p class="run">Marching towards 100,000<sup>th</sup> &nbsp;Download.</p>
+				<p class="lat-ver">Streamline your Sales Activities & Lead Management, with WakeUpSales v4.0. It's Free!</p>
+ 			   	<form name="download" id="download" method="post" action="javascript:void(0);">
+					<div class="mail_dl_osc">
+						<input type="text" placeholder="Name" id="name" name="name" title="Name" class="name" style="height: 50px;padding: 10px;width:380px;border: 1px solid #aaa;"/>&nbsp;&nbsp;
+						<input type="text" placeholder="Email" id="email" name="data[Opensource][email]" autocomplete="off" title="Email" class="e-mail" style="height: 50px;padding: 10px;border: 1px solid #aaa;" />
+					</div>
+					<div class="dwnd-btn-nx" id="free_download_btn">
+						<a href="javascript:void(0);" onClick="validateDownload();" style="color:#fff;text-decoration:none"><img class="dwnd-icon" height="30px" width="30px" src="/assets/org_page/ecommerce.png" alt="↧"/>Download Now</a> 
+					</div> 
+					<input type="hidden" name="data[Opensource][gmt_offset]" id="gmt_offset" value="" />	
+					<div id="loader-index" style="display:none; text-align:center;margin-top:15px;">
+						<img src="img/loader.gif" alt="loader">
+					</div>
+					<small>No time limits. No spam. No intrusive ads.</small>
+				</form>
+			</div>	
+		</div>
+	</div>
+	<section class="our_dl_journey_section">
+		<h2 class="color-333">OUR DOWNLOAD JOURNEY</h2>
+		<div class="our_dl_journey">
+			<div class="container">
+			<ul>
+				<li class="one">OK</li>
+				<li class="two">1K</li>
+				<li class="threee">2K</li>
+				<li class="four" rel="tooltip" title="">3K</li>
+				<li class="five">4K</li>
+				<li class="six">5K</li>
+				<li class="seven">10K</li>
+				<li class="eight">25K</li>
+				<li class="nine">40K</li>
+				<li class="ten">55K</li>
+				<li class="eleven">70K</li>
+				<li class="tweleve">85K</li>
+				<li class="thirteen">100K</li>
+			</ul>
+		</div>
+		</div>
+	</section>
+	<div class="installs-guide">
+		<div class="wrapper">
+			<div class="width-49 brd fl">
+				<h2 class="list-setup">View Installation Guides</h2>
+						<ul class="install-platform" style="list-style-type:none;">
+							<li class="linux">
+								<a href="/opensource/setup-linux" style="outline:none;line-height:30px;">WakeUpSales on Linux</a>
+							</li>
+							<li class="win">
+								<a href="/opensource/setup-windows"  style="outline:none;line-height:30px;">WakeUpSales on Windows</a>
+							</li>
+							<li class="mac">
+								<a href="/opensource/setup-mac" style="outline:none;line-height:30px;">WakeUpSales on Mac</a>
+							</li>
+							<li class="doc">
+								<a href="/opensource/setup-docker"  style="outline:none;line-height:30px;">WakeUpSales on Docker</a>
+							</li>
+							<li class="cus">
+								<a href="/opensource/customization"  style="outline:none;line-height:30px;">Customize WakeUpSales</a>
+							</li>
+							<li class="google">
+								<a href="/opensource/google_calendar"  style="outline:none;line-height:30px;">How to Sync google calendar</a>
+							</li>
+							<li class="centos">
+								<a href="/opensource/setup-centos"  style="outline:none;line-height:30px;">WakeUpSales on CentOS</a>
+							</li>
+						</ul>
+			</div>
+			<div class="width-49 fl">
+				<div class="requirements">
+						<ul>
+							<li><h4>Hardware Requirements:</h4>
+								<ul style="list-style-type:none;">
+									<li>RAM: minimum 2 GB</li>
+									<li>Processor: Core2duo or Higher</li>
+									<li>OS: Windows/Linux/Mac</li>
+									<li>Disk Space: 10 GB or Higher</li>
+								</ul>
+							</li>
+							<li><h4>Software Requirements:</h4>
+								<ul style="list-style-type:none;">
+									<li>Ruby: 2.0</li>
+									<li>Rails: 3.2.13</li>
+									<li>MySql</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+			</div>
+			<div class="cb"></div>
+		</div>
+	</div>
+
+	<section>
+	  	<div class="quick-instal-pg">
+	  		<a href="/opensource/community-installation-support"><img src="/assets/org_page/need-professional help-banner.jpg" alt="quick installation banner image" /></a>
+	  	</div>
+	</section>
+
+	<div class="a-ques">
+		<div class="wrapper a-quest-cont">
+			<div class="circle-img">
+				<img src="/assets/org_page/help.png" alt="help">
+				<h3>Any Questions?</h3>
+				<p>We're here to help</p>
+				<div class="help-pages">
+					<a href="https://calendly.com/support-wakeupsales/demo_walkthrough/10-17-2017?back=1" target="_blank">Schedule a Call</a>
+				</div>
+			</div>
+			<div class="a-quest-content">
+				<div><a href="mailto:support@parkpointsoftware.com"><img src="/assets/org_page/email.png" alt="Email"></a><a target="_blank" href="https://www.facebook.com/wakeupsales/"><img src="/assets/org_page/facebook.png" alt="Facebook"></a><a target="_blank" href="https://www.linkedin.com/company-beta/13247372/"><img src="/assets/org_page/linkedin.png" alt="LinkedIn"></a><a target="_blank" href="https://twitter.com/wakeupsales"><img src="/assets/org_page/twitter.png" alt="Twitter"></a></div>
+				<h3>We're also active on the Web</h3>
+				<p class="get_in_touch">Let's get in touch</p>
+				<div class="help-pages">
+					<a href="mailto:support@parkpointsoftware.com">Email</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a target="_blank" href="https://www.facebook.com/wakeupsales/">Facebook </a>&nbsp;&nbsp;|&nbsp;&nbsp;<a target="_blank" href="https://www.linkedin.com/company-beta/13247372/">LinkedIn</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a target="_blank" href="https://twitter.com/wakeupsales">Twitter </a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="thank-you-container">
+	<div><img src="/assets/org_page/bo_panda.png" alt="bo face"></div>
+	<div><img style="margin-top: 20px;" src="/assets/org_page/green_tick.png" alt="green tick"></div>
+	<h1>Thank You</h1>
+	<p class="top_sub_title">Thanks for your Interest. Please check your inbox for the Download link.</p>
+</div>
+<div class="top_mid_bg_shadow1 free_download_page inst_supp" style="font-family:'Roboto'">    
+    <div class="installs-guide">
+		<div class="wrapper">
+			<div class="width-49 brd fl">
+				<h2 class="list-setup">View Installation Guides</h2>
+						<ul class="install-platform" style="list-style-type:none;">
+							<li class="linux">
+								<a href="/opensource/setup-linux" style="outline:none;line-height:30px;">WakeUpSales on Linux</a>
+							</li>
+							<li class="win">
+								<a href="/opensource/setup-windows"  style="outline:none;line-height:30px;">WakeUpSales on Windows</a>
+							</li>
+							<li class="mac">
+								<a href="/opensource/setup-mac" style="outline:none;line-height:30px;">WakeUpSales on Mac</a>
+							</li>
+							<li class="doc">
+								<a href="/opensource/setup-docker"  style="outline:none;line-height:30px;">WakeUpSales on Docker</a>
+							</li>
+							<li class="cus">
+								<a href="/opensource/customization"  style="outline:none;line-height:30px;">Customize WakeUpSales</a>
+							</li>
+						</ul>
+			</div>
+			<div class="width-49 fl">
+				<div class="requirements">
+						<ul>
+							<li><h4>Hardware Requirements:</h4>
+								<ul style="list-style-type:none;">
+									<li>RAM: minimum 2 GB</li>
+									<li>Processor: Core2duo or Higher</li>
+									<li>OS: Windows/Linux/Mac</li>
+									<li>Disk Space: 10 GB or Higher</li>
+								</ul>
+							</li>
+							<li><h4>Software Requirements:</h4>
+								<ul style="list-style-type:none;">
+									<li>Ruby: 2.0</li>
+									<li>Rails: 3.2.13</li>
+									<li>MySql</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+			</div>
+			<div class="cb"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+	function validateDownload() {
+		// var name = $.trim($("#name").val());
+		var email = $.trim($("#email").val());
+		var name = $.trim($("#name").val());
+		var gmt_offset = $.trim($("#gmt_offset").val());
+		
+		var pattern = /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i 
+		if(email == "") {
+			$("#name").removeClass("error-border");
+			$("#email").addClass("error-border");
+			$("#email").focus();
+			return false;
+		} else if(!pattern.test(email)) {
+			// $("#name").removeClass("error-border");
+			$("#email").addClass("error-border");
+			$("#email").focus();
+			return false;
+		}
+		$("#email").removeClass("error-border");
+		
+		$.ajax({
+	      beforeSend: function() {
+			//$("#free_download_btn").hide();
+			$("#free_download_btn").attr("disabled", "disabled");
+			$('#task_loader,.fixed_loader').show();
+	      },
+	      type: "POST",
+	      url: "/download_community_file",
+	      data: {name: name, email: email },
+	      success: function(data){   
+		    if(data == "success"){
+		        $('#task_loader,.fixed_loader').hide();
+		        $(".free_download_page").hide();
+		        $(".thank-you-container").show();
+		        $(".inst_supp").show();
+
+		    }else{
+		    	$('#task_loader,.fixed_loader').hide();
+	        	show_alert_message("danger", "Opps! Something went wrong.");
+	        	$("#free_download_btn").removeAttr("disabled");
+		    }
+	      },
+	      error: function(data){
+	        $('#task_loader,.fixed_loader').hide();
+	        show_alert_message("danger", "Opps! Something went wrong.");
+	        $("#free_download_btn").removeAttr("disabled");
+	      }
+	      
+	    });
+
+		$.post(
+			"http://blog.wakeupsales.com/auto_subscription_blog.php",
+			{email:email,domain:'community'},
+			function(data) {
+				if(data == "success") {
+					console.log(data);
+				} else {
+
+				}
+			}
+		);
+	}
+</script>

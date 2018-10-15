@@ -1,0 +1,50 @@
+#googleCalendarModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog
+    .modal-content
+      #form_content
+        .color-line
+        .modal-header
+          - session[:non_authenticate] = true
+          %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title
+            Google Authenticate
+        .modal-body          
+          .socl-signup
+            %ul.socl-btn.fl{style:"margin-top:-2px"}
+              %li
+                Please authenticate your google account to synchronise WakeUpSales CRM tasks with google calendar.
+              .cb
+          %div
+            .fl.vi-google{:onclick => "social_authenticate('/auth/google_oauth2')", style:"margin-top:0"}
+            .fr  
+              %a{href: "#", "aria-hidden" => "true","onclick" => "update_google_task_sync('never'); $('#googleCalendarModal').modal('hide');"}
+                %buttton.btn.btn-default.fr
+                  No, thanks
+              %a{href: "#", "aria-hidden" => "true","onclick" => "update_google_task_sync('next_day'); $('#googleCalendarModal').modal('hide');"}
+                %buttton.btn.btn-default.fr
+                  Remind me later
+            .cb
+
+:javascript
+  function social_authenticate(auth_url){
+    window.location.href = auth_url;
+  }
+
+  function update_google_task_sync(type){
+    $.ajax({
+      type: "POST",
+      url: "/update_google_task_sync",
+      data: {type: type},
+      beforeSend: function(){
+        
+      },
+      success: function(data)
+      {
+        window.location.reload();
+      },
+      error: function(data) {
+        $("#googleCalendarModal").modal("hide");
+      }
+    });
+  }

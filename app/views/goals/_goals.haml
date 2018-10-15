@@ -1,0 +1,216 @@
+- gl = @goal
+- if gl.present?
+  .row
+    .col-md-6
+      .hpanel
+        .panel-body
+          %b Assigned to:
+          = gl.user.present? ? (gl.user.full_name.present? ? gl.user.full_name : gl.user.email) : ""
+          %div
+            %b Actions:
+            -if gl.goal_type == 'quantity of deals'
+              -@deal_na = @current_organization.deal_statuses.where("id = ?",gl.deal_stage_id).first
+              ="Should move #{gl.quantity_deal} opportunity into #{@deal_na.name} In every 1 #{gl.period}"
+            -elsif gl.goal_type == 'value of deals'   
+              -@deal_na = @current_organization.deal_statuses.where("id = ?",gl.deal_stage_id).first
+              ="Should move #{gl.currency} #{gl.quantity_deal.present? ? number_to_currency(gl.quantity_deal.to_f, precision: 0).gsub("$", "") : 0} worth opportunity into #{@deal_na.name} In every 1 #{gl.period}"
+            -elsif gl.goal_type == 'quantity of deals won'
+              ="Should close #{gl.quantity_deal} opportunity In every 1 #{gl.period}"   
+            -elsif gl.goal_type == 'value of deals won'
+              ="Should close #{gl.currency} #{gl.quantity_deal.present? ? number_to_currency(gl.quantity_deal.to_f, precision: 0).gsub("$", "") : 0} opportunity In every 1 #{gl.period}"
+          %div
+            %b Started from:
+            = gl.created_at.strftime("%b %d %Y")
+  - if @goals.present?
+    - @st = gl.created_at.strftime("%Y-%m-%d")
+    - @total_deals_value=0
+    - @total_archived = 0
+    .row
+      .col-md-6
+        .hpanel
+          .panel-body
+            .total-profile-no
+              %div
+                /- achieved_chart = (@total_archived.to_f / @total.to_f * 100.0).round
+                %span.goal-chart.load-percent{"data-percent" => ""}
+                  %span.percent.total_goal_percent
+                    /= achieved_chart > 100 ? 100 : achieved_chart
+              %div
+                - if gl.goal_type == 'value of deals won'  || gl.goal_type == 'value of deals'
+                  - cls = "width:80px;"
+                - else
+                  - cls = "width:60px;"
+                %span.count-bx{:title => "Total", :style => cls}
+                  - if gl.goal_type == 'value of deals won'  || gl.goal_type == 'value of deals'
+                    =gl.currency
+                  %span.total-deals-count
+                    = @total
+                  %small
+                    Target
+                %span.count-bx{:title => "Achieved", :style => cls}              
+                  - if gl.goal_type == 'value of deals won'  || gl.goal_type == 'value of deals'
+                    =gl.currency
+                    %span.total-archived-count
+                      =@total_deals_value.round
+                  - else
+                    %span.total-archived-count
+                      = @total_deals_value
+                  %small.won
+                    Achieved
+                .cb
+    .row
+      .col-md-6
+        .hpanel
+          .panel-body
+            .table-responsive
+              %table.table.white-table.table-hover.table-striped
+                %thead
+                  %tr
+                    %th Period
+                    %th Target
+                    %th Achieved
+                    %th Carry forwarded
+                %tbody
+                  - if gl.period == 'Week'
+                    - week_cnt = Date.parse(@st).step(Date.today, 7).count
+                    - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                      - cnt = week_cnt
+                    - else
+                      - cnt = week_cnt #+ 1
+                    - if ((Date.parse(@st).beginning_of_week + (week_cnt-1).weeks).at_end_of_week) <= Date.today
+                      - cnt = week_cnt + 1
+
+                    - @carry_forward = 0
+                    /- @previous = 0
+                    - i=0
+                    - (1..cnt).each do |goal|
+                      - if i > 0
+                        - startdate = Date.parse(@st).beginning_of_week + i.weeks
+                      - else
+                        - startdate = Date.parse(@st)
+                      - if gl.goal_type == 'value of deals won'  || gl.goal_type == 'value of deals'
+                        - @deals_value = deals_value(params[:user_id].present? ? params[:user_id].to_i : @current_user.id,startdate,startdate.end_of_week,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'value of deals won' ? "won" : "value")
+                      - else
+                        - @deals_value = deals_count(params[:user_id].present? ? params[:user_id].to_i : @current_user.id,startdate,startdate.end_of_week,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'quantity of deals won' ? "won" : "value")
+                      %tr
+                        /- @carry_forward = @goal.quantity_deal - @deals_value
+                        /- if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                        /  - @carry_forward = @goal.quantity_deal - @deals_value
+                        /- @previous += @carry_forward
+                        /- else
+                        /  - @carry_forward = @goal.quantity_deal - @deals_value
+                        /- @previous += @carry_forward
+                        %td
+                          = startdate.strftime("%d/%m").to_s + "-" + startdate.at_end_of_week.strftime("%d/%m").to_s
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                          - if i > 0
+                            - @last_target = (@goal.quantity_deal+@carry_forward).round                      
+                          - else
+                            - @last_target = @goal.quantity_deal.round
+                          = @last_target
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                            - @last_archived=@deals_value.round
+                          - else
+                            - @last_archived=@deals_value.round
+                          = @last_archived
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                          - carry_balance = @last_target - @last_archived
+                          - @carry_forward =  carry_balance < 0 ? 0 : carry_balance
+                          = @carry_forward
+                      - i += 1
+                  - elsif gl.period == 'Month'
+                    -@st_mn = gl.created_at.to_date
+                    -mnt_cnt = (Date.today.year * 12 + Date.today.month) - (@st_mn.year * 12 + @st_mn.month)
+                    /-mnt_cnt = Date.parse(@st).step(Date.today, 12).count
+                    - j = 0
+                    - @carry_forward = 0
+                    - @previous = 0
+                    /-if mnt_cnt == 0
+                    /  -mnt_cnt = 1
+                    - if ((Date.parse(@st).beginning_of_month + (mnt_cnt-1).months).at_end_of_month) <= Date.today
+                      - mnt_cnt = mnt_cnt + 1
+                    - (1..mnt_cnt).each do |goal|
+                      - if j > 0
+                        - startdate = Date.parse(@st).beginning_of_month + j.months
+                      - else
+                        - startdate = Date.parse(@st)
+                      - if gl.goal_type == 'value of deals won'  || gl.goal_type == 'value of deals'
+                        - @deals_value = deals_value(params[:user_id].present? ? params[:user_id].to_i : @current_user.id,startdate,startdate.end_of_month,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'value of deals won' ? "won" : "value")
+                      - else
+                        - @deals_value = deals_count(params[:user_id].present? ? params[:user_id].to_i : @current_user.id,startdate,startdate.end_of_month,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'quantity of deals won' ? "won" : "value")
+                      %tr
+                        / - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                        /   = @deals_value
+                        /   - @carry_forward = @goal.quantity_deal - @deals_value
+                        /   - @previous += @carry_forward
+                        / - else
+                        /   - @carry_forward = @goal.quantity_deal - @deals_value
+                        /   - @previous += @carry_forward
+                        %td
+                          = startdate.strftime("%d/%m").to_s + "-" + startdate.at_end_of_month.strftime("%d/%m").to_s
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                          - if j > 0
+                            - @last_target = (@goal.quantity_deal+@carry_forward).round                      
+                          - else
+                            - @last_target = @goal.quantity_deal.round
+                          = @last_target
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                            - @last_archived=@deals_value.round
+                          - else
+                            - @last_archived=@deals_value.round
+                          = @last_archived
+                        %td
+                          - if gl.goal_type == 'value of deals won' || gl.goal_type == 'value of deals'
+                            = gl.currency
+                          - carry_balance = @last_target - @last_archived
+                          - @carry_forward =  carry_balance < 0 ? 0 : carry_balance
+                          = @carry_forward
+                      - j += 1
+  :javascript
+    /* Goal total and achieved chat */
+    var percentage = parseInt("#{(@last_archived.to_f / @last_target.to_f * 100.0) > 100 ? 100 : (@last_archived.to_f / @last_target.to_f * 100.0)}") || 0; 
+    $(function() {
+      $('.goal-chart').easyPieChart({
+        easing: 'easeOutBounce',
+        onStep: function(from, to, percent) {
+          $(this.el).find('.percent').text(percentage);
+        },
+        lineWidth: 5,
+        barColor: "#718AF9",
+        trackColor: "#DCDCDC"
+      });
+      var chart = window.chart = $('.goal-chart').data('easyPieChart');
+      $('.js_update').on('click', function() {
+        chart.update(Math.random()*200-100);
+      });
+    });
+    $('.total-deals-count').text(#{@last_target});
+    $('.total-archived-count').text(#{@last_archived});
+    $('.load-percent').attr("data-percent",percentage);
+    $('.total_goal_percent').text(percentage);
+
+    $('.goal-chat-load').on('click', function() {
+      setTimeout(function() {
+        var total_goal_percent = $(".total_goal_percent").text();
+        $('.goal-chart').data('easyPieChart').update(total_goal_percent);
+      }, 2000);
+    });
+- else
+  .col-md-12
+    .cont_box{style: "text-align:center;"}
+      %p
+        %h5
+          - if @current_user.is_admin?
+            You do not have any goal set.
+          - else
+            You do not have any goal set. Contact admin to set your goal.

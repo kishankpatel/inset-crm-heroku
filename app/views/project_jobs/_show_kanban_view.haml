@@ -1,0 +1,82 @@
+.top-kanban-bar.white-sticky-header.fixed-in-app-header
+  
+  .fl.filter_by_user_pipeline
+    .fl.job-stage  
+      - if @current_user.is_admin?  
+        %label{for: "filter_by_project_user"}
+          Assigned User
+        = select_tag "filter_by_project_user", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]} + ['All'], :selected => type == 'project_specific' ? @current_user.id : 'All'),:class=>"apply_filter filter_user js-source-states width200", :disabled => @current_user.is_user?
+      -if(type == 'project_specific')
+        = hidden_field :project_id, @project.id,:id=>"filter_project_id",:value=>@project.id
+      -else
+        %label{for: "filter_project_id"}
+          Project
+        = select_tag "filter_project_id", options_for_select(@current_organization.projects.collect {|c| [ c.name, c.id ]} + ['All'],:selected=>'All'),:class=>"apply_filter filter_project js-source-states width200", :disabled => @current_user.is_user?
+      = "Showing jobs updated in last 7 days"
+    .cb
+    
+    .cb
+  -if(type == 'project_specific')
+    .fr.actions_pipeline
+      %span 
+        %a{href: "/projects/#{@project.id}/jobs?type=all", title: "Show List view"}
+          %span.link_to_list_view.cwkp-sprite.list_view-icon
+      
+  .cb
+
+.kanban_view
+  -if(kanban_type == 'status')
+    = render partial: "get_kanban_view",:locals=>{:type=>type}
+  -else
+    = render partial: "get_project_stage_kanban_view",:locals=>{:type=>type}
+
+= render :partial => "tab_settings_kanban"
+=hidden_field_tag :kanban_type,type
+:javascript
+  //show_kanban_view();
+  $("#filter_by_project_user").on('change',function(){
+    show_kanban_view()
+  });
+  $("#filter_project_id").on('change',function(){
+    
+    // var project_id = $("#filter_project_id").val();
+    // var user_id = $("#filter_by_project_user").val()
+    // var s_type = $(".leadtype.active").text();
+    // $.ajax( {
+    //   type: "GET",
+    //   url: "/project_jobs/get_kanban_view",
+    //   data: {user_id: user_id, project_id: project_id,type: $('#kanban_type').val() },
+    //   success: function(result) {
+    //     $(".kanban_view").html(result);
+    //     $("#task_loader,.fixed_loader").hide();
+    //   },
+    //   error: function(res) {
+    //       alert("Some error has been occured.");
+    //       $("#task_loader,.fixed_loader").hide();
+    //   }
+    // });
+    show_kanban_view()
+  });
+  // $('.btn-toggle').click(function() {
+  //   $(this).find('.btn').toggleClass('active');
+  //   if ($(this).find('.btn-primary').size()>0) {
+  //     $(this).find('.btn').toggleClass('btn-primary');
+  //   }
+  //   $(this).find('.btn').toggleClass('btn-default');
+  //   var s_type = $(".projecttype.active").text();
+  //   $("#task_loader,.fixed_loader").show();
+  //   var user_id = $("#filter_by_user").val();
+  //   $.ajax( {
+  //     type: "GET",
+  //     url: "/projects/get_kanban_view",
+  //     data: {user_id: user_id, open_all_type: s_type},
+  //     success: function(result) {
+  //       $(".kanban_view").html(result);
+  //       $("#task_loader,.fixed_loader").hide();
+  //     },
+  //     error: function(res) {
+  //       alert("Some error has been occured.");
+  //       $("#task_loader,.fixed_loader").hide();
+  //     }
+  //   });
+  // });

@@ -1,0 +1,549 @@
+!!!
+%html{lang: "en"}
+  %head
+    - if request.fullpath.include? "sign-in"
+      - @title = "InSet CRM | Client Management Software"
+      - @description = "Registered user can sign in to InSet CRM the free CRM tool using their personal credentials. User can also sign in using Google+ and LinkedIn social accounts."
+      - @keywords = "free crm, crm tool, best crm tool, best crm app, free crm app, crm software, free crm tool, best free crm, free crm software, best crm software, cloud crm software, lead management tool, lead management app, client management tools, free lead management tool, lead management software, client management software, customer management system, free lead management software, customer management software, crm customer relationship management, crm for small business, cloud crm, crm application, top crm software, lead tracking software, free crm tools, best crm tools, best crm for sales, free cloud crm software, Cloud CRM Tool, Free Cloud CRM Tool, Free Cloud CRM app, Self-hosted, CRM for startups"  
+    %meta{charset: "utf-8"}
+    %meta{content: "IE=Edge", "http-equiv" => "X-UA-Compatible"}
+    %meta{content: @description.present? ? @description : "InSet CRM is the best free CRM tool to streamline the sales activities, manage leads, create powerful customer relationships and improve the productivity with CRM Solution.", name: "description"}
+    %meta{content: @keywords.present? ? @keywords : "free crm software, best crm software, client management software, customer management software, lead management software, customer management system, free lead management tool, free crm tool, cloud crm software, lead management tool, free crm app, crm software, best free crm, free crm, contact management software, free lead management software, Lead Management crm tool, client relationship management, free crm solution, cloud crm Tool, Free cloud crm tool, relationship management, customer management, crm", name: "keywords"}
+    %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+    %title 
+      = @title.present? ? @title : "InSet CRM | Client Management Software" 
+    - if( (params[:controller] == "home" && (params[:action] == "index" || params[:action] == "how_it_works" || params[:action] == "features" || params[:action] == "success_story"  || params[:action] == "success_story_ajay" || params[:action] == "pricing_new" || params[:action] == "pricing_self_hosted" || params[:action] == "about_us" || params[:action] == "contact_us" || params[:action] == "security"  || params[:action] == "integration" || params[:action] == "awards_and_recognitions" || params[:action] == "report_a_bug") ) || request.fullpath.include?("users/sign-in") || request.fullpath.include?("users/sign-up") )
+      = stylesheet_link_tag "bootstrap.min"
+      = stylesheet_link_tag "style_outer"
+    - else  
+      = stylesheet_link_tag "application", :media => "all"
+      = stylesheet_link_tag "custom.min"
+    = javascript_include_tag "application"
+    %link{:href => "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700", :rel => "stylesheet"}
+    = csrf_meta_tags
+    = favicon_link_tag 'inset_favicon.ico', :rel => 'shortcut icon'
+    -if !user_signed_in?
+      %script{:async => "", :src => ENV['FOMO_SCRIPT'], :type => "text/javascript"}
+    - if(Rails.env == "production")
+      /Leadsius 
+      %script{:async => "1", :type => "text/javascript"}
+        ;(function(l,e,a,d,s,i){i=l.createElement(e);
+        s=l.getElementsByTagName(e)[0];i.async=1;
+        i.src=("https:"==l.location.protocol?"https://":"http://")+a+"/djs/tracker.js?_k="+d;
+        s.parentNode.insertBefore(i,s)
+        }(document,"script","tracker.leadsius.com","1ebb28e3f147b618c51a1aa09ed5d9fd673c7552"));
+      /END: Leadsius
+      :javascript
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-47612570-1', 'wakeupsales.com');
+        ga('send', 'pageview');
+  -if user_signed_in?
+    %body.nav-md
+      /= render :partial => "shared/header"
+      .container.body
+        .main_container
+          - if params[:action] != "checkout" && params[:action] != "request_trial_days"
+            .top_nav
+              = render :partial => "shared/top_header"            
+            .cb
+            .col-md-3.left_col.menu_fixed.small_menu
+              = render :partial => "shared/left_sidebar"
+            %div{style: "clear:both;"}
+            %div{"data-alerts" => "alerts", "data-fade" => "3000", "data-ids" => "myid", "data-titles" => "", :class=>"col-md-12"}
+            %div#search_result
+          /- if (bootstrap_flash.include?("Signed out successfully.") || bootstrap_flash.include?("Signed in successfully."))
+          /- else
+          /  = bootstrap_flash
+          - if (user_signed_in? && (params[:action] != "features" || params[:action] != "contact_us" || params[:action] != "security" || params[:action] != "integration"))
+            = bootstrap_flash
+          /.content-body
+          - if params[:action] == "checkout" || params[:action] == "request_trial_days"
+            .right-containers{:role => "main"}
+              .fix_in_app_footer
+                = yield
+          - else
+            .right-container{:role => "main"}
+              .fix_in_app_footer
+                = yield
+              - unless @current_user.is_siteadmin?  
+                =render partial: "shared/in_app_footer"
+          /#task_loader{style: "display:none;position: fixed; height: 100%; width: 100%; z-index: 99999; background:#fff; top:0px; left:0px;opacity:0.4"}
+          /%div{:class=>"loader_img fixed_loader"}
+          /  /= image_tag "ajax-loader2.gif"
+          /  = image_tag "ajax-loader.gif"
+          #task_loader{style: "display:none;position: fixed; height: 100%; width: 100%; z-index: 99999; top:0px; left:0px;bottom:0;right:0;background: rgba(0, 0, 0, 0.4);"}
+            .fixed_loader
+    :javascript
+      toggleLeftMenu();
+  - else
+    %body
+      /- if params[:action] != "self_hosting_download_form"  
+      /  %script{:src => "https://my.hellobar.com/ea5a4f2f6e6b2f8f1d18179f180b2ea08a1e3502.js", :type => "text/javascript"}
+      -if (params[:action] == "how_it_works" || params[:action] == "community_installation_support" || params[:action] == "google_calendar" || params[:action] == "setup_centos" || params[:action] == "customization" || params[:action] == "setup_docker" || params[:action] == "setup_mac" || params[:action] == "setup_windows" || params[:action] == "setup_linux" || params[:action] == "free_download" || params[:action] == "pricing_self_hosted" || params[:action] == "pricing_new" || params[:action] == "success_story" || params[:action] == "success_story_ajay" || params[:action] == "sitemap" || params[:action] == "privacy" || params[:action] == "terms" || params[:action] == "integration" || params[:action] == "pricing" || params[:action] == "faq" || params[:action] == "features"  ||  params[:action] == "report_a_bug" ||  params[:action] == "contact_us" || params[:action] == "security" || params[:action] != "new" && (params[:controller] == "devise/sessions" && params[:action] != "create") || (params[:controller] == "home" && params[:action] == "index") || params[:action] == "awards_and_recognitions" || params[:action] == "about_us" || params[:action] == "roadmap" || params[:action] == "releases")
+        = render :partial => "shared/header"
+      %div{style: "clear:both;"}
+      %div{"data-alerts" => "alerts", "data-fade" => "3000", "data-ids" => "myid", "data-titles" => "", :class=>"col-md-12"}
+      %div#search_result
+      /- if (bootstrap_flash.include?("Signed out successfully.") || bootstrap_flash.include?("Signed in successfully."))
+      /- else
+      /  = bootstrap_flash
+      /- if (user_signed_in? && (params[:action] != "features" || params[:action] != "security" || params[:action] != "integration"))
+      / - if is_home == "false"
+      - if (bootstrap_flash.include?("Successfully signed in."))
+      - else
+        = bootstrap_flash
+        #task_loader{style: "display:none;position: fixed; height: 100%; width: 100%; z-index: 99999; top:0px; left:0px;bottom:0;right:0;background: rgba(0, 0, 0, 0.4);"}
+          .fixed_loader
+      - if params[:action] != "checkout"
+        .content-body
+          = yield
+      - else
+        = yield
+      - if !user_signed_in? && params[:action] != "request_trial_days" && params[:action] != "self_hosting_download_form" && params[:action] != "edit" && params[:action] != "checkout" && params[:action] != "new" || action_name == "new_organization" || (user_signed_in? && (params[:action] == "features" || params[:action] == "security" || params[:action] == "integration"))
+        = render :partial => "shared/footer"
+/ # = javascript_include_tag "custom.min"      
+- if user_signed_in? && current_user.organization.present?
+  - unless current_user.is_siteadmin?
+    = render :partial => "shared/deal"
+    = render :partial => "shared/add_contact"
+    = render :partial => "shared/notes_attachment"
+    = render :partial => "shared/send_email"
+    = render :partial => "shared/apply_label"    
+    = render :partial => "users/invite_user"
+    = render :partial => "tasks/task_popup"
+    = render :partial => "tasks/google_calendar_popup"
+    = render :partial => "shared/add_organization"
+    = render :partial => "project_jobs/time_log_popup"
+    = render :partial => "resource_allocations/reallocate_popup"
+    - if params[:controller] == "deals"
+      = render :partial => "shared/bulk_lead"
+    - if params[:controller] == "project_jobs"
+      = render :partial => "project_jobs/project_job_group_popup"
+      = render :partial => "project_jobs/new_job_group"
+    / phase 3
+    /- if params[:controller] == "projects"
+    /  = render :partial => "projects/bulk_project"
+
+    /- if !@current_user.confirmed_at.present?  
+    /  .confirmation_message
+    /    %div  
+    /      ="Account verification email has been sent to your inbox."
+    /      = link_to 'Resend email', "javascript:void(0)", data: { method: :post }, id:"resend_verification_email"      
+  = render :partial => "projects/create_project_popup"
+  - if controller.controller_name != "subscriptions" && !@current_user.is_siteadmin?
+    = render partial:"shared/add_on_hover"
+  = render partial:"shared/show_on_boarding"
+  = render :partial => "shared/users_list"
+%link{:href => "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", :rel => "stylesheet"}
+- if user_signed_in?    
+  #WUSConfirmPopup
+    .confirm_content_sec
+      .confirm_body_sec
+        .confirm_close.confirm_close_btn × 
+        .confirm_bo_icon
+          /%img{src:"/assets/new-ui/confirm_bo.png", alt:"confirm_bo"}
+        .confirm_msg_sec
+        .confirm_footer.text-right
+          %a.confirm_ok{href:"javascript:void(0)"} Ok
+          %a.confirm_cancel.confirm_close{href:"javascript:void(0)"} Cancel
+
+  = render :partial => "shared/header_feedback_modal"
+- clientIP = request.ip;
+- urlVisit = request.protocol+""+request.host_with_port
+- domain = "wakeupsales.com"
+- track_lead_url = urlVisit.include?("192") || urlVisit.include?("dev") ? "http://192.168.2.216/leadtrack/" : "https://ldtracker.win/" 
+:javascript
+  var ld_track_event = '', ld_track_referrer='';
+  function set_ld_track_event(ld_event, ld_referrer){
+    ld_track_event = ld_event;
+    ld_track_referrer = ld_referrer;
+  }
+  function setSuptrackCookie(cname, cvalue, exdays) {
+    localStorage.setItem(cname, cvalue);
+  }
+  function getSuptrackCookie(cname) { 
+    n= (typeof localStorage.getItem(cname) != 'undefined') ? localStorage.getItem(cname):'';
+    return n;
+  }
+
+  $(".decimal_only").keydown(function (event) {
+    if(event.shiftKey == true) {
+        event.preventDefault();
+    }
+    if((event.keyCode >= 48 && event.keyCode <= 57) || 
+        (event.keyCode >= 96 && event.keyCode <= 105) || 
+        event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 37 ||
+        event.keyCode == 39 || event.keyCode == 46 || event.keyCode == 190 || event.keyCode == 110) {
+
+    } else {
+        event.preventDefault();
+    }
+
+    if($(this).val().indexOf('.') !== -1 && (event.keyCode == 190 || event.keyCode == 110))
+        event.preventDefault(); 
+  });
+  
+  jQuery(function(){
+    var d =new Date(jQuery.now());
+    var dtime =d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+    var referURL = document.referrer;
+    // $.post("#{track_lead_url}users/saveprospects",{
+    //   clientip:"#{clientIP}",
+    //   domain:"#{escape_once(request.env['SERVER_NAME'])}",
+    //   urlVisit:window.location.href,
+    //   lastmodified:dtime,
+    //   referURL:referURL
+    // },function(Data){
+    // },'json').fail(function(response) {
+    //   return true;
+    // });
+    
+    var pages = [];
+    if (!getSuptrackCookie('suptrack_refer')) {
+      setSuptrackCookie('suptrack_refer', document.referrer); 
+    }
+    if (!getSuptrackCookie('suptrack_usr_code')) {
+      setSuptrackCookie('suptrack_usr_code', 'suptrack_usr_' + jQuery.now(), 365 * 10);
+    }
+    if (!getSuptrackCookie('suptrack_usr_pages')) {
+      var url1 = {"urls": [{"url": window.location.href,"lastmodified": dtime}]};
+      setSuptrackCookie('suptrack_usr_pages', JSON.stringify(url1), 365 * 10);
+    }
+    if (getSuptrackCookie('suptrack_usr_pages')) {
+      var updatedpage = getSuptrackCookie('suptrack_usr_pages'); 
+      var parsedpage = JSON.parse(updatedpage);
+      parsedpage['urls'].push({"url": window.location.href,"lastmodified": dtime});
+      var finstrprse = JSON.stringify(parsedpage);
+      setSuptrackCookie('suptrack_usr_pages', finstrprse, 365 * 10);
+    }
+    
+    if (getSuptrackCookie('suptrack_usr_name') && getSuptrackCookie('suptrack_usr_code')) {
+      jQuery.post("#{track_lead_url}users/updatepages",
+      {
+        usr_code: getSuptrackCookie('suptrack_usr_code'),
+        usr_pages: getSuptrackCookie('suptrack_usr_pages')
+      },
+      function(data){},
+      'json').fail(function(response) {
+        return true;
+      });
+    }
+  });
+  // Lead tracker code ends here
+  /*sticky header start*/
+  
+  /*sticky header end*/
+  //$(function(){
+    //$("#headerMenuBar").each     
+    if("#{escape_once(params[:query])}" == "")
+      $('.srch_fld').val('')
+    $("div[class^='alert']").delay(4000).fadeOut(9000);
+    //$('a[rel="tooltip"],i,input:checkbox').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+    $("li").removeClass("activ_mnu");
+    if("#{escape_once(params[:action])}" == "activities"){
+      li_id="activities";
+    }
+     else if("#{escape_once(params[:action])}" == "getting_started"){
+      li_id="gettingStarted";
+    }else{
+      li_id="#{escape_once(params[:controller])}";
+    }
+    $("#"+li_id).addClass("activ_mnu");
+    $("#free_signup").click(function(){$("#beta_account_email").focus();})
+
+  //})
+
+  var pathname = window.location.pathname; // Returns path only
+  if( pathname == "/" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#home").addClass("activ_menu");
+    $("#home .d-bord").css({"background-position":"-472px 3px","color":"#000"});
+  }
+  if( pathname == "/dashboard" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#home").addClass("activ_menu");
+    $("#home .d-bord").css({"background-position":"-472px 3px","color":"#000"});
+  }
+  else
+  if( document.URL.indexOf("leads/kanban") >= 0 ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#leads_kanban_view").addClass("activ_menu");
+    $("#leads_kanban_view .kanban").css({"background-position":"-471px -53px","color":"#000","height":"22px"});
+  }
+  else
+  if( document.URL.indexOf("leads") >= 0 ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#leads").addClass("activ_menu");
+    $("#leads .lds").css({"background-position":"-474px -25px","color":"#000"});
+  }
+  
+  else
+  if( pathname == "/tasks" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#tasks").addClass("activ_menu");
+    $("#tasks .task").css({"background-position":"-742px -384px","color":"#000"});
+  }
+  else
+  if( pathname == "/contacts" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#contacts").addClass("activ_menu");
+    $("#contacts .contact").css({"background-position":"-472px -107px","color":"#000"});
+  }
+  else
+  if( document.URL.indexOf("projects") >= 0 || document.URL.indexOf("jobs") >= 0 ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#leads_project").addClass("activ_menu");
+    $("#leads_project .projects").css({"background-position":"-2157px 4px","color":"#000"});
+  }
+  else
+  if( pathname == "/getting_started" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#gettingStarted").addClass("activ_menu");
+    $("#gettingStarted .g-start").css({"background-position":"4px -110px","color":"#000"});
+    $("#gettingStarted .menu_name").addClass("sel-g-start");
+  }
+  else
+  if( pathname == "/list_companies" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#companies").addClass("activ_menu");
+    $("#companies .org").css({"background-position":"-472px -273px","color":"#000"});
+  }
+  else
+  if( pathname == "/users" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#users").addClass("activ_menu");
+    $("#users .users").css({"background-position":"-472px -134px","color":"#000"});
+  }
+  else
+  if( pathname == "/daily_updates" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#daily_update").addClass("activ_menu");
+    $("#daily_update .daily_update").css({"background-position":"-471px -213px","color":"#000"});
+  }
+  else
+  if( pathname == "/organizations" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#organizations").addClass("activ_menu");
+  }
+  else
+  if( pathname == "/self_hosted_users" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#self_hosted_users").addClass("activ_menu");
+  }
+  else
+  if( pathname == "/community_plugins" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#community_plugins").addClass("activ_menu");
+  }
+  else
+  if( pathname == "/bounce_emails" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#bounce_emails").addClass("activ_menu");
+  }
+  else
+  if( pathname == "/cumulative_signup_chart" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#cumulative_signup_chart").addClass("activ_menu");
+  }
+  else
+  if( document.URL.indexOf("emails") >= 0 && !(document.URL.indexOf("track_emails") > 0)){
+    $(".active_class li").removeClass("activ_menu");
+    $("#mail_box").addClass("activ_menu");
+    $("#mail_box .mail_box").css({"background-position":"-472px -162px","color":"#000"});
+  }
+  else
+  if( document.URL.indexOf("invoice") >= 0 ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#manage_invoice").addClass("activ_menu");
+    $("#manage_invoice .manage_invoice").css({"background-position":"-471px -186px","color":"#000"});
+  }
+  else
+  if( pathname == "/users/subscription" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#subscription").addClass("activ_menu");
+    $("#subscription .subscription").css({"background-position":"-2194px -480px","color":"#000"});
+  }
+  else
+  if( pathname == "/goals" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#goal_view").addClass("activ_menu");
+    $("#goal_view .goals").css({"background-position":"-867px -445px","color":"#000"});
+  }
+  else
+  if( pathname == "/users/pricing" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#change-plan").addClass("activ_menu");
+    $("#change-plan .change-plan").css({"background-position":"-2194px -504px","color":"#000"});
+  }
+  else
+  if( pathname == "/email_series" ){
+    $("#email_series").addClass("activ_menu");
+  }  
+  else
+  if( pathname == "/users/transactions" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#user-trans").addClass("activ_menu");
+    $("#user-trans .user-trans").css({"background-position":"-2194px -529px","color":"#000"});
+  }  
+  else
+  if( pathname == "/users/credit_card" ){
+    $(".active_class li").removeClass("activ_menu");
+    $("#trans-credit_card").addClass("activ_menu");
+    $("#trans-credit_card .trans-credit_card").css({"background-position":"-2194px -552px","color":"#000"});
+  }
+  
+
+  $('#send_feedback').bind('ajax:complete', function( data, status, xhr) {
+    $('#feedbackModal').modal('hide');
+  });
+
+  $("#resend_verification_email").on('click', function(){
+    $.ajax({
+      url: '/resend_confirmation',
+      type: 'POST',
+      success: function(res) {
+        show_alert_message("success", "Confirmation instructions resent successfully.");
+      },
+      error: function(res) {
+        show_alert_message("danger","Oops! Something went wrong.");
+      }
+    });
+  })
+  var current_user_email;
+
+  $('.submit_btn').on("click",function(e) {
+    var email_chk = $(this).closest(".form").find(".user_email").val();
+    current_user_email = email_chk;
+    var email_err_field = $(this).closest(".form").find(".email_err_msg");
+    if(email_chk == "" || email_chk == null){
+      email_err_field.html('Please enter an email address.');
+      e.preventDefault();
+      return false;
+    }else{
+      var atpos = email_chk.indexOf("@");
+      var dotpos = email_chk.lastIndexOf(".");
+
+      if (email_chk != '' && (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email_chk.length)) {
+        email_err_field.html('Please enter a valid email address.');
+        e.preventDefault();
+        return false;
+      }
+    }
+  });
+
+  $(".user_email").on('keypress',function(){
+    $(".email_err_msg").html("");
+  })
+  $(".user_email").on('change',function(){
+    $(".email_err_msg").html("");
+  })
+
+  $(".signup-form").bind("ajax:complete", function(evt, data, status, xhr){
+    if(data.responseText == "company already exists"){
+      show_alert_message("danger", "Oops! The company name is already taken. Please try another one or contact the Super-admin to join.");
+    }
+    else
+    if(data.responseText == "email already exists"){
+      show_alert_message("danger", "This Email id is already in use. Please try another one.");
+    }
+    else
+    if(data.responseText == "error"){
+      show_alert_message("danger", "Oops! Something went wrong. Please try again.");
+    }
+    else
+    if(data.responseText == "success"){
+
+      var useremail = current_user_email;
+      var username = useremail.substring(0, useremail.lastIndexOf("@"));
+      setSuptrackCookie('suptrack_usr_name', username, 365 * 10);
+      setSuptrackCookie('suptrack_usr_email', useremail, 365 * 10);
+      var track_usr_id = "#{clientIP}";
+      var track_usr_dmn = 'www.wakeupsales.com';
+      jQuery.post("#{track_lead_url}users/saveleads",
+      {
+        access_key: '', //This is company unique Id
+        secret_key: '', //This is Domain Unique Id
+        usr_code: getSuptrackCookie('suptrack_usr_code'),
+        name :  username,
+        email :  useremail,
+        phone : '',
+        start : '',
+        typeapps : '',
+        about : '',
+        loc : track_usr_id,
+        domain : track_usr_dmn,
+        refer : getSuptrackCookie('suptrack_refer')
+      },
+      function(data){
+      
+      }).fail(function(response) {
+        //alert("Success Inserted Force 1");
+      });
+      //window.location.href = "/getting_started?type=show_onboarding";
+      window.location.href = "/leads";
+      
+      if(getSuptrackCookie('suptrack_usr_name') && getSuptrackCookie('suptrack_usr_code')) {
+        jQuery.post("#{track_lead_url}users/updatepages",
+        {
+          access_key: '', //This is company unique Id
+          secret_key: '', //This is Domain Unique Id
+          usr_code: getSuptrackCookie('suptrack_usr_code'),
+          usr_pages: getSuptrackCookie('suptrack_usr_pages')
+        },
+        function(data){
+          //window.location=HTTP_APP+"users/login";
+          //alert("Success Inserted");
+        }).fail(function(response) {
+          //alert("Success Inserted Force 2");
+        });
+      }
+    }
+  });
+
+  function trackEventLeadTracker(){
+    // $.post("#{track_lead_url}users/saveeventtrack",
+    // {
+    //   'event_name': ld_track_event,
+    //   'eventRefer':  ld_track_referrer,
+    //   'email_id':  "#{@current_user.present? ? @current_user.email : ""}"
+    // },
+    // function(data){
+    //   return true;
+    // }).fail(function(response) {
+    //   return true;
+    // });
+  }
+  function validate_getting_started() {
+    try{
+      email = $("#signup_email").val();
+      if(email == "" ){
+        $(".signup_email_error").html("Please enter your email address.");
+        $("#signup_email").focus();
+        return false;
+      }
+      var atpos = email.indexOf("@");
+      var dotpos = email.lastIndexOf(".");
+      if (email != '' && (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length)) {
+        $(".signup_email_error").html("Please enter a valid email address.");
+        return false;
+      }
+      document.cookie = "session_signup="+email;
+      window.location.href = "/users/sign-up";
+    }
+    catch(err) {
+      $("#signup_email").html(err.message);
+    }
+  }
+- if(!user_signed_in? && request.url.include?("www.wakeupsales.com"))
+  :javascript
+    (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:659130,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');

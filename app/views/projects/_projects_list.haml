@@ -1,0 +1,40 @@
+
+.table-responsive
+  %table.table.table-striped.table-bordered.table-hover.no-footer.ajax-project-listing.dataTable{:id=>"projectDataTable", "data-source"=>projects_url(format: 'json',params: {cuser: current_user.id,assigned_to: params[:assigned_to], created_by: params[:created_by], cre_by: cookies[:cre_by], cre_by_val: cookies[:cre_by_val], asg_by: cookies[:asg_by], asg_by_val: cookies[:asg_by_val], lead: cookies[:lead], lead_val: cookies[:lead_val], daterange: cookies[:daterange], dt_range: cookies[:dt_range],last_touch: cookies[:last_touch],last_tch: cookies[:last_tch], status: cookies[:status], status_val: cookies[:status_val], label_type: cookies[:label_type], user_label: cookies[:user_label], user_label_val: cookies[:user_label_val]})}
+    %thead
+      %tr
+        %th #Sl.
+        %th#project_label_menu
+          %div.checkbox.checkbox-inline
+            %input{type:"checkbox", id:"select_all"}
+            %label{:for => "select_all"}
+          .dropdown
+            %a.dropdown-toggle{:id=> "projectListingDropdown",:href=>"javascript:","data-toggle" => "dropdown"}
+              %small.text-muted
+                %b.caret
+              /.label_arrow{:id=> "ProjectListingLabel", style:"text-align:center;"}
+              /%span.icon-chevron-down{:style => "cursor:pointer;"}
+              /  =image_tag("drop-down-arrow.png")
+            %ul.dropdown-menu.animated.flipInX.m-t-xs{:id=> "ProjectListing_sub_menu"}
+              %li{"data-toggle" => "modal", href: "#confirmProjectComplete", rel: "popup", title: "Complete Selected projects", onclick:"$('#confirmProjectComplete').modal('show');"}
+                %span.cwkp-sprite.complete
+                  Complete
+
+              %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Delete Selected Leads", onclick:"$('#confirmProjectArchive').modal('show');"}
+                %span.glyphicon.glyphicon-trash
+                  Delete
+        %th{style:"max-width:20% !important;"} Project Name
+        %th Associated with
+        / %th Lead Associated
+        %th Description
+        %th #Users
+        %th #Jobs
+        %th Status
+        %th Last Activity
+      %tbody
+        
+:javascript
+  showLoader();
+
+
+  

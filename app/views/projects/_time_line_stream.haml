@@ -1,0 +1,268 @@
+.cb
+- @activities = @project.activities get_project_activity_stream(@project)
+- match = ""
+-@activities_date = @activities.group_by{|d| d.created_at.beginning_of_day}
+-i=0
+%div
+  .cont_activity_sec
+    #div.tooltip-demo
+      - if @activities_date.present?
+        - @activities_date.each do |dt, activity|
+          - user_timezone = @current_user.time_zone.present? ? @current_user.time_zone : "Kolkata"
+          .activityRoot{:id => "activityId#{i}"}
+            - i += 1
+            
+            - if dt
+              - unless match == dt.strftime("%b %d, %Y")
+                - today = Time.zone.now.strftime('%Y-%m-%d')
+                - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                
+                .cont_act_dt.badge.badge-default 
+                  - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                    = f_date = "Today"
+                  - else
+                    - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                      = f_date = "Yesterday"
+                    - else
+                      - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                        = f_date = dt.strftime("%b %d")
+                      - else
+                        = f_date = dt.strftime("%b %d, %Y")
+                  - match = dt.strftime("%b %d, %Y")
+               
+                -activity.each_with_index do |activity,i|
+                  -if(activity.activity_type == "Project")
+                    - project = Project.find_by_id activity.activity_id
+                    -if project.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            %h5
+                              - if activity.activity_status == "Status Changed"
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Status changed by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>""
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: ""
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - elsif activity.activity_status == "Update"
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Updated by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>""
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: ""
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - elsif activity.activity_status == "Re-assign"  
+                                - user = User.where("id =?",activity.activity_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Re-assigned by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>""
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: ""
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - else
+                                - user = User.where("id=?",project.created_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              %a
+                                %span.cwkp-sprite.tag-arrow-icon
+                                - if activity.activity_status == "Status Changed" 
+                                  = activity.activity_desc
+                                - elsif activity.activity_status == "Update" 
+                                  Updated Project
+                                - else
+                                  Created Project
+                          .panel-footer
+                            = project.name
+                  -if(activity.activity_type == "ProjectJob")
+                    - project_job = ProjectJob.find_by_id activity.activity_id
+                    -if project_job.present?
+                      .vertical-timeline-block
+                        .vertical-timeline-icon.navy-bg
+                          %i.fal.fa-calendar
+                        .vertical-timeline-content
+                          .p-sm
+                            %span.vertical-date.pull-right
+                              = "#{f_date} at"
+                              %br
+                              %small
+                                = activity.activity_date.in_time_zone(user_timezone).strftime("%I:%M %p")
+                            %h5
+                              - if activity.activity_status == "Update"
+                                - user = User.where("id=?",activity.activity_user_id).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Updated by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - elsif activity.activity_status == "Re-assign"  
+                                - user = User.where("id =?",activity.activity_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Re-assigned by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              - else
+                                - user = User.where("id=?",project_job.created_by).first
+                                - if user.present?
+                                  - user_name = user.full_name.present? ? user.full_name : user.email
+                                  - is_cur_user = (user == @current_user)
+                                  %div.fl{"data-toggle"=>"tooltip", title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                    - if user.image.present?  
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag user.image.image.url(:thumb), :alt=>"",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                      %span.user-profile
+                                        %span.userImage
+                                          = image_tag gravtar_img_url, alt: "",:onerror=>"this.src='/assets/new-ui/user.png'"
+                                    - else
+                                      .lead-details-page 
+                                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                          = user_name[0].upcase
+                              %a
+                                %span
+                                - if activity.activity_status == "Update"
+                                  Updated project job
+                                - elsif activity.activity_status == "Delete"
+                                  Deleted project job
+                                - elsif activity.activity_status == "Create"
+                                  Created project job
+                                - else
+                                  =activity.activity_desc
+                          .panel-footer
+                            = project_job.name
+      -else
+        %div{id: "no_act",style: "text-align:center;color:red;"}
+          No activities found for this project.
+:javascript
+  $(function()
+  {
+    //$('#activity_info').niceScroll({cursorcolor:"#7e7e7e", autohidemode: false, bouncescroll: true,cursorwidth: "10px", background: "#f8f8f8"});
+    $('.panel-collapse').addClass('collapse');
+    $('#activity_info table:first').find("#collapse_icon").removeClass('icon-chevron-up').addClass('icon-chevron-down');
+    //$('a[rel="tooltip"],i,input:checkbox,button,div,span').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+  });
+
+
+
+    // Initialize tooltips
+    $('.tooltip-demo').tooltip({
+        selector: "[data-toggle=tooltip]"
+    });
+    
+   $('.day_astream').click(function(e){
+    $(this).children("#collapse_icon").toggleClass('icon-chevron-down icon-chevron-up');
+    });
+
+  
+  $('.edit').click(function(e){    
+    e.stopPropagation();
+    //$(this).parent().parent().find('a.note_title').editable('toggle');
+    $('.edit').hide();
+  });
+  $(document).on('click', function(){
+    //$('.edit').show();
+  })
+  function show_edit(id)
+  {
+    $("#show_edit_"+id).css("visibility","visible");
+    $("#show_trash_"+id).css("visibility","visible");
+    //$('.edit').hide();
+  }
+  function hide_edit(id)
+  {
+    $("#show_edit_"+id).css("visibility","hidden");
+    $("#show_trash_"+id).css("visibility","hidden");
+  }
+/ :css
+/   @media screen and (max-width:800px) {
+/     .table-responsive{overflow-x:auto;margin-bottom:0;border:none !important}
+/   }
+/   .outcome{
+/     color: #c09853;
+/     padding: 0px 35px 8px 14px;
+/     margin-top: 11px;
+/     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+/     background-color: #fcf8e3;
+/     border: 1px solid #fbeed5;
+/     -webkit-border-radius: 4px;
+/     -moz-border-radius: 4px;
+/     border-radius: 4px;
+/   }

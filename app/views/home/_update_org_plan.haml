@@ -1,0 +1,162 @@
+.modal-header{style:"margin: 15px 30px;padding: 0;"}
+  %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+  %span.cwkp-sprite.lock_header_icon
+  %h4.modal-title{style: "display:inline-block;position:relative;top: -3px;"}
+    %strong Admin Permission for 
+    %strong
+      = @current_plan_name
+    %strong Users
+.modal-body{style: "padding: 0 20px;"}
+  %h6 *Should be only used to set additional permission and remove restrictions for user in free plan.
+  = form_for(@organization, :url => "javascript:void(0)", :remote => true, :html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"new_deal"}) do |f|
+    - if @organization.user_subscriptions.present?
+      - type = "professional"
+      %table
+        %tr
+          %td.col-padding
+            %span.cwkp-sprite.users.active_user
+            Users
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),1)"}
+            =f.text_field :users_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :style => "width:50px;display: inline-block;", :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),1)"}
+            
+    - elsif !@organization.trial_expired?
+      - type = "trial"
+      %table
+        %tr
+          %td.col-padding
+            %span.cwkp-sprite.users.active_user
+            Users
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),1)"}
+            =f.text_field :users_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :style => "width:50px;display: inline-block;", :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),1)"}
+          %td.col-padding
+            %span.cwkp-sprite.active_days
+            Days
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),0)"}
+            =f.text_field :extend_trial_days,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :style => "width:50px;display: inline-block;", :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),0)"}
+
+            /.form-group.col-md-6.padlft
+            / %label{:for => "organization_user_allowed_by_admin"} Users Allowed
+            / .input-group
+            /   =f.text_field :user_allowed_by_admin,:class=>"form-control",:onkeydown=>"return numbersonly(event)", :required => true
+            /.form-group.col-md-6.padlft
+            / %label{:for => "organization_user_allowed_by_admin"} Extend Trial Days
+            / .input-group
+            /   =f.text_field :extend_trial_days,:class=>"form-control",:onkeydown=>"return numbersonly(event)", :required => true
+    - else
+      - type = "free"
+      %table
+        %tr
+          %td.col-padding
+            %span.cwkp-sprite.users.active_user
+            Users
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),1)"}
+            =f.text_field :users_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :style => "width:50px;display: inline-block;", :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),1)"}
+          %td.col-padding
+            %span.cwkp-sprite.lds.active_user
+            Leads
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),25)"}
+            =f.text_field :leads_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :style => "width:50px;display: inline-block;", :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),25)"}
+          %td.col-padding
+            %span.cwkp-sprite.contact.active_contact
+            Contacts
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),35)"}
+            =f.text_field :contacts_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),35)"}
+        %tr{style: "margin-top:10px;"}
+          %td.col-padding
+            %span.cwkp-sprite.task.active_task
+            Tasks
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),50)"}
+            =f.text_field :tasks_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),50)"}
+          %td.col-padding
+            %span.cwkp-sprite.projects.active_project
+            Projects
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),2)"}
+            =f.text_field :projects_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),2)"}
+          %td.col-padding
+            %span.cwkp-sprite.project_jobs
+            Proj. Tasks
+            %span.cwkp-sprite.minus_icon{onclick: "decrease_total_limits($(this),20)"}
+            =f.text_field :proj_tasks_limit,:class=>"form-control col-sec",:onkeydown=>"return numbersonly(event)", :required => true, :readonly => true
+            %span.cwkp-sprite.plus_icon{onclick: "increase_total_limits($(this),20)"}
+        %tr
+          %td{colspan: "3", class: "col-padding"}
+            .fl.enable_section
+              .modal-checkbox.mr0
+                = f.check_box :allow_gmail, {:class=>"checkbox"}, true, false
+                %label{for: "organization_allow_gmail"}
+                  %span.mr0
+              %br
+              %span.cwkp-sprite.mail_box_icon
+              %br
+              %strong Gmail
+            .fl.enable_section
+              .modal-checkbox.mr0
+                = f.check_box :allow_invoice, {:class=>"checkbox"}, true, false
+                %label{for: "organization_allow_invoice"}
+                  %span.mr0
+              %br
+              %span.cwkp-sprite.invoice_icon
+              %br
+              %strong Invoice
+            .fl.enable_section
+              .modal-checkbox.mr0
+                = f.check_box :allow_email_tracking, {:class=>"checkbox"}, true, false
+                %label{for: "organization_allow_email_tracking"}
+                  %span.mr0
+              %br
+              %span.cwkp-sprite.email_tracking_icon
+              %br
+              %strong Email Tracking
+            .fl.enable_section
+              .modal-checkbox.mr0
+                = f.check_box :allow_web_to_lead, {:class=>"checkbox"}, true, false
+                %label{for: "organization_allow_web_to_lead"}
+                  %span.mr0
+              %br
+              %span.cwkp-sprite.web_to_lead_icon
+              %br
+              %strong Web to lead
+            .cb
+    
+    .form-layout-footer.form-group.fr{style: "margin-top:25px"}
+      %button.btn.btn-info{type: "submit",id: "deal_submit_btn", onclick: "update_org('#{@organization.id}', '#{type}')"} Update
+      %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+        Cancel
+:javascript
+  function decrease_total_limits(this_obj,this_val) {
+    var b = this_obj.parent().find("input").val();
+    if (b && b > this_val) {
+        b--;
+        this_obj.parent().find("input").val(b);
+    }
+    else {
+        show_alert_message("danger", "You can not decrease minimum limits.")
+    }
+  };
+  function increase_total_limits(this_obj,this_val) {
+    var a = this_obj.parent().find("input").val();
+    a++;
+    if (a && a >= this_val) {
+        //$("#subs").removeAttr("disabled");
+    }
+    this_obj.parent().find("input").val(a);
+  };
+
+  $(".checkbox").on('change', function(e) {
+    var that;
+    that = "#" + e.target.getAttribute("id");
+    if ($(that).prop("checked") === true) {
+      $(that).val("true");
+    }
+    if ($(that).prop("checked") === false) {
+      return $(that).val("false");
+    }
+  });

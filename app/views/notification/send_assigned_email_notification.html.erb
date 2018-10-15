@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Assign Priority Lead</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Trebuchet MS'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p style='margin: 10px 0'>Dear <%= @user.first_name.present? ? @user.first_name : @user.email %>, </p>
+                <p style='margin: 10px 0'>A new task has been assigned to you. Here are some necessary informations.</p>
+                <div border="0" cellpadding="0" cellspacing="0" style="width:80%;">
+                  <p>
+                    <p><b> Title:</b> <%= @task.title %> </p>
+                  </p>
+                  <p>
+                    <p><b> Lead Details:</b> <%= @task.deal.deals_contacts.present? && @task.deal.deals_contacts.first.contactable.present? ? (@task.deal.deals_contacts.first.contactable.full_name.present? ? @task.deal.deals_contacts.first.contactable.full_name : @task.deal.deals_contacts.first.contactable.email ) : "" %>,
+                    <%= @task.deal.deals_contacts.present? && @task.deal.deals_contacts.first.contactable.present? && @task.deal.deals_contacts.first.contactable.country.present? ? @task.deal.deals_contacts.first.contactable.country.name : "" %>
+                    </p>
+                  </p>
+                  <p>
+                    <p><b> Lead Type:</b> <%= @task.deal.priority_type.present? ? @task.deal.priority_type.name : "NA" %> </p>
+                  <p>
+                    <p><b> Due Date:</b> <%= @task.due_date.strftime('%H:%M%p %A %d %b, %Y ') %> </p>
+                  </p>
+                </div>
+                <div style='text-align:center;margin: 50px;'>
+                  <a href='<%=APP_CONFIG["host_url"]%>/users/sign-in' style='text-decoration: none;color:#FFFFFF;border:none;background:#2196F3;font-weight:bold;padding:10px 15px;' target='_blank'>
+                    Sign in to your account to view all the details
+                  </a>
+                </div>
+                <div style="margin: 10px 0">
+                  <p>Have a great day.</p>
+                  Regards,
+                  <br>
+                  <%= @created_by.first_name.present? ? @created_by.first_name : @created_by.email %>
+                </div>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

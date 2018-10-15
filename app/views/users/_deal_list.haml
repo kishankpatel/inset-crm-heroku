@@ -1,0 +1,65 @@
+.table-responsive
+  %table.table{:cellpadding => "1", :cellspacing => "1"}
+    %thead
+      %tr
+        %th 
+          %span.fal.fa-suitcase.fl
+          %span.fl
+            &nbsp;Opportunities
+          &nbsp;
+          
+          - total_deals = @current_organization.deals.where("assigned_to=?",@user.id).count
+          - if total_deals > 2
+            %a.show_more_lead.tooltip.btn.btn-outline.btn-info.btn-xs{href:"#", onclick: "display_leads()", title:"View Other Opportunities"}
+              = "+#{total_deals-2} more"
+        %th Status
+    %tbody
+      - if @deals.present?
+        - @deals.each do |deal|
+          -if deal
+            %tr
+              %td
+                %p
+                  -if deal
+                    - if (((@allowed_user) || (deal.associated_users.include? current_user.id)) && (deal.is_active?))
+                      =link_to deal.title, lead_path(deal), class: "text-success font-bold"
+                    - else
+                      %span.text-success.font-bold
+                        = deal.title
+                %p
+                  
+                  - if deal.amount.present?
+                    %span.btn.btn-outline.btn-success.btn-xs
+                      $
+                      =number_with_precision(deal.amount, :precision => 2)
+                  - else
+                    No price set
+                  
+                  .cb
+                %ul
+                  %li
+                    Assigned to
+                    =deal.assigned_user.full_name if deal.assigned_user.present?
+                  %li
+                    - if last_activity(deal.id).present?
+                      Created on
+                      =last_activity(deal.id)[0].split("@")[0]
+
+                  %li
+                    - if last_activity(deal.id).present?
+                      by
+                      =deal.initiator_name if deal.initiator_name.present? 
+              %td.vmiddle
+                -if deal.deal_status_name.present? 
+                  .labelTaskType.btn.btn-outline.btn-success
+                    =deal.deal_status_name
+                - else
+                  NA
+      - else
+        %tr
+          %td.text-center
+            %span{style: "color:red"}
+              No leads found !!!
+                        
+                        
+          

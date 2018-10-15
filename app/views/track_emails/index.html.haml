@@ -1,0 +1,135 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up        
+      %h2.font-light.m-b-xs 
+        %span.fal.fa-envelope
+        Email Tracking
+      %small
+  /.fr
+  /  %span.cwkp-sprite.filter
+.content
+  .row
+    .col-lg-12
+      .hpanel.stats
+        .panel-body.h-150
+          .col-md-7.track_email_page
+            .col-md-4
+              %i.fas.fa-paper-plane.fa-2x.track-email-icon.sent-email
+              %span.email_sm_heading
+                Total emails sent:
+              .email_count
+                = @current_organization.mail_letters.present? ? @current_organization.mail_letters.count : 0
+                |
+                100%
+            .col-md-4
+              %i.fas.fa-envelope-open.fa-2x.track-email-icon.opened-email
+              %span.email_sm_heading
+                Emails opened:
+              .email_count
+                = @email_opened
+                |
+                = @opened_percentage.to_s + "%"
+            .col-md-4
+              %i.fas.fa-envelope.fa-2x.track-email-icon.unopened-email
+              %span.email_sm_heading
+                Emails unopened:
+              .email_count
+                = @email_unopened
+                |
+                = @unened_percentage.to_s + "%"
+            .cb
+          .col-md-5
+            .col-md-8.padrht
+              .m
+                .progress.m-t-xs.full.progress-striped
+                  .progress-bar.progress-bar-info{"aria-valuemax" => "100", "aria-valuemin" => "0", "aria-valuenow" => "100", :role => "progressbar", :style => "width: 100%"}
+                    100%
+                .progress.m-t-xs.full.progress-striped
+                  .progress-bar.progress-bar-success{"aria-valuemax" => "100", "aria-valuemin" => "0", "aria-valuenow" => "#{@opened_percentage.to_s}", :role => "progressbar", :style => "width:#{@opened_percentage.to_s}%"}
+                    = @opened_percentage.to_s + "%"
+                .progress.m-t-xs.full.progress-striped
+                  .progress-bar.progress-bar-warning{"aria-valuemax" => "100", "aria-valuemin" => "0", "aria-valuenow" => "#{@unened_percentage.to_s}", :role => "progressbar", :style => "width:#{@unened_percentage.to_s}%"}
+                    = @unened_percentage.to_s + "%"
+            .col-md-4.padrht.progress_right_sec
+              .day_sec.mb15
+                %div  
+                  %i.far.fa-sun.fa-2x
+                  %span.email_progress_count
+                    = @mail_day.present? && @email_opened.present? ? (( @mail_day.to_f == 0 ? 0 : (@mail_day.to_f / @email_opened.to_f) * 100.0).round.to_s + "%") : "0%"
+                    |
+                    = @mail_day
+                .ft8
+                  Day
+              .night_sec
+                %div  
+                  %i.fal.fa-moon.fa-2x
+                  %span.email_progress_count
+                    = @mail_night.present? && @email_opened.present? ? (( @mail_night.to_f == 0 ? 0 : (@mail_night.to_f / @email_opened.to_f) * 100.0).round.to_s + "%") : "0%"
+                    |
+                    = @mail_night
+                .ft8
+                  Night
+            .cb
+          .cb
+  .hpanel
+    .panel-body
+      .table-responsive
+        %table.table.table-bordered.table-striped{cellpadding: "1", cellspacing: "1"}
+          %thead
+            %tr
+              %th #SL.
+              %th Sent to
+              %th Sent by
+              %th{width:"250px"} Subject / Email
+              %th{style: "text-align:center;"} Opened on
+              %th{style: "text-align:center;"} Opened Time
+              %th
+          %tbody
+            - i = 1
+            - if @mail_letters.present?
+              - @mail_letters.each do |sent_email|
+                - activity = Activity.find_by_id sent_email.activity_id
+                - mail_letter = MailLetter.find_by_id activity.activity_id
+                %tr
+                  %td
+                    = "#" + i.to_s
+                  %td
+                    .sent_to 
+                      .sent_to_name
+                        = mail_letter.contact_info["full_name"] if mail_letter.contact_info.present?
+                      .sent_to_email
+                        = mail_letter.mailto
+                  %td
+                    .sent_by
+                      .sent_by_name
+                        = mail_letter.user.full_name.present? ? mail_letter.user.full_name : mail_letter.user.email.split("@")[0]
+                      .sent_by_email
+                        = mail_letter.user.email
+                  %td
+                    .email_sub_sec{style: "margin-left:-5px;"}
+                      %span.email_sub_icon.cwkp-sprite
+                      /%a{href:"javascript:void(0)"}
+                      %span{:style => "color:#5A738E", title: mail_letter.subject, class: "tooltip"}
+                        = mail_letter.subject.truncate(25)
+                      /%span.cwkp-sprite.email_attachment
+                  %td{style: "text-align:center;"}
+                    = sent_email.created_at.strftime("%b %d, %Y")
+                  %td{style: "text-align:center;"}
+                    = sent_email.created_at.strftime("%H:%M %P")
+                  %td
+                    - day_night = sent_email.created_at.in_time_zone(@current_user.time_zone).hour
+                    - if (day_night >= 6 && day_night <= 12) || (day_night >= 12 && day_night < 18)
+                      %span.cwkp-sprite.sm_day_icon{title: "Opened in day", class: "tooltip"}
+                    - else
+                      %span.cwkp-sprite.sm_night_icon{title: "Opened at night", class: "tooltip"}
+                - i += 1
+            - else
+              %tr
+                %td{colspan:"7", style:"text-align:center;"}
+                  No data found
+        .digg_pagination.fr{style: "margin: 10px 0"}
+          = will_paginate @mail_letters, :container => false
+        .cb

@@ -1,0 +1,40 @@
+.row
+  .col-md-12.form-group
+    .cb10.ht-20
+      .col-md-12{style: "margin-left: -15px;"}
+        .task_row
+          %span.tsk_head
+            Task Title :
+          %span
+            = @task.title
+        .task_row
+          %span.tsk_head
+            Task Type :
+          %span
+            = (task_type = TaskType.find_by_id(@task.id)).present? ? task_type.name : "NA"
+        .task_row
+          %span.tsk_head
+            Assign To :
+          %span
+            = User.find(@task.assigned_to).first_name.present? ? User.find(@task.assigned_to).first_name : User.find(@task.assigned_to).email
+        .task_row
+          %span.tsk_head
+            Email :
+          %span
+            = @task.mail_to
+        .task_row
+          %span.tsk_head  
+            Priority :
+          %span
+            = (priority_type = PriorityType.find_by_id(@task.priority_id)).present? ? priority_type.name : "NA"
+        .task_row
+          %span.tsk_head{:style=>"width:125px;"}
+            Assigned Lead :
+          %span
+            = (deal = Deal.find_by_id(@task.deal_id)).present? ? deal.title : "NA"
+.row
+  .modal-footer
+    .navbar-left{style: "margin-left: 15px;"}
+      %a{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"}
+        %span.c_links
+          Cancel

@@ -1,0 +1,8 @@
+.user_hrly_billable
+  - @current_organization.user_hourly_billables.each do |user_hourly_billable|
+    %div{style: "margin-bottom: 15px;background-color: #eee;border-radius: 5px;border: 1px solid rgb(153, 153, 153);padding: 10px 5px;height: 40px;cursor: pointer", id: "user_hr_bill_#{user_hourly_billable.id}"}
+      .fl.task_type_name
+        = user_hourly_billable.amount
+      .fr
+        %span.glyphicon.glyphicon-pencil{value: "#{user_hourly_billable.id}", data: { toggle: "modal", target: "#editUserHrBillable", id: user_hourly_billable.id, :name => user_hourly_billable.amount }}
+        %span.glyphicon.glyphicon-trash{value: "#{user_hourly_billable.id}", onclick: "deleteUserHrBillable(this)", title: "Delete", data: { id: user_hourly_billable.id }}

@@ -1,0 +1,40 @@
+
+=javascript_include_tag "funnel"
+=javascript_include_tag "exporting"
+.row
+  .navbar-left{:style=> "margin: -20px 12px;"}
+    %h3
+      Lead Funnel Chart
+  .navbar-right
+    %span#hide_main
+      .btn-group
+        %a#additional_links{"data-toggle" => "modal", href: "#dealModal", onclick: "$('#lead_referrer').val('Lead Kanban View');$('#new_deal')[0].reset();$('.error').html('');", style: "text-decoration:none;"}
+          %button.btn.btn-primary.btn-success.p5{type: "button",rel: "tooltip", title: "Add a Lead" }
+            %span.glyphicon.glyphicon-plus-sign
+            Add a Lead
+        /%a#additional_links{"data-toggle" => "modal", href: "#BulkLeadModal", rel: "popup", title: "Bulk lead upload", style: "background-color: white;"}
+        /  %button.btn.btn-default{type: "button",rel: "tooltip", title: "Bulk Lead Upload" } 
+        /    %span.glyphicon.glyphicon-import
+        /    Bulk Lead Upload
+        %a#leads_export_btn{"data-toggle" => "modal", href: leads_path(format: "csv"), style: "text-decoration:none;"}
+          %button.btn.btn-primary.btn-success.p5{type: "button",rel: "tooltip", title: "Export to CSV" }
+            %span.glyphicon.glyphicon-export
+            Export to CSV
+        %a{href: "javascript:void(0)", onclick: "show_list_view();", title: "Show List view"}
+          .link_to_list_view.fr.glyphicon.glyphicon-th-list{style: "font-size: 18px;margin: 4px 10px 10px 0px;"}
+        %a{href: "javascript:void(0)", onclick: "show_kanban_view();", title: "Show Kanban view"}
+          .link_to_kanban_view.fr.glyphicon.glyphicon-th{style: "font-size: 21px;margin: 2px 10px 0 20px;"}
+/.cb{:style=>"height:20px;"}
+.col-lg-12.lead_funnel_chart
+  .col-lg-8
+    = high_chart("funnel_chart", @funnel_chart)
+  .cb 
+#funnel_chart.body.collapse.in
+
+/.col-lg-4{style: "position:absolute;left: 60%; top: 30%"}
+/  .row.rpadding
+/    .panel.panel-default
+/      .panel-body{style: "padding: 10px 20px;"}
+/        .row.rpadding{style: "font-size: 12px;"}
+/.cb
+/%br

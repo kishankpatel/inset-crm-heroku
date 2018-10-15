@@ -1,0 +1,199 @@
+#taskStepStart.modal.fade.cmn_wf_steps{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  .taskStepsSlider
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Task Name
+              %h5 Please provide your Opportunity name
+            .modal-body
+              .row
+                .col-md-12
+                  .form-group
+                    %label{:for => "name"} Opportunity name
+                    %input.form-control{:id => "", :name => "", :placeholder => "Opportunity name", :required => "", :type => "text"}/
+            .modal-footer
+              %a.task-pager-next.btn.w-xs.btn-success{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Please provide a description for the project
+            .modal-body
+              .row
+                .col-md-12
+                  .form-group
+                    %textarea.form-control{:placeholder => "Description"}
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.task-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Project Start Date
+            .modal-body
+              .row
+                .col-md-12
+                  .form-group
+                    .input-group.date
+                      %input.form-control{:type => "text"}/
+                      %span.input-group-addon
+                        %span.fa.fa-calendar
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.task-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Expected Close Date
+            .modal-body
+              .row
+                .col-md-12
+                  .form-group
+                    .input-group.date
+                      %input.form-control{:type => "text"}/
+                      %span.input-group-addon
+                        %span.fa.fa-calendar
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.task-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Please choose a project Manager
+            .cmn_bx_hover.modal-body
+              .row
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold New Company
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold Existing Company
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold Existing Company
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.task-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold What is the estimated project value
+            .modal-body
+              .row
+                .col-md-12
+                  .form-group
+                    %select.js-source-states{:style => "width: 100%"}
+                      %optgroup{:label => "Alaskan/Hawaiian Time Zone"}
+                        %option{:value => "AK"} Fixed Bid
+                        %option{:value => "HI"} Fixed Bid1
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.task-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Please choose the users you would like to assign to this project
+            .cmn_bx_hover.modal-body
+              .row
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold New Company
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold Existing Company
+                .col-lg-4
+                  .hpanel.m-b-none
+                    %a{:href => "javascript:void(0)"}
+                      .panel-body.text-center
+                        %i.pe-7s-graph1.fa-4x
+                        %h4.font-extra-bold Existing Company
+            .modal-footer
+              %a.task-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Submit
+              .cb
+:javascript
+  $(document).ready(function(){
+    var taskSlider = $('.taskStepsSlider').bxSlider({
+      minSlides: 1,
+      maxSlides: 1,
+      moveSlides: 1,
+      pager: false,
+      controls: false,
+      autoControls: false,
+      auto: false
+    });
+    $('a.task-pager-prev').click(function () {
+      var taskCurrent = taskSlider.getCurrentSlide();
+      taskSlider.goToPrevSlide(taskCurrent) - 1;
+    });
+    $('a.task-pager-next').click(function () {
+      var taskCurrent = taskSlider.getCurrentSlide();
+      taskSlider.goToNextSlide(taskCurrent) + 1;
+    });
+  });

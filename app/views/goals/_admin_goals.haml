@@ -1,0 +1,310 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  } 
+  .tit:hover {
+    background: #F0F0F0;
+  }
+- if request.path == "/settings/fetch_pages"
+  .panel-heading.hbuilt
+    %h4.fl
+      Goals
+    .btn.btn-primary.btn-success.fr{ data: { toggle: "modal", target: "#addGoal" },:onclick=>"show_all()"}
+      .glyphicon.glyphicon-plus-sign
+      Add Goal
+    .cb
+- else  
+  .panel-heading.hbuilt
+    %h4.fl
+      Goals
+    .btn.btn-primary.btn-success.fr{ data: { toggle: "modal", target: "#addGoal" },:onclick=>"show_all()"}
+      .glyphicon.glyphicon-plus-sign
+      Add Goal
+    .cb
+.panel-body  
+  .col-md-12
+    .con-box1
+      %table{:style=>"width:100%;margin-top:22px;border-top: 1px solid #b9babb;border-bottom: 1px solid #b9babb;"}
+        %thead
+          %tr{:style=>"height:40px"}
+            %th{:style=>"width:25%;border-right: 1px #e5e5e5 solid;padding-left:15px"}
+              Owner
+            %th{:style=>"border-right: 1px #e5e5e5 solid;padding-left:15px"}
+              Desired Actions
+            %th{:style=>"border-right: 1px #e5e5e5 solid;padding-left:15px;width:14%"}
+              Delivered till now
+            %th{:style=>"border-right: 1px #e5e5e5 solid;padding-left:15px;width:14%"}
+              Overall Progress
+            %th{:style=>"padding-left:15px"}
+              Actions
+        %tbody.all-goals
+          = render :partial => "goals/goals_data"
+      %div{style: "display: inline-block;margin-top: 10px;"}
+        %h4 About Goals
+        .mdiv
+          .fst{:style=>"float: left;width: 31%;"}
+            %p{:style=>"font-size:17px"}
+              Goals help your team meet your sales targets. Here you can set up goals for you and your team.
+            %p{:style=>"margin-top:10px;line-height:22px"}
+              All goals are automatically carried over to the next period, e.g. when a week ends all the active weekly goals are automatically started for the next week as well. This means less hassle for you.        
+          .snd{:style=>"float: left;width: 23%;margin-left: 38px"}
+            %p{:style=>"font-weight:bold;font-size:16px"}
+              There are two important metrics you can set goals for:
+              %ol{:style=>"margin-left: 15px;margin-top: 10px;color: #000;"}
+                %li
+                  Opportunity you move to a next stage.
+                %li
+                  Opportunity you win.            
+          .thd{:style=>"float: left;width: 30%;margin-left: 48px;"}
+            %p{:style=>"font-size:17px"}
+              You can assign individual goals for people in your company and determine the sales periods within they should achieve these goals.      
+                 
+#addGoal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h3.modal-title Add Goal
+      .modal-body 
+        %h3{:style=>"font-size:21px"} 
+          What do you want to track?       
+        %table
+          %tr{:class=>"d-qn",:style=>"height:50px"}
+            %td.tit{:style=>"width:48%;cursor:pointer;color:#317ae2;font-size: 16px;font-weight: bold;",:onclick=>"show_form('qnt')"}
+              Quantity of Opportunity Advanced
+              
+            %td
+              Track the number of opportunity moved forward to a specific stage within a period of time. 
+          %tr{:class=>"d-adv",:style=>"height:50px;border-top:1px #e5e5e5 solid"}
+            %td.tit{:style=>"width:48%;cursor:pointer;color:#317ae2;font-size: 16px;font-weight: bold;",:onclick=>"show_form('vald')"}
+              Value of Opportunity Advanced
+              
+            %td
+              Track the monetary value of Opportunity moved forward to a specific stage within a period of time. 
+          %tr{:class=>"deal-w",:style=>"height:50px;border-top:1px #e5e5e5 solid"}
+            %td.tit{:style=>"width:48%;cursor:pointer;color:#317ae2;font-size: 16px;font-weight: bold;",:onclick=>"show_form('qntwon')"}
+              Quantity of Opportunity won
+              
+            %td
+              Track the number of Opportunity Won within a period of time.
+          %tr{:class=>"deal-v",:style=>"height:50px;border-top:1px #e5e5e5 solid;border-bottom:1px #e5e5e5 solid"}
+            %td.tit{:style=>"width:48%;cursor:pointer;color:#317ae2;font-size: 16px;font-weight: bold;",:onclick=>"show_form('wonval')"}
+              Value of Opportunity won
+              
+            %td
+              Track the monetary value of Opportunity Won within a period of time.
+              
+        /-@users = IndividualContact.where("organization_id =?",current_user.organization_id)   
+        -@deal_stages = @current_organization.deal_statuses.where("name NOT IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc')        
+        -@users =all_org_users
+        .qu_deals.glo
+          = form_for(Goal.new, :url => '/save_goal', :html=>{:class => 'form', onsubmit: 'addGoals(this); return false;'}) do |f|  
+            = f.hidden_field :goal_type
+            .qu_deals{:style=> "display:none;margin-top:45px"}
+              .form-group.row
+                %label.col-sm-2.col-form-label{:for => "goal_user_id"} User
+                .col-sm-6
+                  =f.select :user_id, @users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]}, {:include_blank => '- Select user -'}, :required => true, :class => "form-control"
+                  
+              .form-group.row.stage-deals
+                %label.col-sm-2.col-form-label{:for => "goal_deal_stage_id"} Stage
+                .col-sm-6
+                  =f.select :deal_stage_id, @deal_stages.collect {|c| [ c.name , c.id ]}, {:include_blank => '- Select stage -'}, :class => "form-control"
+                 
+              .form-group.row
+                %label.col-sm-2.col-form-label{:for => "goal_period"} Period
+                .col-sm-6
+                  = f.select :period, @period, {:include_blank => false}, :class => "form-control"
+
+              .form-group.row
+                %label.col-sm-2.col-form-label{:for => "goal_quantity_deal"} Expected
+                .col-sm-6
+                  = f.text_field "quantity_deal", autocomplete: "off" , :class => "form-control", placeholder: "Quantity of Deal"
+ 
+              .form-group.row.vl-deals{:style=>"display:none"}
+                %label.col-sm-2.col-form-label{:for => "goal_currency_deal"} Currency
+                .col-sm-6
+                  = select(:currency, :type, @cur, {:selected => @current_organization.default_currency.present? ? @current_organization.default_currency : 'USD'}, :class => "form-control")
+              
+            .form-group
+              %button.btn.btn-success{type: "submit",id: "deal_submit_btn"} Save
+              %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+                Cancel
+#editGoal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h3.modal-title Edit Goal
+      .modal-body 
+        %h4.vb{:style=>"font-size:17px"} 
+        %br
+        -@deal_stages = @current_organization.deal_statuses.where("name NOT IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc')        
+        -@users =all_org_users
+        .qu_edit
+:javascript
+  function addGoals(obj) {
+  $('#task_loader,.fixed_loader').show();
+  var usr = $("#goal_user_id").val()
+  var stg = $("#goal_deal_stage_id").val()
+  var prd = $("#goal_period").val()
+  var exp = $("#goal_quantity_deal").val()
+  var cury = $("#currency_type").val()
+  var g_type = $("#goal_goal_type").val()
+  $.ajax({
+    url: '/save_goal',
+    type: 'POST',
+    data: {user_id: usr, stage: stg, period: prd, expected: exp, currency: cury, goal_type: g_type},
+    success: function(res) {
+      $("#addGoal").modal('hide');
+      $('#addGoal').on('hidden.bs.modal', function () {
+        $('.all-goals').html('').html(res);
+        show_alert_message("success", "Wow! Goal has been created successfully.");
+        $('#task_loader,.fixed_loader').hide();
+      })
+    },
+    error: function(res) {
+      
+    }
+  });
+  }
+  function show_all()
+  {
+  $(".d-adv").show();
+  $(".deal-w").show();
+  $(".deal-v").show();
+  $(".d-qn").show();
+  $(".qu_deals").hide();
+  $('#new_goal')[0].reset();
+  }
+  function show_form(typ)
+  {
+  if(typ == 'qnt')
+  {
+  $("#goal_goal_type").val('quantity of deals')
+ 
+  $(".d-adv").hide();
+  $(".deal-w").hide();
+  $(".deal-v").hide();
+  $(".qu_deals").show();
+  $(".vl-deals").hide();
+  $(".stage-deals").show()
+  $(".qu_deals").slideDown("slow");
+  }
+  if(typ == 'vald')
+  {
+  $("#goal_goal_type").val('value of deals')
+  $(".d-qn").hide()
+  $(".d-adv").show();
+  $(".deal-w").hide();
+  $(".deal-v").hide();
+  $(".qu_deals").show();
+  $(".vl-deals").show();
+  $(".stage-deals").show()
+  $(".qu_deals").slideDown("slow");
+  }
+  if(typ == "qntwon")
+  {
+  $("#goal_goal_type").val('quantity of deals won')
+  $(".d-qn").hide()
+  $(".d-adv").hide();
+  $(".deal-w").show();
+  $(".deal-v").hide();
+  $(".qu_deals").show();
+  $(".vl-deals").hide();
+  $(".stage-deals").hide()
+  $(".vl-deals").hide();
+  $(".qu_deals").slideDown("slow");
+  }
+  if(typ == "wonval")
+  {
+  $("#goal_goal_type").val('value of deals won')
+  $(".d-qn").hide()
+  $(".d-adv").hide();
+  $(".deal-w").hide();
+  $(".deal-v").show();
+  $(".qu_deals").show();
+  $(".vl-deals").show();
+  $(".stage-deals").hide()
+  $(".vl-deals").show();
+  $(".qu_deals").slideDown("slow");
+  }
+  }  
+  //$('.demoprogressbar14').LineProgressbar({
+  //percentage: 85,
+  //fillBackgroundColor: '#344a54',
+  //height: '15px',
+  //radius: '15px'
+  //});
+  function hide()
+  {
+  $(".d-adv").show();
+  $(".deal-w").show();
+  $(".deal-v").show();
+  $("..qu_dealsq").hide();
+  }
+  function delete_goal(id)
+  {
+  $('#task_loader,.fixed_loader').show();
+  var result = confirm("Want to delete?");
+  if (result) {
+  $.ajax({
+    url: '/delete_goal',
+    type: 'POST',
+    data: {gid: id},
+    success: function(res) {
+      $("#addGoal").modal('hide');
+      //$('#addGoal').on('hidden.bs.modal', function () {
+        $('.all-goals').html('').html(res);
+        show_alert_message("success", "Wow! Goal has been deleted successfully.");
+        $('#task_loader,.fixed_loader').hide();
+      //})
+    },
+    error: function(res) {
+      
+    }
+  });
+  }
+  }
+  function show_edit_form(id)
+  {
+  $("#editGoal").modal('show'); 
+  $.ajax({
+    url: '/show_edit_goal',
+    type: 'POST',
+    data: {goal_id: id},
+    success: function(res) {
+      $('.qu_edit').html('').html(res);
+       
+    },
+  });
+  
+  }
+  function editGoals(obj)
+  {
+  $('#task_loader,.fixed_loader').show();
+  var usr = $(".gl-user-id").val()
+  var stg = $(".gl-stage-id").val()
+  var prd = $(".gl-period-id").val()
+  var exp = $(".gl-qnt-id").val()
+  var cury = $(".gl-cry-id").val()
+  var gt = $(".gty").val()
+  var gid = $("#gi").val()
+  $.ajax({
+    url: '/edit_goal',
+    type: 'POST',
+    data: {goal_id: gid, user_id: usr, stage_id: stg, period: prd, qnt: exp, typ: gt,cur: cury},
+    success: function(res) {
+      $("#editGoal").modal('hide');
+      $('#editGoal').on('hidden.bs.modal', function () {
+        $('.all-goals').html('').html(res);
+        show_alert_message("success", "Wow! Goal has been edited successfully.");
+        $('#task_loader,.fixed_loader').hide();
+      })
+    },
+    error: function(res) {
+      
+    }
+  });
+  }

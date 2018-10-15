@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  organization_id: 1
+  form_unique_id: 1
+  user_responsible: MyString
+  lead_source_id: 1
+  is_display_thank_you_page: false
+  send_email_notification: false
+  field_names: MyText
+  form_html_code: MyText
+  email_to_all: false
+
+two:
+  organization_id: 1
+  form_unique_id: 1
+  user_responsible: MyString
+  lead_source_id: 1
+  is_display_thank_you_page: false
+  send_email_notification: false
+  field_names: MyText
+  form_html_code: MyText
+  email_to_all: false

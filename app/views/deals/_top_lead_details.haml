@@ -1,0 +1,432 @@
+-deal_cl = @deal.priority_type.present? ? @deal.priority_type.name.downcase : "na"
+.hpanel.hgreen
+  .panel-body
+    .fl
+      %h4.text-primary.m-t-none
+        = @deal.title.truncate(40)
+    .fr
+      .m-b-sm
+        - if !@deal.is_won.present?
+          - cls = 'active'
+        - else
+          - cls = ''
+        %span
+          %button.won_lead.btn.btn-info.btn-xs{href:"javascript:void(0)", :class => @deal.is_won.to_s.present? && @deal.is_won ? "active" : "#{cls}", :disabled => @deal.is_won.to_s.present? && @deal.is_won} Won
+          %button.lost_lead.btn.btn-danger.btn-xs{href:"javascript:void(0)", :class => (@deal.is_won.to_s.present? && !@deal.is_won) ? "active" : "#{cls}", onclick:"$('#lostDeal').modal('show');$('.lost_leason_field').val('')", :disabled => (@deal.is_won.to_s.present? && !@deal.is_won)} Lost
+    .cb
+    %div
+      .row.m-b-sm.m-t-sm
+        .col-md-6
+          = link_to @deal.expected_close_date.present? ? @deal.expected_close_date.strftime("%B %d, %Y") : "Set expected close date", "javascript::void(0)", :class => "expected_closed_date btn btn-default btn-xs", :title => "Expected close date"
+        .col-md-6.text-right
+          .btn.btn-default.btn-xs.dropdown
+            %a.cont_visibility_icn.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+              %span.pe-7s-glasses
+              %span.caret
+            - if @contact.present?
+              = hidden_field_tag "contact_visibility", "#{@contact.is_public}"
+            %ul.dropdown-menu.pull-left
+              %li.arrow_top
+              %li 
+                %a{href:"javascript:void(0)", onclick:"change_opp_visibility('false')"} 
+                  %span{class: "modal-radio"}  
+                    = radio_button_tag "is_public","false", !@deal.is_public, id:"contact_is_public_false"
+                    %label{for: "contact_is_public_false"}
+                      %span   
+                      Associate Users
+                    %span.visibility_description
+                      Only the creator and associate members can view and edit the details
+              %li 
+                %a{href:"javascript:void(0)", onclick:"change_opp_visibility('true')"} 
+                  %span{class: "modal-radio"}  
+                    = radio_button_tag "is_public","true", @deal.is_public, id:"contact_is_public_true"
+                    %label{for: "contact_is_public_true"}
+                      %span   
+                      Everyone in the organization
+                    %span.visibility_description
+                      All users in the company can see and edit the details
+          .btn.btn-default.btn-xs.dropdown
+            %a.cont_visibility_icn.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+              %span.fal.fa-ellipsis-h
+              %span.caret
+            %ul.dropdown-menu.pull-left
+              %li.arrow_top
+              %li
+                =link_to edit_lead_url, :onclick=>"$('#editDealModal').modal('show');edit_deal_popup('#{@deal.id}')", :remote => true do
+                  %span.glyphicon.glyphicon-edit
+                  Edit Opportunity
+              
+              %li
+                - if @deal.created_by == @current_user.id || @current_user.is_admin? || @current_user.is_super_admin?
+                  = link_to "javascript:void(0)", :onclick => "$('#deleteOppModal').modal('show');$('#delete_opportunities_contacts_convert_to_contact').attr('checked',true)" do
+                    %span.glyphicon.glyphicon-trash
+                    Delete Opportunity
+              
+      .m-b-sm
+        .cont_top_r.aa
+          - if @deal.custom_value.present?
+            .opp_ld_amt
+              = @deal.custom_value
+          - else
+            .price
+              - if @deal.currency_type == 'S$'
+                - currency = 'SGD($)'
+              - elsif @deal.currency_type == '€'
+                - currency = 'EUR(€)'
+              - elsif @deal.currency_type == 'INR'
+                - currency = 'INR'
+              - elsif @deal.currency_type == '£'
+                - currency = 'GBP(£)'
+              - elsif @deal.currency_type == 'DZD'
+                - currency = 'DZD'
+              - else
+                - currency = 'USD($)'
+              %span.clr{title:"Amount #{currency}"}
+            .opp_ld_amt{title:"Amount #{currency}"}
+              %span.pe-7s-cash
+              /= @deal.currency_type
+              = @deal.amount.present? ? number_to_currency(@deal.amount.to_f, precision: 2).gsub("$", "") : 0
+      - if @deal.billing_type.present?
+        .m-b-sm
+          - if @deal.billing_type != "Fixed bid" && @deal.billing_type != "Custom" && @billing_type.include?(@deal.billing_type)
+            - if @deal.amount.present? && @deal.amount != 0
+              - duration = @deal.billing_type.split("Per ")[1]
+              .duration-sec
+                %b
+                  = @deal.duration.present? ? @deal.duration : 0
+                  = duration + "s"
+                at
+                %b
+                  = number_to_currency(@deal.ref_billing_amount.to_f, :precision => 2).gsub("$", "")
+                = @deal.currency_type + "/" + duration if @deal.currency_type.present?
+      - if @contact.present?
+        .m-b-sm
+          %span.fr.small.badge.badge-info
+            Contact
+          .cont_top_r.contactImage.pull-left
+            - if @contact.image.present?
+              .userImage
+                = image_tag @contact.image.image.url(:thumb)
+            - else
+              - unless @name.nil?
+                - contact_letter = @name[0]
+              - else
+                - contact_letter = @contact[0]
+              - if @name.present?   
+                %span.assn-pf-icon{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+                  = contact_letter.upcase
+          .cont_top_r.cont_basic_info.pull-left.m-l
+            - contact_url = @contact.class.name == "IndividualContact" ? "/contact/#{@contact.to_param}" : "/contact/#{@contact.to_param}?type=company"
+            .cont_name{style: ""}
+              = link_to @contact.present? ? contact_url : "", title: @name.size >= 18 ? @name : "", :class=> @name.size >= 18 ? "tooltip" : "" do
+                = @name.truncate(18)
+          .cb
+      .m-b-sm
+        %span.fr.small.badge.badge-primary
+          User
+        .cont_top_r.assn-user-top.opp_assign_action
+          = render partial:"opp_assigned_to"
+      
+      
+      / %ul
+      /   Projects :
+      /   -if @deal.projects.present?
+      /     -@deal.projects.each do |project|
+      /       %li
+      /         =link_to "/projects/#{project.id}",:class=>'btn btn-xs btn-outline btn-info' do 
+      /           =project.name
+    .text-center  
+      - if @deal.is_project
+        .dropdown  
+          .converted_to_project.dropdown-toggle{"data-toggle" => "dropdown"}
+            Converted to Project 
+            %span.proj_separator
+            %span.caret.space-left
+          %ul.dropdown-menu.dropdown_right.project_list
+            %li 
+              =link_to "Create new project with this opportunity", "javascript:void(0)", :onclick=>"$('#projectModal').modal('show');$('#link_lead_yes').prop('checked',true);$('#lead_section').show();$('#project_individual_contact_id').prop('required',true).css({'background':'#eee','cursor':'not-allowed'});$('#project_deal_id').prop('required',true).css({'background':'#eee','cursor':'not-allowed'});$('#project_deal_id option').hide();$('#project_individual_contact_id option').hide();$('#link_lead_no').prop('disabled','disabled');$('#link_lead_no').next().find('span').css('cursor','not-allowed')",:class=>'btn btn-outline btn-primary btn-sm'
+            - @deal.projects.each do |project|  
+              %li
+                / %a{href:"/projects",onclick:"$.cookie('lead', 'true');$.cookie('lead_val','#{@deal.id}');$.cookie('lead_txt', '#{@deal.title}');"}  
+                %a{href:"/projects/#{project.id}/jobs", title: project.name}
+                  = project.name.truncate(20)
+
+      - else
+        =hidden_field_tag :lead_contact_id, @contact.id
+        =hidden_field_tag :lead_contact_type, @contact.class.name
+        =hidden_field_tag :opportunity_id,@deal.id
+        =link_to "Convert this Opportunity to Project", "javascript:void(0)", :onclick=>"", :class =>"convert_to_project btn btn-outline btn-primary btn-sm"
+
+
+
+
+
+        
+
+#deleteOppModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    #deleteOppContent.modal-content
+      = render :partial => "delete_opportunity_confirm"
+- if @deal.deals_contacts.present? && @deal.deals_contacts.first.contactable.class.name == "IndividualContact"
+  #editContactModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+    .modal-dialog.new_form_layout
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title{style: "display:inline-block;"} 
+            %span.fal.fa-address-card
+            EDIT CONTACT
+        .modal-body.edit_contact_container{style:"padding-top:10px;"}
+          .loader_div{style: "text-align:center"}
+            %img{src: "/assets/ajax-loader2.gif", alt: "Loader"}
+          / = render partial: "contacts/edit_contact_popup"
+- if @deal.present?
+  #lostDeal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+    .modal-dialog.new_form_layout
+      .modal-content
+        .color-line
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title{style: "display:inline-block;"} 
+            Lost Opportunity
+        .modal-body
+          = form_tag "/update_lead_to_lost", :class => "form",:method=>"post",:id=>"deal_lost_from", :remote => true do |f|
+            = hidden_field_tag "deal_id", @deal.id
+            .form-group
+              .cmn_select_field
+                = select_tag 'lost_reason', options_for_select(current_user.organization.lost_reasons.map{|r| r.reason} + ['Custom Reason']), :prompt => "- Please select a reason -", :class=>"form-control", :required => true, :onchange => "check_custom(this);", :style => ""
+            %textarea.inp_txt.custom_reason_field{name: 'custom_reason', id: 'custom_reason', type: 'text', value: '', :class=>"form-control", placeholder: "Custom Reason", :style => " display:none;"}
+            %textarea.inp_txt.lost_leason_field{name: 'lost_comment', type: 'text', value: '', :class=>"form-control", placeholder: "Comment(Optional)"}
+            .form-layout-footer
+              %button.btn.btn-info{type: 'submit'} Save
+              %a.btn.btn-default{href:'#', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'} Cancel
+
+#addCon.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      .color-line
+      = form_tag(add_contact_path,:id=>"associate_con", :class => "form cmn_new_popup_form") do |f|
+        .modal-header
+          %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+            %i.fal.fa-times.fa-2x
+          %h4.modal-title{style: "display:inline-block;"} 
+            %span.fal.fa-address-card
+            ADD A NEW LEAD
+        .modal-body          
+          .row
+            .form-group.col-md-6.padrht
+              .form_fld              
+                %span.cwkp-sprite.lead_name
+                =text_field_tag :first_name,"",:class=>"typeahead custom-frm-inner form-control",:onkeyup=>"$('#show_er').html('');return onlycharactersWithApostrophe(event);",:onkeydown=>"$('#show_er').html('');return onlycharactersWithApostrophe(event);", "data-provide"=> "typeahead" , :autocomplete=>"off", :required => true, :placeholder => "Enter a Contact's Name"
+                =hidden_field_tag 'contactable_id'
+                =hidden_field_tag 'contactable_type'
+                =hidden_field_tag "deal_id","#{params[:id]}"
+                //%input{:type=>"hidden",:id=>"extension_contact_popup",:name=> "extension_contact_popup"}
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-envelope
+                %input#email.inp_txt{name: "email",type: "email", value: "", required: "true", placeholder: "Email"}
+          .row
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-flag
+                - @coun = Country.find(:all)
+                = select_tag "country", options_from_collection_for_select(@coun, "id", "name"), :prompt => "- Country -", :required => true, :class => "form-control js-source-states", :onchange => "prefill_extension(this.value,'extension_for_contact','extension_contact_popup')"
+
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.input-group-addon#extension_for_contact +1
+                = text_field_tag :work_phone,"", :id=>"work_phone",:value=>"", :class => " bfh-phone form-control","data-format"=>" (ddd) ddd dddd dddd", :placeholder => "Phone", :required => true
+
+          .form-layout-footer
+            %button.btn.btn-info{type: "submit",id: "add_con","data-disable-with" => "Saving...", onclick: "return chk_con_id();"} Save  
+            %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+
+:javascript
+  function editContact(contact_id, deal_id) {
+    $.ajax({
+      url: '/edit_ind_contact',
+        type: 'POST',
+        data: {contact_id: contact_id,deal_id: deal_id},
+        success: function(res) {
+          $("#editContactModal .modal-body").html(res);
+          $('form input[type="text"].bfh-phone, form input[type="phone"].bfh-phone, span.bfh-phone').each(function () {
+              var $phone = $(this);
+              $phone.bfhphone($phone.data());
+          });
+        },
+        error: function(res) {
+          alert("Got an error while editing Contact.");
+        }
+    });
+  } 
+
+  $(".user_nm").click(function(){
+    var user_id = $(this).data('uid');
+    var contact_id = $(this).data('cid');
+    var cont_owner_id = $("#cont_owner_id").val();
+    if(cont_owner_id != user_id){
+      $(".confirm_msg_sec").css("top","5px");
+      $(".confirm_ok").html("Yeah! Let's do it.");
+      $(".confirm_cancel").html("Changed My Mind.");
+      wus_confirm('Are you sure you want to change the ownership of this #{@cont_type}?', function (confirmed){
+        if(confirmed){
+          $.ajax({
+            type: "POST",
+            url: "/change_cont_ownership",
+            data: {user_id: user_id, contact_id: contact_id},
+            beforeSend: function(){
+              $("#task_loader,.fixed_loader").show();
+            },
+            error: function(data) {
+              $("#task_loader,.fixed_loader").hide();
+            },
+            complete: function(data) {
+              $(".cont_owner_sec").html(data.responseText);
+              show_alert_message('success', 'Ownership changed successfully.');
+              $("#task_loader,.fixed_loader").hide();
+            }
+          });
+        }
+      })
+    }  
+  })
+
+  function change_opp_visibility(val){
+    if( $("#contact_visibility").val() != val){
+      $.ajax({
+        type: "POST",
+        url: "/change_opp_visibility",
+        data: {id: "#{@deal.id}", is_public: val},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          $("#contact_visibility").val(val);
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","The visibility of this Opportunity has been changed.")
+        },
+        error: function(data) {
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  }
+
+  function changeLeadStage(id, stage_id,page){
+    $("#task_loader, .fixed_loader").show();
+    $.ajax({
+      url: "/change_lead_stage",
+      data: {id: id,stage_id: stage_id,page: page},
+      success: function(data){ 
+        //alert("Success");
+        if(data.length > 15)
+          data = data.substring(0,12) + ".."
+        $(".lead-stages-cntr .lead-"+id).html(data);
+        $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+        alert('Got an error while changing lead stage.');
+      }
+    });
+  }
+
+  function changeLeadStageInLeadDetails(id, stage_id){
+    $("#task_loader, .fixed_loader").show();
+    $.ajax({
+      url: "/change_lead_stage_in_lead_details",
+      data: {id: id,stage_id: stage_id},
+      success: function(data){ 
+        $(".won_lead").addClass("active").removeAttr("disabled");
+        $(".lost_lead").addClass("active").removeAttr("disabled");
+        $(".opp_status_bar_sec").html(data);
+        $(".lead-details-page .deal_status_name").html($("#curr_deal_status").val());
+        $(".lead-details-page .deal_status_name").attr("tooltipText",$("#curr_deal_status").val());
+        load_activity_cum_deals('activity_stream');
+        $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+      }
+    });
+  }
+  $(".won_lead").on('click', function(){
+    $(".confirm_msg_sec").css('top','5px');
+    wus_confirm('Are you sure want to move the opportunity to Won category.?', function (confirmed){
+      if(confirmed){
+        $.ajax({
+          url: "/update_lead_to_won",
+          data: {id: "#{@deal.id}"},
+          beforeSend: function(){
+            $("#task_loader,.fixed_loader").show();
+          },
+          success: function(data){ 
+            $(".opp_status_bar_sec").html(data);
+            $(".won_lead").addClass("active").attr("disabled", "disabled");
+            $(".lost_lead").removeClass("active").removeAttr("disabled");
+            load_activity_cum_deals('activity_stream')
+            show_alert_message("success", "Opportunity has been marked as Won.");
+            $("#task_loader, .fixed_loader").hide();
+          },
+          error: function(data){
+            $("#task_loader, .fixed_loader").hide();
+          }
+        });
+      }
+    })
+  })
+
+  $('#deal_lost_from').bind('ajax:beforeSend', function( evt) {
+    var val = $("#lost_reason").val();
+    if (val == "Custom Reason"){
+      if($("#custom_reason").val() != "" && $("#custom_reason").val() != null && $("#custom_reason").val() != undefined){
+      }else{
+        $("#custom_reason").css('border-color','red')
+        evt.preventDefault;
+        return false;
+      }
+    }else{
+      $("#custom_reason").css("border-color", "#e6e8e8");
+    }
+  }).bind('ajax:complete', function( evt, data, status, xhr) {
+    $(".won_lead").removeClass("active").removeAttr("disabled");
+    $(".lost_lead").addClass("active").attr("disabled", "disabled");
+    $('#lostDeal').modal('hide');
+    $(".opp_status_bar_sec").html("").html(data['responseText']);
+    load_activity_cum_deals('activity_stream')
+    show_alert_message("success", "Opportunity has been marked as Lost.");
+  });
+  var popup_deal_id = "#{@deal.id}";
+  $('.expected_closed_date').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY',pickTime: false}).on('dp.change', function(e){
+    //$(this).blur();
+    var new_date = new Date(e.date);
+    if(popup_deal_id != "")
+    {
+      $.ajax({
+        url: "/update_lead_expected_close_date",
+        data: {id: popup_deal_id, expected_close_date: new_date},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data){
+          if(data != ""){
+            $(".expected_closed_date").html(data);
+            show_alert_message("success", "Expected close date set successfully.");
+          }
+          $("#task_loader, .fixed_loader").hide();
+        },
+        error: function(data){
+          $("#task_loader, .fixed_loader").hide();
+        }
+      });
+    }
+  });

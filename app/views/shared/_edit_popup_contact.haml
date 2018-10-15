@@ -1,0 +1,12 @@
+/=javascript_include_tag "bootstrap-formhelpers-phone.js"
+#editPopContactModal.modal.fade.bs-example-modal-lg{"aria-hidden" => "true", "aria-labelledby" => "editPopContactModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.modal-lg.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal",} ×
+        %h4.modal-title Contact Edit
+      .modal-body
+        #edit-contact-alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+          %span.close{onclick: "$('#edit-contact-alert-msg').hide();$('#loader').hide();"} x
+          #edit-contact_msg_div
+        #contact_append

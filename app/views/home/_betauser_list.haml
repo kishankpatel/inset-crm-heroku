@@ -1,0 +1,54 @@
+- @users = @users.paginate(:page => params[:page], :per_page => 20)
+.col-md-12.p0
+  %div
+    / %a{"data-toggle" => "modal", href: "#inviteBetaCon", class: "fl btn btn_adcon btn-default ",rel: "tooltip", title: "Invite Beta User", style: "margin:0px;"}
+    /   %i.add_con_icn
+    /   Invite Beta User
+    .navbar-right
+      %form{action: "#", method: "get"}
+      .input-group
+        %input#system-search.form-control{name: "q", placeholder: "Type to search...", style: "height: 30px;padding-right:20px"}
+        %span.glyphicon.glyphicon-search.fr{style: "margin-right:5px;top:-21px"}
+  .cb
+  .table-responsive
+    %table.table.white-table.table-hover.dataTable{style: "border: 1px solid #ddd;"}
+      %thead{style: "background: #EDEEF0;"}
+        %tr
+          %th Serial
+          %th First Name
+          %th Last Name
+          %th Email
+          %th Organization
+          %th Lead Count
+          %th Contact Count
+          %th Last Login At
+      / Serial  Email Users Active Users  Leads Requested at  Verified  Registered  Actions
+      %tbody
+        - if !@users.nil? || !@users.blank?
+          - i = 1
+          - @users.each do |user|
+            %tr
+              %td 
+                = i 
+              %td
+                = user.first_name.present? ? user.first_name : "NA"
+              %td
+                = user.last_name.present? ? user.last_name : "NA"
+              %td 
+                = user.email.present? ? user.email : "NA" 
+              %td
+                = user.organization.present? ? user.organization.name : "NA" 
+              %td
+                = user.deals.present? ? user.deals.count : "NA" 
+              %td
+                = IndividualContact.where("created_by = ?", user.id).count + CompanyContact.where("created_by = ?", user.id).count
+              %td
+                = user.last_sign_in_at.present? ? user.last_sign_in_at : "Not signed in yet"
+            - i += 1
+        - else 
+          %div
+            No user found
+  .cb
+  .digg_pagination.fr{style: "margin: 10px 0"}
+    = will_paginate @users, :container => false
+

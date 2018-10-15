@@ -1,0 +1,319 @@
+.cont_activity_sec.hpanel
+  .v-timeline.vertical-container.animate-panel{"data-child" => "vertical-timeline-block", "data-delay" => "1"}
+    - if @tasks.present?
+      .vertical-timeline-block
+      - @tasks.each do |task|
+        - clr="green"
+        - if task.priority_id == 1
+          - clr="red"
+        - elsif task.priority_id == 2
+          - clr="blue"
+        - style_bg=""
+        - style_text=""
+        - if task.is_completed
+          - style_bg="background:#F5F8FC;"
+          - style_text="text-decoration:line-through; "
+            
+        /.cont_act_dt 
+        /  / date
+        .vertical-timeline-block
+          .vertical-timeline-icon.navy-bg
+            %span.pe-7s-note.fnt-30
+            %span{style:"position:absolute;left:34px;top:30px"}
+              - dt = task.created_at
+              - if dt
+                - today = Time.zone.now.strftime('%Y-%m-%d')
+                - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                  - f_date = "Today"
+                - else
+                  - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                    - f_date = "Yesterday"
+                  - else
+                    - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                      - f_date = dt.strftime("%b %d")
+                    - else
+                      - f_date = dt.strftime("%b %d, %Y")
+              - if task.is_completed
+                = check_box_tag 'complete_task', 'yes', true,:disabled => "disabled", :id => "complete_task_#{task.id}", :onclick => "task_outcome('#{task.id}')",:class=>"task_chk"
+                /-elsif task.is_completed && !current_user.is_admin?
+                /  = check_box_tag 'complete_task', 'yes', true, :disabled => "disabled",:id => "complete_task_#{task.id}", :onclick => "task_outcome('#{task.id}')",:class=>"task_chk"
+              -elsif(task.assigned_to == current_user.id || task.created_by == current_user.id || current_user.is_admin?) 
+                = check_box_tag 'complete_task', 'no', false, :id => "complete_task_#{task.id}", :onclick => "task_outcome('#{task.id}');",:class=>"task_chk"
+              -else
+                = check_box_tag 'complete_task', 'yes', false, :disabled => "disabled",:id => "complete_task_#{task.id}", :onclick => "task_outcome('#{task.id}')",:class=>"task_chk"
+              // actions
+              .task_widget_setting.text-right
+                .actions.dropdown
+                  %a.btn-sm.btn-circle.dropdown-toggle{"data-toggle" => "dropdown", href: "javascript:",:style=> "color:darkOrange;"}
+                    %span.pe-7s-more.fnt-25
+                    .task_set{rel:"tooltip", title:"Actions"}
+                  %ul.dropdown-menu
+                    -if(task.assigned_to == current_user.id || task.created_by == current_user.id || current_user.is_admin?) 
+                      - unless task.is_completed
+                        %li.arrow_top
+                        %li
+                          = link_to "javascript:void(0)", :onclick=> "mark_as_complete("+task.id.to_s+")" do
+                            %span.fal.fa-check-circle
+                            Complete
+                        %li
+                          = link_to "javascript:void(0)", :onclick=> "$('#taskEditModal').modal('show');edit_popup('#{task.id}');$('#hfield').val('#{task.deal.id}');" do
+                            %span.fal.fa-edit
+                            Edit
+                        %li
+                          = link_to "javascript:void(0)", :onclick=> "$('#taskFollowModal').modal('show');follow_popup('#{task.id}')" do
+                            %span.fal.fa-user-check
+                            Follow up 
+                        %li
+                          - recurring= (task.recurring_type != "none")
+                          = link_to "javascript:void(0)", :id=> "deal_detail_task_delete_btn", :onclick =>"delete_task('#{task.id}', '#{recurring}')" do
+                            %span.fal.fa-trash
+                            Delete
+                      - else
+                        %li.arrow_top
+                        %li
+                          = link_to "javascript:void(0)", :onclick=> "$('#taskFollowModal').modal('show');follow_popup('#{task.id}')" do
+                            %span.fal.fa-user-check
+                            Follow up
+                    - else
+                      %li.arrow_top
+                      %li
+                        = link_to "javascript:void(0)", :onclick=> "$('#taskFollowModal').modal('show');follow_popup('#{task.id}')" do
+                          %span.fal.fa-user-check
+                          Follow up  
+            
+
+          .vertical-timeline-content
+
+            .p-sm
+              
+              %span.vertical-date.pull-right
+                / date
+                = "#{f_date}"
+                %br
+                %small
+                  ="#{task.created_at.strftime("%I:%M %p")}"
+                
+              
+            
+              %h2
+                %a
+                  %span.cwkp-sprite.tag-arrow-icon
+                  / heading
+                  - if task.is_completed
+                    - css_v = "line-through"
+                  -else
+                    - css_v = "none"
+                  .cont_top_r{align: "left", style: "width:auto;text-decoration:#{css_v};"}
+                    %span
+                      - if params[:controller] == "deals"
+                        //= task.get_title
+                        = task.title
+                      - else
+                        = link_to task.get_title, task.get_url
+              %p
+                %span.due_date
+                - if task.task_type.present?
+                  %span{class: "label#{task.task_type.name} labelTaskType", style:"float: none;"}= task.task_type.name
+                - else
+                  %span{class: "labelNone labelTaskType", style:"float: none;"}
+                    None
+                %span.cwkp-sprite.cont_created_on
+                %span
+                  = task.due_date.present? ? task.due_date.strftime("%a - %b %d, %Y @ %H:%M") : ""
+              
+              / created by
+              %span
+                - user = task.user
+                - if user.present?
+                  - user_name = user.full_name.present? ? user.full_name : user.email
+                  - is_cur_user = (user == @current_user)
+                  %div.tooltip{ title: "Assigned To: #{is_cur_user ? 'Me' : user_name}"}     
+                    - if user.image.present?  
+                      %span.user-profile
+                        %span.userImage
+                          = image_tag user.image.image.url(:thumb), :alt=>""
+                    - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                      %span.user-profile
+                        %span.userImage
+                          = image_tag gravtar_img_url, alt: ""
+                    - else
+                      .lead-details-page 
+                        %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                          = user_name[0].upcase    
+            
+              - if task.details.present?  
+                %p
+                  / description
+                  = task.details
+            .panel-footer
+              
+              - if task.initiator.present?
+                %span
+                  = "Created by"
+                  = task.initiator.full_name.present? ? task.initiator.full_name : task.initiator.email
+              
+                /attachments
+            
+      =render :partial => "tasks/task_edit_popup"
+      =render :partial => "tasks/task_followup_popup"
+      =render :partial => "tasks/task_js"
+
+    - else
+      %div{style: "text-align:center;margin-top:0px;"}
+        %a.toggle_note_form.add_new_btn{href:"javascript:void(0)",onclick: "$('.toggle_task_form').click()", "data-id" => @deal.id } + Add task
+ 
+:javascript
+  $(document).ready(function(){
+    $('#taskList').dataTable({
+        "sPaginationType": "bootstrap",
+        "oLanguage": {
+            "sLengthMenu": "Show _MENU_ tasks"
+        },
+        "bLengthChange": false,
+        "bFilter": false,
+        "bSort": false
+        
+    });
+    
+    //    $('#task_delete_btn').bind('ajax:complete', function(evt, data, status, xhr){
+    //      reload_task_widget();
+    //    });
+  });
+  
+  
+  
+  function delete_task(id, recurring){
+    if(confirm("Do you want to delete the task?")){
+        delete_all=false
+        if(recurring == "true" || recurring == true)
+          delete_all=confirm("Do you want to delete all recurring tasks?");
+        $.ajax({
+        type: "DELETE",
+        url: "/tasks/"+id,
+        dataType: 'json',
+        data: {delete_all_task: delete_all},
+        async: false,
+        beforeSend: function(){
+          $("#task_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader").hide();
+        },
+        complete: function(data) {
+          // reload_task_widget();
+          $("#task_loader").hide();
+          // $(document).trigger("add-alerts", [{'message': "Task has been deleted successfully." ,'priority': 'success'}]);
+          show_alert_message("success", "Task has been deleted successfully.");
+          // $("#deal_"+deal_id).html("<div class='last_task_"+data.responseJSON+"'><div class='label"+data.responseJSON+" labelTaskType tasktype'>"+data.responseJSON+"</div></div>");
+          load_activity_cum_deals('task_list');
+        }
+      });
+    }
+  }
+  
+  $( "tr.task_row" ).hover(
+    function() {
+    div_open=$(this).find("div.open")
+    $(div_open).removeClass("open")
+      $(this).find("div.task_widget_setting").show();
+      //$(this).find("div.task_widget_setting").css("visibility", "visible");
+    }, function() {
+      $(this).find("div.task_widget_setting").hide();
+      //$(this).find("div.task_widget_setting").css("visibility", "hidden");
+    }
+  );
+  function edit_popup(id){
+    $('#taskable_id').val(id);
+    $.ajax({
+      type: "POST",
+      url: "/edit_task",
+      dataType: 'json',
+      async: false,
+      data: {task_id: id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#form_content").html(data.responseText);
+        $("#clicked_button_ref").val('taskwidget');
+        $("#task_loader").hide();
+        $("form#task_form").find("#link_with").val('Opportunity')
+        $(".deal_list").show();
+        $(".contact_list").hide();
+        $(".company_list").hide();
+        //$('a[rel="tooltip"],i,input:checkbox,button,div,span').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+      }
+    });
+  }
+  
+  function follow_popup(id){
+    $.ajax({
+      type: "POST",
+      url: "/follow_up_task",
+      dataType: 'json',
+      async: false,
+      data: {task_id: id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#followform_content").html(data.responseText);
+        $("#clicked_button_ref").val('taskwidget');
+        $("#task_loader").hide();
+        
+      }
+    });
+  }
+  $(function()
+  {
+    $('#dashboardTasks').niceScroll({cursorcolor:"#7e7e7e", autohidemode: false, bouncescroll: true,cursorwidth: "10px", background: "#f8f8f8"});
+  });
+
+
+  function mark_as_complete(id){
+    var action ="/complete"
+    var stype="deal";
+    var note="";
+    var task_multi="";
+    var create_task="";
+    var deal_id="";
+    var task_type="";
+    var contact_id="";
+    $.ajax({
+      type: "POST",
+      url: action,
+      dataType: 'json',
+      async: true,
+      data: {task_id: id, note: note,task_out_val: task_multi,create_task: create_task,stype: stype,deal_id: deal_id, task_type: task_type,contact_id: contact_id, complete_task:"true"},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        load_activity_cum_deals('task_list');
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }

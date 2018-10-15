@@ -1,0 +1,32 @@
+.col-md-12.con-box1{style: "border-top:none;border-radius:0;background:#fff;"}
+  #plan_pie_chart_sec.body.collapse.in
+:javascript
+  Highcharts.chart('plan_pie_chart_sec', {
+      chart: {
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          type: 'pie'
+      },
+      title: {
+          text: 'Total users percentage by plan'
+      },
+      plotOptions: {
+          pie: {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                  enabled: true,
+                  format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                  style: {
+                      color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                  }
+              }
+          }
+      },
+      series: [{
+          name: 'Plan',
+          colorByPoint: true,
+          data: #{@generate_data.to_json}
+      }]
+  });

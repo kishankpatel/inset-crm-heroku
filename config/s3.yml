@@ -1,0 +1,12 @@
+development:
+  bucket: insetdevelopment
+  access_key_id: <%=AwsCredential.first.access_key%>
+  secret_access_key: <%=AwsCredential.first.secret_key%>
+production:
+  bucket: s3-prod-inset-hub
+  access_key_id: <%=AwsCredential.first.access_key%>
+  secret_access_key: <%=AwsCredential.first.secret_key%>
+staging:
+  bucket: insetstaging
+  access_key_id: <%=AwsCredential.first.access_key%>
+  secret_access_key: <%=AwsCredential.first.secret_key%>

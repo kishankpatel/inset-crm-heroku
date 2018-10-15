@@ -1,0 +1,36 @@
+:css
+  .checkbox label{padding-left:8px;}
+.register-container
+  .row
+    .col-md-12
+      .text-center.m-b-md
+        %h3 Registration
+        %small
+      .hpanel
+        .panel-body
+          %form#loginForm{:action => "#"}
+            .row
+              .form-group.col-lg-12
+                %label Username
+                %input.form-control{:id => "", :name => "", :type => "", :value => ""}/
+              .form-group.col-lg-6
+                %label Password
+                %input.form-control{:id => "", :name => "", :type => "password", :value => ""}/
+              .form-group.col-lg-6
+                %label Repeat Password
+                %input.form-control{:id => "", :name => "", :type => "password", :value => ""}/
+              .form-group.col-lg-6
+                %label Email Address
+                %input.form-control{:id => "", :name => "", :type => "", :value => ""}/
+              .form-group.col-lg-6
+                %label Repeat Email Address
+                %input.form-control{:id => "", :name => "", :type => "", :value => ""}/
+              .checkbox.col-lg-12
+                %input.i-checks{:checked => "checked", :type => "checkbox"}/
+                Sigh up for our newsletter
+            .text-center
+              %button.btn.btn-success Register
+              %button.btn.btn-default Cancel
+  .row
+    .col-md-12.text-center
+      2018 Copyright InsetCRM

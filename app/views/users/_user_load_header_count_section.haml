@@ -1,0 +1,55 @@
+.row.pf_right_sec
+  / - if @allowed_user && @task_count > 0
+  /   - url_task = "/tasks"
+  /   - sty = ""
+  / - else
+  /   - url_task = "javascript:void(0)"
+  /   - sty = "color:#999;cursor:default;"
+  .hpanel.hgreen
+    .panel-body.t_s_f
+      .row
+        .col-md-4
+          .hpanel.hbggreen
+            .panel-body
+              .text-center
+                %h5 All Open Tasks
+                %p.text-big.font-light
+                  =@task_count
+       
+        - if @allowed_user #&& @new_deals > 0
+          - url_ndeal = "/leads"
+          - sty = "margin-right:0px;"
+        - else
+          - url_ndeal = "javascript:void(0)"
+          - sty = "margin-right:0px;cursor:default;color:#999;"
+        .col-md-4
+          .hpanel.hbgyellow
+            .panel-body
+              .text-center
+                %h5
+                  Open Leads
+                %p.text-big.font-light
+                  =@open_leads
+        
+        - if @allowed_user 
+          - url_qdeal = "/leads"
+          - sty = "margin-right:0px;"
+        - else
+          - url_qdeal = "javascript:void(0)"
+          - sty = "margin-right:0px;cursor:default;color:#999;"
+        .col-md-4
+          .hpanel.hbgred
+            .panel-body
+              .text-center
+                %h5
+                  Closed Leads
+                %p.text-big.font-light
+                  =@closed_leads
+        /=@qualified_deals
+      /%a.view_link{style: sty, href: url_qdeal, title: "Qualified Leads"} 
+      /  View
+      /  /%span 
+      /  /  -if !DealStatus.get_deal_name('2',@current_user.organization_id).nil? && !DealStatus.get_deal_name('2',@current_user.organization_id).blank?  
+      /  /    = DealStatus.get_deal_name('2',@current_user.organization_id).name
+  .cb
+.cb

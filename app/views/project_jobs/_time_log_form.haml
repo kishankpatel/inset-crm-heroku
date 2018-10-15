@@ -1,0 +1,268 @@
+-if (!jobtimelog.present?)
+  - jobtimelog = JobTimeLog.new
+  - jobtimelog.log_start_time =DateTime.now.change({ hour: 8 })  
+-if (!jobtimelog.log_start_time.present?)
+  - jobtimelog.log_start_time =DateTime.now.in_time_zone(@current_user.time_zone).change({ hour: 8 })  
+= form_for(jobtimelog, :url => job_time_log_create_path, :remote => true, :html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"new_jobtimelog"}) do |f|
+  .modal-header
+    %span.fr{"aria-hidden" => "true",  "data-dismiss" => "modal"} 
+      %i.fal.fa-times.fa-2x
+    %h4.modal-title
+      %span.fal.fa-clock.fnt-30
+      TIME LOG
+  .modal-body.ovfl-y
+    #alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+      %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal", onclick: "$('#alert-msg').hide();$('#loader').hide();"}
+      #msg_div
+    .row
+      .form-group
+        Project: 
+        %strong
+          = @project_job.project.name
+    .row
+      .form-group
+        Job: 
+        %strong
+          = "#" + @project_job.job_no.to_s + " :- "
+          = @project_job.name
+          =f.hidden_field :project_job_id
+          =f.hidden_field :id
+          =f.hidden_field :organization_id
+    .row
+      .pd0.fr.timelog-stat
+        =render :partial=>"project_jobs/project_job_time_stat",:locals=>{project_job: @project_job}
+    .cb
+    .row
+      .time-log-line-items
+        %table#dup_job_time_log_tbl.table.table-stripped.m-b-xxs
+          %thead
+            %tr
+              %th
+                Resource
+              %th
+                Date
+              %th
+                Skip Time?
+              %th
+                Start Time
+              %th
+                End Time
+              %th
+                Break Time
+              %th
+                Spent Hours
+              %th
+                Billable?
+            %tbody
+              %tr.default
+                %td.col-md-3
+                  .form-group
+                    =f.select :user_id,jobtimelog.project_job.project.project_users.map{|p|p.user}.compact.collect {|i| [ ((i.id==@current_user.id ? 'me' : (i.full_name.present? ? i.full_name : i.email))), i.id ]},{:selected=>@project_job.assigned_user.id},{:class=>"form-control "}
+                %td
+                  .form-group.wd-20
+                    = f.text_field "log_start_date",:class=>"form-control custom-frm-inner datetimepicker", id: "log-start-datetimepicker", autocomplete: "off",:required => true, placeholder: "Start date",:value=>jobtimelog.log_start_time.present? ? jobtimelog.log_start_time.in_time_zone(@current_user.time_zone).strftime("%m/%d/%Y") : ""
+                %td
+                  .form-group.wd-20.checkbox.checkbox-inline
+                    =check_box_tag :skip_time,1,jobtimelog.log_start_time == jobtimelog.log_end_time
+                    %label{:for=>"skip_time"}
+                %td
+                  .form-group
+
+                    = f.text_field :log_start_time,:class=>"form-control time-picker log-start-time", autocomplete: "off",:required => true, placeholder: "Start Time", :onkeydown=>"return false;",:value=>jobtimelog.log_start_time.present? ? jobtimelog.log_start_time.in_time_zone(@current_user.time_zone).strftime("%H:%M") : "" 
+
+                %td
+                  .form-group
+                    
+                    =f.text_field :log_end_time,:class=>"form-control time-picker log-end-time", autocomplete: "off",:required => true, placeholder: "End Time",:value=>jobtimelog.log_end_time.present? ? jobtimelog.log_end_time.in_time_zone(@current_user.time_zone).strftime("%H:%M") : "" 
+                %td
+                  .form-group
+                    =f.text_field :break_time,:class=>"form-control log-break-time", autocomplete: "off", :placeholder=> "hh:mm",:value=>jobtimelog.break_time.present? ? getHourMinuteFromSeconds(jobtimelog.break_time) : "" 
+                %td
+                  .form-group.wd-20
+                    =f.text_field :spent_hours,:class=>"form-control", autocomplete: "off", :placeholder=> "Spent Hours",:readonly=>true,:value=>jobtimelog.spent_hours.present? ? getHourMinuteFromSeconds(jobtimelog.spent_hours) : "" 
+                %td
+                  .form-group.wd-20
+                    =f.check_box :is_billable 
+      .col-md-12
+        .form-group
+          =f.text_area :note,:class=>'tinymce', :cols => 100, :rows =>5
+      .form-layout-footer{style:"margin-top: 20px;"}
+        %button.btn.btn-info{type: "submit", "data-disable-with" => "Saving...", onclick: "return validateJobLogForm(event)", style:"margin-bottom: 0px;"} 
+          - if jobtimelog.id.present?
+            = "Update"
+          - else
+            = "Save"
+        %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal", style:"margin-bottom: 0px;"}
+          Cancel
+
+
+
+
+:javascript
+  $(function () {
+    manage_skip_timeentry()
+    initialize_tinymce_timelog()
+    $(".log-break-time").mask("99:99")
+    $('.log-break-time').timepicker({ timeFormat: 'H:i' ,'step': 5});
+    //$('input.time-picker').timepicker();
+    $('input.time-picker').timepicker({'step':15,'defaultTime': '8:00pm'});
+    $('#log-start-datetimepicker').datetimepicker({ useCurrent: true,pickTime:false,  format: 'MM/DD/YYYY'}).on('change', function(){
+      $(this).blur();
+    });
+    $("#skip_time").on("click",function(){
+      manage_skip_timeentry()
+    })
+    $( "#job_time_log_log_start_time" ).on( "keyup", ".totalduration", function() {
+      val = $(this).val();
+       if(val.trim()!=''){
+        valArr = val.split(":");
+        if(parseInt(valArr[0]) > 23){
+          value = valArr[0].slice(0, -1);
+          if(typeof valArr[1] != 'undefined' ){
+              value = value +":"+valArr[1];                        
+          }
+          $(this).val(value); return false;
+        }
+       }
+      });
+    $( "#job_time_log_log_end_time" ).on( "keyup", ".totalbreak", function() { 
+      
+      val = $(this).val();
+       if(val.trim()!=''){
+        valArr = val.split(":");
+        if(parseInt(valArr[0]) > 23){
+          value = valArr[0].slice(0, -1);
+          if(typeof valArr[1] != 'undefined' ){
+              value = value +":"+valArr[1];                        
+          }
+          $(this).val(value); return false;
+        }
+       }
+      });
+    $( ".log-break-time" ).on( "blur",  function() {
+     chk_time(this)
+    });
+    $( ".log-end-time" ).on( "blur",  function() {
+     chk_time(this)
+    });
+    $( ".log-start-time" ).on( "blur",  function() {
+     chk_time(this)
+    });
+  });
+
+  function manage_skip_timeentry()
+  {
+    if($('#skip_time:checked').length > 0)
+      {
+        $('input[name="job_time_log[log_start_time]"]').attr("disabled","disabled")
+        $('input[name="job_time_log[log_end_time]"]').attr("disabled","disabled")
+        $('input[name="job_time_log[break_time]"]').attr("disabled","disabled")
+        $('input[name="job_time_log[spent_hours]"]').removeAttr("readonly")
+        $('input[name="job_time_log[spent_hours]"]').timepicker({ timeFormat: 'H:i' ,'step': 15});
+        $('input[name="job_time_log[log_start_time]"]').val("")
+        $('input[name="job_time_log[log_end_time]"]').val("")
+        $('input[name="job_time_log[break_time]"]').val("")
+      }
+      else
+      {
+        $('input[name="job_time_log[log_start_time]"]').removeAttr("disabled")
+        $('input[name="job_time_log[log_end_time]"]').removeAttr("disabled")
+        $('input[name="job_time_log[break_time]"]').removeAttr("disabled")
+        $('input[name="job_time_log[spent_hours]"]').attr("readonly","readonly")
+        $('input[name="job_time_log[log_start_time]"]').val("8:00pm")
+
+      }
+  }
+  function chk_time(obj){
+     var sttime = $(obj).closest('tr').find('input[name="job_time_log[log_start_time]"]').val();
+      var edtime = $(obj).closest('tr').find('input[name="job_time_log[log_end_time]"]').val();
+      var brtime = $(obj).closest('tr').find('input[name="job_time_log[break_time]"]').val();
+      if(sttime == "" || edtime == "")
+      {  return;
+      }
+      if(brtime == "")
+      {
+        brtime = "0:0"
+      }
+
+      // start time mode
+      var st_mode = (sttime.indexOf('pm') > -1) ? 'pm' : 'am';
+      st_time = (sttime.indexOf('pm') > -1) ? sttime.replace('pm','') : sttime.replace('am','');
+      st_tmsp = st_time.split(":");
+      if(st_mode == 'pm' )
+      {
+        if(parseInt(st_tmsp[0]) != '12')
+        {
+          st_tmsp[0] = parseInt(st_tmsp[0]) + 12;
+        }
+      }
+      else
+      {
+        st_tmsp[0] = st_tmsp[0] == '12' ? '0' : st_tmsp[0];
+      }
+     
+      st_time = st_tmsp.join(":")
+      // end time mode
+      var ed_mode = (edtime.indexOf('pm') > -1) ? 'pm' : 'am';
+      ed_time = (edtime.indexOf('pm') > -1) ? edtime.replace('pm','') : edtime.replace('am','');
+      ed_tmsp = ed_time.split(":");
+      if(ed_mode == 'pm' )
+      {
+        if( parseInt(ed_tmsp[0]) != 12)
+        {
+          ed_tmsp[0] = parseInt(ed_tmsp[0]) + 12;
+        }
+      }
+      else
+      {
+        ed_tmsp[0] = ed_tmsp[0] == '12' ? '0' : ed_tmsp[0];
+      }
+      ed_time = ed_tmsp.join(":")
+      ////////////////////////////
+      var dt= new Date(2000,1,1)
+      
+      dtst=new Date(2000,1,1,st_time.split(":")[0],st_time.split(":")[1])
+      dted=new Date(2000,1,1,ed_time.split(":")[0],ed_time.split(":")[1])
+     
+      var diff = (dted - dtst)/1000;
+      console.log(diff)
+      if(brtime.indexOf(':')> -1){
+        br_time = brtime.split(':');
+        extra_hr = (br_time[1] == '') ? 0 : Math.floor(parseInt(br_time[1])/60);                         
+        br_hr = (br_time[0] == '') ? 0 : (parseInt(br_time[0])+parseInt(extra_hr));
+        br_min = (br_time[1] == '') ? 0 : Math.floor(br_time[1]%60);
+      }else{
+        br_hr = brtime;                
+        br_min = 0;
+      }
+      total_br_min = (parseInt(br_hr)*60)+parseInt(br_min);
+      
+      st_time_minute = diff / 60;
+      generaged_end_tm_min = parseInt(st_time_minute) - parseInt(total_br_min);
+      generated_end = "";
+      generaged_end_tm_hr = Math.floor(generaged_end_tm_min/60);
+      generaged_end_min = Math.floor(generaged_end_tm_min%60);
+      
+      generaged_end_hr = generaged_end_tm_hr;
+      $(obj).closest('tr').find('input[name="job_time_log[spent_hours]"]').val(generaged_end_hr+":"+generaged_end_min);
+      
+  }
+  function validateJobLogForm(event)
+  {
+    // alert('validating.............')
+    var str= $("#job_time_log_spent_hours").val();
+    //alert(str)
+    if (str.indexOf('-') == -1) {
+      $("form#new_jobtimelog").submit()
+    }
+    else
+    {
+      // spent hours should not be negative
+      show_alert_message("danger", "Spent hours can't be negative");
+      event.preventDefault()
+      return false;
+    }
+  }
+
+  
+

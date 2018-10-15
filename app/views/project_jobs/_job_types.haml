@@ -1,0 +1,106 @@
+- @project_job_type = ProjectJobType.new
+- @project_job_types = @current_organization.project_job_types
+.panel-heading.hbuilt
+  %h4.fl
+    Manage Job Types
+  .btn.btn-primary.btn-success.fr{ data: { toggle: "modal", target: "#addJobType" }}
+    .glyphicon.glyphicon-plus-sign
+    Add Job Type
+  .cb
+.panel-body
+  #list_job_type
+    = render partial: "project_jobs/list_job_type"
+
+
+#editJobType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Edit Job Type
+      .modal-body
+        = form_for(ProjectJobType.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateJobType(); return false;'}) do |f|
+          = f.hidden_field 'id'
+          = hidden_field_tag 'job_type_id'
+
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Job Type*
+              %i.bar
+              =f.text_field :name, :required => true, id: 'txt-edit-job-type', :maxlength=> '50', :class=> 'form-control'
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'deal_submit_btn'} Update
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+#addJobType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Job Type
+      .modal-body
+        = form_for(ProjectJobType.new, :url => '', :html=>{:class => 'form', onsubmit: 'addJobType(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-add-job-type', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Job Type*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{type: 'submit', id: 'deal_submit_btn'} Save
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+:javascript
+  $(function() {
+        $('#editJobType').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget)
+          var statusName = button.data('name')
+          var statusId = button.data('id')
+          $('#txt-edit-job-type').val(statusName);
+          $('#job_type_id').val(statusId);
+        });
+        $('#addJobType').on('show.bs.modal', function (event) {            
+            $("#txt-add-job-type").val('')
+        });
+    });
+    function updateJobType() {
+      var jobType = $("#txt-edit-job-type").val();
+      var jobId = $('#job_type_id').val();
+      $("#job_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/update_job_type',
+          type: 'POST',
+          data: {id: jobId,
+              name: jobType },
+          success: function(res) {
+              $("#editJobType").modal('hide');
+              $("#list_job_type").html(res);
+              $("#job_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#job_type_error").show();
+          }
+      });
+    }  
+
+    function addJobType() {  
+      var jobType = $("#txt-add-job-type").val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/create_job_type',
+          type: 'POST',
+          data: { name: jobType },
+          success: function(res) {
+              $("#addJobType").modal('hide');
+              $("#list_job_type").html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#job_type_error").show();
+          }
+      });
+    }  

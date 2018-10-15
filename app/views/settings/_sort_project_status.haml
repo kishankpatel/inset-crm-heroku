@@ -1,0 +1,97 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  }
+- sequence = 0
+#sortableProject  
+  - @current_organization.project_stages.where(" is_active=?",true).order('position asc').each do |project_stage|
+    .col-md-12.ui-state-default.btn.btn-default.filterSelectDropdow.sortablee_project{style: 'margin-bottom: 15px;background-color: #eee;padding:0px;cursor:move;', 'data-id' => project_stage.id, id: "btn_#{project_stage.id}"}
+      %div.fl{style: 'margin-right: 5px;font-weight: bold;background: rgb(170, 170, 170) none repeat scroll 0% 0%;border-radius: 3px 0px 0px 3px;padding: 10px;width: 35px;'}
+        = sequence = sequence + 1
+      %div{style: 'margin-top: 7px;font-size: 18px;'}
+        .fl{style: 'margin-right: 2px', value: project_stage.id, stage_name: project_stage.name, name: 'stage'}
+          .status_name.fl
+            = project_stage.name
+        .fr
+          /.......... Edit and delete button for status.............
+          %span.glyphicon.glyphicon-pencil.edit_status{onclick: "$('.text-danger').html('');", style: "cursor:pointer;", value: "#{project_stage.id}", data: { toggle: 'modal', target: '#editProjectStageModal', id: project_stage.id, :name => project_stage.name, 'is-visible' => "#{project_stage.is_active}"}}
+          %span.glyphicon.glyphicon-trash.delete_status{style: "cursor:pointer;", value: "#{project_stage.id}", onclick: 'deleteProjectStage(this)', data: { id: project_stage.id }}
+    .cb
+
+:javascript
+    var editButton;
+    $(function() {
+        $(".project-color").minicolors({theme: 'bootstrap'});
+        $('#editProjectStageModal').on('show.bs.modal', function (event) {
+          editButton = $(event.relatedTarget);
+          var stageName = editButton.data('name');
+          var stageid = editButton.data('id');
+          var stageColor = editButton.data('color');
+          var is_visible = editButton.data('is-visible');
+          var is_funnel_view = editButton.data('is-funnel-view');
+          $('#project-txt-edit-stage').val(stageName);
+          $('#project_stage_id').val(stageid);
+          $('#txt-deal-color').minicolors('value', stageColor);
+          $("#is_showable").prop("checked", is_visible);
+          $("#is_funnel").prop("checked", is_funnel_view);
+        });
+    });
+    function updateProjectStage(formObject) {
+        var color = $(formObject).find(".deal-color").val();
+        var projectStatus = $("#project-txt-edit-stage").val();
+        var projectId = $('#project_stage_id').val();
+        var is_visible = $("#is_showable").prop("checked");
+        var is_funnel_view = $("#is_funnel").prop("checked");
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          url: 'update_current_project_status',
+            type: 'POST',
+            data: {id: projectId, name: projectStatus, is_visible: is_visible},
+            success: function(res) {
+              $("#task_loader,.fixed_loader").hide();
+              if(res.text == "not_allowed"){
+                $("#edit_error").show();                
+                $(".edit_submit_btn").removeAttr("disabled").text("Update");
+                $(".text-danger").html("You can not update 'Won' or 'Lost' as a project stages.");
+              }else if(res.text == "stage_exists"){
+                $("#edit_error").show();                
+                $(".edit_submit_btn").removeAttr("disabled").text("Update");
+                $(".text-danger").html("Stage name already exists. Please enter different name.");
+              }else{
+                $("#editProjectStageModal").modal('hide');
+                $("#sortableProject").find("#btn_"+projectId).find(".status_name").html($.trim(res.name));
+                editButton.data('name', $.trim(res.name));
+                editButton.data('is-visible', res.is_visible);
+                editButton.data('color', res.color);
+                editButton.data('is-funnel-view', res.is_funnel_view);
+              }
+            },
+            error: function(res) {
+              $("#edit_error").show();
+            }
+        });
+    }  
+  
+  $( "#sortableProject" ).sortable({
+    stop: function(event, ui) {
+      // alert(1);
+      var data = {};
+      
+      $("#sortableProject .sortablee_project").each(function(i, el){
+        // alert($.trim($($(el).children()[1]).text()));
+        data[$.trim($($(el).children()[1]).text())] = $(el).index() + 1;
+      });
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: 'settings/update_project_stage_sequence_in_setting',
+        type: 'POST',
+        data: {sorted: data},
+        success: function(res) {
+          $("#sortable_project_stage").html(res);
+          $("#task_loader,.fixed_loader,.fixed_loader").hide();
+        }
+      });
+    },
+    helper : 'clone'
+  });

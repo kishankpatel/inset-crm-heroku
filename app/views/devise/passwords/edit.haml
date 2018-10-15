@@ -1,0 +1,47 @@
+.login-container
+  .row
+    .col-md-12
+      .text-center.m-b-md
+        %h3 Forgot your password?
+        %small 
+      .hpanel
+        .panel-body
+          %p
+            Please fill the form to change your password
+          = form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :put }) do |f|
+            .displaynone= devise_error_messages!
+            = f.hidden_field :reset_password_token
+            .form-group      
+              = f.password_field :password, :required => true, :class=>"form-control", :placeholder=>"******"
+              %span.help-block.small Your New Password
+            .form-group      
+              = f.password_field :password_confirmation, :required => true, :class=>"form-control", :placeholder=>"******"
+              %span.help-block.small Confirm your new password
+            %div
+              %button.btn.btn-primary.btn-success{:type => "submit"}
+                Change Password
+          
+/ .transparent_w_logo
+/ .col-md-4.col-md-offset-4.change_psw_page.new_form_layout
+/   %a{href:"/"} 
+/     .wus_new_logo
+/   %a.back_to_home_icon.tooltip{href:"/", :title => "Go Back to InsetCRM Home"}
+/     %i.fa.fa-home{"aria-hidden" => "true"}
+/   .well{style:"padding: 12px 18px 0px;"}
+/     %legend 
+/       %span.change_password_bo.cwkp-sprite
+/       Change your password
+/     = form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :put }) do |f|
+/       = devise_error_messages!
+/       = f.hidden_field :reset_password_token
+/       .form-group      
+/         .sign_up_field.lock_icon
+/           = f.password_field :password, :required => true, :class=>"form-control", :placeholder=>"Password"
+/       .form-group
+/         .sign_up_field.lock_icon
+/           = f.password_field :password_confirmation, :required => true, :class=>"form-control", :placeholder=>"Confirm new password"
+/       .form-group{style:"margin-top: 20px;"}
+/         %button.btn.btn-primary.btn-success{type:"submit"}
+/           = "Change my password"
+/           %span.change_psw_icn.cwkp-sprite
+/ .cb

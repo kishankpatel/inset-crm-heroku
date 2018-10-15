@@ -1,0 +1,95 @@
+- @project_job_group = ProjectJobGroup.new
+- @project_job_groups = @current_organization.project_job_groups
+.panel-heading.hbuilt
+  %h4.fl
+    Manage Job Groups
+  .btn.btn-primary.btn-success.fr{ data: { toggle: "modal", target: "#addJobGroup" }}
+    .glyphicon.glyphicon-plus-sign
+    Add Job Groups
+  .cb
+.panel-body
+  #list_job_group
+    = render partial: "project_jobs/list_job_group"
+
+
+#editJobGroup.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Edit Job Group
+      .modal-body
+        = form_for(ProjectJobGroup.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateJobGroup(); return false;'}) do |f|
+          = f.hidden_field 'id'
+          = hidden_field_tag 'job_group_id'
+          .row
+            .form-group.col-md-12
+              =f.select :project_id, options_for_select(@current_organization.projects.map{|prj|[prj.name,prj.id]})
+              %label.control-label{:for => "input"} Job Group*
+              %i.bar
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-edit-job-group', :maxlength=> '50', :style=> 'resize: none;'
+              %label.control-label{:for => "input"} Job Group*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{group: 'submit', id: 'deal_submit_btn'} Update
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+#addJobGroup.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Job Group
+      .modal-body
+        = form_for(ProjectJobGroup.new, :url => '', :html=>{:class => 'form', onsubmit: 'addJobGroup(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-add-job-group', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Job Group*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{group: 'submit', id: 'deal_submit_btn'} Save
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+:javascript
+  $(function() {
+        $('#editJobGroup').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget)
+          var statusName = button.data('name')
+          var statusId = button.data('id')
+          $('#txt-edit-job-group').val(statusName);
+          $('#job_group_id').val(statusId);
+        });
+        $('#addJobGroup').on('show.bs.modal', function (event) {            
+            $("#txt-add-job-group").val('')
+        });
+    });
+    function updateJobGroup() {
+      var jobGroup = $("#txt-edit-job-group").val();
+      var jobId = $('#job_group_id').val();
+      $("#job_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/update_job_group',
+          group: 'POST',
+          data: {id: jobId,
+              name: jobGroup },
+          success: function(res) {
+              $("#editJobGroup").modal('hide');
+              $("#list_job_group").html(res);
+              $("#job_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#job_group_error").show();
+          }
+      });
+    }  
+
+    

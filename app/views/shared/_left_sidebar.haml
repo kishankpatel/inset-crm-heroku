@@ -1,0 +1,407 @@
+.left_col.scroll-view
+  #sidebar-menu.main_menu_side.hidden-print.main_menu
+  .menu_section
+    %ul.nav.side-menu
+      %li{style: "background: #FAFAFA;border-left: none;min-height:60px"}
+        %a{:href => "javascript:void(0)", onclick: "showProfileList()",style: "padding: 14px 13px;"}
+          .fl.user-profile
+            - display_name = current_user.full_name.present? ? current_user.full_name : current_user.email.split("@")[0]
+
+            - if current_user.image.present? && current_user.image.image.present?
+              .fl.userImage
+                = image_tag current_user.image.image.url(:thumb), :alt=>""  
+            - elsif (gravtar_img_url = gravatar_url(current_user.email)).present?
+              .fl.userImage
+                = image_tag gravtar_img_url, alt: ""
+            -else
+              - first_char = display_name.chars.first
+              %div.profileImage{:style => "background: #{@current_user.get_user_color_code(first_char.downcase[0])} !important"}
+                = first_char.upcase
+          .fl.menu_name.top-pf.ml-3
+            %span{title: display_name}  
+              = display_name.length > 15 ? display_name[0..12] + ".." : display_name
+          .fr.menu_name.top-pf
+            .pf-arrow
+              > 
+          .cb
+        .profile_menu_list.show-pf-options
+          %div
+            =link_to "/profile" do
+              %i.fal.fa-user{"aria-hidden" => "true"}
+              My Profile
+          %div
+            = link_to destroy_user_session_path, :method => :delete,:id=>"logout", :onclick=>"return track_logout();" do
+              %span.cwkp-sprite.left-sign-out
+              Log Out
+      - if params[:controller] == "subscriptions" || request.path == "/users/pricing" || request.path == '/users/subscriptions/manage-team'
+        %li#subscription
+          %a{:href => "/users/subscription"}
+            %span.menu_icon{title: "Subscription"}
+              %span.cwkp-sprite.subscription
+            %span.menu_name.ml-3
+              Subscription
+        %li#change-plan
+          %a{:href => "/users/pricing"}
+            %span.menu_icon{title: "Change Plan"}
+              %span.cwkp-sprite.change-plan
+            %span.menu_name.ml-3
+              Change Plan
+        %li#user-trans
+          %a{:href => "/users/transactions"}
+            %span.menu_icon{title: "Transaction"}
+              %span.cwkp-sprite.user-trans
+            %span.menu_name.ml-3
+              Transactions
+        %li#trans-credit_card
+          %a{:href => "/users/credit_card"}
+            %span.menu_icon{title: "Credit Card Details"}
+              %span.cwkp-sprite.trans-credit_card
+            %span.menu_name.ml-3
+              Credit Card Details
+        %div
+          %a.back_to_dashboard{:href => "/", title:"Back To Dashboard"} 
+            < 
+            %span.menu_name
+              Back To Dashboard
+      - else
+        - if !@current_user.is_siteadmin?
+          %li
+            %li#home
+              %a{:href => "/dashboard"}
+                %span.menu_icon.tooltip{title: "Dashboard"}
+                  %span.cwkp-sprite.d-bord
+                %span.menu_name.ml-3
+                  Dashboard
+        - elsif @current_user.is_admin? 
+          %li#organizations
+            =link_to (user_signed_in? ? "/organizations" : "/") do
+              %span.menu_icon
+                %i.fal.fa-building.tooltip{title: "Organizations"}
+                %span.menu_name
+                  Organizations
+            %li#self_hosted_users
+              %a{href: "/self_hosted_users"}
+                %span.menu_icon{title: "Self-hosted Users"}  
+                  %i.fal.fa-users{"aria-hidden" => "true"}
+                  %span.menu_name
+                    Self-hosted Users
+            %li#community_plugins
+              %a{href: "/community_plugins"}
+                %span.menu_icon{title: "Plugins"}  
+                  %i.fal.fa-plug
+                  %span.menu_name
+                    Plugins
+            %li#bounce_emails
+              %a{href: "/bounce_emails"}
+                %span.menu_icon{title: "Bounce Emails"}  
+                  %i.fal.fa-envelope
+                  %span.menu_name
+                    Bounce Emails
+            %li#cumulative_signup_chart
+              %a{href: "/cumulative_signup_chart"}
+                %span.menu_icon{title: "Signup Cumulative Chart"}  
+                  %i.fal.fa-area-chart
+                  %span.menu_name
+                    Cumulative
+            %li#feedbacks
+              %a{href: "/feedbacks"}
+                %span.menu_icon{title: "Feedbacks"}  
+                  %i.fal.fa-comments
+                  %span.menu_name
+                    Feedbacks
+            %li#email_series
+              %a{href: "/email_series"}
+                %span.menu_icon.tooltip{title: "Email Series"}  
+                  %i.fal.fa-envelope
+                  %span.menu_name
+                    Email Series
+
+        -if(@current_user.is_admin?)
+          %li#leads.active_leads
+            
+            -if @current_user.is_admin?
+              - ur_h = cookies[:page_tab].present? ? "/deals?type=#{cookies[:page_tab]}" : "/deals"
+              - ur_h = "/leads"
+            -else
+              - ur_h = cookies[:page_tab].present? ? "/deals?type=#{cookies[:page_tab]}" : "/deals?assigned_to=#{current_user.id}"
+              - ur_h = "/leads?assigned_to=#{current_user.id}"
+            %a{:href => "#{ur_h}", :onclick => "reset_all_deal_filter();reset_filter_val();"}
+              .link_name
+                %span.menu_icon
+                  %span.cwkp-sprite.lds.tooltip{title: "Leads"}
+                %span.menu_name
+                  Leads
+              - lead_count_box = @current_organization.present? ? @current_organization.deals.where("is_accessible =? and is_active =? and is_won IS NULL",true,true).count : 0
+              - if lead_count_box > 0
+                .fr.count-box.lead-count-box
+                  = lead_count_box
+                .cb
+            .menu_name.leads_task_icn{onclick:"showLeadsTasks()"}
+              %i.fal.fa-plus-square{"aria-hidden" => "true"}
+            .short_menu_name.leads_task_icn{onclick:"showLeadsTasksSubMenu();"}
+              %i.fal.fa-caret-down{"aria-hidden" => "true"}
+            .leads_left_menu_sec  
+              /%li#leads_kanban_view
+              %a.col-md-12{:href => "/leads/kanban"}
+                %span.menu_icon
+                  %span.kanban.cwkp-sprite.tooltip{title: "Sales Pipeline"}
+                  %span.menu_name
+                    Sales Pipeline
+              
+              %a.col-md-12{:href => "/tasks",:onclick=>"reset_cookie_task()"}
+                .link_name
+                  %span.menu_icon
+                    %span.cwkp-sprite.task.tooltip{title: "Tasks"}
+                  %span.menu_name
+                    Tasks
+                  - if @current_user.is_admin?  
+                    - task_count_box = @current_organization.present? ? @current_organization.tasks.where(is_completed: false).count : 0
+                  - else
+                    - task_count_box = @current_organization.tasks.where("(created_by=? OR assigned_to=?) AND is_completed=?", @current_user.id, @current_user.id,false).count
+                - if task_count_box > 0
+                  .fr.count-box.task-count-box
+                    = task_count_box
+          %li#leads_project
+            .menu_name.project_job_icn{onclick:"showProjectJob()"}
+              %i.fal.fa-plus-square-o{"aria-hidden" => "true"}
+            .short_menu_name.project_job_icn{onclick:"showProjectJobSubMenu();"}
+              %i.fal.fa-caret-down{"aria-hidden" => "true"}
+            %a{:href => projects_kanban_path}
+              .link_name
+                %span.menu_icon
+                  %span.projects.cwkp-sprite.tooltip{title: "Projects"}
+                  %span.menu_name
+                    Projects
+              - proj_count_box = @current_organization.present? ? @current_organization.projects.count : 0
+              - if proj_count_box > 0
+                .fr.count-box.project-count-box
+                  = proj_count_box
+                .cb
+            - if @current_organization.present? && @current_organization.project_jobs.present? 
+              - proj = @current_organization.project_jobs.where(last_updated_by: @current_user.id).present? ? @current_organization.project_jobs.where(last_updated_by: @current_user.id).order("updated_at desc").first.project : @current_organization.project_jobs.last.project
+            .project_job_left_menu_sec  
+              %a{href: proj.present? ? "/projects/#{proj.id}/jobs" : "javascript:void(0)"}
+                .fl  
+                  %span.project_jobs.cwkp-sprite.tooltip{title:"Jobs"}
+                  %span.menu_name Jobs
+                - proj_job_count_box = proj.present? ? proj.project_jobs.count : 0
+                - if proj_job_count_box > 0
+                  .fr.count-box.project-count-box
+                    = proj_job_count_box
+                  .cb
+          / %li#leads_kanban_view
+          /   %a{:href => "/leads/kanban"}
+          /     %span.menu_icon
+          /       %span.kanban.cwkp-sprite.tooltip{title: "Sales Pipeline view"}
+          /       %span.menu_name
+          /         Sales Pipeline view
+          /- cache("admin_#{@current_user.is_admin?}", skip_digest: true) do
+          / %li#tasks
+          /   %a{:href => "/tasks",:onclick=>"reset_cookie_task()"}
+          /     .link_name
+          /       %span.menu_icon
+          /         %span.cwkp-sprite.task.tooltip{title: "Tasks"}
+          /       %span.menu_name
+          /         Tasks
+          /       - if @current_user.is_admin?  
+          /         - task_count_box = @current_organization.present? ? @current_organization.tasks.where(is_completed: false).count : 0
+          /       - else
+          /         - task_count_box = @current_organization.tasks.where("(created_by=? OR assigned_to=?) AND is_completed=?", @current_user.id, @current_user.id,false).count
+          /     - if task_count_box > 0
+          /       .fr.count-box.task-count-box
+          /         = task_count_box
+          /       .cb
+          %li#contacts
+            %a{:href => "/contacts"}
+              .link_name  
+                %span.menu_icon  
+                  %span.cwkp-sprite.contact.tooltip{title: "Contacts"}
+                %span.menu_name
+                  Contacts
+              - contacts = IndividualContact.where("created_by=? AND is_archive=?", @current_user.id,false)
+              /-contact_count_box = 
+              - contact_count_box = @current_organization.present? ? (@current_user.is_admin? ? ( @current_organization.individual_contacts.where("is_archive=?", false).count ) : (contacts.present? ? contacts.count : 0) ) : 0
+              - if contact_count_box > 0
+                .fr.count-box.contact-count-box
+                  = contact_count_box
+                .cb
+          %li#companies
+            %a{:href => "/list_companies"}
+              .link_name  
+                %span.menu_icon  
+                  %span.cwkp-sprite.org.org-left.tooltip{title: "Companies"}
+                %span.menu_name
+                  Companies
+              - if @current_user.is_admin?
+                - org_count_box = @current_organization.present? ? @current_organization.company_contacts.count : 0
+              - else
+                - org_count_box = @current_organization.present? ? @current_organization.company_contacts.where("created_by=?", @current_user.id).count : 0
+              - if org_count_box > 0
+                .fr.count-box.org-count-box
+                  = org_count_box
+              .cb
+          %li#resource-menu
+            .menu_name.resource_icn{onclick:"showResourceMenu()"}
+              %i.fal.fa-plus-square-o{"aria-hidden" => "true"}
+            .short_menu_name.resource_icn{onclick:"showResourceSubMenu();"}
+              %i.fal.fa-caret-down{"aria-hidden" => "true"}
+            %a{:href => "/resource_allocations"}
+              .link_name
+                %span.menu_icon
+                  %span.cwkp-sprite.usr_sprite.resource-alloc.tooltip{title: "Resource Allocation"}
+                %span.menu_name
+                  Resource
+              .cb
+            .resource_left_menu_sec  
+              %a{href: "/resource_utilization"}
+                .fl  
+                  %span.cwkp-sprite.usr_sprite.resource-util.tooltip{title:"Resource Utilization"}
+                  %span.menu_name Utilization
+              %a{href: "/weekly_timesheet"}
+                .fl  
+                  %span.cwkp-sprite.calendar-view.tooltip{title:"Weekly Timesheet"}
+                  %span.menu_name Weekly Timesheet
+                
+                  .cb
+          - if @current_user.is_user?
+            %li#goal_view
+              
+              %a{:href => "/goals"}
+                %span.menu_icon
+                  %span.goals.cwkp-sprite.tooltip{title: "Goals"}
+                %span.menu_name
+                  Goals
+                - goal_count_box = 0
+                - goal_count_box = (@current_user.present? && @current_user.goals.present?) ? @current_user.goals.count : 0
+                - if goal_count_box > 0
+                  .fr.count-box.goal-count-box
+                    = goal_count_box
+                  .cb
+          - if @current_user.is_admin?
+            %li#users
+              %a{:href => users_path}
+                .link_name  
+                  %span.menu_icon  
+                    %span.cwkp-sprite.lds.users.tooltip{title: "Team"}
+                  %span.menu_name
+                    Team
+                .fr.count-box.user-count-box
+                  = @current_organization.present? ? @current_organization.active_users.count : 0
+                .cb
+            %li#mail_box
+              %a{:href => "/emails/connect"}
+                %span.menu_icon
+                  %span.cwkp-sprite.ht-20.mail_box.tooltip{title: "Gmail"}
+                %span.menu_name
+                  Gmail
+            %li#mail_box
+              %a{:href => "/mail/connect"}
+                %span.menu_icon
+                  %span.cwkp-sprite.ht-20.office365.tooltip{title: "Outlook"}
+                %span.menu_name
+                  Outlook
+:javascript
+  function showProfileList(){
+    $(".profile_menu_list").slideToggle( "fast", function() {
+      if($(".profile_menu_list").is(":hidden"))
+        {
+          $(".pf-arrow").css({
+          '-moz-transform':'rotate(0deg)',
+          '-webkit-transform':'rotate(0deg)',
+          '-o-transform':'rotate(0deg)',
+          '-ms-transform':'rotate(0deg)',
+          'transform':'rotate(0deg)'
+        });
+        }
+      else{
+        $(".pf-arrow").css({
+          '-moz-transform':'rotate(88deg)',
+          '-webkit-transform':'rotate(88deg)',
+          '-o-transform':'rotate(88deg)',
+          '-ms-transform':'rotate(88deg)',
+          'transform':'rotate(88deg)'
+        });
+      }
+    });
+      
+  }
+
+  function showProjectJob(){
+    $(".project_job_left_menu_sec").slideToggle( "fast", function() {
+      if($(".project_job_left_menu_sec").is(":hidden"))
+        {
+          $(".project_job_icn").find("i").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+        }
+      else{
+        $(".project_job_icn").find("i").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+      }
+    });
+  }
+  function showProjectJobSubMenu(){
+    $(".project_job_left_menu_sec").slideToggle( "fast", function() {
+      if($(".project_job_left_menu_sec").is(":hidden"))
+        {
+          $(".project_job_icn").find("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+        }
+      else{
+        $(".project_job_icn").find("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+      }
+    });
+  }
+  function showLeadsTasks(){
+    $(".leads_left_menu_sec").slideToggle( "fast", function() {
+      if($(".leads_left_menu_sec").is(":hidden"))
+        {
+          $(".leads_task_icn").find("i").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+
+        }
+      else{
+        $(".leads_task_icn").find("i").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+        $(".leads_left_menu_sec").attr("style","display:inline-block")
+      }
+    });
+  }
+  function showLeadsTasksSubMenu(){
+    $(".leads_left_menu_sec").slideToggle( "fast", function() {
+      if($(".leads_left_menu_sec").is(":hidden"))
+        {
+          $(".leads_task_icn").find("i").removeClass("fa-caret-up").addClass("a-caret-down");
+
+        }
+      else{
+        $(".leads_task_icn").find("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+        $(".leads_left_menu_sec").attr("style","display:inline-block")
+      }
+    });
+  }
+  function showResourceMenu(){
+    $(".resource_left_menu_sec").slideToggle( "fast", function() {
+      if($(".resource_left_menu_sec").is(":hidden"))
+        {
+          $(".resource_icn").find("i").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+
+        }
+      else{
+        $(".resource_icn").find("i").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+        $(".resource_left_menu_sec").attr("style","display:inline-block")
+      }
+    });
+  }
+  function showResourceSubMenu()
+  {
+    $(".resource_left_menu_sec").slideToggle( "fast", function() {
+      if($(".resource_left_menu_sec").is(":hidden"))
+        {
+          $(".resource_icn").find("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+
+        }
+      else{
+        $(".resource_icn").find("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+        $(".resource_left_menu_sec").attr("style","display:inline-block")
+      }
+    });
+  }
+  function reset_cookie_task()
+  {
+  $.removeCookie("dt_range");
+  }  

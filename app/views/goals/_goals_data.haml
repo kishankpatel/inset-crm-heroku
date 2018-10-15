@@ -1,0 +1,77 @@
+- @goalsd.each do |gld, goals|
+  /= gld
+  - goals.each do |gl|
+    - if gl.user.present?
+      -@st = gl.created_at.strftime("%Y-%m-%d")
+      - if gl.period == 'Week'
+        - week_cnt = Date.parse(@st).step(Date.today, 7).count
+        - cnt = week_cnt
+        - if ((Date.parse(@st).beginning_of_week + (week_cnt-1).weeks).at_end_of_week) <= Date.today
+          - cnt = week_cnt + 1
+        - startdate = Date.parse(@st).beginning_of_day
+        - enddate = (Date.parse(@st).beginning_of_week + cnt.weeks).end_of_week
+      - else
+        -@st_mn = gl.created_at.to_date
+        -cnt=(Date.today.year * 12 + Date.today.month) - (@st_mn.year * 12 + @st_mn.month)
+        -if cnt == 0
+          -cnt = 1
+        - else
+          -cnt +=1
+        - startdate = Date.parse(@st).beginning_of_day
+        - enddate = (Date.parse(@st).beginning_of_month + cnt.months).end_of_month
+      %tr{:style=>"border-top:1px solid #e5e5e5;height:40px"}
+        - if gl.goal_type == 'quantity of deals'
+          - @gl_qt = deals_count(gl.user_id,startdate,enddate,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'quantity of deals won' ? "won" : "value")
+        -elsif gl.goal_type == 'value of deals'
+          - @gl_qt = deals_value(gl.user_id,startdate,enddate,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'value of deals won' ? "won" : "value")
+        -elsif gl.goal_type == 'quantity of deals won' 
+          - @gl_qt = deals_count(gl.user_id,startdate,enddate,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'quantity of deals won' ? "won" : "value")
+        -elsif gl.goal_type == 'value of deals won' 
+          - @gl_qt = deals_value(gl.user_id,startdate,enddate,gl.period, gl.currency,gl.deal_stage_id,gl.goal_type == 'value of deals won' ? "won" : "value")
+        - encrypt_user = AESCrypt.encrypt(gl.user.email, "keysalt").gsub("/","-")
+        %td{:style=>"border-right: 1px #e5e5e5 solid;padding-left:15px"}
+          = link_to gl.user.full_name.present? ? gl.user.full_name : gl.user.email, "/goals/" + encrypt_user, :onmouseover => "$(this).css('text-decoration', 'underline');"
+        %td{:style=>"border-right: 1px #e5e5e5 solid;padding-left:15px"}
+          -if gl.goal_type == 'quantity of deals'
+            -@deal_na = @current_organization.deal_statuses.where("id = ?",gl.deal_stage_id).first
+            ="Should move #{gl.quantity_deal} opportunity into #{@deal_na.present? ? @deal_na.name : ''} In every 1 #{gl.period}"
+          -elsif gl.goal_type == 'value of deals'   
+            -@deal_na = @current_organization.deal_statuses.where("id = ?",gl.deal_stage_id).first
+            ="Should move #{gl.currency} #{gl.quantity_deal.present? ? number_to_currency(gl.quantity_deal.to_f, precision: 2).gsub("$", "") : 0} worth opportunity into #{@deal_na.present? ? @deal_na.name : ''} In every 1 #{gl.period}"
+          -elsif gl.goal_type == 'quantity of deals won'
+            ="Should close #{gl.quantity_deal} opportunity In every 1 #{gl.period}"   
+          -elsif gl.goal_type == 'value of deals won'
+            ="Should close #{gl.currency} #{gl.quantity_deal.present? ? number_to_currency(gl.quantity_deal.to_f, precision: 2).gsub("$", "") : 0} opportunity In every 1 #{gl.period}"  
+          %div{style: "margin-top:5px;"}
+          %b
+            Started from:
+          = gl.created_at.strftime("%b %d, %Y")
+        %td{:style=>"border-right: 1px #e5e5e5 solid;padding-left:12px;"}
+          - if gl.goal_type == 'quantity of deals'
+            = "#{@gl_qt} opportunity"
+          -elsif gl.goal_type == 'value of deals'
+            =gl.currency  
+            =number_to_currency(@gl_qt.round).gsub("$", "")
+          -elsif gl.goal_type == 'quantity of deals won' 
+            = "#{@gl_qt} opportunity" 
+          -elsif gl.goal_type == 'value of deals won' 
+            =gl.currency  
+            =number_to_currency(@gl_qt.round).gsub("$", "")              
+            
+        %td{:style=>"border-right: 1px #e5e5e5 solid;padding-left:3px;padding-right:3px"}
+          -@total = cnt * gl.quantity_deal.to_i
+          -@per = (@gl_qt.to_i/@total.to_f)* 100
+          .progress{:style=>"height:17px;margin-bottom:0px;border-radius:7px"}
+            .progress-bar{"aria-valuemax" => "100", "aria-valuemin" => "0", "aria-valuenow" => "70", :role => "progressbar", :style => "width:#{@per > 100 ? 100 : @per}%"}
+              %span.sr-only{:style=>"position: relative;color: #000000;margin-left: 41px;margin-top: 8px;font-weight: bold;"}
+                - if @per.present? && !@per.nan? 
+                  ="#{@per.to_i > 100 ? 100 : @per.to_i}%"
+                - else
+                  = "0%"  
+              
+            
+        %td{:style=>"padding-left:15px"}
+          %a{:href => "javascript:void(0)", :onclick => "show_edit_form(#{gl.id})"}
+            %i.fal.fa-pencil{:style=>"font-size: 16px;cursor: pointer;","aria-hidden" => "true"}
+          %a{:href => "javascript:void(0)", :onclick => "delete_goal(#{gl.id})"}  
+            %i.fal.fa-trash{:style=>"font-size: 16px;cursor: pointer;margin-left:10px","aria-hidden" => "true"}

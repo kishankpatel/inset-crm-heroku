@@ -1,0 +1,98 @@
+=render :partial=>'project_jobs/jobs_header'
+- if request.fullpath.include? "kanban"  
+  .content
+    .project_job_top_sec
+      .right_sec.pull-left
+        =render :partial=>"project_jobs/project_jobs_statistics",:objects=>@project
+    .cb
+    .hpanel.hblue
+      .panel-body
+        = render :partial => "show_kanban_view",:locals=>{:type=>'project_specific',:kanban_type=> params[:ktype]} 
+        
+-else
+  .ling_mcnt
+    .row
+      .col-lg-12
+        .row.pull-right
+          %ul.tag_filter.pull-right{style: "display:none;"}
+            %li#show_filter_dealmsg
+            %li.created_by_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#created_by_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('created_by','cre_by_c');"} x
+            %li.assigned_to_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#assigned_to_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('assigned_to','asg_by_c');"} x
+            %li.proj_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#proj_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('proj','proj');"} x
+            %li.proj_stage_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#proj_stage_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('proj_stage','proj_stage');"} x
+            %li.date_range_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#from_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('date_range','any_time');"} x          
+            %li.last_touch_tag.com_cls{style: "display: none;"}
+              .tag_dd
+                %span#last_touch_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('last_touch','lst_tch');"} x      
+            %li.date_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#date_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('date','any_time');"} x          
+            %li.status_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#status_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('status','status_c');"} x
+            %li.priority_tag.com_cls{style: "display: none;"}
+              .tag_dd.label.label-info
+                %span#priority_tag_txt
+                %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter_jobs('priority','priority_c');"} x
+            %li.reset_tag.com_cls
+              %div
+                %a{href: "javascript:void(0);", onclick: "reset_all_filter_jobs();reset_filter_val_jobs();", class: "btn btn-xs btn-warning"} RESET
+            
+          .cb
+        .hpanel.m-b-none
+          .panel-heading
+            Jobs List
+          .panel-body#view_content
+            =render :partial=>'project_jobs/filters'
+            .row
+              .col-md-12
+                %a.proj_link_colour{href: "javascript:void(0)", onclick: "$('#quick_job').show();$(this).hide();$('#project_job_name').focus();",title: "Add a Job in seconds"}
+                  + Quick Job
+                #quick_job{:style=>"display:none;"}
+                  - @project_job = ProjectJob.new()
+                  = form_for @project_job, :url => { :action => "create"},  :class => "form",:method=>"post",:id=>"project-job-form" do |f|
+                    .row
+                      .col-md-4
+                        .input-group
+                          /%span.fa.fa-paper-plane-o
+                          =f.text_field :name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a name to this job", :maxlength => "50"
+                          = f.hidden_field :project_id, value: @project.id.to_s
+                          = f.hidden_field :assigned_to, value: @current_user.id.to_s
+                          = f.hidden_field :priority, value: "Low"
+                          = f.hidden_field :created_by, value: @current_user.id.to_s
+                          = f.hidden_field :organization_id, value: @current_organization.id.to_s
+                          = f.hidden_field :status, value: "New"
+                          = f.hidden_field :project_job_type_id, value: @project.project_task_type_id.to_s
+                          = f.hidden_field :project_stage_id, value: @project.project_stage_id
+                          = hidden_field_tag :quick, value: true
+                          /= hidden_field_tag :create_type, "", value: "quick"
+                          .input-group-btn
+                            %button.btn.btn-primary{:type=>"submit", :disabled => "disabled" , id: "quick_job_btn"} 
+                              %i.fal.fa-paper-plane
+                          /= submit_tag "" , class: "btn btn-default btn-sm form-control"
+            .row
+              .col-md-12#jobs_list
+                = render :partial => "jobs_list", :locals => {project: @project}
+            =hidden_field_tag "project_id", @project.id
+=render :partial =>'confirm_job_resolve'
+=render :partial =>'confirm_job_close'
+=render :file=>'project_jobs/index.js'
+=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}

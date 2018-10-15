@@ -1,0 +1,5 @@
+-if(@deal_line_chart.data[:data].length > 0)
+  = high_chart("lineChart", @deal_line_chart)
+-else
+  %img{:src=> asset_path("lead-statistics.jpg")}
+#lineChart.body.collapse.in

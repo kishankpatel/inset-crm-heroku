@@ -1,0 +1,540 @@
+#deleteOppModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    #deleteOppContent.modal-content
+      .color-line
+
+.row.mr-0
+  .table-responsive
+    %table.table.table-striped.table-bordered.table-hover.no-footer.ajax-lead-listing.dataTable{:id=>"dataTable#{params[:dtype]}",style: "", "data-source"=>leads_url(format: 'json',params: {cuser: current_user.id,_type: params[:dtype], ds_id: params[:ds_id],filtertype: params[:filtertype],filtervalue: params[:filtervalue], assigned_to: params[:assigned_to], created_by: params[:created_by], three_months: params[:three_months], cre_by: cookies[:cre_by], cre_by_val: cookies[:cre_by_val], asg_by: cookies[:asg_by], asg_by_val: cookies[:asg_by_val], loc: cookies[:loc], loc_val: cookies[:loc_val], priority: cookies[:priority], priority_val: cookies[:priority_val], next: cookies[:next], next_val: cookies[:next_val], daterange: cookies[:daterange], dt_range: cookies[:dt_range],last_touch: cookies[:last_touch],last_tch: cookies[:last_tch],q: cookies[:deal_quarter], y: cookies[:deal_year], is_opportunity: cookies[:opportunity], tag: cookies[:tag], stage: cookies[:stage], stage_val: cookies[:stage_val], label_type: cookies[:label_type], user_label: cookies[:user_label], user_label_val: cookies[:user_label_val], unassigned: cookies[:unassigned], contacted_leads: cookies[:contacted_leads], dt_range_from: cookies[:dt_range_from], dt_range_to: cookies[:dt_range_to], dtrange_from: cookies[:dtrange_from], dtrange_to: cookies[:dtrange_to], source: cookies[:source], source_val: cookies[:source_val]})}
+      %thead
+        %tr
+          %th.dropdown#deal_label_menu{}
+            .listing_lft_width
+              .checkbox.checkbox-inline
+                %input{type:"checkbox", id:"select_all_leads", class:"select_all_leads", style:""}
+                  %label{for: "select_all_leads"}
+              %a.dropdown-toggle.sel_all_option.diblock{:id=> ("#{params[:dtype].gsub(' ','_')}Dropdown"),:href=>"javascript:","data-toggle" => "", :style=> ""}
+                .label_arrow{:id=> ("#{params[:dtype].gsub(' ','_')}Label"), style:""}
+                  %span.icon-chevron-down{:style => "cursor:pointer;"}
+                    =image_tag("drop-down-arrow.png")
+              %ul.dropdown-menu.custom-menu.pull-left.show-drop-down.lead-custom-drop.animated.flipInX.m-t-xs{:id=> ("#{params[:dtype].gsub(' ','_')}_sub_menu"), :style=>""}
+                %li.arrow_top
+                %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Move Leads",onclick: "$('#dealmoveModal').modal('show');$('.show_all').show();$('#assigned_to_user').val('');$('.deal_s_'+$('.#{params[:dtype]}_chk_box_class').attr('deal_status')).hide()",:style=>""}
+                  %span.add_i_move
+                  Move Leads
+                %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Delete Selected Leads", onclick:"$('#confirmDealDelete').modal('show');",:style=>""}
+                  %span.glyphicon.glyphicon-trash
+                  Delete Leads
+          %th{style: "width:20% !important;text-align: left !important;cursor:pointer !important;"}
+            %span{style: "float: left;"} Opportunity Name
+          %th{style: "width:16% !important;text-align: left !important;"} Contact Name
+          %th{style: "width:14% !important;text-align: left !important;"} Get Connected
+          %th.lead-location{style: "width:10% !important;"} Location
+          %th{style: "width:10% !important;cursor:pointer !important;"}
+            %span{style: "float: left;"} Amount
+          %th{style: "width:10% !important"} Next Action
+          %th{style: "width:12% !important;cursor:pointer !important;"}
+            %span{style: "float: left;"} Created
+          %th{style: "padding-right: 25px;width: 6% !important;"} Type
+      %tbody
+                     
+:javascript
+  var r_dtype = "#{escape_once(params[:dtype]).gsub(' ','_')}";
+  $('#task_loader,.fixed_loader').show();
+  "use strict";
+  
+  $(function() {
+  $("##{escape_once(params[:dtype]).gsub(' ','_')}Dropdown").click(function() {  
+        var isChecked = $('input[name="active_#{escape_once(params[:dtype]).gsub(' ','_')}_label_menu"]:checked').length;
+        if(isChecked > 0){
+          $("#" + r_dtype + "_sub_menu").toggle();
+        }else{
+          $(".lead-custom-drop").hide();
+          show_alert_message("warning","Oops! Please select one (or) multiple leads to continue.");
+        }
+      });
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}_tab").addClass("active");
+           //oTable_other.fnDraw();
+  initializeLeadsDatatable();
+  $('#task_loader,.fixed_loader').hide();
+  });
+  
+  //$(".lead-stage").find("ul li").removeClass("active");
+  
+  $(document).click(function(e) 
+  {
+    var container = $("##{escape_once(params[:dtype]).gsub(' ','_')}Dropdown");
+    var wasVisible = $("##{escape_once(params[:dtype]).gsub(' ','_')}_sub_menu").is(":visible");
+    if ((!container.is(e.target) && container.has(e.target).length === 0) || wasVisible) 
+    {
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}_sub_menu").hide();
+    }
+  });
+
+  $(window).click(function() {
+    //$("##{escape_once(params[:dtype]).gsub(' ','_')}_sub_menu").hide();
+  });
+  function reset_other_badge_count(){
+  $("#show_filter_dealmsg").html('');
+  if((($("#individual_filter_present").val() == false || $("#individual_filter_present").val() == "false")) && $("#" + r_dtype + "_tab").hasClass("active"))
+    if(("#{escape_once(cookies[:cre_by])}" == "true" ) || ("#{escape_once(cookies[:asg_by])}" == "true" ) || ("#{escape_once(cookies[:loc])}" == "true" ) || ("#{escape_once(cookies[:priority])}" == "true" ) || ("#{escape_once(cookies[:daterange])}" == "true" ) || ("#{escape_once(cookies[:last_tch])}" == "true" ) || ("#{escape_once(cookies[:dtrange_from])}" == "true" && "#{escape_once(cookies[:dtrange_to])}" == "true") || ("#{escape_once(cookies[:tag])}" != '') || ("#{escape_once(cookies[:stage])}" == 'true') || ("#{escape_once(cookies[:opportunity])}" != "") || ("#{escape_once(cookies[:label_type])}" != "")){
+    $("#show_filter_dealmsg").html('');
+    }
+    $('#badge_' + r_dtype ).html("(0)");
+  }
+
+  function other_lead_chk_box(){
+    //check header checkbox if all checkbox are checked and vice versa
+    var check_box_count = $(".chb-in-ll").length;
+    var check_all_count = 0;
+    $(".chb-in-ll").each(function(i){
+      if($(this).is(":checked")){
+        check_all_count = check_all_count + 1;
+      }
+    })
+    if(check_box_count == check_all_count){
+      $(".select_all_leads").prop("checked",true);
+    }else{
+      $(".select_all_leads").prop("checked",false);
+    }
+
+
+
+    var $cbs = $('input[name="active_#{escape_once(params[:dtype]).gsub(' ','_')}_label_menu"]');
+    var total = 0;
+    $cbs.each(function() {
+        if (this.checked){
+            total ++;
+        }
+    });
+    if(total > 0){
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Label").removeClass("label_arrow")
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Label").addClass("label_arrow_active")
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Dropdown").attr("data-toggle", "dropdown")
+    }else{
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Label").addClass("label_arrow")
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Label").removeClass("label_arrow_active")
+      $("##{escape_once(params[:dtype]).gsub(' ','_')}Dropdown").removeAttr("data-toggle", "dropdown");
+      $(".DataTables_sort_wrapper").removeClass("open")
+    }
+    var checkboxes = document.getElementsByName('active_#{escape_once(params[:dtype]).gsub(' ','_')}_label_menu');
+    var vals = "";
+    for (var i=0, n=checkboxes.length;i<n;i++) {
+     if (checkboxes[i].checked) 
+     {
+      vals += checkboxes[i].value+ ","
+     }
+    }
+    
+    $("#mass_deal_ids").val(vals);
+    $("#deal_ids_to_delete").val(vals);
+  }
+  function initializeLeadsDatatable(){
+    oTable_other= $('#dataTable#{escape_once(params[:dtype])}').dataTable({
+    oLanguage: {"sLengthMenu": "_MENU_" },
+    sPaginationType: "bootstrap",
+    bDestroy: true,
+    bJQueryUI: true,
+    aLengthMenu: [[20, 25, 50, 100], [20, 25, 50, 100]],
+    iDisplayLength: 20,
+    bProcessing: reset_other_badge_count(),
+    bServerSide: true,
+    "bStateSave": true,
+    aoColumns: [{sWidth: '70px'},{sClass: 'col-md-3'},{sClass: 'col-md-3'},null,{sWidth: '110px'},{sClass: 'test'},null,null,null],
+    "sDom": '<"dtTop dtTables">rt<"dtBottom"><"dtInfo pull-left"i><"dtPagination fr"p>',
+    sAjaxSource: $('#dataTable' + r_dtype).data('source'),
+    aaSorting: [[0,'desc']],
+    oLanguage: {
+      oPaginate: {
+        sPrevious: "Prev"
+      }
+    },
+    aoColumnDefs: [
+      {
+        aTargets: [0],
+        bSortable: false,
+        mRender: function (data, type, row ) {                
+                if((($("#individual_filter_present").val() == false || $("#individual_filter_present").val() == "false")) && $("#" + r_dtype + "_tab").hasClass("active"))
+                  $("#badge_" + r_dtype ).html("(0)");
+                  $("#badge_" + r_dtype ).html('(' + row[25] + ')');
+                  if(("#{escape_once(cookies[:cre_by])}" == "true" ) || ("#{escape_once(cookies[:asg_by])}" == "true" ) || ("#{escape_once(cookies[:loc])}" == "true" ) || ("#{escape_once(cookies[:priority])}" == "true" ) || ("#{escape_once(cookies[:daterange])}" == "true" ) || ("#{escape_once(cookies[:last_tch])}" == "true" ) || ("#{escape_once(cookies[:dtrange_from])}" == "true" && "#{escape_once(cookies[:dtrange_to])}" == "true") || ("#{escape_once(cookies[:tag])}" != '') || ("#{escape_once(cookies[:stage])}" == 'true') || ("#{escape_once(cookies[:opportunity])}" == "true") || ("#{escape_once(cookies[:label_type])}" != "")){
+                   $("#show_filter_dealmsg").html('Filtered ' + row[25] + ' deals ');
+                  }
+                  if(row[25] > 25){
+                    $(".dataTables_length").show();
+                    $('.dataTables_length select').addClass('form-control');
+                  }
+                  str="";
+                  if(row[16]=="true"){
+                   str="<span class='dropdown'> <a class='diblock deal_set dropdown-toggle more-in-ll' data-toggle='dropdown' onclick=\";$('#clicked_button_ref').val('listmenu');\" title='Actions' style='cursor:pointer;z-index: 0 !important;'><b class='caret'></b></a>";
+                   }else{
+                    str="";
+                   }
+                  if(row[16]=="true"){
+                  chkstr="<div class='checkbox checkbox-inline'><input type='checkbox' value='" + row[0] +"' deal_status='" + row[22] +"' name='active_" + r_dtype + "_label_menu' class='" + r_dtype + "_chk_box_class chb-in-ll' id='deal_chk_" + row[0]  + "'><label onclick='other_lead_chk_box()' for='deal_chk_" + row[0]  + "'></label></div>";
+                  }
+                  else
+                  {
+                   chkstr="<div class='checkbox checkbox-inline'><input type='checkbox' value='" + row[0] +"' deal_status='" + row[22] +"' name='active_" + r_dtype + "}_label_menu' class=' other_chk_box_class chb-in-ll' disabled='disabled' id='deal_chk_" + row[0]  + "'><label onclick='other_lead_chk_box()' for='deal_chk_" + row[0]  + "'></label></div>";  
+                  }
+                  
+                  if(row[21]=="true"){
+                    var dele = "<li><a href='javascript:void(0)' onclick='delete_opportunity("+row[0]+")'>Delete</a></li>"
+                  }
+                  else
+                  {
+                   var dele = ""
+                  }
+                  str=  chkstr + str + "<br><ul class='dropdown-menu animated flipInX m-t-xs' style=''><li class='arrow_top' style=''></li><li><a rel='tooltip' onclick=\"default_for_lead_task();set_ld_track_event('WUS - Create Task', 'Lead Listing > 3 dot Menu');$('#task_form')[0].reset();$('#lead_priority').val('"+ row[38] + "');task_deal(' + row[0] + ');$('#hfield').val('"+ row[0] +"');$('#deal_title_task').val('"+ row[1] +"').prop('disabled', true);$('#email_err').html('');$('.assign_deal_label').addClass('control-lbl-add-txt');\" href='#taskModal' data-toggle='modal' data-id='" + row[0] + "'><span class='add_i_deal'></span>Add Task</a></li><li><a onclick=\"$('#notable_id').val('" + row[0] + "');$('#notable_type').val('Deal');\" href='javascript:' data-toggle='modal' data-target='#noteModal'><span class='add_i_note'></span>Add Note</a></li><li><a onclick=\"$('.error').html('');$('#send-mail-popup').get(0).reset();$('#to').val('"+ row[8] +"');$('#mailer_id').val('" + row[0] + "');$('#mailer_type').val('Deal');$('#email_contact_id').val(" + row[14] + ");$('#email_contact_type').val('"+ row[18] +"');reset_email_err_msg();\" href='javascript:' data-toggle='modal' data-target='#SendEmailModal'>Send Email</a></li>\
+                  " + ((row[30] == "4" ) ? "" :(""+ dele +"<li><a title='Move Lead' rel='popup'  onclick=\"$('.show_all').show();$('.deal_s_"+ row[22] +"').hide();$('#assigned_to_user').val('" + row[19] + "');$('#new_initr_id').val('" + row[20] + "');$('#new_assign_id').val('" + row[19] + "');move_deal('" + row[0] + "');reset_pop();\" href='#dealmoveModal' data-toggle='modal' data-id='" + row[0] + "' class='movedealincomepop'><span class='add_i_move'></span>Move Lead</a></li>") ) + "\
+                  </ul></span>" ;       
+                  return str
+              }
+       },
+       {aTargets: [2],
+       bSortable: false,
+       mRender: function(data, type, row ){
+        var str ="";
+        if(row[6] != ''){
+          if(row[6].length > 15)
+            var name = row[6].substring(0,15) + "..."
+          else
+            var name = row[6]
+        }
+        if(row[34] == ""){
+          str += "<div class='pull-left lead-profile-icon get_lead_details' style='position:relative;background: "+row[32]+"' data-lead_id='"+row[0]+"' >"+row[6].charAt(0).toUpperCase()+"";
+          if(row[37] == true || row[37] ==  "true"){
+            str= str + "<a href='/projects' class='project_icn'  onclick='$.cookie(\"lead\", \"true\");$.cookie(\"lead_val\", "+row[0]+");$.cookie(\"lead_txt\", \""+row[1]+"\");'><span class='proj_sm_icon_border tooltip' title=\"A project(s) is linked with this lead & it's opportunity.\"><span class='cwkp-sprite proj_sm_icon'></span></span></a>";
+          }
+          str = str + "</div>";
+          var sty = "";
+        }else{
+          str += "<div class='contact-img-center get_lead_details' style='position:relative;' data-lead_id='"+row[0]+"'><img src='" + row[34] + "' style='height:40px;width:40px;left:3px;'>";
+          if(row[37] == true || row[37] ==  "true"){
+            str= str + "<a href='/projects' class='project_icn'  onclick='$.cookie(\"lead\", \"true\");$.cookie(\"lead_val\", "+row[0]+");$.cookie(\"lead_txt\", \""+row[1]+"\");'><span class='proj_sm_icon_border tooltip img_cntr' title=\"A project(s) is linked with this lead & it's opportunity.\"><span class='cwkp-sprite proj_sm_icon'></span></span></a>";
+          }
+          str = str + "</div>";
+          var sty = "margin: -45px 46px 0;position: absolute;";
+        }
+        if(row[36] == "IndividualContact"){
+         var contact_url = "/contact/"+row[33]
+        }else{
+         var contact_url = "/contact/"+row[33]+"?type=company"
+        }
+        // var lead_url = "/leads/" + row[35]
+        str += "<div class='pull-left lead-cont-name' style='"+ sty +"'><div style=''><a href='" + contact_url + "' class='change-color-ll' data-toggle='tooltip' data-placement='top' data-original-title='" + row[6] + "' title='' role='tooltip' style='font-weight:bold' >"+name+"</a></div><div class='inbound-outbound'><div class='dropdown'><a class='btn btn-default btn-xs dropdown-toggle highlight_user_label'  data-toggle='dropdown'><span class='user_label label_"+row[0]+"'>"+row[31]+"</span><span class=' caret ml-5'></span></a><ul class='dropdown-menu animated flipInX m-t-xs text-left' style='top: 20px;'><li class='arrow_top' style='left: 77px;'></li><li ><a  href='javascript:void(0)' onclick='changeUserLabel("+row[0]+",\"Uncategorised\")'><span class='cwkp-sprite uncategorised'></span><span>Uncategorised</span></a></li><li ><a  href='javascript:void(0)' onclick='changeUserLabel("+row[0]+",\"Inbound\")'><span class='cwkp-sprite inbound'></span><span>Inbound</span></a></li><li ><a  href='javascript:void(0)' onclick='changeUserLabel("+row[0]+",\"Outbound\")'><span class='cwkp-sprite outbound'></span><span>Outbound</span></a></li></ul></div></div><div class='cb'></div></div>";
+
+        if(row[42] == "true"){
+          if(row[43].length > 15){
+            var source_name = row[43].substring(0,15) + "..."
+            var source_title = row[43]
+            var cls = "label label-default tooltip"
+          }
+          else{
+            var source_name = row[43]
+            var source_title = ""
+            var cls = "label label-default"
+          }
+          str += "<br/><br/><div class='label-lead-stage' style=''><span class='"+cls+"' title='"+source_title+"' style='cursor:default;'>" + source_name + "</span></div>"
+          //str += "<div class='pull-left inbound-outbound'  style='margin-left:22%;'><div class='dropdown tooltip' ><span class='dropdown-toggle highlight_user_label'  data-toggle='dropdown'><div class='pull-left user_label tooltip dealsource_"+row[0]+"' title='"+row[43]+"'>"+source_name+"</div><div class='fr caret'></div><div class='cb'></div></span><ul class='dropdown-menu' style='top: 20px;'><li class='arrow_top' style='left: 77px;'></li>"+row[44]+"</ul></div></div><div class='cb'></div>"
+        }
+        return str;
+        }},
+      {aTargets: [1],
+        bSortable: true,
+        mRender: function(data, type, row ){
+              if(row[1] != ''){
+                if(row[1].length > 29)
+                  var lead_title = row[1].substring(0,25) + "..."
+                else
+                  var lead_title = row[1]
+                }
+                if(row[26] == ''){
+                  var lead_stage = "NA"
+                }
+                else{
+                  var lead_stage;
+                  if(row[40] == 'won')
+                    lead_stage = "Won"
+                  else if(row[40] == 'lost')
+                    lead_stage = "Lost"
+                  else
+                    lead_stage = row[26]
+                  if(lead_stage.toLowerCase() == 'won' )
+                    var sty = "background-color:#2cbf55;"
+                  else if(lead_stage.toLowerCase() == 'lost')
+                    var sty = "background-color:#e84646;"
+                  if(row[26].length > 15)
+                    var lead_stage = row[26].substring(0,12) + ".."
+                }
+              var str = ""
+              str+= "<div class='pull-left title_container' > \
+              <div class='deal_popup_menu' style=''> \
+                 \
+                <a class='link_n change-lead-color-ll' data-toggle='tooltip' href='/leads/" + row[35] + "' data-original-title='"+row[1]+"' title='' data-placement='top'> \
+                  "+lead_title+"\
+                </a> \
+              </div> \
+              <div class='pull-left grey_small lead-title-content'> \
+                <i class='icon-time' title='Last activity'></i> \
+                Updated " + row[2]
+                if(row[3] !=""){
+                  if(row[41] =="true"){
+                    str+= "<i class='icon-user' title='Assigned to'></i>&nbsp&nbsp&bull; Assigned to <span><a class='edit_assigned_to' data-pk='"+row[0]+"' \ data-value='"+row[19]+"' style='cursor:pointer;'>" + row[3] +"</a>"
+                  }else{
+                     str+= "<i class='icon-user' title='Assigned to'></i>&nbsp&nbsp&bull; Assigned to <span>" + row[3]
+                  }
+                }else{
+                  if(row[41] =="true"){
+                    str+= "<i class='icon-user' title='Assigned to'></i>&nbsp&nbsp&bull; <a class='edit_assigned_to' data-pk='"+row[0]+"' \ data-value='' style='cursor:pointer;'>Unassigned</a><span>"
+                  }else{
+                    str+= "<i class='icon-user' title='Assigned to'></i>&nbsp&nbsp&bull; Unassigned<span>"
+                  }
+                }
+                //if(row[45] !=""){
+                //  var custom_value = "<div class='pull-left'><span class='custom_opp_ld_amt'>"+row[45]+"</span></div>"
+                //}else{
+                //  var custom_value = ''
+                //}
+                str+="</span> \
+                <br/><div class='pull-left label-lead-stage'><span class='dropdown'><span class='label label-default lead_"+row[0]+"' style='" +sty+ "'>"+lead_stage+"</span><a class=' dropdown-toggle space-left black' style='cursor:pointer'  data-toggle='dropdown' onclick='getStages("+row[0]+")'><b class='caret'></b></a><ul class='dropdown-menu text-left dropdown-menu-left select-stage-inlead-list animated flipInX m-t-xs stages-list' style='z-index:1100'></ul></span></div> \
+               <div> \
+                "+ display_opportunity(row[29],'" + r_dtype + "}')+"\
+              </div> \
+            </div> \
+              <div>"
+              if(row[16]=="true"){
+              str+="<div style='display: none;' class='actions dropdown fr'> \
+                <span style='cursor:pointer;text-decoration:none;color:darkOrange;' href='javascript:' data-toggle='dropdown' class='btn-sm btn-circle dropdown-toggle'> \
+                  <button type='button' class='btn btn-warning btn-xs'><span class='icon-cog icon-1x'></span></button>\
+                </span> \
+                <ul class='dropdown-menu text-left animated flipInX m-t-xs'> \
+                  <li> \
+                    <a rel='tooltip' onclick=\"default_for_lead_task();set_ld_track_event('WUS - Create Task', 'Lead Listing > 3 dot Menu');$('#task_form')[0].reset();task_deal(" + row[0] + ");$('#hfield').val('"+ row[0] +"');$('#deal_title').val('"+ row[1] +"').prop('disabled', true);$('#email_err').html('');\" href='#taskModal' data-toggle='modal' data-id='" + row[0] + "'>Add Task</a> \
+                  </li> \
+                  <li> \
+                    <a onclick=\"$('#notable_id').val(" + row[0] + ");$('#notable_type').val('Deal');\" href='javascript:' data-toggle='modal' data-target='#noteModal'>Add Note</a> \
+                  </li> \
+                  <li> \
+                    <a onclick=\"$('.error').html('');$('#send-mail-popup').get(0).reset();$('#to').val(&quot;"+ row[8] +"&quot;);$('#mailer_id').val(" + row[0] + ");$('#mailer_type').val('Deal');$('#email_contact_id').val(" + row[14] + ");$('#email_contact_type').val('"+ row[18] +"');reset_email_err_msg();\" href='javascript:' data-toggle='modal' data-target='#SendEmailModal'>Send Email</a> \
+                  </li>\
+                  <li> \
+                    <a href='/leads/" + row[35] + "/edit'>Edit</a> \
+                  </li>"
+                  if(row[21] == "true"){
+                  str+="<li> \
+                    <a rel='nofollow' data-method='delete' data-confirm='Do you want to delete the lead?' href='/leads/" + row[35] + "'>Delete</a> \
+                  </li>";
+                  }
+                  str+="<li> \
+                    <a title='Move Lead' rel='popup'  onclick=\"$('.show_all').show();$('.deal_s_"+ row[22] +"').hide();$('#assigned_to_user').val(" + row[19] + ");$('#new_initr_id').val(" + row[20] + ");$('#new_assign_id').val(" + row[19] + ");move_deal(" + row[0] + ");reset_pop();\" href='#dealmoveModal' data-toggle='modal' data-id='" + row[0] + "' class='movedealincomepop'> \
+                      Move Lead \
+                    </a> \
+                  </li>\
+                  <!--<li> \
+                    <a title='Working On' data-method='post' data-confirm='Are you sure to move the deal to Working On?' href='/leads_woking_on/" + row[0] + "'>Working On</a>\
+                  </li> -->\
+                </ul> \
+              </div>";
+              }
+              str+="</div>\
+              <div class='cb'></div> \
+              <br> \
+            </div> \
+          </div><div class='cb'></div>"; 
+          return str;              
+            }
+      },
+         { 
+            aTargets: [3],
+            bSortable: false,
+            mRender: function(data, type, row ){
+             str=row[7];                  
+               // if(row[7] != ''){
+               //  str+= "<i class='icon-phone'></i>" +",&nbsp;"+ row[7];
+               // }      
+               if(row[8] != ''){
+                if(row[8].length > 18)
+                  var shrt_email = row[8].substring(0,18) + "..."
+                else
+                  var shrt_email = row[8]
+                str+= "<br/> <a onclick=\"$('.error').html('');$('#send-mail-popup').get(0).reset();$('#to').val('"+ row[8]+"');$('#mailer_id').val(" + row[0] + ");$('#mailer_type').val('Deal');$('#email_contact_id').val(" + row[14] + ");$('#email_contact_type').val('"+ row[18] +"');reset_email_err_msg();\" href='javascript:' class='link_n change-color-ll' data-toggle='modal' data-target='#SendEmailModal' title='Click to Send an Email: "+row[8]+"'>"+shrt_email+"</a>";
+              }
+            return str    
+        }},
+     {aTargets: [5],
+       bSortable: true,
+       mRender: function(data, type, row ){
+         if(row[17] != '' && row[45] == ''){
+          return  "<a href='#' class='lead_amount' data-pk=" + row[17] + " style='vertical-align: middle !important;'>"+row[39]+" "+row[17]+"</a>";
+          }else if(row[45] != ''){
+            return row[45]
+          }
+          else{return ""}
+          }},
+      
+      { aTargets: [8],
+        bSortable: false,
+        mRender: function(data, type, row ){
+        if(row[10][0].toLowerCase() == "hot")
+          s_deal = "hot_pri"
+        else if(row[10][0].toLowerCase() == "cold")
+          s_deal = "cold_pri"
+        else
+          s_deal = "warm_pri"
+
+        var str = "<div class='priority_container'><span><a href='javascript:void(0)' class='change-color-ll' onclick='filterbypriority(\""+ row[10][1]+"\",\"#{escape_once(params[:dtype])}\")'><span class='"+s_deal+" labelTaskType priority_label priority_lead_"+row[0]+"' style=''>"+ row[10][0] + "</span></a></span>";
+
+        if(row[16]=="true"){ 
+          return str+"<div class='dropdown'><a class='dropdown-toggle space-left black' style='cursor:pointer'  data-toggle='dropdown'><b class='caret'></b></a><ul class='dropdown-menu pull-right animated flipInX m-t-xs text-left' style=''><li class='arrow_top' style='left:auto;right:0'></li><li ><a  href='javascript:void(0)' onclick='changePriority("+row[0]+",\"Hot\",1)'><span class='cwkp-sprite hot'></span><span>Hot</span></a></li><li ><a  href='javascript:void(0)' onclick='changePriority("+row[0]+",\"Warm\",2)'><span class='cwkp-sprite warm'></span><span>Warm</span></a></li><li ><a  href='javascript:void(0)' onclick='changePriority("+row[0]+",\"Cold\",3)'><span class='cwkp-sprite cold'></span><span>Cold</span></a></li></ul></div></div>";
+        }
+        else{
+          return str+"</div>";
+        }
+      }},
+      {aTargets: [4],
+
+        bSortable: false,
+          mRender: function(data, type, row ){
+            if((row[12] != '') && (row[13] != '')){
+            return row[12] + ", " + row[13];
+            }
+            //else if((row[11] == '') && (row[13] != '')){
+            //return row[13] + ", " + row[12];
+            //}
+            //else if((row[11] != '') && (row[13] == '')){
+            //return row[11] + ", " + row[12];
+            //}
+            else{
+            return "<div class='lead-location'>"+row[12]+"</div>";
+            }           
+            }},
+         {aTargets: [7],
+          bSortable: true,
+          mRender: function(data, type, row ){
+            return row[15];
+           }
+          },
+         {aTargets: [6],
+          bSortable: false,
+          mRender: function(data, type, row ){
+          if(row[27] != ''){
+            var nxt_axn = row[27].length > 15 ? row[27].substring(0,12) + "..." : row[27]
+            var nxt_axn_title = row[27].length > 15 ? row[27] : ""
+            str = "<div style='padding: 4px 0 0;' class='last_task_"+row[11]+"'><div class='next-action'><div class='label"+row[27]+" labelTaskType tasktype' style='' title='"+nxt_axn_title+"'>"+nxt_axn+"</div></div><div class='cb'></div>"+ (row[27] == 'No-Action' ? "<a rel='tooltip' onclick=\"set_ld_track_event('WUS - Create Task', 'Lead Listing > Schedule a Task');$('#clicked_button_ref').val('listmenu');$('#task_form')[0].reset();$('#lead_priority').val('"+ row[38] + "');task_deal(' + row[0] + ');$('#hfield').val('"+ row[0] +"');$('#deal_title_task').val('"+ row[1] +"').prop('disabled', true);$('#link_with').val('Opportunity');$('.deal_list').show();$('.assign_deal_label').addClass('control-lbl-add-txt');$('#email_err').html('');\" href='#taskModal' class='change-color-ll' data-toggle='modal' data-id='" + row[0] + "'><span style='font-size: 13px;'>Schedule a Task</span></a>" : '');
+            if(row[28] != ""){
+              str+="<div style='font-size: 11px;margin-top:5px;'>"+row[28]+"</div></div>"
+            }
+            return str;
+          }
+          else{return ""}
+          }},
+   
+    ],
+   fnPreDrawCallback: function() { 
+      //$('#task_loader,.fixed_loader').show(); 
+   },
+   fnDrawCallback: function() {
+              $('.edit_assigned_to').editable({
+                url: '/edit_assigned_to',    
+                pk: 1,
+                type: 'select',
+                source: '/get_user_list_lead?from=deal_detail',
+                title: 'Select User',   
+                data: {custom: 'Select User'}, 
+                validate: function(value) {
+                  if($.trim(value) == '')
+                    return 'Please select user';
+                },
+                success: function(response, newValue) {
+                  //if("#{@current_user.id}" != response){
+                  //  $(this).closest('tr').remove();
+                  //}
+                }
+              });
+              $('.get_lead_details').on("click", function (event) {
+                var lead_id = $(this).data("lead_id");
+                if(!$(event.target).is("a") && !$(event.target).is("span") ){
+                  showLeadDetails($(this),lead_id);
+                }
+              });
+            
+              $(".ajax-lead-listing").find('th').on("click", function (event) {
+                if(!$(event.target).is("span") ){
+                  //$(".lead-custom-drop").hide();
+                  event.stopImmediatePropagation();
+                }
+                var sort_info = $(".ajax-lead-listing").dataTable().fnSettings().aaSorting.toString().split(",");
+                var sorted_tab = "";
+                var sorted_order = "";
+                if(sort_info[0] == "2" ){
+                  sorted_tab = "Opportunity";
+                }
+                else
+                if(sort_info[0] == "5" ){
+                  sorted_tab = "Amount";
+                }
+                else
+                if(sort_info[0] == "7" ){
+                  sorted_tab = "Created";
+                }
+                
+                if(sort_info[1] == "asc"){
+                  sorted_order = "an ascending";
+                }else{
+                  sorted_order = "a descending";
+                }
+                show_alert_message("success","All your leads sorted in " + sorted_order + " order with respect to "+ sorted_tab);
+              });
+              $('#task_loader,.fixed_loader').hide();
+              
+             
+                //Initialise new tooltip
+                //initialize_tooltipster();
+
+              $(".select_all_leads").prop("checked",false);
+              $(".select_all_leads").on('change', function(){
+                if($(this).is(":checked")){
+                  var vals="";
+                  $(".chb-in-ll").each(function(i){
+                    $(this).prop("checked",true);
+                    vals = vals + $(this).val().toString() + ",";
+                  })
+                  $("#mass_deal_ids").val(vals);
+                  $("#deal_ids_to_delete").val(vals);
+                }else{
+                  $(".chb-in-ll").each(function(i){
+                    $(this).prop("checked",false);
+                  })
+                  $("#mass_deal_ids").val("");
+                  $("#deal_ids_to_delete").val("");
+                }
+              })
+          } //fnCallback end
+        }); // datatable end
+
+
+      document.cookie='deal_quarter=""';
+      document.cookie='deal_year=""';
+      //$('a[rel="tooltip"],i,input:checkbox,button,div').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});
+      //$('#badge_qualified').html(this.fnSettings().fnRecordsDisplay())
+      //$(".dealrow" ).hover(
+        //function() {
+        ///div_open=$(this).find("div.open")
+        //$(div_open).removeClass("open")
+        //$(this).find("div.dealspopupmenu").show();
+        //}, function() {
+        //$(this).find("div.dealspopupmenu").hide();
+      //});
+      //$('.dealrow').mouseover(function (e) {
+        //e.stopPropagation();
+       //$('.actions', this).show();
+      //});
+      $('.dealrow').mouseout(function (e) {
+        e.stopPropagation();
+        $('.actions', this).hide();
+      });    
+             
+          
+     
+  }

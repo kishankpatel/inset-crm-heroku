@@ -1,0 +1,119 @@
+#BulkProjectModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "BulkProjectModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      = form_for("",:url=>"/bulk_project_upload", :html=>{:class => "form",:method=>"post",:id=>"bulk-project-form",:multipart => true}) do |f|
+        =hidden_field_tag "mailer_type"
+        .modal-header
+          %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+          %span.cwkp-sprite.bulk_project_upload_icon
+          %h4.modal-title{style: "display:inline-block;position: relative;top: 2px;"}
+            BULK PROJECT UPLOAD
+        .modal-body
+          #project_alert_msg.alert.fade.in.alert-danger{style: "display:none;margin-bottom: 10px;"}
+            %button.close{onclick: "$('#project_alert_msg').hide;$('#task_loader,.fixed_loader').hide();"} ×
+            #project_msg_div
+          .form-group
+            .panel.panel-default{style:"margin-bottom:0;"}
+              .panel-body{style: "border:none;font-size: 14px;padding: 0;"}
+                %ul.bulk_ld_dsc
+                  %li
+                    We only support the CSV fromat here. Here's a sample of how it should look like...
+                  %li
+                    /%a{href:'/demo_sample_project_csv_file.csv'} Download a sample file  
+                    Click to                    
+                    %a.proj_link_colour{href:'/project_template.csv'} Download
+                    %a.fr.proj_link_colour{href:'/learnmore', onclick: "window.open(this.href, this.target, 'width=500,height=550,resizable,scrollbars');return false;", style:"font-size:10px;position: relative;top: 11px;", target:"_blank"} Learn more
+                    .cb
+          .col-md-6.padlft
+            .form-group
+              %label Upload CSV file
+              = file_field_tag :attachment_project, :class=>""
+          .col-md-6.padrht
+            .form-layout-footer{style:"margin-top:15px;"}
+              .fr 
+                %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal",style:"margin-right:0;"} Cancel
+              #proceed_btn_project.displaynone.fr
+                %button.btn.btn-info{type: "submit", disable_with: "Please wait...", id: "project_upload_submit_btn", onclick: ""} Preview
+              .cb
+          .cb
+#output_project_upload
+:javascript
+  $(document).ready(function() { 
+    $('#BulkProjectModal').on('shown.bs.modal', function () {
+      //$('#SendEmailModal').animate({ scrollTop: 1 }, 'slow');
+      //$('#BulkProjectModal').css({"margin-top":"-33px"})
+      
+    });
+    
+    var options = { 
+        target:        '#output_project_upload',   // target element(s) to be updated with server response 
+        beforeSubmit:  showRequest_project_upload,  // pre-submit callback 
+        success:       showResponse_project_upload, // post-submit callback 
+        error: error_uploading,
+        //data: { key1: 'value1', key2: 'value2' }
+        // other available options: 
+        //url:       url         // override for form's 'action' attribute 
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute 
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type) 
+        clearForm: true        // clear all form fields after successful submit 
+        //resetForm: true        // reset the form after successful submit 
+ 
+        // $.ajax options can be used here too, for example: 
+        //timeout:   3000 
+    }; 
+ 
+    // bind to the form's submit event 
+    $('#bulk-project-form').submit(function() { 
+        //formValidation();
+        // inside event callbacks 'this' is the DOM element so we first 
+        // wrap it in a jQuery object and then invoke ajaxSubmit 
+        $(this).ajaxSubmit(options); 
+ 
+        // !!! Important !!! 
+        // always return false to prevent standard browser submit and page navigation 
+        return false; 
+    }); 
+  }); 
+ 
+  // pre-submit callback 
+  function showRequest_project_upload(formData, jqForm, options) {
+    $('#project_upload_submit_btn').prop("disabled", true).html("Please wait...");
+    var queryString = $.param(formData);
+    return true; 
+  } 
+ 
+  // post-submit callback 
+  function showResponse_project_upload(responseText, statusText, xhr, $form)  { 
+    if(responseText == "success"){
+     //$('#project_upload_submit_btn').removeAttr("disabled").html("Save")
+     //$('#BulkProjectModal').modal('hide');
+     window.location = "/project_preview"
+     //$(document).trigger("add-alerts", [{'message': "Mail sent successfully.",'priority': 'info'}]);
+    }else{
+      //$(document).trigger("add-alerts", [{'message': "Ooops !!! Please try again later.",'priority': 'info'}]);
+      alert("Invalid csv format");
+      $('#project_upload_submit_btn').removeAttr("disabled").html("Preview")
+    }
+    //alert('status: ' + statusText + '\n\nresponseText: \n' + responseText + 
+    //    '\n\nThe output div should have already been updated with the responseText.'); 
+  } 
+  function error_uploading(responseText, statusText, xhr, $form){
+    $("#project_alert_msg").show();
+    $("#project_msg_div").html("Invalid csv format.");
+    $('#project_upload_submit_btn').removeAttr("disabled").html("Preview")
+    return false;
+  }  
+  $(function() {
+    $("input:file[id=attachment_project]").change(function (){
+      var flname = $(this).val().split(/\\/).pop();
+      var ext = flname.split('.').pop().toLowerCase();
+      if (!ext.match('csv')) {
+        alert("Please upload csv file only. ");
+        $("#"+obj.id).val('');
+        $('#proceed_btn_project').hide();
+        return false;
+      }else{
+        $('#proceed_btn_project').show();      
+      }
+    });    
+  });

@@ -1,0 +1,252 @@
+-deal_cl = @deal.priority_type.present? ? @deal.priority_type.name.downcase : "na"
+
+.hpanel.hgreen
+  .panel-body.tooltip-demo
+    .fr
+      - if @contact.present?
+        - if @contact.class.name == "IndividualContact"
+          - edit_url = "/contact/"+@contact.to_param
+        - else
+          - edit_url = "/contact/"+@contact.to_param+"?type=company"
+        = link_to edit_url, class: "pencil-txt" do
+          %span.glyphicon.glyphicon-pencil
+          Edit Contact
+    .cb
+    .col-md-12.text-center
+      - if @contact.present? && @contact.class.name == "IndividualContact" 
+        
+        - cont_initiator = @contact.initiator
+        - cont_owner = @contact.owner.present? ? @contact.owner : cont_initiator
+        - if cont_owner.present?  
+          - cont_owner_name = cont_owner.full_name.present? ? cont_owner.full_name : cont_owner.email
+          - if cont_owner.present?
+            .cont-info-txt
+              - cont_owner_name = cont_owner.full_name.present? ? cont_owner.full_name : cont_owner.email
+              = hidden_field_tag "cont_owner_id", cont_owner.id
+              - if cont_owner.image.present?
+                %span.user-profile
+                  %span.userImage.img-circle.m-b.m-t-md
+                    = image_tag cont_owner.image.image.url(:thumb), :alt=>"", :title => "#{cont_owner.full_name.present? ? cont_owner.full_name : (cont_owner.email.present? ? cont_owner.email : '')}",onError: "this.src='/assets/new-ui/user.png'"
+              - elsif (gravtar_img_url = gravatar_url(cont_owner.email)).present?
+                %span.user-profile
+                  %span.userImage.img-circle.m-b.m-t-md
+                    = image_tag gravtar_img_url, alt: "", :title => "#{cont_owner.full_name.present? ? cont_owner.full_name : (cont_owner.email.present? ? cont_owner.email : '')}"
+              -else
+                -if cont_owner_name.present?  
+                  .cont_top_r.lead-details-page
+                    %span.assn-pf-icon{style: "background: #{cont_owner.get_user_color_code(cont_owner_name.downcase[0])}"}
+                      = cont_owner_name[0].upcase
+              .cont_top_r
+                %h3{"data-toggle"=>"tooltip", "data-placement"=>"right", title: "#{cont_owner_name}"}
+                  = cont_owner_name.truncate(20)
+                
+                %span.lead_owner_txt 
+                  = "#{@cont_type} Owner"
+    
+
+    .cb
+    
+    .text-center.col-md-12
+      .contact_detail_cntr
+        - if @contact.present? && @contact.class.name == "IndividualContact"
+          .btn-group
+            - if @contact.present? && @contact.linkedin_url.present?
+              - linkedin_url = @contact.linkedin_url.include?("http") ? @contact.linkedin_url : "http://" + @contact.linkedin_url
+              =link_to linkedin_url, target: "_blank" do
+                .fl.soc_links_lin.fab.fa-linkedin-in.btn.btn-default.btn-xs{title: "#{@contact.linkedin_url}", "data-toggle"=>"tooltip", "data-placement"=>"right"}
+            -else
+              .fl.n_active.fab.fa-linkedin-in.btn.btn-default.btn-xs
+            - if @contact.present? && @contact.facebook_url.present?
+              - facebook_url = @contact.facebook_url.include?("http") ? @contact.facebook_url : "http://" + @contact.facebook_url
+              =link_to facebook_url, target: "_blank" do
+                .fl.soc_links_fb.fab.fa-facebook-f.btn.btn-default.btn-xs{title: "#{@contact.facebook_url}", "data-toggle"=>"tooltip", "data-placement"=>"right"}
+            -else
+              .fl.soc_links_fb.n_active.fab.fa-facebook-f.btn.btn-default.btn-xs
+            - if @contact.present? && @contact.twitter_url.present?
+              - twitter_url = @contact.twitter_url.include?("http") ? @contact.twitter_url : "http://" + @contact.twitter_url
+              =link_to twitter_url, target: "_blank" do
+                .fl.soc_links_twt.fab.fa-twitter.btn.btn-default.btn-xs{title: "#{@contact.twitter_url}", "data-toggle"=>"tooltip", "data-placement"=>"right"}
+            -else
+              .fl.soc_links_twt.n_active.fab.fa-twitter.btn.btn-default.btn-xs
+            - if @contact.present? && @contact.messanger_id.present?
+              - messanger_id = "skype:#{messanger_id}?call"
+              =link_to messanger_id do
+                .fl.soc_links_skype.fab.fa-skype.btn.btn-default.btn-xs{title: "#{@contact.messanger_id}","data-toggle"=>"tooltip", "data-placement"=>"right", }
+            -else
+              .fl.soc_links_skype.n_active.fab.fa-skype.btn.btn-default.btn-xs
+      
+    
+    %div{:style=>"margin-top:15px"}
+      .m-b-sm{:style=>"margin-bottom:28px"}
+        - if @deal.user_label.present?  
+          
+          %span.pe-7s-user.width20.fl{ :title => "Lead Origin", "data-toggle"=>"tooltip", "data-placement"=>"right" }
+          .fl
+            .cont_top_r.dropdown
+              %a.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                %span.user_label_nm
+                  = @deal.user_label.name
+                %span.caret
+              %ul.dropdown-menu.pull-right.left_custom
+                %li 
+                  %a{href: "javascript:void(0)", onclick:"changeUserLabel(#{@deal.id}, 'Uncategorised')"} Uncategorised
+                %li 
+                  %a{href: "javascript:void(0)", onclick:"changeUserLabel(#{@deal.id}, 'Inbound')"} Inbound
+                %li  
+                  %a{href: "javascript:void(0)", onclick:"changeUserLabel(#{@deal.id}, 'Outbound')"} Outbound
+      %br
+      %br    
+      .cb
+      .m-b-sm{:style=>"margin-bottom:28px"}
+        - if @deal.deal_source.present? &&  (ds=@deal.deal_source.source).present?
+          %div
+            %span.pe-7s-photo-gallery.width20.fl{"data-toggle"=>"tooltip", "data-placement"=>"right",  :title => "Source"}
+            .fl
+              .cont_top_r.opp_user_label.dropdown
+                .cont_top_r
+                  %a.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                    %span.source_nm{title: ds.name}
+                      = ds.name.truncate(17)
+                    %span.caret
+                  %ul.dropdown-menu.pull-right.left_custom
+                    - @current_organization.sources.each do |source|
+                      - if source.name.present?
+                        %li
+                          %a{href: "javascript:void(0)", onclick:"changeUserSource(#{@deal.id}, #{source.id})"}
+                            = source.name
+      .cb
+      .m-b-sm
+        %span.fal.fa-handshake-o.width20.fl{ "data-toggle"=>"tooltip", "data-placement"=>"right", :title => "Change Opportunity Type"}
+          -deal_cl = deal_cl + "_pri"
+        .fl  
+          %span.labelTaskType.priority_label{class: deal_cl }
+            -if !@deal.priority_type.nil?
+              =@deal.priority_type.name
+            - else
+              NA
+          - if (@deal.associated_users.include? @current_user.id) || (@current_user.is_admin? || @current_user.is_super_admin?)  
+            %span.dropdown.priority_in_lead_details{style:"top: 3px;"}
+              %a.dropdown-toggle{"data-toggle" => "dropdown", :style => ""} 
+                %span.caret
+              %ul.dropdown-menu
+                %li.arrow_top
+                %li
+                  %a{:href => "javascript:void(0)", :onclick => "changePriority(#{@deal.id},\"Hot\",1)"}
+                    %span.cwkp-sprite.hot
+                    %span Hot
+                %li
+                  %a{:href => "javascript:void(0)", :onclick => "changePriority(#{@deal.id},\"Warm\",2)"}
+                    %span.cwkp-sprite.warm
+                    %span Warm
+                %li
+                  %a{:href => "javascript:void(0)", :onclick => "changePriority(#{@deal.id},\"Cold\",3)"}
+                    %span.cwkp-sprite.cold
+                    %span Cold
+        .cb
+      .m-b-sm
+        - dl_status = @deal.deal_status_name.present? ? @deal.deal_status_name : "Not Available"
+        - if @deal.is_won.to_s.present?
+          - dl_status = @deal.is_won ? "Won" : "Lost"
+        
+        %span.pe-7s-photo-gallery.width20{"data-toggle"=>"tooltip", "data-placement"=>"right", :title => "Change Opportunity Status"}
+        %span.deal_status_name{"data-toggle"=>"tooltip", "data-placement"=>"right", :title => dl_status.size > 15 ? dl_status : "",:class => dl_status.size > 15 ? "" : ""}
+          = dl_status.truncate(15)
+        - if (@deal.associated_users.include? @current_user.id) || (@current_user.is_admin? || @current_user.is_super_admin?)  
+          %span.dropdown
+            %a.dropdown-toggle{"data-toggle" => "dropdown", :onclick => "getLeadStages(#{@deal.id},'lead_details')"}
+              %span.caret
+            %ul.dropdown-menu.select-stage-inlead-list.stages-list{:style => ""}
+              
+              
+      %p          
+        - if @contact.present? && @contact.email.present?
+          
+          %span.pe-7s-mail.width20{ :title => "Email" ,"data-toggle"=>"tooltip", "data-placement"=>"right" }
+          %span.email_id.cont_email
+            %span.truncate_content{title: "#{@contact.email}" ,"data-toggle"=>"tooltip", "data-placement"=>"right", }
+              = @contact.email.truncate(35)
+      %p   
+        - if @contact.present?
+          %span.fal.fa-browser.width20{"data-toggle"=>"tooltip", "data-placement"=>"right", :title => "Website"}
+          - if @contact.website.present?
+            %span.web_url.truncate_content{"data-toggle"=>"tooltip", "data-placement"=>"right", title: "#{@contact.website}"}
+              -if @contact.website.include?("http" || "https")
+                =link_to @contact.website, target: "_blank", :class => "cont_website" do
+                  =@contact.website
+              -else
+                =link_to "//"+@contact.website, target: "_blank", :class => "cont_website" do
+                  =@contact.website
+          - else
+            %span.web_url.cont_website
+              Not Available
+          
+      %p 
+        
+          
+        %span.pe-7s-phone.width20{"data-toggle"=>"tooltip", "data-placement"=>"right",  :title => "Mobile Phone"}
+        - if @mobile_phone.present? && @mobile_phone.first.phone_no.present?
+          %span.web_url.truncate_content
+            = link_to @mobile_phone.first.phone_no, "skype:+" + @mobile_phone.first.phone_no + "?call", title: "Click to call", :class=>"cont_mobile"
+        - else
+          %span.web_url.cont_mobile
+            Not Available
+      
+      - if @contact.present?
+        %p 
+          %span.pe-7s-phone.fade_icn.width20{"data-toggle"=>"tooltip", "data-placement"=>"right",  :title => "Work Phone"}
+          - work_phone = @contact.phones.present? && @contact.phones.by_phone_type("work").present? ? @contact.phones.by_phone_type("work").first.phone_no : ""
+          - if work_phone.present?
+            %span.web_url.truncate_content
+              =link_to  "+" + work_phone, "skype:+" + work_phone + "?call", title: "Click to call", :class => "cont_work_phone"
+          - else
+            %span.web_url.cont_work_phone
+              Not Available    
+      %p
+        %span.fal.fa-tag.width20{"data-toggle"=>"tooltip", "data-placement"=>"right", :title => "Lead tag"}
+        %span
+        - if @deal.tags.present?
+          - @deal.all_tags.split(',').each do |ta|
+            - url = cookies[:page_tab].present? ? "#{leads_path(:type=>cookies[:page_tab],:tag =>ta)}" : "#{leads_path(:tag =>ta)}"
+            %a.tag_tech.lead_tag{href: "javascript:void(0);",onclick:"store_cookie('#{ta}','#{url}')"}
+              =ta
+        -else
+          %span
+            Not Available
+      - if @contact.present?
+        %p
+          %span.fal.fa-calendar-alt.width20
+          %strong Created on:
+          = @contact.created_at.strftime("(%a) %b %d, %Y")
+        %p
+          %span.fal.fa-calendar-alt.width20
+          %strong First Touch on: 
+          = @contact.created_at.strftime("(%a) %b %d, %Y")
+
+
+.hpanel.hgreen.m-b-none
+  .panel-body
+    %h4.m-t-none
+      Company
+    %div
+      .m-b-sm
+        .contact_detail_cntr
+          - if @contact.present? && @contact.class.name == "IndividualContact"
+            
+            %span.fal.fa-university.width20
+            - if @contact.company_contact.present? && @contact.company_contact.name.present?
+              %span{"data-toggle"=>"tooltip", "data-placement"=>"right", title: @contact.company_contact.name}
+                %strong  
+                  = link_to @contact.company_contact.name.truncate(35), "/company_contact/#{@contact.company_contact.to_param}"
+            - else
+              Not Available 
+            - if @contact.company_contact.present?  
+              - if @contact.company_contact.get_location.present?  
+                = @contact.company_contact.get_location
+              
+      - if @contact.class.name == "IndividualContact" && @contact.company_contact.present? && @contact.company_contact.company_strength.present?
+        .m-b-sm
+          %span.fal.fa-users.width20
+          %strong Company Size:
+          %span.cont_company_strength 
+            = @contact.company_contact.company_strength.range
+

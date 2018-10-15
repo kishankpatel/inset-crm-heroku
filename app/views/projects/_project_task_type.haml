@@ -1,0 +1,109 @@
+- @project_task_type = ProjectTaskType.new
+- @project_task_types = @current_organization.project_task_types
+.mtop30
+  .navbar-left 
+    %h4
+      Manage Project Job Types
+  .navbar-right
+    .btn.btn-primary.btn-success.pad2{ data: { toggle: "modal", target: "#addProjectTaskType" }}
+      .glyphicon.glyphicon-plus-sign
+      Add Project Job Type
+  .cb
+#list_project_task_type
+  = render partial: "projects/list_project_task_type"
+
+
+#editProjectTaskType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Edit Project Job Type
+      .modal-body
+        = form_for(ProjectTaskType.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateProjectTaskType(); return false;'}) do |f|
+          = f.hidden_field 'id'
+          = hidden_field_tag 'project_task_type_id'
+
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-edit-project-task-type', :maxlength=> '50', :style=> 'resize: none;'
+              %label.control-label{:for => "input"} Project Job Type*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{type: 'submit', id: 'deal_submit_btn'} Update
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+#addProjectTaskType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Project Job Type
+      .modal-body
+        = form_for(ProjectTaskType.new, :url => '', :html=>{:class => 'form', onsubmit: 'addProjectTaskType(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-add-project-task-type', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Project Job Type*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{type: 'submit', id: 'deal_submit_btn'} Save
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+:javascript
+  $(function() {
+        $('#editProjectTaskType').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget)
+          var statusName = button.data('name')
+          var statusId = button.data('id')
+          $('#txt-edit-project-task-type').val(statusName);
+          $('#project_task_type_id').val(statusId);
+        });
+        $('#addProjectTaskType').on('show.bs.modal', function (event) {            
+            $("#txt-add-project-task-type").val('')
+        });
+    });
+    function updateProjectTaskType() {
+      var projectTaskType = $("#txt-edit-project-task-type").val();
+      var projectTaskId = $('#project_task_type_id').val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/update_project_task_type',
+          type: 'POST',
+          data: {id: projectTaskId,
+              name: projectTaskType },
+          success: function(res) {
+              $("#editProjectTaskType").modal('hide');
+              $("#list_project_task_type").html(res);
+              $("#project_task_loader,.fixed_loader").hide();
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#job_type_error").show();
+          }
+      });
+    }  
+
+    function addProjectTaskType() {  
+      var projectTaskType = $("#txt-add-project-task-type").val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/create_project_task_type',
+          type: 'POST',
+          data: { name: projectTaskType },
+          success: function(res) {
+              $("#addProjectTaskType").modal('hide');
+              $("#list_project_task_type").html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#job_type_error").show();
+          }
+      });
+    }  

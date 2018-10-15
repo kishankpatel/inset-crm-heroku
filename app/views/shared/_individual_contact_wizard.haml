@@ -1,0 +1,399 @@
+#contactStepStart.modal.fade.cmn_wf_steps{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  - @ind_contact = IndividualContact.new()
+  = form_for(@ind_contact,as: "contact", :url => contacts_path, method: 'post',:remote=>true, enctype: 'multipart/form-data', :html=>{:class => "form",:id=>'contact_wizard'}) do |f|
+    = hidden_field_tag 'wizard_company_id'
+    .contStepsSlider
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Contact Name
+                %h5 Please provide contact first and last name
+              .modal-body
+                .row
+                  .col-md-6
+                    .form-group
+                      = f.label :first_name
+                      = f.text_field :first_name, :class=>"form-control", :placeholder => "Enter contact name", :required=>true
+                  .col-md-6
+                    .form-group
+                      = f.label :last_name
+                      = f.text_field :last_name, :class=>"form-control", :placeholder => "Enter contact last name",:required=>true
+              .modal-footer
+                %a.pager-next.btn.w-xs.btn-success{:href => "javascript:void(0)", :type => "name_field"}
+                  %i.icon-chevron-right
+                  Next
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Contact Email
+                %h5 Please provide contact email ID
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :email
+                      = f.email_field :email, :class=>"form-control", :placeholder => "Email",:required=>true
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "email_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Address
+                %h5 Please enter organizations primary billing or shipping address
+              .modal-body
+                
+                =f.fields_for :address do |address_fields|
+                  .row
+                    .col-md-12
+                      .form-group
+                        = address_fields.label :address,"Street Address"
+                        = address_fields.text_field  :address, :class=>"form-control", :placeholder=>"Street Address"
+                  .row
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :city
+                        = address_fields.text_field   :city, :class=>"form-control", :placeholder=>"City",:required=>true
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :state,"State / Province"
+                        = address_fields.text_field   :state, :class=>"form-control", :placeholder=>"State / Province",:required=>true
+                  .row
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :zipcode,"Postal / Zip Code"
+                        = address_fields.text_field  :zipcode, :class=>"form-control", :placeholder=>"Postal / Zip Code"
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :country_id , "Country"
+                        = address_fields.select :country_id, Country.find(:all).collect {|c| [ c.name, c.id ]}, {:selected => 236},{:class => "form-control js-source-states", :placeholder => "Country"}
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "address_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Contact Phone Number
+              .modal-body
+                = f.fields_for :phones do |phone|
+                  = phone.hidden_field :phone_type, :value => "Work"
+                  .row
+                    .col-md-4
+                      .form-group
+                        = phone.label :extension, "Area Code"
+                        = phone.text_field :extension, :class=>"form-control", :placeholder=>"Area Code", onkeydown: "plusandnumbersonly(event);",:required=>true
+                    .col-md-8
+                      .form-group
+                        = phone.label :phone_no
+                        = phone.text_field  :phone_no, :class=>"form-control", :placeholder=>"Phone Number",:required=>true, onkeydown: "numbersonly(event);"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "phone_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Would you like to associate this contact with a Company?
+              .modal-body.text-center
+                = hidden_field_tag :is_associate_to_company
+                .up_d_load_flow
+                  %button.btn.btn-primary.m-r-md.go-to-comp-sec{:type => "button", :onclick => "$('#is_associate_to_company').val('true');"}
+                    %span
+                      = image_tag "/assets/saas/upload.svg"
+                    %strong Yes
+                  %button.btn.btn-primary#skip8{:type => "button", :onclick => "$('#is_associate_to_company').val('false');"}
+                    %span.no_btn
+                      = image_tag "/assets/saas/dload.svg"
+                    %strong No
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :onclick => "$('#is_associate_to_company').val('true');"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Would you like to associate this contact with a new or existing Company?
+              .cmn_bx_hover.modal-body
+                .row
+                  .col-lg-6
+                    .hpanel.m-b-none
+                      %a.add_comp_sec{:href => "javascript:void(0)", :type => "new"}
+                        .panel-body.text-center
+                          .wf_ft_img
+                            = image_tag "/assets/saas/create-contact.svg"
+                          %h4.font-extra-bold New Company
+                  .col-lg-6
+                    .hpanel.m-b-none
+                      %a.add_comp_sec{:href => "javascript:void(0)", :type => "exist"}
+                        .panel-body.text-center
+                          .wf_ft_img
+                            = image_tag "/assets/saas/company.svg"
+                          %h4.font-extra-bold Existing Company
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+      /- @comp_contact = CompanyContact.new()
+      /= form_for(@comp_contact,as: "contact", :url => contacts_path, method: 'post',:remote=>true, enctype: 'multipart/form-data', :html=>{:class => "form",:id=>'contact_wizard'}) do |f|
+      = f.fields_for :company do |comp|
+        =render :partial=>"shared/company_wizard", :locals=>{comp:comp,:create_source=>"contact"}
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Complete Contact Creation
+              .cmn_bx_hover.modal-body
+                %h4.text-center
+                  Data for Contact is configured. Let's Complete it.
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl.back8{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.btn.w-xs.btn-success.fr#submitButton{:href => "javascript:void(0)"}
+                  %i.icon-chevron-right
+                  Submit
+                .cb
+      .slide
+        .modal-dialog
+          .modal-content
+/=render :partial => "users/profile_img_crop"
+:javascript
+  var formValues ={};
+  var slider = null;
+  $(document).ready(function(){
+    //formValues["contact_wizard"]= $('form#contact_wizard').serialize();
+    var slider = $('.contStepsSlider').bxSlider({
+      minSlides: 1,
+      maxSlides: 1,
+      // moveSlides: 1,
+      pager: false,
+      controls: false,
+      autoControls: false,
+      auto: false
+    });
+    $('a.pager-prev').click(function () {
+      if($(this).hasClass('back8') && $("#is_associate_to_company").val() == 'false'){
+        // var current = slider.getCurrentSlide();
+        slider.goToSlide(4);      
+      }else{
+        var current = slider.getCurrentSlide();
+        slider.goToPrevSlide(current) - 1;
+
+      }
+    });
+
+    $('a.comp-pager-prev').click(function () {
+      var current = slider.getCurrentSlide();
+      slider.goToPrevSlide(current) - 1;
+    });
+    $('.go-to-comp-sec').click(function (e) {
+      var current = slider.getCurrentSlide();
+      slider.goToNextSlide(current) + 1;
+    });
+    $('#skip8').click(function (e) {
+      e.preventDefault();
+      if($("#is_associate_to_company").val() == 'false'){
+        // var current = slider.getCurrentSlide();
+        slider.goToSlide(13);
+      
+      }
+    });
+    $('#comp-next-btn').click(function (e) {
+      e.preventDefault();
+      if($('#wizard_company_id').val() != "" && $('#wizard_company_id').val() != undefined){
+        slider.goToSlide(13);
+      }else{
+        var current = slider.getCurrentSlide();
+        slider.goToNextSlide(current) ;
+      }
+    });
+    $('#prevButton').click(function (e) {
+      if($('#wizard_company_id').val() != ""){
+        slider.goToSlide(6);
+      }else{
+        var current = slider.getCurrentSlide();
+        slider.goToPrevSlide(current) - 1;
+      }
+    });
+    $('.add_comp_sec').click(function () {
+      var current = slider.getCurrentSlide();
+      slider.goToNextSlide(current) + 1;
+      if($(this).attr("type") == "exist"){
+        $('#contact_company_name').addClass("typeahead");
+        $('#contact_company_name').attr('data-provide','typeahead');
+        $("#display_comp_info").show();
+      }else{
+        $('#contact_company_name').removeClass("typeahead");
+        $('#contact_company_name').val('').removeAttr('data-provide');
+        $("#display_comp_info").hide();
+      }
+    });
+    $('a.pager-next').click(function () {
+      var type = $(this).attr("type");
+      if(type == "name_field"){
+        if($("#contact_first_name").valid() && $("#contact_last_name").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "email_field"){
+        if($("#contact_email").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "address_field"){
+        if($("#contact_address_city").valid() && $("#contact_address_state").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "phone_field"){
+        if($("#contact_phones_extension").valid() && $("#contact_phones_phone_no").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }
+      else{
+        var current = slider.getCurrentSlide();
+        slider.goToNextSlide(current) + 1;
+      }
+    });
+    $('a.comp-pager-next').click(function () {
+      
+      var type = $(this).attr("type");
+      console.log(type)
+      
+      if(type == "comp_name"){
+        if($("#contact_company_name").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "comp_email"){
+        if($("#contact_company_email").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "comp_phone_field"){
+        if($("#contact_company_phones_extension").valid() && $("#contact_company_phones_phone_no").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "comp_address_field"){
+        if($("#contact_company_address_city").valid() && $("#contact_company_address_state").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "comp_size"){
+        if($("#contact_company_company_strength_id").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "comp_website"){
+        if($("#contact_company_website").valid()){
+          var current = slider.getCurrentSlide();
+          slider.goToNextSlide(current) + 1;
+        }else{
+          return false;
+        }
+      }
+      else{
+        var current = slider.getCurrentSlide();
+        slider.goToNextSlide(current) + 1;
+      }
+    });
+  });
+  $('#submitButton').click( function() {
+    $(".contStepsSlider").find(".slide:last-child").remove()
+    $.ajax({
+        url: '/create_flow_contact',
+        type: 'post',
+        data: $('form#contact_wizard').serialize(),
+        success: function(data) {
+          //alert(1)
+        },
+        complete: function(data) {
+          //show_alert_message("success", data.responseText);
+          window.location.href = "/all_contacts";
+        },
+        error: function(data) {
+          //alert(3)
+        }
+    });
+  });
+  
+  
+  // $('#contact_company_name').keyup( function(event){
+  //   $(".company_id").val("");
+  // })

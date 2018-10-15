@@ -1,0 +1,27 @@
+#indvComp.modal.fade.hmodal-success.contact_step_one{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title Would you like to create an individual or Company contact?
+      .modal-body
+        .row
+          .col-lg-6
+            .hpanel.m-b-none
+              %a{"data-dismiss" => "modal", "data-target" => "#contactStepStart", "data-toggle" => "modal", :href => "javascript:void(0)"}
+                .panel-body.text-center
+                  .wf_ft_img
+                    = image_tag "/assets/saas/create-contact.svg"
+                  %h4.font-extra-bold Individual
+          .col-lg-6
+            .hpanel.m-b-none
+              %a{"data-dismiss" => "modal", "data-target" => "#companyStepStart", "data-toggle" => "modal", :href => "javascript:void(0)"}
+                /%a{:href => "javascript:void(0)"}
+                .panel-body.text-center
+                  .wf_ft_img
+                    = image_tag "/assets/saas/company.svg"
+                  %h4.font-extra-bold Company
+      / .modal-footer
+      /   %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close

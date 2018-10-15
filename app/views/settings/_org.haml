@@ -1,0 +1,142 @@
+:javascript
+  function show_edit_form()
+  {
+    $("#edit_org_form").show();
+    $("#show_org_form").hide();
+    $("html, body").animate({ scrollTop: 0 }, 600);
+  }
+  function hide_edit_form()
+  {
+    $("#edit_org_form").hide();
+    $("#show_org_form").show();
+    $("html, body").animate({ scrollTop: 0 }, 600);
+  }
+#show_org_form
+ 
+  .panel-heading.hbuilt
+    %h4 Company Information:
+  .panel-body   
+    .row
+      .col-md-12
+        
+        .col-md-10
+          .fl.col-md-6.p0
+            .fl.grey_act
+              Name: 
+            .fl
+              =current_user.organization.name
+            .cb
+            .fl.grey_act
+              Primary Contact: 
+            .fl
+              =current_user.organization.email
+            .cb
+            .fl.grey_act
+              Type: 
+            .fl
+              - if @current_organization.organization_type.present?
+                - org_type = OrganizationType.find_by_id @current_organization.organization_type
+                - org_name = org_type.name
+              - else
+                - org_name = "NA"
+              = org_name
+            .cb
+            .fl.grey_act
+              Website: 
+            .fl
+              =(@current_organization.website.present? ? @current_organization.website : "NA")
+          .fl.col-md-6
+            .fl.grey_act Description:
+            .fl 
+              =(current_user.organization.description.present? ? current_user.organization.description : "NA")
+            .cb
+            .fl.grey_act Phone:
+            .fl
+              =(current_user.organization.phone.present? ? current_user.organization.phone.phone_no : "NA")
+            .cb
+            .fl.grey_act
+              Team Size: 
+            .fl            
+              =current_user.organization.company_strength.present? ? current_user.organization.company_strength.range : "NA"
+    %br
+    %br
+
+  .panel-heading.hbuilt
+    %h4 Address Information:
+  .panel-body
+    .row
+      .col-md-12
+        
+        .col-md-10
+          
+          - organization = current_user.organization
+          - organization_address = current_user.organization.address
+          - if organization_address.present?
+            .fl.col-md-6.p0
+              .fl.grey_act
+                Street: 
+              .fl
+                =(organization_address.address.present? ? organization_address.address : @current_user.address.address)
+              .cb
+              .fl.grey_act
+                State: 
+              .fl
+                =(organization_address.state.present? ? organization_address.state : @current_user.address.state)
+              .cb
+              .fl.grey_act
+                Country: 
+              .fl
+                =(organization_address.country.present? ? organization_address.country.name : "NA")
+              
+            .fl.col-md-6
+              .fl.grey_act City:
+              .fl
+                =(organization_address.city.present? ? organization_address.city : "NA")
+              .cb
+              .fl.grey_act Zip:
+              .fl
+                =(organization_address.zipcode.present? ? organization_address.zipcode : "NA")
+          - else
+            .fl.col-md-6.p0
+              .fl.grey_act
+                Street: 
+              .fl 
+                =@current_user.address.present? ? @current_user.address.address : "NA"
+              .cb
+              .fl.grey_act
+                State: 
+              .fl 
+                =@current_user.address.present? ? @current_user.address.state : "NA"
+              .cb
+              .fl.grey_act
+                Country: 
+              .fl 
+                =@current_user.address.present? ? Country.where("id=?",@current_user.address.country_id).last.name : "NA"
+              
+            .fl.col-md-6
+              .fl.grey_act City:
+              .fl 
+                =@current_user.address.present? ? @current_user.address.city : "NA"
+              .cb
+              .fl.grey_act Zip:
+              .fl 
+                =@current_user.address.present? ? @current_user.address.zipcode : "NA"
+    %br
+    %br
+
+  .panel-heading.hbuilt
+    %h4 Locale Information:
+  .panel-body
+    .row
+      .col-md-12
+        .col-md-10
+          .fl.col-md-6.p0
+            .fl.grey_act
+              Current Time Zone:
+            .fl
+              = current_user.time_zone? ? current_user.time_zone : "NA"
+            .cb
+    %center
+      %button.btn.btn-primary.btn-success{type: "button",onclick: "show_edit_form()"} Edit
+
+= render :partial => "org_edit"

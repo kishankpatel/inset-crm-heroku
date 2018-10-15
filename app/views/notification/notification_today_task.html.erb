@@ -1,0 +1,115 @@
+<html>
+  <head>
+    <title>Confirmation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Trebuchet MS'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p>
+                 Hi&nbsp;<%= @user.first_name%>,
+                </p>
+                <p >
+                  The following<%= @tasks.count > 1 ? " tasks are " : " task is " %>assigned to you.
+                </p>
+				
+				<p>
+				   <table class="table table-condensed" style="border: 1px solid #CCCCCC; border-collapse: collapse;  border-radius: 5px 5px 5px 5px;    font-family: Verdana; font-size: 12px; width: 99.5%;">
+				   <thead>
+					  <tr style="background-color: #F0F0F0;font-weight: bold;">
+						  <th style="background-color: #F0F0F0; font-weight: bold;text-align: left;width:5%">#</th>
+						  <th style="background-color: #F0F0F0; font-weight: bold;text-align: left;width:20%">Type</th>
+						  <th style="background-color: #F0F0F0; font-weight: bold;text-align: left;width: 17%;">	Priority</th>             
+						  <th style="background-color: #F0F0F0; font-weight: bold;text-align: left;width: 41%;">	Description</th>  
+<th style="background-color: #F0F0F0; font-weight: bold;text-align: left;width: 58%;">	Assigned By</th>               
+					  </tr>
+				  </thead>   
+				  <tbody>
+					 <% i = 1 %>
+						<%- @tasks.each do |task| %>
+							<tr>
+							   <td> <%=i%></td>
+						<td><%=task.task_type.name%></td>
+						<td><%=task.priority_type.name%></td>
+						<td><%=task.title%></td>
+            <td><%=((ti=task.initiator) && (ti.id == task.user.id)) ? "me" : ti.full_name %></td>
+					</tr>
+					<%i += 1%>
+						<% end %>
+						</tbody>
+				  </table>
+				</p>
+
+                <p>
+				 <a href="<%=APP_CONFIG["host_url"]%>/tasks?type=today&assigned_to=<%=@user.id%>" target="_blank" style="cursor:pointer;text-decoration: none;color:#FFFFFF;">
+			
+				   <div style="border:none;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;background:#0EA426;font-weight:bold;margin-top:20px;padding:8px 0;width:100%;text-align:center;">
+			         Go to Tasks
+			       </div>
+	             </a>
+				 
+				 </p>
+                <div style="clear:both;height:5px"></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#fff;border-top:none !important;border:1px solid #dfdfdf;">
+                <p style="color:#666666;margin:0">
+                  <div>
+                    <div style="margin: 20px;">
+                      <!-- <div style="width:20%;float:left;padding:10px 10px 0;box-sizing: border-box;vertical-align: middle;display: table;">
+                        <a href="https://twitter.com/Andolasoft" target="_blank" style="text-decoration: none;display: table-cell;">
+                          <img src="https://www.zenbership.com/assets/img/getapp.png" style='width:100%' />&nbsp;&nbsp;
+                        </a>
+                      </div> -->
+                      <div style="width:25%;float:left;padding:10px 10px 0;box-sizing: border-box;vertical-align: middle;display: table;margin: 0 10px;">
+                        <a href="https://alternativeto.net/software/wakeupsales/" target="_blank" style="text-decoration: none;display: table-cell;height: 34px;">
+                          <img src="http://socialcompare.com/u/1302/alternativeto-logo_37579d52e20491d9a21ef1c2222eeacb.png" style='width:100;height: 100%;' />&nbsp;&nbsp;
+                        </a>
+                      </div>
+                      <div style="width:25%;float:left;padding:10px 10px 0;box-sizing: border-box;vertical-align: middle;display: table;">
+                        <a href="http://www.capterra.com/customer-relationship-management-software/spotlight/153054/WakeUpSales/Andolasoft" target="_blank" style="text-decoration: none;display: table-cell;">
+                          <img src="http://embed.widencdn.net/img/widen/ksrw8lehbi/x64px@2x/Capterra%20Logo.png?u=mcuc7i" style='width:100%' />&nbsp;&nbsp;
+                        </a>
+                      </div>
+                      <div style="width:20%;float:left;padding:10px 10px 0;box-sizing: border-box;vertical-align: middle;display: table;">
+                        <a href="https://www.f6s.com/wakeupsales" target="_blank" style="text-decoration: none;display: table-cell;text-align: center;height:40px">
+                          <img src="https://www.f6s.com/images/f6s-logo.png" style='height: 100%;' />&nbsp;&nbsp;
+                        </a>
+                      </div>
+                      <div style="width:25%;float:left;padding:15px 10px 0;box-sizing: border-box;vertical-align: middle;display: table;">
+                        <a href="https://www.g2crowd.com/products/wakeupsales/reviews?locale=es" target="_blank" style="text-decoration: none;display: table-cell;height:32px;">
+                          <img src="https://d2eyrv63e6x6lp.cloudfront.net/wp-content/uploads/2015/02/24144414/g2crowd-blog-logo-904x252.png" style='height:100%' />&nbsp;&nbsp;
+                        </a>
+                      </div>
+
+                      <div style="clear:both"></div>
+                      <br>
+                      <p style="font-size:12px">
+                        Best,<br/>
+                          The InSet CRM Team
+                      </p>
+                    </div>
+                    <div style="clear:both"></div>
+                  </p>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+     
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

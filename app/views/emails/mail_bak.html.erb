@@ -1,0 +1,315 @@
+<div class="col-sm-9" style="float: right;">
+  <div class="panel panel-default inbox-panel">
+    <div class="mail-option">
+      <div class="panel-heading">
+        <div class="input-group">
+          <input type="text" class="form-control input-sm" id="txt-email-search" placeholder="Search here...">
+          <span class="input-group-btn">
+          <button class="btn btn-default btn-sm" type="button" id="btn-email-search"><i class="fa fa-search"></i></button>
+        </span>
+        </div><!-- /input-group -->
+      </div>
+
+      <div class="panel-body mail-option">
+        <label class="label-checkbox inline">
+          <input type="checkbox" id="chk-all">
+          <span class="custom-checkbox"></span>
+        </label>
+
+        <div class="btn-group" id="inboxOptions">
+          <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+            More
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#" id="mark-as-read">Mark as Read</a></li>
+            <li><a href="#" id="mark-as-unread">Mark as Unread</a></li>
+            <li><a href="#" id="delete-messages">Delete</a></li>
+          </ul>
+        </div><!-- /btn-group -->
+
+        <div class="inline">
+          <a id="refresh-emails" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-refresh"></i></a>
+        </div>
+
+        <div class="pull-right">
+          <ul class="unstyled inbox-pagination">
+            <li>
+              <a href="#" id="prev-page" class="np-btn" data-page-token=""><i class="fa fa-angle-left pagination-left"></i></a>
+            </li>
+            <li>
+              <a href="#" id="next-page" class="np-btn" data-page-token=""><i class="fa fa-angle-right pagination-right"></i></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="email-content">
+      <%= render partial: 'inbox' %>
+    </div>
+  </div><!-- /panel -->
+</div><!-- /.col -->
+<div id="output1"></div>
+<script>
+
+  $(function () {
+
+    $(".chk-item").on("click", function () {
+      if ($(this).prop("checked") == true) {
+        $(this).closest("tr").addClass("highlight");
+        if ($("input:checkbox[class='chk-item']:checked").length == $("input:checkbox[class='chk-item']").length) {
+          $("#chk-all").prop("checked", true)
+        }
+      }
+      else {
+        $(this).closest("tr").removeClass("highlight");
+        $("#chk-all").prop("checked", false)
+      }
+    });
+
+    $("#chk-all").on("click", function () {
+      if ($(this).prop("checked") == true) {
+        $("tr").addClass("highlight");
+        $(".chk-item").prop("checked", true)
+      }
+      else {
+        $("tr").removeClass("highlight");
+        $(".chk-item").prop("checked", false)
+      }
+    });
+
+    $(".star").on("click", function () {
+      var element = $(this);
+      var id = element.closest("li").data("id"),
+          starred = element.data("starred");
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/" + id + "/toggle_star/",
+        type: "POST",
+        data: {starred: starred},
+        success: function (res) {
+          if (res.result) {
+            element.toggleClass("starred");
+            element.data("starred", !starred);
+          }
+        }
+      });
+
+    });
+
+    $("#delete-messages").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var conf = confirm("This will permanently delete the selected messages. Do you want to Continue?");
+      if (!conf) {
+        return conf;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/delete_emails",
+        type: "POST",
+        data: {ids: selectedIds.join(",")},
+        success: function (res) {
+          if (res.result) {
+            selectedRows.closest("li").remove();
+          }
+        }
+      });
+    });
+
+    $('#compose-mail-form').bind('form-pre-serialize', function (e) {
+      tinyMCE.triggerSave();
+    });
+
+    var options = {
+      target: '#output1', // target element(s) to be updated with server response
+      contentType: "application/x-www-form-urlencoded;charset=utf-8",
+      beforeSubmit: changeBtnText, // pre-submit callback
+      success: showResponse, // post-submit callback
+      error: function (xhr) {
+        alert(xhr.responseText);
+        $("#send-email").val("Send").prop("disabled", false);
+      }
+    };
+
+    // bind form using 'ajaxForm'
+    $('#compose-mail-form').ajaxForm(options);
+
+    function changeBtnText() {
+      $("#send-email").val("Sending...").prop("disabled", true);
+    }
+
+    function showResponse(responseText, statusText, xhr, $form) {
+      $("#send-email").val("Send").prop("disabled", false);
+      $("#compose-email").modal("hide");
+      $("#compose-mail-form")[0].reset();
+      $("#attachment-details").html("");
+    }
+
+    $("#refresh-emails").on("click", function (e) {
+      e.preventDefault();
+      var page_token;
+      if ("<%= params[:provider] %>" == "outlook") {
+        page_token = outlookPageSize;
+      } else {
+        page_token = pageToken[currentPage];
+      }
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/mail",
+        type: 'GET',
+        data: {label_id: labelId, mail_type: mailType, page_token: page_token},
+        success: function (res) {
+          $("#email-content").html(res);
+        }
+      });
+    });
+
+    $("#mark-as-read").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/toggle_unread",
+        type: "POST",
+        data: {ids: selectedIds.join(","), unread: false},
+        success: function () {
+          selectedRows.closest("li").find("span.view-message").removeClass("unread");
+        }
+      });
+    });
+
+    $("#mark-as-unread").on("click", function () {
+      var selectedRows = $("input:checkbox[class='chk-item']:checked");
+      if (selectedRows.length == 0) {
+        return false;
+      }
+      var selectedIds = [];
+      selectedRows.each(function () {
+        selectedIds.push($(this).data("id"));
+      });
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/toggle_unread",
+        type: "POST",
+        data: {ids: selectedIds.join(","), unread: true},
+        success: function (res) {
+          selectedRows.closest("li").find("span.view-message").addClass("unread");
+        }
+      });
+    });
+
+    $("#email-attachments").change(function () {
+      if ($(this)[0].files.length == 0) return false;
+      var attachmentContent = "";
+      $.each($(this)[0].files, function (key, value) {
+        attachmentContent += buildAttamantContent(value.name, formatBytes(value.size, 2));
+      });
+      $("#attachment-details").html(attachmentContent);
+    });
+
+    function buildAttamantContent(fileName, fileSize) {
+      return "<div class='col-xs-7' style='overflow: hidden; white-space: nowrap; padding: 3px 0'>" +
+          "<span>" + fileName + "</span></div>" +
+          "<div class='col-xs-4 col-xs-offset-1' style='padding: 3px 0'><span>" + fileSize + "</span></div>";
+    }
+
+    $("#txt-email-search").keypress(function (e) {
+      var keycode = (e.keyCode ? e.keyCode : e.which);
+      if (keycode == '13') {
+        e.preventDefault();
+        searchEmails($.trim($(this).val()));
+      }
+    });
+
+    $("#btn-email-search").on("click", function (e) {
+      e.preventDefault();
+      searchEmails($.trim($("#txt-email-search").val()));
+    });
+
+    function searchEmails(q) {
+      if (q == "") return false;
+      $(".email-menu").removeClass("active");
+      $.ajax({
+        url: "/emails/<%= params[:provider] %>/mail",
+        type: 'GET',
+        data: {q: q},
+        success: function (res) {
+          $("#email-content").html(res);
+        }
+      });
+    }
+
+  });
+</script>
+
+<!-- Modal -->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="compose-email" class="modal fade" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+        <h4 class="modal-title">New Message</h4>
+      </div>
+      <div class="modal-body">
+        <!-- <form data-remote="true" role="form" id="compose-mail-form" class="form-horizontal" action="/emails/<%#= params[:provider] %>/send_mail" method="post" enctype="multipart/form-data"> -->
+        <%= form_tag send_email_path, :method => 'post', :id => 'compose-mail-form', :class => 'form-horizontal', :remote => true, :multipart => true do %>
+            <div class="form-group">
+              <%#= label_tag :to, 'To', class: "col-lg-2 control-label" %>
+              <%= label_tag :'email-to', 'To', class: 'col-lg-2 control-label' %>
+              <div class="col-lg-10">
+                <%= text_field_tag :to, '', :placeholder => 'Recipients', :class => 'form-control', :id => 'email-to', :required => true %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :'email-cc', 'Cc', :class => 'col-lg-2 control-label' %>
+              <div class="col-lg-10">
+                <%= text_field_tag :cc, '', :id => 'email-cc', :class => 'form-control', :name => 'cc' %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag 'email-subject', 'Subject', :class => 'col-lg-2 control-label' %>
+              <div class="col-lg-10">
+                <%= text_field_tag :subject, '', :id => 'email-subject', :name => 'subject', :class => 'form-control', :placeholder => 'Subject' %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :'email-body', 'Message', :class => 'col-lg-2 control-label' %>
+              <div class="col-lg-10">
+                <%= text_area_tag :body, '', :id => 'email-body', :name => 'body', :class => 'form-control tinymce', :placeholder => 'Type your message here.', :rows => "10", :cols => "30" %>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-lg-offset-2 col-lg-10">
+              <span class="btn green fileinput-button">
+                <i class="fa fa-plus fa fa-white"></i>
+                <span>Attachment</span>
+                <%= file_field_tag :'files[]', :id => 'email-attachments', :multiple => true %>
+                <%#= hidden_field_tag :"files[]" %>
+              </span>
+                <div class="text-right">
+                  <!-- <button class="btn btn-send" type="submit">Send</button> -->
+                  <button class="btn btn-default" data-dismiss="modal" type="button">Cancel</button>
+                  <%= submit_tag 'Send', :id => 'send-email', :class => 'btn btn-send' %>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div id="attachment-details" class="col-lg-offset-2 col-lg-10"></div>
+            </div>
+        <% end %>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<%= tinymce :alternate %>

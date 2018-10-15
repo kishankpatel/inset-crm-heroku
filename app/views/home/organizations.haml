@@ -1,0 +1,238 @@
+/ :css
+/   .filter_by_txt {margin-right:5px}
+/ .col-md-12{:style => "padding-top:5%;"}
+/   .table-responsive
+/     %table.table.white-table.table-hover.table-striped
+/       %thead
+/         %tr
+/           %th Name
+/           %th Email
+/           %th Date Signed up
+/           %th Location
+/           %th Google/Linkedin/Regular sign up
+/           %th Last activity date
+/           %th No of user invited
+/           %th No of lead created
+/           %th No of contacts created
+/           %th No of tasks created
+/       %tbody
+/         - if @organizations.present?
+/           - @organizations.each do |org|
+/             %tr
+/               %td
+/                 = org.name
+/               %td 
+/                 = org.email.present? ? org.email : "N/A"
+/               %td
+/                 = org.created_at.strftime("%Y-%m-%d")
+/               %td 
+/                 = "N/A"
+/               %td
+/                 - google_users = org.users.select {|r| r.provider.include?("google") if r.provider.present? }.count
+/                 - linkedin_users = org.users.select {|r| r.provider.include?("linkedin") if r.provider.present? }.count
+/                 - regular_users = org.users.select {|r| r.provider.nil? }.count
+/                 = "Google (" + google_users.to_s + "), Linkedin (" + linkedin_users.to_s + "), Regular (" + regular_users.to_s + ")"
+/               %td
+/                 = org.total_users.present? ? org.total_users : 0
+/               %td 
+/                 = 0
+/               %td
+/                 = org.deals.count                
+/               %td
+/                 = org.contacts.count                
+/               %td
+/                 = org.tasks.count
+- if @organizations.present?
+  #updatePermissionModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "quickeditModal", role: "dialog", tabindex: "-1"}
+    .modal-dialog.new_form_layout.no-icon
+      #org_permission_content.modal-content        
+
+ 
+  
+  .normalheader.small-header
+  
+    .hpanel
+      .panel-body
+        %a.small-header-action{:href => ""}
+          .clip-header
+            %i.fal.fa-arrow-up
+        #hbreadcrumb.pull-right
+          %ol.hbreadcrumb.breadcrumb
+            %li
+              %a{:href => "/organizations"} All Organizations
+            %li.active
+              %span List View
+        %h2.font-light.m-b-xs All Organizations
+  .content.ling_mcnt
+    %div
+      %br
+
+      .hpanel.m-b-none
+        .row
+          .col-md-6
+            %ul.nav.nav-tabs
+              %li.contacts_tab.my_cont.active{"data-tab" => "my_contacts"}
+                %a{"data-toggle"=>"tab",href: "#contacts-list"}
+                  %span
+                    = "Organizations("
+                    %span.org_count
+                    = @organizations.count
+                    =")"
+          .col-md-12  
+            .panel-body.brd-top-0
+              .org_datatable.contact-list-page.tab-content
+                = render partial:"organization_listing"          
+                  
+                  
+                  
+                  
+    / .fl  
+    /   .dropdown.org_filter_by
+    /     .dropdown-toggle{"data-toggle" => "dropdown"}
+    /       .fl  
+    /         Filter by Plan
+    /       .fr.select_user_menu
+    /         %span.pricing-sprite.dwn_arrow
+    /       .cb  
+    /     %ul.dropdown-menu{"aria-labelledby" => "menu1", :role => "menu"}
+    /       %li
+    /         %a{href:"javascript:void(0)", onclick:"filter_org_by('Trial')"}
+    /           Trial
+    /       %li.divider
+    /       %li
+    /         %a{href:"javascript:void(0)", onclick:"filter_org_by('Trial Expired')"}
+    /           Trial Expired
+    /       %li.divider
+    /       %li
+    /         %a{href:"javascript:void(0)", onclick:"filter_org_by('Pro plan')"}
+    /           Pro plan
+    /       %li.divider
+    /       %li
+    /         %a{href:"javascript:void(0)", onclick:"filter_org_by('Pro plan Expired')"}
+    /           Pro plan Expired
+    /       %li.divider
+    /       %li
+    /         %a{href:"javascript:void(0)", onclick:"filter_org_by('Free')"}
+    /           Free
+    /.fl  
+    /.fl
+    /  %span{:style => "margin-left:20px;"} Filter by Date
+    /.fl
+    /  .dropdown.org_filter_by
+    /    .dropdown-toggle{"data-toggle" => "dropdown"}
+    /      .fl.filter_by_txt
+    /        All
+    /      .fr.select_user_menu
+    /        %span.pricing-sprite.dwn_arrow
+    /      .cb  
+    /    %ul.dropdown-menu{"aria-labelledby" => "menu1", :role => "menu"}
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('All')"}
+    /          All
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('This Week')"}
+    /          This Week
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('Last Week')"}
+    /          Last Week
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('This Month')"}
+    /          This Month
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('Last Month')"}
+    /          Last Month
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('This Quarter')"}
+    /          This Quarter
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('Last Quarter')"}
+    /          Last Quarter
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('This Year')"}
+    /          This Year
+    /      %li.divider
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by('Last Year')"}
+    /          Last Year
+    /  .cb
+    /.fl
+    /  .fl
+    /    %span{:style => "margin-left:20px;"} Filter by Plan
+    /.fl
+    /  .dropdown.org_filter_by_plan
+    /    .dropdown-toggle{"data-toggle" => "dropdown"}
+    /      .fl.filter_by_plan_txt
+    /        All
+    /      .fr.select_user_menu
+    /        %span.pricing-sprite.dwn_arrow
+    /      .cb  
+    /    %ul.dropdown-menu{"aria-labelledby" => "menu1", :role => "menu", :style => "margin-top:-8%;"}
+    /      %li
+    /        %a{href:"javascript:void(0)", onclick:"filter_org_by_plan('All')"}
+    /          All
+    /      %li.divider
+    /      - Organization.all.each do |plan, org|
+    /        %li
+    /          %a{href:"javascript:void(0)", onclick:"filter_org_by_plan('#{plan}')"}
+    /            = plan
+    /        %li.divider
+    /.cb
+    /.fr
+    /  .btn-group
+    /    = link_to "javascript:void(0)", :onclick => "export_to_csv()", :id => "organization_export_btn", :style=> /"text-decoration:none;cursor: default;", title:"Export to CSV", :class=>"tooltip" do
+    /      %span{type: "button", style: "border-radius:4px 0 0 4px;outline:none;cursor:pointer;"}
+    /        %span.cwkp-sprite.bulk-lead-upload
+    /    %span.dropdown-toggle{"data-toggle" => "dropdown", type: "button", style: "padding: 2px 5px;"}
+    /      %span.glyphicon.glyphicon-list
+    /      %span.caret
+    /    %ul.dropdown-menu{role: "menu", style: "left: -148px;width: 200px;"}
+    /      - @columns=["Name", "Email", "date_signed_up", "plan", "location", "gl_li_re_signed_up", /"last_activity_date","no_of_user_invited"]
+    /      /,"no_of_lead_created","no_of_contacts_created","no_of_tasks_created"
+    /      - i=0
+    /      %li.arrow_top{style: "left: 168px;top: -11px;"}
+    /      - @columns.each do |sc|
+    /        %li.dropdown-submenu{:style => "margin-left: 10px;"}
+    /          = check_box_tag "columns[]", sc,false, :id => "column_#{sc}", :class=>"toggle-vis",:"data-column"=> /i+=1,:onclick => "fnShowHide(#{i})", :checked => true
+    /          = sc.humanize.gsub("col", "")
+    /        %li.divider
+    /.cb
+
+  
+:javascript
+  function export_to_csv(){
+    var filter_by_txt = $(".filter_by_txt").text();
+    var filter_by_plan_txt = $(".filter_by_plan_txt").text();
+    if(filter_by_txt.indexOf("All") >= 0){
+      filter_by_txt = ""
+    }else{
+      filter_by_txt = filter_by_txt
+    }
+    if(filter_by_plan_txt.indexOf("All") >= 0){
+      filter_by_plan_txt = ""
+    }else{
+      filter_by_plan_txt = filter_by_plan_txt
+    }
+    $.ajax({
+      type: "GET",
+      url: "/organizations.csv",
+      data: {filter_by_date: filter_by_txt, filter_by_plan: filter_by_plan_txt},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#task_loader,.fixed_loader").hide();
+        window.open(this.url,"_self")
+      },
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }

@@ -1,0 +1,109 @@
+:css
+  .datatable-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .dataTables_filter {
+     width: 50%;
+     float: right;
+     text-align: right;
+  }
+  /*.dataTables_scrollHead{width:1250px !important }
+  .dataTables_scrollBody{width:1250px !important }*/
+
+
+.col-md-12
+  .w-box.tab-pane.active.in.wbox-customize
+    %div#div_scroll.table-responsive{style: "width:1280px;overflow:auto"}
+      %table#dataTableIncoming.table.table-condensed.table-hover.table-striped{:style=>"border:1px solid #D1D1D1", :cellspacing=>"40","data-source"=>projects_url(format: 'json',params: {cuser: current_user.id,_type: 'incoming',filtertype: params[:filtertype],filtervalue: params[:filtervalue]})}
+        %thead
+          %tr
+            %th 
+            %th Name
+            %th Short Name
+            %th Start Date
+            %th End Date
+            %th Opportunity
+            %th Contact Email
+            %th Estimate Hour
+            %th Default Job Type
+            %th Description
+            %th Team Emails
+            %th Is Completed
+            %th Stage
+        %tbody{:style=>"font-size:11px"}
+          - if !@projects.nil? || !@projects.blank?
+            - @projects.each do |l|
+              %tr
+                %td
+                  =link_to "",destroy_temp_project_path(l.id),:class=>"btn btn-default pull-left", :confirm => "Do you want to delete the entry?",:class=>"delete-temp-project fa fa-times",:remote=>"true",:method=>"delete"
+                  
+                %td
+                  %a.project_name{href: "#", id: l.id}
+                    = l.name
+                %td
+                  %a.project_short_name{href: "#", id: l.id}
+                    = l.short_name
+                %td
+                  %a.project_start_date{href: "#", id: l.id}
+                    = l.start_date
+                %td
+                  %a.project_end_date{href: "#", id: l.id}
+                    = l.end_date
+                %td 
+                  %a.project_opportunity{href: "#", id: l.id}
+                    = l.opportunity
+                %td 
+                  %a.project_contact_email{href: "#", id: l.id}
+                    = l.contact_email
+                %td 
+                  %a.project_estimate_hour{href: "#", id: l.id}
+                    = l.estimate_hour
+                %td 
+                  %a.project_default_job_type{href: "#", id: l.id, "data-type" => "select"}
+                    = l.default_job_type ? l.default_job_type : "NA"
+                %td 
+                  %a.project_description{href: "#", id: l.id}
+                    = l.description ? l.description : "NA"
+                %td 
+                  %a.project_team_emails{href: "#", id: l.id}
+                    = l.team_emails ? l.team_emails : "N/A"
+                %td 
+                  %a.project_is_completed{href: "#", id: l.id}
+                    = l.is_completed
+                %td 
+                  %a.project_stage{href: "#", id: l.id, "data-type" => "select"}
+                    = l.stage
+                
+/=hidden_field_tag "check_count","#{v}"
+:javascript
+  $(document).on('ajax:success', '.delete-temp-project', function() {
+        // .parent() is the div containing this "X" delete link
+        //$(this).parent().slideUp();
+        $(this).parents("tr").remove()
+        }
+    );
+  $(function() {        
+   
+      
+  });
+  function validate_fields(){
+     var is_flag = [];
+     $("a.project_comp_name, a.project_con_name, a.project_con, a.project_asgn_to").each(function(){
+       if($(this).html() == "Empty" || $.trim($(this).html()) == "N/A"){
+         $(this).css("background", "#ffc");
+         is_flag.push("false");
+       }else{
+         $(this).css("background", "none");
+       }
+     });
+     if ($.inArray("false", is_flag)< 0) {
+      return true;
+     }
+    else {
+      alert("Company name/Contact name/Country/Assigned to fields can not be blank!");
+      return false;
+      
+     }
+   }
+

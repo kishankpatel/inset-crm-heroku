@@ -1,0 +1,155 @@
+.row
+  - if @deals.present?       
+    .cont_opp_details{cellspacing: "20", style:"margin-bottom: 0;"}
+      /- j = @deals.count
+      - @deals.sort {|a, b| a[:created_at] <=> b[:created_at]}.each_with_index do |deal,i|
+        .col-md-4{:class=>"lead_box", "data-id" => deal.to_param}
+          .hpanel.hblue
+            .panel-body
+              .cont_opp_head
+                %a.contact-heading{href: "javascript:void(0);"}  
+                  = "OPPORTUNITY ##{i+1}"
+                .fr
+                  - if deal.priority_type.present?  
+                    .labelTaskType{class: "#{deal.priority_type.name.downcase}_pri"} 
+                      = deal.priority_type.present? ? deal.priority_type.name : ""
+                .cb
+              .cont_opp_cntr
+                .cont_opp_row{title:deal.title, style:"display:inline-block;"}
+                  %span.fal.fa-folder
+                  -if deal.is_active?
+                    =link_to deal.title.truncate(35), lead_path(deal)
+                  -else
+                    %span
+                      =deal.title.truncate(35)
+                .cont_opp_row
+                  .fl
+                    - if deal.currency_type == 'S$'
+                      - currency = 'SGD($)'
+                    - elsif deal.currency_type == '€'
+                      - currency = 'EUR(€)'
+                    - elsif deal.currency_type == 'INR'
+                      - currency = 'INR'
+                    - elsif deal.currency_type == '£'
+                      - currency = 'GBP(£)'
+                    - elsif deal.currency_type == 'DZD'
+                      - currency = 'DZD'
+                    - else
+                      - currency = 'USD($)'
+                    .opp_ld_amt.cont_ld_amt.btn.btn-outline.btn-xs.btn-info{title:"Amount #{currency}"}
+                      = deal.currency_type
+                      = deal.amount.present? ? number_to_currency(deal.amount.to_f, precision: 2).gsub("$", "") : 0
+                  .fr
+                    - if deal.is_won.to_s.present? && deal.is_won
+                      %span.ld_status.labelTaskType{style:"background:#2cbf55;color:#fff;"}
+                        = 'Won'
+                    - elsif deal.is_won.to_s.present? && !deal.is_won
+                      %span.ld_status.labelTaskType{style:"background:#e84646;color:#fff;"}
+                        = 'Lost'
+                    - else
+                      %span.ld_status.labelTaskType  
+                        =deal.deal_status_name
+                  .cb
+                .cont_opp_row
+                  - nxt_action = deal.last_task.present? ? deal.last_task.name  : "No-Action"
+                  %div{:id=>"deal_#{deal.id}"}
+                    %div{class: "last_task_#{nxt_action}"}
+                      .labelTaskType.tasktype{class: "label#{nxt_action}", style: "margin:0"}
+                        = nxt_action
+                      .cb
+                - if deal.created_at.present?
+                  .cont_opp_row
+                    %div
+                      - if deal.assigned_user.present?
+                        - assgn_usr = deal.assigned_user.present? ? deal.assigned_user.full_name : deal.assigned_user.email 
+                        - if deal.assigned_user.image.present?
+                          %span.user-profile
+                            %span.userImage
+                              = image_tag deal.assigned_user.image.image.url(:thumb), :alt=>"", :title => "#{deal.assigned_user.full_name.present? ? deal.assigned_user.full_name : (deal.assigned_user.email.present? ? deal.assigned_user.email : '')}",onError: "this.src='/assets/new-ui/user.png'" 
+                        - elsif (gravtar_img_url = gravatar_url(deal.assigned_user.email)).present?
+                          %span.user-profile
+                            %span.userImage
+                              = image_tag gravtar_img_url, alt: "", :title => "#{deal.assigned_user.full_name.present? ? deal.assigned_user.full_name : (deal.assigned_user.email.present? ? deal.assigned_user.email : '')}"
+                        - else
+                          %span.assigned_user_icn{style: "background: #{deal.assigned_user.get_user_color_code(assgn_usr.downcase[0])}"}
+                            = assgn_usr[0].upcase
+                        Assigned to
+                        %span{title: assgn_usr}
+                          = assgn_usr.truncate(15)
+                - if last_activity(deal.id).present?
+                  .cont_opp_row
+                    %span.fnt-12
+                      &bull; Created on
+                      =last_activity(deal.id)[0].split("@")[0]
+                    %br
+                    %span.fnt-12{ title: last_activity(deal.id)[1]}
+                      &bull; by
+                      =last_activity(deal.id)[1].truncate(15)
+        /- j -= 1
+      .cb
+  - else
+    %div{style:"text-align: center;color: red;padding-bottom: 10px;padding-top: 5px;"}
+      ="No opportunities found for this contact."  
+:css
+  .label.arrowed-right {
+  margin-right: 5px;
+  }
+  .label.arrowed {
+  margin-left: 5px;
+  }
+
+  .label.arrowed-right, .label.arrowed-in-right {
+    position: relative;
+    z-index: 1;
+  }
+
+  .label.arrowed, .label.arrowed-in {
+  position: relative;
+  z-index: 1;
+  }
+
+  .label-warning, .badge-warning {
+  background-color: #f89406!important;
+  }
+
+  .label.arrowed:before {
+  left: -10px;
+  border-width: 10px 5px;
+  }
+
+  .label-warning.arrowed:before {
+  border-right-color: #f89406;
+  }
+
+  .label.arrowed:before, .label.arrowed-in:before {
+  display: inline-block;
+  content: "";
+  position: absolute;
+  top: 0;
+  z-index: -1;
+  border: 1px solid transparent;
+  border-right-color: #abbac3;
+  }
+
+
+  .label.arrowed-right:after {
+  right: -10px;
+  border-width: 10px 5px;
+  }
+
+
+  .label.arrowed-right:after, .label.arrowed-in-right:after {
+  display: inline-block;
+  content: "";
+  position: absolute;
+  top: 0;
+  z-index: -1;
+  border: 1px solid transparent;
+  border-left-color: #abbac3;
+  }
+
+:javascript
+  
+  $(".lead_box").on('click', function(){
+    window.location.href = "/leads/"+ $(this).data("id");
+  })

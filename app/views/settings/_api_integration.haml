@@ -1,0 +1,159 @@
+%div
+  %h2
+    API Integrations
+  -#%table#ember8018.ember-view.table.ui-list
+  -#  %tbody#ember8021.ember-view
+  -#    %tr{style: 'display:none;'}
+  -#      %td.col-md-1
+  -#        .sprite-integrations-lg-javascript
+  -#      %td.col-md-4.pd-l-0
+  -#        %h5.mg-t-0.strong Javascript
+  -#        %p Use Javascript to track customer’s browser events, website page views and other interactions on your web app.
+  -#      %td.text-center.col-md-1.pd-l-0
+  -#        %a#ember8029.ember-view.btn.btn-default{:href => "javascript:void(0)", onclick: "call_code_for_js();"}
+  -#          Get started
+  -#
+  -#    %tr
+  -#      %td.col-md-1
+  -#        .sprite-integrations-lg-javascript
+  -#      %td.col-md-4.pd-l-0
+  -#        %h5.mg-t-0.strong Zendesk
+  -#        %p Zendesk ticketing API for your web app.
+  -#      %td.text-center.col-md-1.pd-l-0
+  -#        %a#zendesk.ember-view.btn.btn-default{:href => 'javascript:', onclick: "showApiModal('Zendesk');"}
+  -#          Get started
+  -#
+  -#    %tr
+  -#      %td.col-md-1
+  -#        .sprite-integrations-lg-javascript
+  -#      %td.col-md-4.pd-l-0
+  -#        %h5.mg-t-0.strong Twilio
+  -#        %p Twilio messaging API for your web app.
+  -#      %td.text-center.col-md-1.pd-l-0
+  -#        %a#twilio.ember-view.btn.btn-default{:href => 'javascript:', onclick: "showApiModal('Twilio');"}
+  -#          Get started
+  .row
+    .col.col-md-6
+      #zendesk-div.logos-div
+        =image_tag 'logos/zendesk_logo.svg'
+      .control-btn
+        - zendesk = @apis.select{|api| api.api_name == 'Zendesk'}.first
+        %input.btn.btn-default{type: 'button', value: zendesk.present? ? 'Disable API' : 'Enable API', 'data-id' => zendesk.present? ? zendesk.id : '' , onclick: "showApiModal(this, 'Zendesk');"}
+    .col.col-md-6
+      #twilio-div.logos-div
+        =image_tag 'logos/twilio_logo.svg'
+      .control-btn
+        - twilio = @apis.select{|api| api.api_name == 'Twilio'}.first
+        %input.btn.btn-default{type: 'button', value: twilio.present? ? 'Disable API' : 'Enable API', 'data-id' => twilio.present? ? twilio.id : '' , onclick: "showApiModal(this, 'Twilio');"}
+
+#apiModal.modal.fade{'aria-labelledby' => 'myModalLabel', :role => 'dialog', :tabindex => '-1'}
+  .modal-dialog{:role => 'document'}
+    .modal-content.cstm-material-modal
+      .modal-header
+        %button.close{'aria-label' => 'Close', 'data-dismiss' => 'modal', :type => 'button', title: 'Close'}
+          %span{'aria-hidden' => 'true'} &times;
+        %h4#apiModalLabel.modal-title
+      - api_integration = ApiIntegration.new
+      = form_for(api_integration, :url => enable_api_path, :html=>{class: 'form', method: 'post', onsubmit: 'submitAPIForm(this, event);'}) do |f|
+        .modal-body
+          = f.hidden_field :api_name, id: 'api_name', value: ''
+          .row
+            .form-group.col-md-12
+              = f.text_field :account_id, placeholder: 'Account ID/Username/API ID*', required: true
+              %label.control-label{:for => "input"} Account ID/Username/API ID*
+              %i.bar
+          .row
+            .form-group.col-md-12
+              = f.text_field :auth_token, required: true
+              %label.control-label{:for => "input"} Access Token*
+              %i.bar
+          #zendesk-fields
+
+        .modal-footer{style: 'padding: 10px 15px;'}
+          %button{'data-dismiss' => 'modal', :type => 'button'} Cancel
+          %input{:type => 'submit', value: 'Enable API'}
+
+
+:javascript
+  var apiButton;
+  function call_code_for_js(){
+    $("#task_loader").show();
+    $.ajax({
+      type: "GET",
+      url: "find_code_for_javascript",
+      success: function(data){ 
+        $('#api_integration').html(data);  
+        $("#task_loader").hide();
+      },
+      error: function(data){
+        alert('Got an error.!');
+      }
+    });  
+  }
+
+  function showApiModal(node, apiName) {
+    var dataId = $(node).data("id");
+    if (dataId != "") {
+      var conf = confirm("This API would be disabled and all stored credentials would be removed. Do you want to continue?");
+      if (conf) {
+        $.ajax({
+          url: '/disable_api',
+          type: 'DELETE',
+          data: {id: dataId},
+          success: function() {
+            // $(document).trigger("add-alerts", [{'message': "API has been disabled successfully.", 'priority': 'success'}]);
+            show_alert_message('success',"API has been disabled successfully.");
+            $(node).data("id", "");
+            $(node).val("Enable API");
+          },
+          error: function() {
+            //$(document).trigger("add-alerts", [{'message': "An error occured while disabling the API. Please try again after some time.", 'priority': 'error'}]);
+            show_alert_message('success',"An error occured while disabling the API. Please try again after some time.");
+          }
+        });
+      }
+      return false;
+    }
+
+    if (apiName == "Zendesk") {
+      var zendeskHTML = "<div class='row'>\
+                          <div class='form-group col-md-12'>\
+                            <input type='text' size='30' required='required' placeholder='URL*' name='api_integration[url]' id='api_integration_url' class='col-md-12 form-control'>\
+                          </div>\
+                        </div>\
+                        <div class='row'>\
+                          <div class='form-group col-md-12'>\
+                            <input type='text' size='30' placeholder='OAuth2 Access Token' name='api_integration[oauth_access_token]' id='api_integration_oauth_access_token' class='col-md-12 form-control'>\
+                          </div>\
+                        </div>"
+      $("#zendesk-fields").html(zendeskHTML);
+    } else {
+      $("#zendesk-fields").html("");
+    }
+    apiButton = node;
+    $("#api_name").val(apiName);
+    $("#apiModalLabel").html("Enable " + apiName + " API");
+    $("#apiModal").modal("show");
+  }
+
+  function submitAPIForm(form, event) {
+    event.preventDefault();
+    var formData = $(form).serializeArray();
+    $.ajax({
+      url: '/enable_api',
+      method: 'POST',
+      data: formData,
+      success: function(res) {
+        $("#new_api_integration")[0].reset();
+        $("#apiModal").modal("hide");
+        $(apiButton).data("id", res["id"]);
+        $(apiButton).val("Disable API");
+        //$(document).trigger("add-alerts", [{'message': "API has been enabled successfully.", 'priority': 'success'}]);
+        show_alert_message('success',"API has been enabled successfully.");
+      },
+      error: function(res) {
+        // $(document).trigger("add-alerts", [{'message': "An error occured while enabeling the API. Please try again after some time.", 'priority': 'error'}]);
+        show_alert_message('danger',"An error occured while enabeling the API. Please try again after some time.");
+      }
+    });
+  }

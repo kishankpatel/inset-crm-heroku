@@ -1,0 +1,37 @@
+/ = stylesheet_link_tag "jquery.listnav-2.1"
+/ = stylesheet_link_tag "contact"
+= javascript_include_tag "contact_list_for_contact", "jquery.stickysectionheaders.contact.min"
+%div
+  - if !@current_organization.individual_contacts.present?
+    = render :partial => "shared/show_empty_banner"
+  - else    
+    .hpanel.m-b-none
+      .row
+        .col-md-6
+          %ul.nav.nav-tabs
+            %li.contacts_tab.my_cont.active{"data-tab" => "my_contacts"}
+              %a{"data-toggle"=>"tab",href: "#contacts-list"}
+                %span
+                  My Contacts
+            %li.contacts_tab.all_cont{"data-tab" => "all_contacts"}
+              %a{"data-toggle"=>"tab",href: "#contacts-list"}
+                %span
+                  All
+        .col-md-6
+          = render partial: "contacts/filters" 
+        .col-md-12  
+          .panel-body.brd-top-0
+            #contact-view-page.contact-list-page.tab-content
+              = render :partial => "list_view"
+#output_contact_listing{style: "display:none"}
+= render :partial => "contact_js"
+
+:javascript
+  //initialize_tooltipster()
+  var currentPage = 1;
+  var Ajax3Contacts = null;
+  
+  
+  
+  
+  

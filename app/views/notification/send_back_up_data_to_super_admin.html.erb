@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Master Data BackUp | InSet CRM</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Arial'; font-size:13px;color:#666;" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px;line-height:20px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px;color:#666666;padding:20px;">
+                <p>
+                 Hello&nbsp;<%= @user.full_name.present? ? @user.full_name : @user.email %>,
+                </p>
+                <p >
+                  Here's a copy of your master data from your InSet CRM account. All your data backed up successfully.
+                </p>
+                <p>
+                   Request you to keep a copy with you for further use & analytics (if any). Once you move to a Free account, we won't be accountable for the loss of your data or any part of it. Further, it will be difficult for us to provide you another copy.
+                </p>
+                <p>For any queries, please get in touch with us at <a href="mailto:support@parkpointsoftware.com">support@parkpointsoftware.com</a> </p>
+                <p style="margin: 0;">--</p>
+                <p style="margin: 0;">Cheers!</p>
+                <p style="margin: 0;font-style: italic;font-weight: bold;font-size: 14px;color: #456474;">Your friends at Inset CRM</p>
+                <p style="margin: 0;">@InsetCRM</p>
+                <div style="clear:both;height:5px"></div>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

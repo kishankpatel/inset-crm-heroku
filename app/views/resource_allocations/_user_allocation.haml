@@ -1,0 +1,10 @@
+-(0..days_count).step(1) do |index|
+  -rs = resource_distributions.select{|rd| rd.allotted_date.utc.to_date == (start_date + (index).days)}
+  -if(rs.present? )
+    -color_code = get_color_code_for_minutes_allotted((start_date + (index).days),rs[0].allotted_time,max_hours,weekends)
+    %td{style: "background-color: #{color_code}"}
+      =(rs[0].allotted_time / 60).to_s + ":" + (rs[0].allotted_time % 60).to_s
+  -else
+    -color_code = get_color_code_for_minutes_allotted((start_date + (index).days),0,max_hours,weekends)
+    %td{style: "background-color: #{color_code}"}
+      ="0"

@@ -1,0 +1,214 @@
+:css
+  .datagrid-wrap{
+    padding:0;
+    / border-right: 1px solid #95B8E7;
+  }
+  .datagrid{
+    / border-right:1px solid #95b8e7;
+  }
+  .panel-body {
+    border-color: #fff !important;
+  }
+  .datagrid-header-row{
+    font-weight:bold;
+  }
+  .datagrid-cell, 
+  .datagrid-cell-c1-name{
+    margin-left:10px;
+  }
+  .datagrid-header-inner table{
+    border-top:1px solid #ccc;
+    border-right:1px solid #ccc;
+    border-left:1px solid #ccc;
+  }
+  .datagrid-row {
+    height: 25px;
+    border: 1px solid #ccc;
+  }
+  .datagrid-header-inner .datagrid-cell span{
+    margin-left: 10px;
+  }
+  .datagrid-body .datagrid-row div{padding-left:14px;}
+  .datagrid-header .datagrid-cell span {
+    font-size: 14px !important;
+  }
+  .datagrid-header-row td, .datagrid-header-row td:hover{
+    color: #666666 !important;
+    font-family: 'SourceSansPro-Semibold' !important;
+    background-color: #E0E5E9 !important;
+  }
+  .datagrid-cell .datagrid-editable-input{width:98% !important}
+  .datagrid-body {overflow-x: hidden !important;}
+  .datagrid-btable tr:first-child td:nth-child(3) a.deletedg{display:none}
+  .datagrid-btable tr:nth-child(2) td:nth-child(3) a.deletedg{display:none}
+  .datagrid-btable tr:first-child td:nth-child(3) a.editdg, .datagrid-btable tr:nth-child(2) td:nth-child(3) a.editdg{position: relative;left: 13px;}
+=stylesheet_link_tag "easyui","icon"
+=javascript_include_tag "jquery.easyui.min","jquery.edatagrid"
+.panel-heading.hbuilt
+  %h4.fl
+    User Groups
+  %a#addnewgroup.easyui-linkbutton.fr{href: "#" , style:"padding-top: 6px;"}
+    %button.btn.btn-primary.btn-success{type: "button", style:"    position: relative;top: -5px;"}
+      %span.glyphicon.glyphicon-plus-sign
+      New User Group
+  .cb
+.panel-body
+  %input{:type=>"hidden",:id=>"groupmsg"}
+  %div.table-responsive
+    %table.table.table-striped.table-bordered.table-hover.no-footer.dataTable#dataTable
+:javascript
+  $("#lead_stages").hide();
+  $(function(){
+    //alert('initializeing2');
+    $('#dataTable').datagrid({
+      iconCls:'icon-edit',
+      width:850,
+      height:250,
+      singleSelect: true,
+      idField: 'id',   
+      url: 'settings/get_group',
+      saveUrl: 'settings/save_group',
+      updateUrl: 'settings/update_group',
+      destroyUrl: 'settings/delete_group',
+      columns:[[
+        {field:'id',title:'Id',hidden:true
+        },
+        {field:'name',title:'Group Name',width:550,sortable:true,required:true,class: 'easyui-validatebox',editor:{
+            type:'text',
+            options:{
+              valueField:'name',
+              textField:'name',
+              required:true
+            }
+          }
+        },
+        {field:'action',title:'Action',width:280,align:'center',
+          formatter:function(value,row,index){
+            if (row.editing){
+              var s = '<a href="javascript:void(0)" onclick="saverow(this)" class="savedg">Save</a> ';
+              var c = '<a href="javascript:void(0)" onclick="cancelrow(this)" class="canceldg">Cancel</a>';
+              return s+"<span style='margin:0 20px'></span>"+c;
+            } else {
+              var e = '<a href="javascript:void(0)" onclick="editrow(this)"  class="editdg">Edit</a> ';
+              var d = '<a href="javascript:void(0)" onclick="deleterow(this)"  class="deletedg" >Delete</a>';
+              return e+"<span style='margin:0 20px'></span>"+d;
+            }
+          }
+        }
+      ]],
+      onBeforeEdit:function(index,row){
+        row.editing = true;
+        updateActions(index);
+      },
+      onAfterEdit:function(index,row){
+        row.editing = false;
+        updateActions(index);
+      },
+      onCancelEdit:function(index,row){
+        row.editing = false;
+        updateActions(index);
+      }
+    });
+    $('#dataTable').datagrid('reload');
+    $( ".mygroups" ).on("click", function() {
+      $('#dataTable').datagrid('reload');
+    });
+  });
+  function updateActions(index){
+    $('#dataTable').datagrid('updateRow',{
+      index: index,
+      row:{}
+    });
+  }
+  function getRowIndex(target){
+    var tr = $(target).closest('tr.datagrid-row');
+    return parseInt(tr.attr('datagrid-row-index'));
+  }
+  function editrow(target){
+    $('#dataTable').datagrid('beginEdit', getRowIndex(target));
+  }
+  function deleterow(target){
+    $.messager.confirm('Confirm','Do you want to delete the group?',function(r){
+    var id = $(target).closest('tr.datagrid-row').children("td[field='id']").children("div:first").html();
+      if (r){
+        $('#dataTable').datagrid('deleteRow', getRowIndex(target));
+        $.ajax({
+        type: "POST",
+        async: false,
+        url: "settings/delete_group?id="+id,
+        success: function(dt){
+        if(id == "")
+        {
+          $("#groupmsg").val(dt);
+          //alert('saved successfully');
+        }
+        }
+        });
+      }
+    });
+  }
+  function saverow(target){
+    var name = $(target).closest('tr.datagrid-row').children("td[field='name']").children("div:first").children("table:first").find("input.datagrid-editable-input").val();
+    var id = $(target).closest('tr.datagrid-row').children("td[field='id']").children("div:first").html();
+    var org = "#{current_user.organization.id}";
+    //alert($(target).closest('tr.datagrid-row').children("td[field='id']").children("div:first").html());
+    var data = "name=" + name + "&org_id="+org;
+    var iddiv = $(target).closest('tr.datagrid-row').children("td[field='id']").children("div:first");
+    
+    //alert(id);
+    if(id != "")
+    {
+      data = data + "&id=" + id;
+    }
+    $.ajax({
+      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      type: "POST",
+      async: false,
+      url: "settings/save_group",
+      data: data,
+      success: function(dt){
+        if(id == "")
+        {
+          $("#groupmsg").val(dt);
+          //alert('saved successfully');
+        }
+      }
+    });
+    
+    $('#dataTable').datagrid('endEdit', getRowIndex(target));
+
+    $('#dataTable').datagrid('reload');
+  }
+  function cancelrow(target){
+    $('#dataTable').datagrid('cancelEdit', getRowIndex(target));
+  }
+  function insertgroup(){
+    var row = $('#dataTable').datagrid('getSelected');
+    
+    if (typeof(row) != "undefined"){
+      var index = $('#dataTable').datagrid('getRowIndex', row);
+    } else {
+      index = 0;
+    }
+    if (index == -1)
+      {index = 0;}
+      
+    
+    $('#dataTable').datagrid('insertRow', {
+      index: index,
+      row:{
+        status:'P'
+      }
+    });
+    
+    $('#dataTable').datagrid('selectRow',index);
+    $('#dataTable').datagrid('beginEdit',index);
+
+  }
+  
+  $( "#addnewgroup.easyui-linkbutton" ).on("click", function() {
+    insertgroup();
+  });
+
+  
+  

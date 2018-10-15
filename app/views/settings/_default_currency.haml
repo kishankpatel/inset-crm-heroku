@@ -1,0 +1,51 @@
+.panel-heading.hbuilt
+  %h4 Default Currency
+.panel-body
+  .table-responsive.mtop10
+    #lead-stage-content
+      %table.table
+        %tbody
+          %tr
+            %td{style: "border-top: none !important;"}
+              - if @current_organization.default_currency == 'S$'
+                - currency = 'SGD($)'
+              - elsif @current_organization.default_currency == '€'
+                - currency = 'EUR(€)'
+              - elsif @current_organization.default_currency == 'INR'
+                - currency = 'INR'
+              - elsif @current_organization.default_currency == '£'
+                - currency = 'GBP(£)'
+              - elsif @current_organization.default_currency == 'DZD'
+                - currency = 'DZD'
+              - else
+                - currency = 'USD($)'
+              %b
+                Currency:
+              = currency
+          %tr
+            %td{style: "border-top: none !important;"}
+              %b
+                Change Currency:
+                       
+              = select(:currency_type, :type, @cur, {:selected => @current_organization.default_currency.present? ? @current_organization.default_currency : 'US$'}, :class => "btn btn-default")
+
+:javascript
+  $("#currency_type_type").on('change', function(){
+    var val = $(this).val();
+    $.ajax({
+      beforeSend: function(xhr) {
+        $("#task_loader,.fixed_loader").show();
+      },
+      type: "POST",
+      url: "update_organization_currency",
+      data: {currency: val},
+      success: function(data){ 
+        display_sectionajax('default_currency')
+        show_alert_message('success', 'Default currency updated successfully.')
+        $("#task_loader,.fixed_loader").hide();
+       },
+      error: function(data){
+        alert('got an error');
+      }
+    }); 
+  })

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  opportunity: MyString
+  individual_contact_id: 1
+  deal_id: 1
+  is_converted: false
+
+two:
+  opportunity: MyString
+  individual_contact_id: 1
+  deal_id: 1
+  is_converted: false

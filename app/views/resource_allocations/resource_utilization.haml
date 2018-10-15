@@ -1,0 +1,57 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up        
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-object-ungroup
+        Resource Utilization
+      %small
+.content
+  .hpanel.hblue
+    .panel-body
+      .col-md-12
+        .col-md-2
+          %label
+            Search
+          %input#myInputTextField.form-control{:type => "text",:placeholder=>"Search........"}
+        .col-md-3
+          %label
+            Project
+          =select_tag :utilization_project_id , options_for_select(@current_organization.projects.map{|prj| [prj.name,prj.id]}),:prompt=>"Select Project",:class=>"form-control"
+        .col-md-3
+          %label
+            User
+          =select_tag :utilization_user_id , options_for_select(@current_organization.users.map{|usr| [usr.full_name.present? ? usr.full_name : usr.email,usr.id]}),:prompt=>"Select User",:class=>"form-control"
+        .col-md-2
+          %label
+            From Date
+          %input#from_log_date.form-control.datetimepicker{:type => "text",:placeholder=>"From Date"}
+        .col-md-2
+          %label
+            To Date
+          %input#to_log_date.form-control.datetimepicker{:type => "text",:placeholder=>"From Date"}
+      .col-md-12.resources-list
+        =render :partial=>"resource_utilization_list"
+:javascript
+  $('.datetimepicker').datetimepicker({useCurrent: true,  format: 'MM/DD/YYYY',pickTime: false}).on('change', function(){
+        $(this).blur();
+  });
+    $('#utilization_project_id').on("change",function(){
+      getResourceUtilization()
+    
+    })
+    $('#utilization_user_id').on("change",function(){
+      getResourceUtilization()
+    
+    })
+    $('#from_log_date').on("change",function(){
+      getResourceUtilization()
+    
+    })
+    $('#to_log_date').on("change",function(){
+      getResourceUtilization()
+    
+    })
+    

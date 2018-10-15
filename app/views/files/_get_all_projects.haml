@@ -1,0 +1,28 @@
+%li.arrow_right{style: "left: 114px;top: 0;"}
+.all_projects
+  - @projects.each do |project|
+    %li{onclick: "filterFilesByProject(#{project.id})", title: "#{project.name}"}
+      %a{href: "javascript:void(0)"}
+        = project.name.truncate(15)
+    %li.divider
+
+:javascript
+  function filterFilesByProject(id){
+    $("#task_loader").show();
+    $.ajax({
+    url: '/filter_files_by_project',
+      type: 'POST',
+      data: {id: id},
+      success: function(res) {
+        $(".files_wrapper").html(res);
+        $(".show_file_filter").show();
+        $(".show_file_filter .filter_name").html($("#lead_title").val());
+        $('li.dropdown.mega-dropdown').removeClass('open');
+        $("#task_loader").hide();
+      },
+      error: function(res) {
+        alert("Error Found.!!!");
+        $("#task_loader").hide();
+      }
+    });
+  }

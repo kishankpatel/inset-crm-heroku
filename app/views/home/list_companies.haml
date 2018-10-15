@@ -1,0 +1,221 @@
+/ :css
+/   tr td:first-child{
+/     position:relative;
+/   }
+/   .fg-toolbar{border:none;}
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/list_companies"} Companies
+          %li.active
+            %span List View
+        /=render :partial=>"filters"
+      %h2.font-light.m-b-xs Companies
+      %small
+- if @companies.present?
+  / .white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 33px;"}
+  /   %span{style: "margin-top:5px"}  
+  /     %span.curr_page_name
+  /       Companies
+  /   .reset_search x
+  .content.ling_mcnt
+    .row
+      .col-lg-12
+        .hpanel.hgreen.m-b-none
+          .panel-heading
+            Companies List
+          .panel-body
+
+            #view_company_content.company-page.custom-comp-kls
+              %table.table.table-striped.table-bordered.table-hover.no-footer.datatable{style: "","data-source"=>list_companies_url(format: 'json', :org => @current_organization.id, :user_id => @current_user.id),:id=>"list_companies"}
+                %thead
+                  %tr
+                    %th.text-left.col-md-3 Name
+                    %th Address
+                    %th #Opportunities
+                    %th #People
+                    %th Created by
+                    %th Created Date
+                    %th Open Opportunities
+                %tbody
+            .company-details{style:"display:none;"}
+    :javascript
+        companiesDataTable=$('#list_companies').dataTable({
+          sPaginationType: "bootstrap",
+          bJQueryUI: true,
+          bProcessing: true,
+          bServerSide: true,
+          iDisplayLength: 20, 
+          bLengthChange: false, 
+          aoColumns: [null,null,null,null,null,null,null],
+          oLanguage: { 
+            "sSearch": "" ,
+            oPaginate: {
+              sPrevious: "Prev"
+            }
+          },
+          sAjaxSource: $('#list_companies').data('source'),
+          aoColumnDefs: [
+            {
+              aTargets: [0],
+                bSortable: true,
+                mRender: function(data, type, row ){
+                  return "<div class='comp_name'><a href='/company_contact/"+row[7]+"' style='cursor:pointer;' class='change-color-ll'>"+row[1]+"</a></div>"
+                }
+            },
+            {aTargets: [1],
+              bSortable: false,
+              mRender: function(data, type, row ){
+                return row[8]
+               }
+            },
+            {aTargets: [2],
+              bSortable: true,
+              mRender: function(data, type, row ){
+                return row[3]
+                }
+            },
+            {aTargets: [3],
+              bSortable: false,
+              mRender: function(data, type, row ){
+                return row[4]
+                }
+            },
+            {aTargets: [4],
+              bSortable: false,
+              mRender: function(data, type, row ){
+                if(row[10].length > 15)
+                  var name = row[10].substring(0,15) + "..."
+                else
+                  var name = row[10]
+                return "<span class='tooltip' title='"+row[10]+"'>"+name+"</span>"
+                }
+            },
+            {aTargets: [5],
+              bSortable: true,
+              mRender: function(data, type, row ){
+                return row[11]
+                }
+            },
+            {aTargets: [6],
+              bSortable: true,
+              mRender: function(data, type, row ){
+                return row[9]
+                }
+            },
+          ],
+          "order": [[ 2, 'asc' ]],
+          fnPreDrawCallback: function() { $('#task_loader,.fixed_loader').show();$("#list_companies_filter input").attr("placeholder", "Search...");},
+          fnDrawCallback: function() {$('#task_loader,.fixed_loader').hide();
+          $('span').powerTip({smartPlacement: true,fadeInTime: 100,fadeOutTime: 200});},
+          fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            $('#task_loader,.fixed_loader').hide();
+            //$(nRow).addClass('task_row');
+            // $(nRow).hover(
+            //  function() {
+            //  $(this).css("height","150px");
+            //  }, function() {
+            //  $(this).css("height","0px");
+            // });
+          }
+        });
+
+        function display_org_data(id,thisObj){
+          $.ajax({
+            url: "/generate_company_data",
+            data: {id:id},
+            beforeSend: function(){
+              $("#task_loader,.fixed_loader").show();
+            },
+            success: function(data)
+            {
+            },
+            error: function(data) {
+              $("#task_loader,.fixed_loader").hide();
+            },
+            complete: function(data) {
+              thisObj.closest('tr').after(data.responseText);
+              thisObj.removeAttr('onclick').attr('onclick','$(this).closest(\'tr\').next(\'.details-tr\').remove();removetr('+id+', $(this))').addClass('remove-tr').html("<img src='/assets/new-ui/details_close.png'>");
+              $('.fix_in_app_footer').css('min-height','705px')
+              $("#task_loader,.fixed_loader").hide();
+            }
+          });
+        }
+
+      function removetr(id,thisObj) {
+        thisObj.removeAttr('onclick').attr('onclick','display_org_data('+id+',$(this))').html("<img src='/assets/new-ui/details_open.png'>");
+      }
+
+      function showLeadDetails(obj,com_id){    
+        // When Lead details is hide, here display the div in lead listing
+        if ($(".lead-details").attr("id") == "lead-"+com_id && $(".lead-details").is(":visible") == true ){
+          hideDetails();
+        }  
+        //Hide the lead details in lead listing
+        else{
+          showDetails(obj,com_id);
+        }
+      }
+
+      function showDetails(obj,com_id){
+        $(".comp_name").css({"display":"table"});
+        //$(".list_companies_wrapper").css({"padding-right":"350px","width":"800px;"});
+        $(".company-page").addClass("fl").css("width","850px");
+        $(".company-details").show();
+        $(".company-details").css({"display":"block"});
+        $(".ajax-lead-listing tr").removeClass("selected_row");
+        $(obj).closest("tr").addClass("selected_row");
+        $(".selected_row td").css("background","#eee !important");
+        $.ajax({
+          url: "/get_company_details",
+          data: {id: com_id},
+          success: function(data){
+            $(".company-details").html(data);
+            $(".company-details").attr("id","company-"+com_id);
+          },
+          error: function(data){
+            $("#task_loader,.fixed_loader").hide();
+            alert('Got an error while getting contact details.');
+          }
+        });
+      }
+
+      function hideDetails(){
+        $(".company-page").css({"width":"100%"});
+        $(".title_container").css({"display":"block"});
+        $(".company-page").css({"padding-right":"0"});
+        $(".company-page").removeClass("fl");
+        $(".company-details").css({"display":"none"});
+        $("tr").removeClass("selected_row");
+        $(".ajax-lead-listing tr td:nth-child(5)").show();
+        $(".contact-img-center").removeClass('center-img-icon');
+        $(".selected_row td").css("background","#fff !important");
+        $(".lead-title-content").show();
+      }
+      
+      $(".reset_search").on('click', function(){
+        $("#list_companies_filter input").val('');
+        companiesDataTable.fnFilter('');
+        $(this).hide();
+      })
+
+      $("#list_companies_filter input").on('keyup', function(){
+        if($(this).val() != '' && $(this).val() != null){
+          $(".reset_search").show();
+        }else{
+          $(".reset_search").hide();
+        }
+      })
+- else
+  .empty_list_container{style: "margin-top:5%;text-align: center;"}
+    %img{src:"/assets/new-ui/organization_bo_msg.png"}
+    %br
+    =link_to "#orgModal", "data-toggle" => "modal", "onclick" => "$('#new-org')[0].reset();" do
+      %span.pls + 
+      Add Company

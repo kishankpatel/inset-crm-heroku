@@ -1,0 +1,35 @@
+-project_users = proj.project_users.where("user_id is not null and user_id != 0").all
+- if project_users.present?
+  %table.table.table-strip.table-hover
+    %thead
+      %tr
+        %th
+          User
+        %th
+          Total Job
+        %th
+          Overdue Job
+        %th
+          Billable Hours
+        %th
+          Non-Billable Hours
+    %tbody
+      -project_users.each do |project_user|
+        - billable_hours = project_user.billable_hours
+        - nonbillable_hours = project_user.nonbillable_hours
+        %tr
+          %td
+            =project_user.associated_user.first_name if project_user.associated_user.present?
+          %td
+            =project_user.project_jobs.count
+          %td
+            =project_user.project_jobs.where("project_jobs.status != 'Closed' and project_jobs.due_date < #{Date.today}").count
+          %td
+            =billable_hours
+            hrs
+          %td
+            =nonbillable_hours
+            hrs
+
+        
+        

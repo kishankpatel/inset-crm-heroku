@@ -1,0 +1,363 @@
+/=javascript_include_tag "bootstrap-formhelpers-phone.js"
+#contactModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y: scroll;"}
+  .modal-dialog.new_form_layout{:style => "width:60%;"}
+    .modal-content
+      .color-line
+      .modal-header.header_icon
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"}
+          %span.fal.fa-address-card
+          ADD A NEW CONTACT
+      .modal-body
+        #contact-alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+          %button.close{onclick: "$('#contact-alert-msg').hide();$('#loader').hide();"} x
+          #contact_msg_div
+        %form#new-contact.cmn_new_popup_form{action: contacts_path,method: 'post',enctype: 'multipart/form-data', name: 'contact'}
+          %input{:type=>'hidden',:id=>'chk_con_type',:name=> 'chk_con_type',:value=> 'individual'}
+          %input{:type=>'hidden',:id=>'is_edit_contact',:name=> 'is_edit_contact'}
+          %input{:type=>'hidden',:id=>'contact_referrer',:name=> 'contact_referrer', :value => ''}
+          %p{style: "margin-bottom:10px"} Enter the contact details here
+          .individual_added_info_div
+            %p{style: "margin-bottom:10px"}
+            / .row
+            /   .form-group.col-md-6.padrht
+            /     .form_fld
+            /       %span.cwkp-sprite.lead_name
+            /       %input{type: 'text'}
+            /   .form-group.col-md-6.padlft
+            /     .form_fld
+            /       %span.cwkp-sprite.lead_name
+            /       %input{type: 'text'}
+            /   .cb
+            .row
+              .form-group.col-md-6.padrht
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-inbox
+                  %input#first_name.inp_txt{name: 'first_name',type: 'text', value: '', required: 'true',onkeyup: 'return onlycharactersWithApostrophe(event)', onkeydown: 'return onlycharactersWithApostrophe(event)',onblur: "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :class=>"form-control", placeholder: "First Name*"}
+              .form-group.col-md-6.padlft
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-inbox
+                  %input#last_name.inp_txt{name: 'last_name',type: 'text', value: '', onkeyup: 'return onlycharactersWithApostrophe(event)', onkeydown: 'return onlycharactersWithApostrophe(event)',onblur: "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :class=>"form-control", placeholder: "Last Name"}
+            .row
+              .form-group.col-md-6.padrht
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-envelope
+                  %input#email.inp_txt{name: 'email',type: 'email', value: '', required: 'true',:class=>"form-control eml_fld", placeholder: "Email*"}
+                %label{id:'email_err_ind',style: 'display:none',class: 'error'}
+              .form-group.col-md-6.padlft
+                .input-group
+                  .input-group-addon
+                    %span#extension_for_contact +1
+                  = text_field_tag :work_phone,'', :id=>'work_phone',:value=>'', :class => 'bfh-phone form-control',placeholder: "Phone","data-format"=>" (ddd) ddd dddd dddd"
+            .row
+              .form-group.col-md-6.padrht
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-building
+                  =text_field_tag 'company_value', '',:class=>'company-name-typeahead form-control', 'data-provide'=> 'typeahead' , :autocomplete=>'off', onkeyup:"$('#text_loader').show();", placeholder: "Company Name"
+                =hidden_field_tag 'company_contact_id'
+              .form-group.col-md-6.padlft
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-browser
+                  %input#website.inp_txt{name: 'website', class: 'form-control',type: 'text', value: '', placeholder: "Website", disabled: 'disabled'}
+            .row
+              .form-group.col-md-6.padrht
+                - @cn = CompanyStrength.all
+                - @cn.last.range = "1000 & more"
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-users
+                  = select_tag 'company_strength', options_from_collection_for_select(@cn, 'id', 'range'), :prompt => '- Select your company size -',:class=>"form-control", disabled: 'disabled'
+              .form-group.col-md-6.padlft
+                - @coun = Country.all
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-flag
+                  = select_tag 'country', options_from_collection_for_select(@coun, 'id', 'name'), :prompt => "- Select your country -", :onchange => "prefill_extension(this.value,'extension_for_contact','extension_contact_popup');get_country_states(this.value);", :class=>"form-control"
+              
+            .row
+              .form-group.col-md-6.padrht
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-flag
+                  = select_tag 'state', nil, :prompt => "- Select your state -", :class=>"form-control contact_state"
+              .form-group.col-md-6.padlft
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-flag
+                  %input#city.inp_txt{name: 'city',type: 'text', value: '', :class=>"form-control", placeholder: "City"}
+            .row
+              .form-group.col-md-12
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-pen-fancy
+                  %textarea#description.inp_txt{name: 'description',type: 'text', value: '', :class=>"form-control", placeholder: "Description"}
+
+          .form-layout-footer
+            %button.btn.btn-info.cont_submit_btn{type: 'submit', :onclick=>"$('#is_edit_contact').val('false'); return validate_email_contact();",:id=>'contact_submit_btn'} Save
+            //%button.btn.btn-info.cont_submit_btn{type: 'submit', :onclick=>"$('#is_edit_contact').val('true');",:id=>'contact_submit_more'} Save & add more
+            %a.btn.btn-default{href:'#', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'} Cancel
+
+#output_contact
+:javascript
+  $( ".custom-frm-inner" ).click(function() {
+    $(this).parent().next('.control-label').addClass("control-lbl-add")
+  });
+  $( ".custom-frm-inner" ).focusout(function() {
+    if($(this).val() == ""){
+      $(this).parent().next('.control-label').removeClass("control-lbl-add")
+    }else{
+      $(this).parent().next('.control-label').addClass("control-lbl-add-txt")
+    }
+  });
+
+  $("#company_value").keypress(function() {
+  $('#company_value').addClass('loadinggif');
+   setTimeout(hidecontactload, 510);
+  });
+  function hidecontactload()
+  {
+    $('#company_value').removeClass('loadinggif');
+  }
+  $('#contactModal').on('show.bs.modal', function (e) {
+    $('#contact-alert-msg').hide();
+  });
+  function display_company_div(type){    
+    if(type == "show"){
+      $('.company_added_info_div').show();
+      $('.individual_added_info_div').hide();
+      $("#chk_con_type").val("company")
+      $("#email_err_ind").hide();
+      $("#email_err_ind").html('');
+      $("#email_err_con").hide();
+      $("#email_err_con").html('');
+      $("#company_name").attr("required",true);
+      $("#company_email").attr("required",true);
+      $("#first_name").removeAttr("required");
+      $("#email").removeAttr("required");
+    }else{
+      $("#chk_con_type").val("individual")
+      $("#email_err_con").hide();
+      $("#email_err_con").html('');
+      $("#email_err_ind").hide();
+      $("#email_err_ind").html('');
+      $('.company_added_info_div').hide();
+      $('.individual_added_info_div').show();
+      $("#company_name").removeAttr("required");
+      $("#company_email").removeAttr("required");
+      
+      $("#first_name").attr("required", true);
+      $("#email").attr("required", true);
+    }
+      
+      $("#company_name").val('');
+      $("#company_email").val('');
+      $("#company_strength").val('');
+      $("#website").val('');
+      $("#first_name").val('');
+      $("#email").val('');
+      $("#company_value").val('');
+      $("#position").val('');
+      $("#company_value").val('');
+      $("#country").val('');
+      $("#work_phone").val('');
+      $( "#country" ).keyup();
+      
+    
+    
+  }
+  $(window).on('load', function () {
+    display_company_div("hide")
+    
+    $('form input[type="text"].bfh-phone, form input[type="phone"].bfh-phone, span.bfh-phone').each(function () {
+
+      var $phone = $(this);
+      $phone.bfhphone($phone.data());
+    });
+  });
+  // prepare the form when the DOM is ready 
+  $(document).ready(function() { 
+    var options = { 
+        target:        '#output_contact',   // target element(s) to be updated with server response 
+        beforeSubmit:  showRequest_contact,  // pre-submit callback 
+        success:       showResponse_contact // post-submit callback 
+        //data: { key1: 'value1', key2: 'value2' }
+        // other available options: 
+        //url:       url         // override for form's 'action' attribute 
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute 
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type) 
+        //clearForm: true        // clear all form fields after successful submit 
+        //resetForm: true        // reset the form after successful submit 
+ 
+        // $.ajax options can be used here too, for example: 
+        //timeout:   3000 
+    }; 
+ 
+    // bind to the form's submit event 
+    $('#new-contact').submit(function() { 
+        //formValidation();
+        // inside event callbacks 'this' is the DOM element so we first 
+        // wrap it in a jQuery object and then invoke ajaxSubmit 
+        $(this).ajaxSubmit(options); 
+ 
+        // !!! Important !!! 
+        // always return false to prevent standard browser submit and page navigation 
+        return false; 
+    }); 
+  }); 
+ 
+  // pre-submit callback 
+  function showRequest_contact(formData, jqForm, options) {
+    var queryString = $.param(formData);
+    if($('#is_edit_contact').val() == "false")
+      $('#contact_submit_btn').prop("disabled", true).html("Please wait...");
+    //else
+    //$('#contact_submit_more').prop("disabled", true).html("Please wait...");
+    return true; 
+  } 
+ 
+  // post-submit callback
+  function showResponse_contact(responseText, statusText, xhr, $form)  {
+    if(responseText.msg == "Contact added successfully."){
+      window.location.href = "/contact/"+responseText.id;
+      show_alert_message('success',"Contact not added successfully.");
+    }
+    else if(responseText == "index"){
+      $('#contactModal').modal('hide');
+      $("#indi_radio").prop("checked", true);
+      display_company_div('hide')
+      $("#email").val('');
+      $("#email_err_ind").html('');
+      $('input[type="text"],input[type="email"]').val('');
+      window.location.href = "/all_contacts";
+      show_alert_message('success',"Contact added successfully.");
+    }
+    else if(responseText == "Name has already been taken" || responseText == "Email has already been taken!"){
+        $("#contact-alert-msg").show();
+        $("#contact_msg_div").show().html(responseText);
+    }else if(responseText == "exceeds"){
+      window.location.href = "/all_contacts";
+      show_alert_message('danger',"Ooops, contact creation limit exceeds!");
+    }else{
+      var selectedVal = "";
+      var selected = $("#radio_button input[type='radio']:checked");
+      if (selected.length > 0) {
+          selectedVal = selected.val();
+      }
+      if(selectedVal == "individual")
+        window.location.href = "/edit_individual_contact/"+responseText;
+      else if(selectedVal == "company")
+        window.location.href = "/edit_company_contact/"+responseText+"?type=company";
+    }
+    if($("#is_edit_contact").val() == "true"){
+      show_alert_message("success", "Contact added successfully");
+    }
+    $('#contact_submit_btn').removeAttr("disabled").html("Save");
+    //$('#contact_submit_more').removeAttr("disabled").html("Save & add more");
+    $('#new-contact')[0].reset();
+  } 
+  $('.company-name-typeahead').typeahead([{
+    name: 'company_contacts',
+    valueKey: 'company_name',
+    remote: {url: '/get_companies/'+ #{current_user.organization.id if current_user.organization.present?}+ '?q=%QUERY'},
+    template: '<p><strong>{{company_name}}</strong></p>',
+    engine: Hogan
+    }]).on('typeahead:selected',onSelectedTask).on('typeahead:opened',onOpened).on("input", function(e) {
+      // do stuff with current `typeahead` `value`
+      var myVal = e.target.value;
+      if(myVal == null || myVal == undefined || myVal == ""){
+        $("form#new-contact").find("#website").prop('disabled', 'disabled');
+        $("form#new-contact").find("#company_strength").prop('disabled', 'disabled');
+         $("form#new-contact").find("#website").val('');
+         $("form#new-contact").find("#company_strength").val('');
+      }else{
+       $("form#new-contact").find("#website").removeAttr('disabled');
+       $("form#new-contact").find("#company_strength").removeAttr('disabled');
+      }
+    });
+   
+  function onSelectedTask($e,datum){
+    console.log("autocompleted");
+    console.log(datum);
+    $('#company_contact_id').val(datum.id);
+    //hfield.value = datum.id;
+    $.ajax({
+      type: "POST",
+      url: "/get_company_info",
+      data: {id: datum.id},
+      beforeSend: function(){
+        //$("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#task_loader,.fixed_loader").hide();
+        $("#website").val(data['website']);
+        $("#company_strength").val(data['company_strength']);
+        $("#country").val(data['country']);
+        select_country_state(data['country'], data['state']);
+        $("#city").val(data['city']);
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }
+  function onOpened($e){
+    $("#company_contact_id").val("")
+    $("#text_loader").hide()
+  }
+  
+  
+  function onClosed($e){
+    if($("#company_contact_id").val() == ""){
+      $("#company_name").val("");
+    }
+  }
+
+  $( ".cont_submit_btn" ).click(function( event ) {
+    var website = $("#website").val().trim();
+    if( (website != "") && (website.indexOf("http:\/\/") < 0) && (website.indexOf("https:\/\/") < 0) && ( website.indexOf("www.") < 0) ){
+      alert("Invalid website format");
+      event.preventDefault();
+    }
+  });
+  validate_email_field();
+  $('#company_strength').on('change', function() {
+    var comp_name = $("#company_value").val();
+    var comp_strength = this.value;
+    if(comp_name == "" && comp_strength != ""){
+      $("#company_value").prop("required", "true");
+      return false;
+    }else{
+      $("#company_value").removeAttr("required");
+      return true;
+    }
+  })
+  $('#company_value').keyup(function(e){
+    var comp_name = "";
+    var comp_strength = $("#company_strength").val();
+    if(e.keyCode == 8 || e.keyCode == 46){
+      comp_name = $(this).val()
+    }
+    else{
+      comp_name = $(this).val()
+    }
+    if(comp_name == "" && comp_strength != ""){
+      $("#company_value").prop("required", "true");
+      return false;
+    }else{
+      $("#company_value").removeAttr("required");
+      return true;
+    }
+  });
+
+  $('#contactModal').on('hidden.bs.modal', function (e) {
+    $('.company_name_typeahead').removeAttr('disabled');
+  })

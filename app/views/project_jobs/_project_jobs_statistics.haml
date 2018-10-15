@@ -1,0 +1,41 @@
+%span.status_new.status_box.btn-group
+  - new_jobs = @project.project_jobs.new_jobs("New",false)
+  - total_jobs = @project.project_jobs.count
+  %span.lft_qtr.btn.btn-outline.btn-success.btn-sm
+    New
+    |
+    = new_jobs.count
+  %span.rht_qtr.btn.btn-success.btn-sm
+    = (new_jobs.present? ? (((new_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+%span.status_in_prog.status_box.btn-group
+  - progess_jobs = @project.project_jobs.by_status("In Progress")
+  %span.lft_qtr.btn.btn-outline.btn-warning.btn-sm
+    In Progress
+    |
+    = progess_jobs.count
+  %span.rht_qtr.btn.btn-warning.btn-sm
+    = (progess_jobs.present? ? (((progess_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+%span.status_resolved.status_box.btn-group
+  - resolved_jobs = @project.project_jobs.by_status("Resolved")
+  %span.lft_qtr.btn.btn-outline.btn-info.btn-sm
+    Resolved
+    |
+    = resolved_jobs.count
+  %span.rht_qtr.btn.btn-info.btn-sm
+    = (resolved_jobs.present? ? (((resolved_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+%span.status_catchup_ltr.status_box.btn-group
+  - catch_up_jobs = @project.project_jobs.by_status("Blocked")
+  %span.lft_qtr.btn.btn-outline.btn-danger.btn-sm
+    Blocked
+    |
+    = catch_up_jobs.count
+  %span.rht_qtr.btn.btn-danger.btn-sm
+    = (catch_up_jobs.present? ? (((catch_up_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+%span.status_closed.status_box.btn-group
+  - closed_jobs = @project.project_jobs.by_status("Closed")
+  %span.lft_qtr.btn.btn-outline.btn-primary2.btn-sm
+    Closed
+    |
+    = closed_jobs.count
+  %span.rht_qtr.btn.btn-primary2.btn-sm
+    = (closed_jobs.present? ? (((closed_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"

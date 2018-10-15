@@ -1,0 +1,32 @@
+- if params[:stage_id].present?  
+  = hidden_field_tag "curr_deal_status", @deal.deal_status.name
+%div
+  - ds_original_id = @deal.deal_status.present? ? @deal.deal_status.original_id : 0
+  - @current_organization.deal_statuses.where("name NOT IN (?)", ['Won', 'Lost']).order("original_id").each do |ds|
+    - if ds.original_id.present?  
+      - if ds.name.downcase != 'lost' && ds.name.downcase != 'won'  
+        - cls = ''
+        - if ds.original_id.present? && ds_original_id.present?
+          - if(ds.original_id <= ds_original_id)
+            - if(ds.name == 'Won')
+              - if(@deal.deal_status.present? && @deal.deal_status.name != "Lost")
+                - cls = 'active'
+            - else
+              - cls = 'active'
+        %span.opp_status{:class=> "#{cls} #{@deal.is_won.to_s.present? ? (@deal.is_won ? 'lead_woned' : 'lead_lost') : ''}", onclick: "changeLeadStageInLeadDetails(#{@deal.id}, #{ds.id})"}
+          = ds.name
+.cb
+= hidden_field_tag "curr_dealstatus", @deal.is_won.to_s.present? ? (@deal.is_won ? 'Won' : 'Lost') : ""
+:javascript
+  if($("#curr_dealstatus").val() != ""){
+    if($("#curr_dealstatus").val() == 'Won'){
+      $(".won_lead").addClass("active").attr("disabled", "disabled");
+      $(".lost_lead").removeClass("active").removeAttr("disabled");
+    }
+    else{
+      $(".won_lead").removeClass("active").removeAttr("disabled");
+      $(".lost_lead").addClass("active").attr("disabled", "disabled");
+    }
+    $(".lead-details-page .deal_status_name").html($("#curr_dealstatus").val());
+    $(".lead-details-page .deal_status_name").attr("tooltipText",$("#curr_dealstatus").val());
+  }

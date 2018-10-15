@@ -1,0 +1,56 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up        
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-layer-group
+          - if @goals.present?
+            .fl
+              #task-dropdown-menu.dropdown
+                %button.btn.btn-default.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                  %span.bt-name{class: "get_selected_txt"}
+                    Goal#1
+                  %span.caret
+                %ul.dropdown-menu.selected_txt
+                  - i=0
+                  - @goals.each do |goal|
+                    %li.task-tab-data
+                      - i+=1
+                      %a{:href => "javascript:void(0)", :onclick=>"display_goals('#{goal.id}');$('.bt-name').html('Goals##{i.to_s}')", :class => "goal-chat-load"}
+                        = "Goals#"+ i.to_s
+            .fl.mt5.ml15
+              %span User:
+              = select(:fiter_user, :type, @current_organization.goals.map{|g| g.user if g.user.present?}.uniq.compact.collect { |u| [ u.id == @current_user.id ? "Me" : u.full_name, u.id ] }, {:selected => @user.id}, {:class => "filter_goals btn btn-default"})
+.content
+  .hpanel
+    #goal_sec
+      = render :partial => "goals"
+:javascript
+  function display_goals(goal_id){
+    var user_id = $("#fiter_user_type").val();
+    $.ajax({
+      type: "GET",
+      url: "/goals_view",
+      dataType: 'json',
+      data: {goal_id: goal_id, user_id: user_id},
+      async: true,
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+       
+      },
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        $("#goal_sec").html(data.responseText);        
+      }
+    });
+  }
+  $(".filter_goals").change(function() {
+    window.location.href = "/goals_by_user/" + $(this).val();
+  });

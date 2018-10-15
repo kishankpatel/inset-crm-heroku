@@ -1,0 +1,183 @@
+= form_for(@contact, url: contact_path(@contact), :html=>{:class => "form cmn_new_popup_form",:method=>"put",:id=>"new_contact"}) do |f|    
+  =f.hidden_field :organization_id, value: current_user.organization_id.to_s
+  /=f.hidden_field :created_by, value: current_user.id.to_s
+  .container
+    .col-md-12.p0
+      %div
+        .col-md-12.p0
+          .row  
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-user
+                =f.text_field :first_name,class: "inp_txt", :onkeyup=>"return onlycharactersWithApostrophe(event)",:onkeydown=>"return onlycharactersWithApostrophe(event)", "data-provide"=> "typeahead" , :autocomplete=>"off",:value=>@contact.first_name,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"First name"
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-user
+                =f.text_field :last_name,class: "inp_txt", :onkeyup=>"return onlycharactersWithApostrophe(event)",:onkeydown=>"return onlycharactersWithApostrophe(event)", "data-provide"=> "typeahead" , :autocomplete=>"off",:value=>@contact.last_name,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Last Name"
+            .cb
+          .row 
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-inbox
+                =text_field_tag :title,"",:value=>@deal.title,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Opportunity"
+
+                =hidden_field_tag "deal_id", @deal.id
+              .cb
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-building
+                =f.text_field :name,:class=>"custom-frm-inner company_name_typeahead",:value=>(@contact.company_contact.present? ? @contact.company_contact.name : ""),:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Company name"
+                = hidden_field_tag "company_id", "#{@contact.company_contact.present? ? @contact.company_contact.id : ''}"
+            .cb
+          .row  
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-money-bill
+                = select_tag "currency_type", options_for_select([['USD($)', 'US$'], ['SGD($)', 'S$'], ['EUR(€)', '€'], ['INR', 'INR'], ['GBP(£)', '£']], @deal.currency_type), :id=> "deal_currency_type"
+              =text_field_tag :amount,"",:value=>@deal.amount,:onkeydown=>"return numbersonly(event)", placeholder:"Lead Amount", :class => "form-control new_amt_field" 
+
+              //=f.hidden_field :extension,:value=>phone_ext
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-users
+                - @cn = CompanyStrength.all
+                - @cn.last.range = "1000 & more"
+                = select_tag 'company_strength', options_from_collection_for_select(@cn, 'id', 'range',selected: @contact.company_contact.present? && @contact.company_contact.company_strength.present? ? @contact.company_contact.company_strength.id : ""), {:prompt => '- Select your company size -', :class=>"form-control"}
+            .cb
+          .row  
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-envelope
+                =f.text_field :email,:value=>@contact.email,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Email"
+                //=f.hidden_field :extension,:value=>phone_ext
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-phone
+                =f.text_field :work_phone,:class=>"bfh-phone",:type=>"text", "data-format"=>" (ddd) ddd dddd dddd",:value => @contact.phones.present? ? @contact.phones.by_phone_type("work").first.phone_no : "",:onkeydown=>"return numbersonly(event)", placeholder:"Phone"
+            .cb
+          .row    
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-facebook
+                =f.text_field :facebook_url,:value=>@contact.facebook_url,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Facebook"
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-twitter
+                =f.text_field :twitter_url,:value=>@contact.twitter_url,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Twitter"
+
+            .cb
+          .row  
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-linked-in
+                =f.text_field :linkedin_url,:value=>@contact.linkedin_url,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Linkedin"
+
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-skype
+                =f.text_field :messanger_id,:autocomplete=>"off",:value=>@contact.messanger_id,:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Skype ID"
+            .cb
+          .row  
+            .form-group.col-md-6.padrht
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-flag
+                =f.select :country_id, Country.find(:all).collect {|c| [ c.name, c.id ]}, {:include_blank => '- Country -',:selected=>(@contact.country.present?) ? @contact.country.id  : "" }, :onchange => "prefill_extension(this.value,'extension_for_contact','individual_contact_extension');prefill_extension(this.value,'extension_for_contact1','company_contact_extension');", :class=>"form-control js-source-states"
+            .form-group.col-md-6.padlft
+              .input-group
+                .input-group-addon
+                  %span.fal.fa-industry-alt
+                =text_field_tag :industry,"",:autocomplete=>"off",:value=>@deal.deal_industry.present? && @deal.deal_industry.industry.present? ? @deal.deal_industry.industry.name : "",:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Industry"
+            .cb
+        .cb10
+        .form-layout-footer
+          %button.btn.btn-info{type: "submit", "data-disable-with" => "Saving...", onclick: "return chk_validation('contact')"} Update
+          %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+            Cancel
+
+:javascript
+  function readURL(input) {
+         if (input.files && input.files[0]) {
+             var reader = new FileReader();
+             reader.onload = function(e) {
+                 $('#previewHolder').attr('src', e.target.result);
+             }
+
+             reader.readAsDataURL(input.files[0]);
+         }
+     }
+     $("#individual_contact_contact_image").change(function() {
+         readURL(this);
+     });
+     $("#company_contact_contact_image").change(function() {
+             readURL(this);
+         });
+  $('.company_name_typeahead').typeahead([{
+    name: 'company_contacts',
+    valueKey: 'company_name',
+    remote: {url: '/get_companies/'+ #{current_user.organization.id if current_user.organization.present?}+ '?q=%QUERY'},
+    template: '<p><strong>{{company_name}}</strong></p>',
+    engine: Hogan
+    }]).on('typeahead:selected',onSelectedTask).on('typeahead:opened',onOpened);
+   
+  function onSelectedTask($e,datum){
+    console.log("autocompleted");
+    console.log(datum);
+           
+    var hfield = document.getElementById('company_id');
+    console.log(datum.id);
+    hfield.value = datum.id;
+  }
+  function onOpened($e){
+    $("#company_id").val("")
+    $("#text_loader").hide();
+  }
+  
+  function onClosed($e){
+    if($("#company_id").val() == ""){
+      $("#company_name").val("");
+    }
+  }
+
+  $('#company_strength').on('change', function() {
+    var comp_name = $("#individual_contact_name").val();
+    var comp_strength = this.value;
+    if(comp_name == "" && comp_strength != ""){
+      //alert("Please enter your company name.")
+      $("#individual_contact_name").prop("required", "true");
+      return false;
+    }else{
+      $("#individual_contact_name").removeAttr("required");
+      return true;
+    }
+  })
+
+  $('#individual_contact_name').keyup(function(e){
+    var comp_name = "";
+    var comp_strength = $("#company_strength").val();
+    if(e.keyCode == 8 || e.keyCode == 46){
+      comp_name = $(this).val()
+    }
+    else{
+      comp_name = $(this).val()
+    }
+    if(comp_name == "" && comp_strength != ""){
+      $("#individual_contact_name").prop("required", "true");
+      return false;
+    }else{
+      $("#individual_contact_name").removeAttr("required");
+      return true;
+    }
+  });

@@ -1,0 +1,31 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  assigned_to: 1
+  created_by: 1
+  priority: MyString
+  description: MyText
+  start_date: 2017-04-21 14:39:04
+  due_date: 2017-04-21 14:39:04
+  estimate_hr: 2017-04-21 14:39:04
+  is_repeat: false
+  notify_email_ids: MyString
+  project_job_type: 
+  project_job_group: 
+  individual_contact: 
+
+two:
+  name: MyString
+  assigned_to: 1
+  created_by: 1
+  priority: MyString
+  description: MyText
+  start_date: 2017-04-21 14:39:04
+  due_date: 2017-04-21 14:39:04
+  estimate_hr: 2017-04-21 14:39:04
+  is_repeat: false
+  notify_email_ids: MyString
+  project_job_type: 
+  project_job_group: 
+  individual_contact: 

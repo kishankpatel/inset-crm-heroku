@@ -1,0 +1,92 @@
+- new_percent = (new_jobs = proj.project_jobs.by_status('New')).present? ? ((new_jobs.count.to_f / proj.project_jobs.count.to_f) * 100).round : 0
+- progress_percent = (progress_jobs = proj.project_jobs.by_status('In progress')).present? ? ((progress_jobs.count.to_f / proj.project_jobs.count.to_f) * 100).round : 0
+- closed_percent = (closed_jobs = proj.project_jobs.by_status('Closed')).present? ? ((closed_jobs.count.to_f / proj.project_jobs.count.to_f) * 100).round : 0
+- resolved_percent = (resolved_jobs = proj.project_jobs.by_status('Resolved')).present? ? ((resolved_jobs.count.to_f / proj.project_jobs.count.to_f) * 100).round : 0
+- if new_percent == 0 && progress_percent == 0 && closed_percent == 0 && resolved_percent == 0
+  No data available
+- else
+  %div{:id=>"projectTaskStatusChart_" + proj.id.to_s}
+  :javascript
+    var myConfig = {
+      "type":"pie",
+      
+      "legend":{
+        "x":"60%",
+        "y":"15%",
+        "border-width":0,
+        "marker":{
+          "type":"square"
+        },
+        "toggle-action":"remove",
+        "icon":{
+          "line-color":"#9999ff"
+        },
+        "max-items":8,
+        "overflow":"scroll"
+      },
+      "plotarea":{
+        "margin-right":"40%",
+        "margin-top":"0%",
+        "height":"150px"
+      },
+      "plot":{
+        "value-box":{
+          "text":"",
+          "font-size":12,
+          "font-family":"Georgia",
+          "font-weight":"normal",
+          "placement":"none",
+          "font-color":"gray",
+        },
+        "tooltip":{
+          "text":"%t: %v (%npv%)",
+          "font-color":"black",
+          "font-family":"Georgia",
+          "text-alpha":1,
+          "background-color":"white",
+          "alpha":0.7,
+          "border-width":1,
+          "border-color":"#cccccc",
+          "line-style":"dotted",
+          "border-radius":"10px",
+          "padding":"10%",
+          "placement":"node:center"
+        },
+        "border-width":1,
+        "border-color":"#cccccc",
+        "line-style":"dotted"
+      },
+      "series": [
+        {
+          "values":[#{new_percent}],
+          "background-color":"#FF6384",
+          "text":"New: #{proj.project_jobs.by_status('New').count} | #{new_percent}%"
+        },
+        {
+          "values":[#{progress_percent}],
+          "background-color":"#36A2EB",
+          "text":"In Progress: #{proj.project_jobs.by_status('In progress').count} | #{progress_percent}%"
+        },
+        {
+          "values":[#{closed_percent}],
+          "background-color":"#FFCE56",
+          "text":"Closed: #{proj.project_jobs.by_status('Closed').count} | #{closed_percent}%"
+        },
+        {
+          "values":[#{resolved_percent}],
+          "background-color":"#03FCE56",
+          "text":"Resolved: #{proj.project_jobs.by_status('Resolved').count} | #{resolved_percent}%"
+        },
+      ]
+    };
+    zingchart.render({ 
+      id: "projectTaskStatusChart_#{proj.id}", 
+      data: myConfig, 
+      height: 150, 
+      width: "20%",
+      "margin-right": "15%"
+    });
+    $("#projectTaskStatusChart_#{proj.id}-license-text").remove();
+    $(".inner_cont").on("contextmenu",function(e){
+      $("#projectTaskStatusChart_#{proj.id}-menu").remove();
+    }); 

@@ -1,0 +1,175 @@
+.row.m-b
+  .col-md-10
+    .project_job_top_sec
+      .right_sec.pull-left
+        =render :partial=>"project_jobs/project_jobs_statistics",:objects=>@project
+        / %span.status_new.status_box.btn-group
+        /   - new_jobs = @project.project_jobs.new_jobs("New",false)
+        /   - total_jobs = @project.project_jobs.count
+        /   %span.lft_qtr.btn.btn-outline.btn-success.btn-sm
+        /     New
+        /     |
+        /     = new_jobs.count
+        /   %span.rht_qtr.btn.btn-success.btn-sm
+        /     = (new_jobs.present? ? (((new_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        / %span.status_in_prog.status_box.btn-group
+        /   - progess_jobs = @project.project_jobs.by_status("In Progress")
+        /   %span.lft_qtr.btn.btn-outline.btn-warning.btn-sm
+        /     In Progress
+        /     |
+        /     = progess_jobs.count
+        /   %span.rht_qtr.btn.btn-warning.btn-sm
+        /     = (progess_jobs.present? ? (((progess_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        / %span.status_resolved.status_box.btn-group
+        /   - resolved_jobs = @project.project_jobs.by_status("Resolved")
+        /   %span.lft_qtr.btn.btn-outline.btn-info.btn-sm
+        /     Resolved
+        /     |
+        /     = resolved_jobs.count
+        /   %span.rht_qtr.btn.btn-info.btn-sm
+        /     = (resolved_jobs.present? ? (((resolved_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        / %span.status_catchup_ltr.status_box.btn-group
+        /   - catch_up_jobs = @project.project_jobs.by_status("Blocked")
+        /   %span.lft_qtr.btn.btn-outline.btn-danger.btn-sm
+        /     Blocked
+        /     |
+        /     = catch_up_jobs.count
+        /   %span.rht_qtr.btn.btn-danger.btn-sm
+        /     = (catch_up_jobs.present? ? (((catch_up_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        / %span.status_closed.status_box.btn-group
+        /   - closed_jobs = @project.project_jobs.by_status("Closed")
+        /   %span.lft_qtr.btn.btn-outline.btn-primary2.btn-sm
+        /     Closed
+        /     |
+        /     = closed_jobs.count
+        /   %span.rht_qtr.btn.btn-primary2.btn-sm
+        /     = (closed_jobs.present? ? (((closed_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+  .col-md-2.pull-right
+    .navbar-right
+      .btn-group
+        .dropdown-toggle.f_menu{"data-toggle" => "dropdown", type: "button",onclick: "reser_all_project_jobs_submenu();$('.main_menu').show()"}
+          %i.fal.fa-filter.fa-2x{:title => "Filter"}
+        %ul.dropdown-menu.main_menu{role: "menu",style: "display:none"}
+          %li.arrow_top{style: "left:auto;z-index:99;right:0;"}
+          %li.dropdown-submenu{:style => "position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('created');"} Created By
+            #cr.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 316px;"}
+              .arrow_left.lead_arrow.cre_arw{style: "display:none;left:165px;z-index: 8;"}
+              %ul#cre_by_app.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;left: 50px;"}
+                - all_org_users.each do |cre_by|
+                  %li
+                    %a{href: "#",onclick: "chk_radio_button_jobs(#{cre_by.id},'created')",class: "filterSelectDropdow"}
+                      %input{id:"cre_by_#{cre_by.id}", class: "cre_by_c",type: "checkbox", value: "#{cre_by.id}",c_name: "#{cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split('@')[0]}",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "created_by"}
+                        - name = cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split("@")[0]
+                        %span{title:name}
+                          = name.truncate(13)
+          %li.dropdown-submenu{:style => "position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('assigned');"} Assigned To
+            #asg.sec_mnu{style: "display: none;"}
+              .arrow_left.lead_arrow.asg_arw{style: "display:none;left:102px;"}
+              %ul.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left:-14px;"}
+                - select_all_org_users.each do |assg_by|
+                  %li
+                    - assg_by.is_active == false ? sty = "background-color:#f0f0f0;" : sty = ""
+                    %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs(#{assg_by.id},'assigned')",class: "filterSelectDropdow", style:sty}
+                      %input{id:"assg_by_#{assg_by.id}", class: "asg_by_c",type: "checkbox", value: "#{assg_by.id}",a_name: "#{assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split('@')[0]}",style: "cursor:pointer;",name: "assg_by"}
+                        - assn_by = assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split("@")[0]
+                        %span{title:assn_by}
+                          = assn_by.truncate(13)
+          /%li.divider
+          %li.dropdown-submenu{:style => "position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('proj_stage');"} Project Stage
+            #proj_stage.sec_mnu{style: "display: none;"}
+              .arrow_right.proj_stage_arrow.proj_stage_arw{style: "display:none;left:103px;"}
+              %ul.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left:-14px;"}
+                - @current_organization.project_stages.each do |proj|
+                  %li
+                    %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs(#{proj.id},'proj_stage')",class: "filterSelectDropdow",title: "#{proj.name}"}
+                      %input{id:"proj_stage_#{proj.id}", class: "proj_stage",type: "checkbox", value: "#{proj.id}",a_name: "#{proj.name}",style: "cursor:pointer;",name: "proj_stage"}
+                        =truncate(proj.name, :length => 13, :ommission => "..")
+                  /%li.divider
+
+          / %li.divider
+          / %li.dropdown-submenu{:style => "position: relative;"}
+          /   %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('proj');"} Project
+          /   #proj.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 124px;"}
+          /     .arrow_right.proj_arrow.proj_arw{style: "display:none;left:103px;"}
+          /     %ul.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left:-14px;"}
+          /       - @current_organization.projects.each do |proj|
+          /         %li
+          /           %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs(#{proj.id},'proj')",class: "filterSelectDropdow",title: "#{proj.name}"}
+          /             %input{id:"proj_#{proj.id}", class: "proj",type: "checkbox", value: "#{proj.id}",a_name: "#{proj.name}",style: "cursor:pointer;",name: "proj"}
+          /               =truncate(proj.name, :length => 13, :ommission => "..")
+          /         %li.divider
+          %li.dropdown-submenu{onclick: "display_hide_submenu('priority');", :style=>"position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Priority
+            #pr.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+              .arrow_left.lead_arrow.pri_arw{style: "display:none;left:71px;"}
+              %ul.dropdown-menu{style: "display:inline-block;position:relative;min-width: 100px;left: -14px;"}
+                - priorities = [["Low", "Low"], ["Medium", "Medium"], ["High", "High"]]
+                - priorities.each do |pri|
+                  %li
+                    %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('#{pri[0]}','priority')",class: "filterSelectDropdow"}  
+                      %input{id:"priority_#{pri[0]}", class: "priority_c",type: "checkbox", value: "#{pri[0]}",prio_name: "#{pri[0]}",style: "cursor:pointer;",name: "prio"}
+                      =pri[0]
+          %li.dropdown-submenu{onclick: "display_hide_submenu('status');", :style=>"position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Status
+            #st.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+              .arrow_left.lead_arrow.sta_arw{style: "display:none;left:102px;"}
+              %ul.dropdown-menu{style: "display:inline-block;position:relative;left: -13px;"}
+                - statuses = [["New", "New"], ["In Progress", "In Progress"], ["Resolved", "Resolved"], ["Blocked", "Blocked"], ["Closed", "Closed"]]
+                - statuses.each do |sta|
+                  %li
+                    %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('#{sta[0]}','status')",class: "filterSelectDropdow"}  
+                      %input{id:"status_#{sta[0].gsub(' ', '_')}", class: "status_c",type: "checkbox", value: "#{sta[0]}",stat_name: "#{sta[0]}",style: "cursor:pointer;",name: "stat"}
+                      =sta[0]
+          %li.dropdown-submenu{onclick: "display_hide_submenu('anytime');", :style=>"position: relative;"}
+            %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Anytime
+            #any.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 155px;"}
+              .arrow_left.lead_arrow.any_arw{style: "display:none;left:147px;"}
+              %ul.dropdown-menu{style: "display:inline-block;position:relative;left:19px;"}
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('past_week','any')",class: "filterSelectDropdow"}  
+                    %input{id:"past_week", class: "any_time",type: "radio", value: "Past Week",style: "cursor:pointer;",name: "anytime"}
+                    Past Week
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('past_two_weeks','any')",class: "filterSelectDropdow"}  
+                    %input{id:"past_two_weeks", class: "any_time",type: "radio", value: "Past Two Weeks",style: "cursor:pointer;",name: "anytime"}
+                    Past Two Weeks
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('past_three_weeks','any')",class: "filterSelectDropdow"}  
+                    %input{id:"past_three_weeks", class: "any_time",type: "radio", value: "Past Three Weeks",style: "cursor:pointer;",name: "anytime"}
+                    Past Three Weeks
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('past_month','any')",class: "filterSelectDropdow"}  
+                    %input{id:"past_month", class: "any_time",type: "radio", value: "Past Month",style: "cursor:pointer;",name: "anytime"}
+                    Past Month
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('past_year','any')",class: "filterSelectDropdow"}  
+                    %input{id:"past_year", class: "any_time",type: "radio", value: "Past Year",style: "cursor:pointer;",name: "anytime"}
+                    Past Year
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button_jobs('cu_date','any')",class: "filterSelectDropdow"} 
+                    %input{id:"cu_date", class: "any_time",type: "radio", value: "Custom Date",style: "cursor:pointer;",name: "anytime"}
+                    Custom Date
+                %li#custom_date{style: "display:none;margin:4px;"}
+                  =text_field_tag "project_job_from","",value: "",class: "form-control typeahead",placeholder: "From"
+                  .cb10
+                  =text_field_tag "project_job_to","",value: "",class: "form-control typeahead",placeholder: "To"
+                  .cb10
+                  %button.btn.btn-primary{class: "filterSelectDropdow",type: "button",rel: "tooltip", title: "Filter" } 
+                    Search
+      - unless params[:by_group_name].present?
+        %span.cwkp-sprite.active_list_view_icon{title: "List View"}
+        = link_to project_project_jobs_path(@project, :by_group_name => true), title: "Group by type" do
+          %span.cwkp-sprite.new_comp_size_icon
+      - else
+        = link_to project_project_jobs_path(@project), title: "List View" do
+          %span.cwkp-sprite.new_list_view_icon
+        %span.cwkp-sprite.active_job_group_icon{title: "Group by type", style: "background-position: -1691px -204px;"}
+      %span{:id => "calendar_view"}
+        = link_to "javascript:void(0)", :onclick => "display_calendar_view()", title: "Calendar View" do
+          %span.cwkp-sprite.new_calendar_icon{style: "background-position:-1688px -25px;"}
+      %span{:id => "kanban_view"}
+        = link_to "/projects/#{@project.id}/jobs/kanban", title: "Kanban View" do
+          %span.cwkp-sprite.new_kanban_view_icon

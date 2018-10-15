@@ -1,0 +1,13 @@
+= form_for(@organization, :url => "javascript:void(0)", :remote => true, :html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"new_deal"}) do |f|
+  .form-group.col-md-6.padlft
+    %label{:for => "organization_user_allowed_by_admin"} Users Allowed
+    .input-group
+      =f.text_field :user_allowed_by_admin,:class=>"form-control",:onkeydown=>"return numbersonly(event)", :required => true
+  .form-group.col-md-6.padlft
+    %label{:for => "organization_user_allowed_by_admin"} Extend Trial Days
+    .input-group
+      =f.text_field :extend_trial_days,:class=>"form-control",:onkeydown=>"return numbersonly(event)", :required => true
+  .form-layout-footer.form-group.col-md-6.padlft{style: "margin-top:0"}
+    %button.btn.btn-info{type: "submit",id: "deal_submit_btn", onclick: "update_org_trial('#{@organization.id}')"} Update
+    %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+      Cancel

@@ -1,0 +1,204 @@
+:css
+  .tagsinput {width: 100% !important;height: 48px !important;border: none !important;padding-left: 45px !important;}
+  #deal_tag_list_tag {width:88px !important;}
+.edit_lead_form  
+  .row  
+    .form-group.col-md-8
+      .input-group
+        .input-group-addon
+          %span.fal.fa-inbox
+        =f.text_field :title,:class=>"form-control", :required => true
+    .cb
+  .row{style:"margin:0;"}
+    .form-group.col-md-5.padrht.padlft
+      %span.radio_heading Priority:
+      
+      %span{class: "modal-radio"}
+        - hot_priority = @current_organization.hot_priority
+        -if !hot_priority.nil? && !hot_priority.blank?
+          = f.radio_button :priority_type,hot_priority.id, :class => "form-control", :checked =>(!@deal.priority_type.nil? && @deal.priority_type.id == hot_priority.id ? true : false) 
+        -else
+          = f.radio_button :priority_type,"", :class => "form-control"  
+        %label{for: "deal_priority_type_#{hot_priority.id}", style:"color:#BA4A49"}
+          %span
+          =!hot_priority.nil? && !hot_priority.blank? ? hot_priority.name : "NA"
+      
+      %span{class: "modal-radio"}
+        - warm_priority = @current_organization.warm_priority
+        -if !warm_priority.nil? && !warm_priority.blank?
+          =f.radio_button :priority_type,warm_priority.id, :class => "form-control", :checked => (!@deal.priority_type.nil? &&  @deal.priority_type.id == warm_priority.id  ? true : false )  
+        -else
+          =f.radio_button :priority_type,"", :class => "form-control"
+        %label{for: "deal_priority_type_#{warm_priority.id}", style:"color:#F89305"}
+          %span  
+          =!warm_priority.nil? && !warm_priority.blank? ? warm_priority.name : "NA"
+      
+      %span{class: "modal-radio"}
+        - cold_priority = @current_organization.cold_priority
+        -if !warm_priority.nil? && !warm_priority.blank?
+          =f.radio_button :priority_type, cold_priority.id, :class => "form-control", :checked => (!@deal.priority_type.nil? && @deal.priority_type.id == cold_priority.id ? true : false )  
+        -else
+          =f.radio_button :priority_type, "", :class => "form-control"
+        %label{for: "deal_priority_type_#{cold_priority.id}", style:"color:#344a54"}
+          %span    
+          =!cold_priority.nil? && !cold_priority.blank? ? cold_priority.name : "NA"    
+    
+    .form-group.col-md-7.padlft.padrht
+      %span.radio_heading Visibility:
+      %span{class: "modal-radio"}    
+        = f.radio_button :is_public, true, :checked => @deal.is_public? == true ? true : "", :style =>"position:relative;top:2px"      
+        %label{for: "deal_is_public_true"}
+          %span   
+          - if params[:controller] == "contacts"
+            Everyone
+          - else
+            Everyone in organization  
+      %span{class: "modal-radio"} 
+        = f.radio_button :is_public, false, :checked => true, :style =>"margin-left:10px;position:relative;top:2px",  :checked => @deal.is_public? == false ? true : ""
+        %label{for: "deal_is_public_false"}
+          %span  
+          - if params[:controller] == "contacts"
+            Only I can
+          - else
+            Associate Users
+    .cb
+  .row
+    .form-group.col-md-4
+      .input-group
+        .input-group-addon
+          %span.fal.fa-user
+        =f.select :assigned_to, @current_organization.users.where("invitation_token IS ? and is_active = ?", nil,true).order("first_name ASC").collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]}, {:include_blank => '- Assigned To -',:selected=>@deal.assigned_to},:class=>"form-control", :required => true
+    .form-group.col-md-4
+      .input-group
+        .input-group-addon
+          %span.fal.fa-money-bill
+        = f.select :currency_type, [ ['USD($)', 'US$'], ['SGD($)', 'S$'], ['EUR(€)', '€'], ['INR', 'INR'], ['GBP(£)', '£'], ['DZD', 'DZD'] ]
+      =f.text_field :amount,:onkeyup=>"return numbersonly(event)",:onkeydown=>"return numbersonly(event)", :class => "form-control new_amt_field", placeholder: "Lead Amount"
+    .form-group.col-md-4
+      .input-group
+        .input-group-addon
+          %span.fab.fa-osi
+        =f.select :source_id, @current_organization.sources.collect {|c| [ c.name, c.id ]}, {:include_blank => '- Source -',:selected=>@deal.deal_source.present? ? @deal.deal_source.id : ""},:class=>"form-control"
+      %span{style:"width:200px;word-wrap: break-word;"}  
+        %a{href: "#", id: "editable_source",style:"margin-left:5px", title: "Add a Source","data-value"=>"","data-original-title"=> "", "data-title"=>"custom", "data-placement" => "left"}
+          + NEW
+    .cb
+  .row
+    .col-md-4.padrht
+      .form-group
+        .input-group
+          .input-group-addon
+            %span.fal.fa-tag
+          = f.text_field :tag_list,:class=>"form-control", :value => @deal.all_tags, placeholder:"Lead Tag"
+      %p{style:"margin-top:-5px;font-size:11px;"} Separate the tags with a comma(,) or hit enter.
+    .col-md-4
+      .input-group.lead_probability
+        %span.input-group-addon %
+        =f.text_field :probability,:class=>"form-control decimal_only max_99",placeholder:"Probability", maxlength:"5"
+    .col-md-4
+      .input-group
+        .input-group-addon
+          %span.fal.fa-industry
+        =f.select :industry_id, @current_organization.industries.collect {|c| [ c.name, c.id ]}, {:include_blank => '- Industry -',:selected=>@deal.deal_industry.present? && @deal.deal_industry.industry.present? ? @deal.deal_industry.industry.id : ""},:class=>"form-control"     
+      %a{href: "#", style: "margin-left:5px;",id: "editable_industry", title: "Add an Industry","data-value"=>"","data-original-title"=> "", "data-title"=>"custom"}
+        + NEW
+    .cb
+  .cb10
+  / .row  
+  /   .col-md-4.form-group
+  /     .form_fld{style:"width:65%;float:left"}
+  /       %span.cwkp-sprite.proj-est-hr
+  /       = select_tag :duration_type , options_for_select(["Weeks", "Hours"],@deal.deal_duration_type), :prompt => "- Duration -", :class => 'form-control '
+  /     .fl{style:"width:10%;float:left; margin-top: 15px;text-align: center;"}
+  /       >>
+  /     .fl{style:"width:25%;float:left"}
+  /       =f.text_field :duration,:class=>"form-control",:onkeyup=>"return numbersonly(event)",:onkeydown=>"return numbersonly(event)", :value=> @deal.deal_duration, style:"height: 47px;"
+  /     .cb 
+  /   .col-md-8{style:"margin-top: 12px;"}
+  /     %span.radio_heading Payment:
+  /     %span{class: "modal-radio"}
+  /       = f.radio_button :payment_status, "Not done", :checked => (@deal.payment_status.present? && @deal.payment_status == "Not done" ? true : false) , :style =>"position:relative;top:2px", :value => "Not done"
+  /       %label{for: "deal_payment_status_not_done"}
+  /         %span 
+  /         Not done
+  /     %span{class: "modal-radio"}  
+  /       = f.radio_button :payment_status, "Partially done", :style =>"margin-left:10px;position:relative;top:2px",  :checked => (@deal.payment_status.present? && @deal.payment_status == "Partially done" ? true : false), :value => "Partially done"
+  /       %label{for: "deal_payment_status_partially_done"}
+  /         %span   
+  /         Partially done
+  /     %span{class: "modal-radio"}  
+  /       = f.radio_button :payment_status, "Completed", :checked => (@deal.payment_status.present? && @deal.payment_status == "Completed" ? true : false), :value => "Completed", :style=>"margin-left: 11px;"
+  /       %label{for: "deal_payment_status_completed"}
+  /         %span 
+  /         Completed
+  /   .cb
+  / .row
+  /   .col-md-4
+  /   .col-md-8.form-group
+  /     %span.radio_heading Bill Type: 
+  /     %span{class: "modal-radio"}  
+  /       = f.radio_button :billing_type, "None", :checked => (@deal.billing_type.nil? || (!@deal.billing_type.nil? && @deal.billing_type == "None") ? true : false) , :style =>"position:relative;top:2px", :value => "None"
+  /       %label{for: "deal_billing_type_none"}
+  /         %span   
+  /         None
+  /     %span{class: "modal-radio"}  
+  /       = f.radio_button :billing_type, "Fixed", :checked => (!@deal.billing_type.nil? && @deal.billing_type == "Fixed" ? true : false) , :style =>"position:relative;top:2px", :value => "Fixed"
+  /       %label{for: "deal_billing_type_fixed"}
+  /         %span   
+  /         Fixed
+  /     %span{class: "modal-radio"}    
+  /       = f.radio_button :billing_type, "Monthly", :style =>"margin-left:10px;position:relative;top:2px",  :checked => (!@deal.billing_type.nil? && @deal.billing_type == "Monthly" ? true : false), :value => "Monthly"
+  /       %label{for: "deal_billing_type_monthly"}
+  /         %span  
+  /         Monthly
+  /     %span{class: "modal-radio"}  
+  /       = f.radio_button :billing_type, "Hourly", :checked => (!@deal.billing_type.nil? && @deal.billing_type == "Hourly" ? true : false), :value => "Hourly", :style=>"margin-left: 11px;"
+  /       %label{for: "deal_billing_type_hourly"}
+  /         %span    
+  /         Hourly
+  /   .cb
+  .row
+    .col-md-12  
+      .form-group
+        .input-group
+          .input-group-addon
+            %span.fal.fa-pen-fancy
+          =f.text_area :comments,:class=>"form-control note_txtarea txtarea_editdeal", placeholder:"Note"
+    .cb
+  .form-layout-footer{style:"margin-top: 10px;"}
+    %button.btn.btn-info{type: "submit", "data-disable-with" => "Saving...", :id=>"is_update_deal"} Update
+    %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+:javascript
+  $("#duration_type").change(function () {
+     if(this.value != ""){
+       $("#deal_duration").prop("required","true")
+     }else{
+       $("#deal_duration").removeAttr("required") 
+     }
+     if($("#deal_duration").val() != ""){
+       $(this).prop("required","true")
+     }else{
+       $(this).removeAttr("required") 
+     }
+     
+  });
+  $("#deal_duration").keyup(function () {
+     if(this.value != ""){
+       $("#duration_type").prop("required","true")
+     }else{
+       $("#duration_type").removeAttr("required") 
+     }
+     
+  });
+  function gethtml(id){
+    //$('#'+id).val($('textarea').val().replace(/\n/g, "<br />"));
+    $('#'+id).val($('textarea').val());
+  }  
+  $(".max_99").keyup(function (event) { 
+    if(parseFloat($(this).val()) >=101){
+      var tax_amt = $(this).val().split(".");
+      var int_val = tax_amt[0].slice(0,-1);
+      tax_amount = parseInt(int_val) + parseFloat("0."+tax_amt[1]);
+      $(this).val(tax_amount);
+    }
+  });

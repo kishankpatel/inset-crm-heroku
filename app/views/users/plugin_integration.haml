@@ -1,0 +1,31 @@
+.jumbotron
+.container{style: "margin-top: 50px"}
+  .row
+    %h1{style: "font-size: 30px;text-align: center;"}
+      Plugin Integrations
+    %hr
+    - plug_ins = Plugin.all
+    - if !plug_ins.empty?
+      - plug_ins.each do |plug_in|
+        - if plug_in.is_active == true  
+          .col-md-4
+            / Increase min-height to 255 after uncommenting 'Add to CRM' or 'Added to CRM' button
+            .con-box1{style: "min-height: 230px;margin-top: 0;"}
+              .head_font{style: "border-bottom: 1px solid #DDDDDD;"}
+                = plug_in.title
+              .cb10
+              / Add border-bottom: 1px solid #ddd" style to div after uncommenting button
+              %div{style: "height: 150px;overflow:auto;"}
+                %p
+                  = plug_in.description
+              .cb
+              / %div{style: "margin-top:10px"}
+              /   - if @current_user.plugins.where(id: plug_in.id).empty?
+              /     %div.fr.btn.btn-primary{style: "color: #fff;"}
+              /       = link_to "Add to CRM", "user/add_plug_in/#{plug_in.id}", data:{id: "plug_in_#{plug_in.id}"}, style: "text-decoration: none;color: #fff" 
+              /   - else
+              /     %div.fr.btn.btn-success
+              /       = link_to "Added to CRM", "javascript:void(0)", data:{id: "plug_in_#{plug_in.id}"}, style: "text-decoration: none;color: #fff"
+    - else
+      %div{style: "margin:20px 0; text-align: center; font-size: 20px; color: #D46868"}
+        No Plugins Found

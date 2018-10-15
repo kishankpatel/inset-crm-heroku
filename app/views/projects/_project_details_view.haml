@@ -1,0 +1,165 @@
+- @projects.each do |proj|
+  .each_project_details_view
+    .col-md-3.proj-sec.padlft.padrht
+      .proj-board-div{:id => "project-"+ proj.id.to_s}
+        .fl.triangle-topright-sts{:class => proj.status.downcase.gsub(" ", "_")}
+          = proj.status
+        - if current_user.is_siteadmin? || current_user.is_admin?
+          .fr
+            .dropdown
+              %div{:style=>'cursor:pointer', :rel=>'tooltip', :'data-toggle' => 'dropdown', :class=> 'deal_set dropdown-toggle more-in-ll'}
+              %ul.dropdown-menu{role: "menu", :style => "margin-left:-80px;"}
+                %li{:class=>"arrow_top", :style=>"left: 77px;"}
+                - if !proj.is_completed
+                  %li.dropdown-submenu{style: "position:relative;"}
+                    %a{title: "Mark this project as 'Complete'",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "update_project(#{proj.id},'complete')"}
+                      %span.cwkp-sprite.complete
+                      Complete
+                - else
+                  %li.dropdown-submenu{style: "position:relative;"}             
+                    %a{title: "Re-open this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "update_project(#{proj.id},'reopen')"}
+                      %span.cwkp-sprite.reopen
+                      Re-open
+                %li.divider
+                %li.dropdown-submenu{style: "position:relative;"}
+                  %a{title: "Add new Users to this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "add_project_user('#{proj.id}')"}
+                    %span.filter-cwkp-sprite.filter_created_by
+                    Add Users
+                %li.divider
+                %li.dropdown-submenu{style: "position:relative;"}
+                  %a{title: "Delete this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "archive_project('#{proj.id}')"}
+                    %span.glyphicon.glyphicon-trash
+                    Delete
+        .cb
+        .div-center-align
+          .proj_img.short_nm_proj
+            %h4
+              = proj.short_name
+            = image_tag "new-ui/board_view_icon.png"
+        %h4
+          = link_to project_path(proj), title: proj.name do
+            = truncate(proj.name, :length => 20, :ommission => "...")        
+        .created_by
+          Created by
+          -if proj.created_user.present?
+            - created_by = proj.created_user.full_name.present? ? proj.created_user.full_name : proj.created_user.email 
+            %span{title: created_by}
+              = created_by.truncate(20)
+          %br
+          on
+          = proj.created_at.strftime("%b %d, %Y %H:%M %P")
+        .other-info
+          .other-info-title
+            Last Activity
+          .other-info-desc
+            = proj.updated_at.strftime("%b %d, %Y %H:%M %P")
+        .other-info
+          .other-info-title
+            User(s)
+          #users-count.other-info-desc
+            = proj.project_users.map{|p|p.user}.compact.count
+        .other-info
+          .other-info-title
+            Job(s)
+          .other-info-desc
+            = proj.project_jobs.count
+        .other-info
+          .other-info-title
+            Lead Associated
+          .other-info-desc
+            = proj.individual_contact.present? ? proj.individual_contact.name : "NA"
+        .other-info
+          .other-info-title
+            Opportunity Associated
+          .other-info-desc
+            - if proj.deal.present? 
+              %span{title:proj.deal.title}
+                = truncate(proj.deal.title, :length => 30, :ommission => "...")
+            - else
+              = "NA"
+        .other-info
+          .other-info-title
+            Estimated Hours
+          .other-info-desc
+            =render :partial=>"projects/job_time_stat",:locals=>{project: proj}
+        .cb
+
+            
+    .col-md-9.proj-detail-right-section.padrht
+      .proj-detail-cntr
+        .col-md-6.padrht
+          .inner_box  
+            .inner_header
+              Job Status
+            .inner_cont
+              .chart_by_job_status{:style => "display:inline-block !important;"}
+                = render :partial => "chart_by_job_status", :locals => {:proj => proj}
+        .col-md-6.padrht
+          .inner_box  
+            .inner_header
+              Job Type
+            .inner_cont
+              .chart_by_job_type{:style => "display:inline-block !important;"}
+                =render :partial => "chart_by_job_type", :locals => {:proj => proj}
+        .cb
+
+        .col-md-6.padrht
+          .inner_box
+            .inner_header
+              Users Involved
+            .inner_cont
+              - if proj.project_users.present?
+                - proj.project_users.each do |puser|
+                  - user= puser.associated_user
+                  - if user
+                    - user_name =  user.full_name.present? ? user.full_name : user.email
+                    - color_code = user.get_user_color_code(user_name.downcase[0])
+                    - color_code = color_code.present? ? color_code : "#ddd"
+                    %span.lead-profile-icon.ass_lead{title: user_name, :style => "background:" + color_code}
+                      = user_name.upcase[0]
+        .col-md-6.padrht
+          .inner_box
+            .inner_cont
+              .col-md-6.padlft.padrht{style:"padding-right:8px"}
+                .inner_small_box  
+                  .inner_sub_header  
+                    %h5 Overdue Jobs
+                  .inner_sub_cont.over_due 
+                    .tsk_count
+                      / = overdue_jobs(proj)
+                      = proj.project_jobs.job_list(proj, "overdue").count
+                    .tsk_view
+                      %a{href: "#"} View
+              .col-md-6.padlft.padrht{style:"padding-left:8px"}
+                .inner_small_box  
+                  .inner_sub_header
+                    %h5 Upcoming Jobs
+                  .inner_sub_cont.up_coming
+                    .tsk_count
+                      / = upcoming_jobs(proj)
+                      = proj.project_jobs.job_list(proj, "upcoming").count
+                    .tsk_view
+                      %a{href: "/projects/#{proj.id}/jobs"} View
+              .cb
+        .cb
+        .col-md-6.padrht
+          .inner_box{style:"margin-bottom:0"}
+            .inner_header
+              Time Log
+            .inner_cont
+              .chart_by_time_log{:style => "display:inline-block !important;"}
+                =render :partial => "chart_by_time_log", :locals => {:proj => proj}
+        .col-md-6.padrht
+          .inner_box{style:"margin-bottom:0"}
+            .inner_header
+              Team
+            .inner_cont
+              .team_by_time_log{:style => "display:inline-block !important;"}
+                =render :partial => "team_by_time_log", :locals => {:proj => proj}
+        .cb
+
+    .cb
+
+    .fr
+      %a{href: "/projects/#{proj.id}/jobs", :class=>"view_details_btn"} Explore
+    .cb

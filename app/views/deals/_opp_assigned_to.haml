@@ -1,0 +1,59 @@
+- assign_user_name = @deal.assigned_user.present? ? (@deal.assigned_user.full_name.present? ? @deal.assigned_user.full_name : @deal.assigned_user.email.split("@")[0]) : "NA"
+- if @deal.assigned_user.present?
+  - if @deal.assigned_user.image.present? && @deal.assigned_user.image.image.present?
+    %span.user-profile.fl
+      %span.userImage
+        = image_tag @deal.assigned_user.image.image.url(:thumb), :alt=>"", :title => "#{assign_user_name}", :style => "cursor:pointer;"
+  - elsif (gravtar_img_url = gravatar_url(@deal.assigned_user.email)).present?
+    %span.user-profile.fl
+      %span.userImage
+        = image_tag gravtar_img_url, alt: "", :title => "#{assign_user_name}", :style => "cursor:pointer;"
+  -else
+    %span.assn-pf-icon.fl{title: "#{assign_user_name}", style: "background: #{@deal.assigned_user.get_user_color_code(assign_user_name.downcase[0])}"}
+      = assign_user_name[0].upcase
+
+.cont_top_r.fl.m-t-xs.m-l
+  %span{title: "#{assign_user_name}", style:""}
+    = assign_user_name.truncate(20)
+
+    .btn-group.p0
+      .cont_top_r.dropdown.btn-group.m-l-sm
+        = hidden_field_tag "assigned_user_id", @deal.assigned_to
+        %a.dropdown-toggle.btn.btn-default.btn-xs{"data-toggle" => "dropdown", :type => "button"}
+          Assigned to
+          %span.caret
+        %ul.dropdown-menu
+          %li.arrow_top
+          - @current_organization.active_users.each do |user|  
+            %li
+              - usr_name = user.full_name.present? ? user.full_name : user.email
+              %a.change_assign_usr{:href => "javascript:void(0)", title: usr_name, "data-uid" => user.id, "data-did" => @deal.id} 
+                = usr_name.truncate(15)
+.cb
+
+:javascript
+  $(".change_assign_usr").on('click', function(){
+    var val = $(this).data('uid');
+    var deal_id = $(this).data('did');;
+    if( $("#assigned_user_id").val() != val){
+      $.ajax({
+        type: "POST",
+        url: "/change_assigned_to",
+        data: {id: deal_id, user_id: val},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          $("#assigned_user_id").val(val);
+          $(".opp_assign_action").html(data);
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","The opportunity is now assigned to another person.")
+        },
+        error: function(data) {
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  })

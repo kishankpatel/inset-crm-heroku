@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="container">
+    <div class="row" style="margin-top: 50px">
+      <div class="cb10"></div>
+      <div class="cb10"></div>
+      <div class="col-md-12">
+        <div class="invoice_div" style="background: #eee;clear:both;">
+          <div style="width: 80%;margin: 20px auto;padding: 10px 0;">
+            <div style="margin: 20px 0;border: 1px solid #ddd;">
+              <div class="invoice_container" style="border-top: 7px solid #295b72; background-color: #f2faff;padding: 30px;">
+                <h1 style="margin-top: 0;">
+                  <%= @org %>
+                </h1>
+                <div style="padding: 0 20px; border-right: 3px solid #ddd;float: left;">
+                  <span style="color: #295b72">
+                    INVOICE
+                  </span>
+                  <br/>
+                  <span style="color: #333">
+                    <%= @invoice.invoice_no %>
+                  </span>
+                </div>
+                <div style="padding: 0 20px;float: left;">
+                  <span style="color: #295b72">
+                    BALANCE PAID
+                  </span>
+                  <br/>
+                  <span style="color: #333">
+                    $<%= @invoice.total_amount %>
+                  </span>
+                </div>
+                <div style="clear: both"></div>
+              </div>
+              <div class="invoice_container_bottom" style="padding: 30px;color:#333;background-color: #fff">
+                <div>
+                  <p>
+                    Dear
+                    <% @individual_contact = IndividualContact.find(@invoice.contact_id) %>
+                    <%= @individual_contact.name.present? ? @individual_contact.name : @individual_contact.email %>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    We have received your payment successfully.
+                    <br/>
+                    Thank you for your business - we appreciate it very much
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Sincerely,
+                    <br/>
+                    <%= @org %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

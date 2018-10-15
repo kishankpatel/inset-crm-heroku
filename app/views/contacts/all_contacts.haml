@@ -1,0 +1,16 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/all_contacts"} All Contacts
+          %li.active
+            %span List View
+        /=render :partial=>"filters"
+      %h2.font-light.m-b-xs All Contacts
+.content.ling_mcnt
+  =render partial: "all_contact_slide_listing" 

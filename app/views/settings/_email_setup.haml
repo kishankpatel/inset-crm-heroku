@@ -1,0 +1,169 @@
+.panel-heading.hbuilt
+  %h4
+    Setup your Email
+.panel-body
+  - if @current_user.smtp_config.present?
+    - email_setup_with = @current_user.smtp_config
+    - if email_setup_with == "inset"
+      - email_setup = "WakeUpSales(Default)"
+    - elsif email_setup_with == "other"
+      - email_setup = "Other"
+    - elsif email_setup_with == "google"
+      - email_setup = "Gmail"
+    .email_setup_info  
+      %p 
+        Current email set-up with
+        %b
+          = email_setup
+        %a.reset_email{href:"javascript:void(0)", title:"Reset your email setting"}
+          %span.glyphicon.glyphicon-trash.reset_email_setup
+    - if email_setup_with == "other"
+      - email_config = @current_user.smtp_configuration 
+      .other_email_details  
+        %p
+          %b
+            Name:
+          = email_config.user_name
+        %p
+          %b
+            Email:
+          = email_config.email
+        %p
+          %b
+            Host:
+          = email_config.smtp_host
+        %p
+          %b
+            Port:
+          = email_config.port
+  - else
+    %h4{style: "display:inline-block;"} No email account is setup, please proceed to create one
+    .setup_email_address
+      .set_up_by_email
+        .set_up_email_header
+          %a{href:"/auth/google/"} 
+            %img.gmail_icon{src:"/assets/gmail_logo.png", alt:"Gmail logo"}
+            Gmail
+        .set_up_email_body
+          %p
+            Enables you to send emails from your own address. The 'From' field will show the email you authorize here. 
+        %hr{style:"border-color: #aaa;"}
+        .set_up_email_header
+          %a.set_up_email_other{href:"javascript:void(0)"} 
+            Other
+        .set_up_email_body
+          %p
+            When choosing the 'other' option to connect to a smtp server, ask your email administrator to provide you with the server name, port information. Then, We will verify your email address and enable you to send email.  
+        / .or-divider OR
+      .set_up_by_wus
+        .set_up_email_header
+          %a.email_via_wus{href:"javascript:void(0)"} Default
+        .set_up_email_body
+          %p
+            Lets you send emails from Wakeupsales address. You won't receive emails on this address. 
+        .set_up_by_wus_checkbox_sec.new_form_layout
+          .form-layout-footer
+            .checkbox.checkbox-inline
+              %input#agree_cond{name: "agree", type: "checkbox"}
+              %label{for: "agree_cond"} 
+                %span
+                Please make sure you send your emails to correct & active email ids. Avoid bounce backs to keep using this feature.
+          .set_up_email_footer_sec.fl
+            %a.btn.btn-info.set_up_email_btn{href:"/setup_email_with_wus", disabled:"true"} I Agree
+          .cb
+    .set_up_email_by_smtp.new_form_layout
+      = form_for(SmtpConfiguration.new, :url => "configure_user_smtp", :html=>{:class => "form cmn_new_popup_form"}, :method => :post, remote: true) do |f|
+        %p{style: "margin-bottom:10px"} Enter SMTP details here
+        .row
+          .form-group.col-md-6.padrht
+            .form_fld
+              %label.control-label{:for => "input"} Host
+              =f.text_field :smtp_host, :required => true , placeholder:"Host", :class=>"form-control"
+          .form-group.col-md-6.padlft
+            .form_fld
+              %label.control-label{:for => "input"} Port
+              =f.text_field :port, :required => true, placeholder: "Port", :class=>"form-control", maxlength: "4",:onkeyup=>"return numbersonly(event)",:onkeydown=>"return numbersonly(event)"
+          .cb
+        .row
+          .form-group.col-md-6.padrht
+            .form_fld
+              %label.control-label{:for => "input"} User name
+              =f.text_field :user_name,:class=>"form-control", placeholder:"User name"
+            %div{id:"email_err_usr",class: "error"}
+          .form-group.col-md-6.padlft
+            .form_fld
+              %label.control-label{:for => "input"} Email
+              =f.email_field :email, :required => true, placeholder:"Email",:class=>"form-control"
+          .cb
+        .row
+          .form-group.col-md-6.padrht
+            .form_fld
+              %label.control-label{:for => "input"} Password
+              =f.password_field :password,:class=>"form-control wus_password_field", placeholder:"Password"
+          .cb
+        .form-layout-footer.mt-2
+          =f.submit "Save", :class=>"btn btn-primary smtp_submit_btn", :disable_with => "Please wait ..."
+          %a.back_to_set_email.btn.btn-default{href:"javascript:void(0)"}
+            Back
+:javascript
+  $(".email_via_wus").on('click', function(){
+    $(".set_up_by_wus_checkbox_sec").slideToggle('slow');
+
+  })
+  $("#agree_cond").on('click', function(){
+    if($("#agree_cond").is(":checked")){
+      $(".set_up_email_btn").removeAttr("disabled");
+    }else{
+      $(".set_up_email_btn").attr("disabled", "disabled");
+    }
+  })
+
+  $(".set_up_email_other").on('click', function(){
+    $("#new_smtp_configuration")[0].reset();
+    $(".setup_email_address").slideToggle('slow');
+    $(".set_up_email_by_smtp").show();
+  })
+  $(".back_to_set_email").on('click', function(){
+    $(".setup_email_address").show();
+    $(".set_up_email_by_smtp").hide();
+  })
+
+  $("#new_smtp_configuration").bind('ajax:complete', function( evt, data, status, xhr) {
+    if(data['responseText'] == "choosed_gmail"){
+      show_alert_message("danger", "Seems like you want to setup gmail smtp. Please use gmail authentication.");
+      $(".back_to_set_email").click();
+      $("#new_smtp_configuration")[0].reset();
+    }else
+    if(data['responseText'] == "success"){
+      display_sectionajax('email_setup');
+      show_alert_message("success", "SMTP setting configured successfully.");
+    }else{
+      show_alert_message("danger", "SMTP host and Port didn't matched! Please try again.");
+    }
+  });
+
+  $(".reset_email").on('click', function(){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $.ajax({
+          type: "POST",
+          url: "/settings/reset_email_setting",
+          beforeSend: function(){
+            $('#task_loader,.fixed_loader').show();
+          },
+          success: function(data)
+          {
+            display_sectionajax('email_setup');
+            show_alert_message("success", "Email address reset successfully.");
+          },
+          error: function(data) {
+            show_alert_message("danger", "Oops! Something went wrong.");
+            $('#task_loader,.fixed_loader').hide();
+          },
+          complete: function(data) {
+            $('#task_loader,.fixed_loader').hide();
+          }
+        });
+      }
+    })
+  })

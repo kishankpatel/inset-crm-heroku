@@ -1,0 +1,44 @@
+- @project = @project_job.project
+-content_for :title,@project.name
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/projects"} Projects
+          %li.active
+            %span Job
+      %h2.font-light.m-b-xs 
+        ="# "
+        =@project_job.job_no
+        =":"
+        =@project_job.name
+      .small 
+        Last updated by
+        - if @project_job.last_updated_user.present?  
+          - last_updated_by = @project_job.last_updated_user.full_name.present? ? @project_job.last_updated_user.full_name : @project_job.last_updated_user.email
+        -if last_updated_by.present?
+          %span{:rel => "tooltip", :title => last_updated_by}
+            = last_updated_by.truncate(20)
+        on
+        = @project_job.updated_at.strftime("%b %d, %Y at %H:%M %p")
+        %i.fal.fa-comments{"aria-hidden" => "true",title: "Comments"}
+        = "(#{@project_job.comments.count})"
+      / %strong 
+      /   Project :
+      / %span{:title=>@project_job.project.present? ? @project_job.project.name : ""}
+      /   = @project_job.project.present? ? @project_job.project.name.truncate(25) : "NA"
+    .p-sm.m-t
+      .panel-body
+        .opp_status_bar_sec
+          = render partial: "project_job_status_bar"
+.job_detail_page.ling_mcnt
+  =render :partial=>'project_jobs/project_details'
+=render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @project.id}
+          
+:javascript
+  //var prj_job_id = "#{@project_job.id}";

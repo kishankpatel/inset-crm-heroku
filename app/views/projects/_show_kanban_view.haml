@@ -1,0 +1,79 @@
+.top-kanban-bar.white-sticky-header.fixed-in-app-header{style:"padding-bottom: 7px;margin-left: 0;"}
+  .fl.filter_by_user_pipeline
+    .fl.lead-stage
+      - if @current_user.is_admin?  
+        %label{:for=>"filter_by_project_user"}
+          Project Manager
+        = select_tag "filter_by_project_user", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]} + ['All'], :selected => params[:user_id].present? ? params[:user_id] : 'All'),:class=>"apply_filter filter_user js-source-states width200", :disabled => @current_user.is_user?
+    /.fl.btn-group.btn-toggle{style: "margin-left:15px;"}
+    /  %button.btn.btn-primary.projecttype.active All
+    /  %button.btn.btn-default.projecttype Open
+    .cb
+  .fr
+    
+    = link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');", class: "btn btn-default create_project_temp" do
+      New
+  .cb
+  .fr.actions_pipeline{style:"bottom:0px"}
+    %span 
+      %a{href: projects_path, title: "List View"}    
+        %span.cwkp-sprite.new_list_view_icon
+      %a{href:"/projects/details_view", title: "Detailed View"}
+        %span.cwkp-sprite.new_eye_icon
+      %a{href:"/projects/board_view", title: "Board View"}
+        %span.cwkp-sprite.new_grid_view_icon
+      %span.cwkp-sprite.active_kanban_view_icon
+      
+  .cb
+.kanban_view
+  = render partial: "get_kanban_view"
+
+= render :partial => "tab_settings_kanban"
+:javascript
+  $("#filter_by_project_user").on('change',function(){
+    show_project_kanban_view(false)
+  });
+  $('.btn-toggle').click(function() {
+    $(this).find('.btn').toggleClass('active');
+    if ($(this).find('.btn-primary').size()>0) {
+      $(this).find('.btn').toggleClass('btn-primary');
+    }
+    $(this).find('.btn').toggleClass('btn-default');
+    show_project_kanban_view(false)
+  });
+  $('.projecttype').each(function () {
+    var txt = "#{escape_once(cookies[:open_all_type])}"
+    if(txt == ""){
+      if ($(this).text() == "All") {
+        $(this).removeClass('btn-default').addClass('active btn-primary');
+      }
+    }else{
+      $(this).removeClass('active btn-primary').addClass('btn-default');
+      if ($(this).text() == txt) {
+        $(this).removeClass('btn-default').addClass('active btn-primary');
+      }
+    }
+  });
+  function show_project_kanban_view(show_job_popup){
+    //var s_type = $(".projecttype.active").text();
+    $("#task_loader,.fixed_loader").show();
+    var user_id = $("#filter_by_project_user").val();
+    $.ajax( {
+      type: "GET",
+      url: "/projects/get_kanban_view",
+      data: {user_id: user_id},
+      success: function(result) {
+        $(".kanban_view").html("").html(result);
+        $("#task_loader,.fixed_loader").hide();
+        if(show_job_popup ===true)
+        {
+          $('#projectJobModal').modal('show');
+          fillProjectJobFields(project_id)
+        }
+      },
+      error: function(res) {
+        alert("Some error has been occured.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }

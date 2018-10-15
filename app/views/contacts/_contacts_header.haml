@@ -1,0 +1,20 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/contacts"} Contacts
+          %li.active
+            %span List View
+        /=render :partial=>"filters"
+      %h2.font-light.m-b-xs Contacts
+      .col-md-12.text-center
+        .tasks-tabs
+          /= render :partial => "job_tab_data"
+          .cb 
+      .col-md-12
+        /=render partial: "contacts/filters"

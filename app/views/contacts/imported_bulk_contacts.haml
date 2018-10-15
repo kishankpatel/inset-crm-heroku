@@ -1,0 +1,76 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          / %li
+          /   %a{:href => "/manage_invoice"} Manage Invoice
+          %li.active
+            %span
+              = "Imported Contacts"
+      %h2.font-light.m-b-xs 
+        %i.fal.fa-file-import
+        = "Imported Contacts"
+.content
+  .row
+    .hpanel
+      .panel-body.m-b-none.p-lg
+        - @temp_table = TempTable.where(user_id: current_user.id).paginate(:page => params[:page], :per_page => 10)
+        .col-md-12.table-responsive
+          %table.table.table-striped.table-bordered.table-hover.no-footer.dataTable
+            %thead
+              %tr
+                %th
+                  Name
+                %th 
+                  Email
+                %th 
+                  Phone
+                %th 
+                  Company Name
+                %th 
+                  Web Site
+                %th
+                  Address
+                %th 
+                  Reference Site
+                %th 
+                  Note              
+              %tbody
+                - if @temp_table.present?
+                  - @temp_table.each do |temp_table|
+                    %tr
+                      %td
+                        = temp_table.name
+                      %td
+                        = temp_table.email
+                      %td
+                        = temp_table.phone
+                      %td
+                        = temp_table.company_name
+                      %td
+                        = temp_table.web_site
+                      %td
+                        = temp_table.address
+                      %td
+                        = temp_table.ref_site
+                      %td
+                        = truncate(temp_table.note, :length => 50, :omission => "...")
+                - else
+                  %tr
+                    %td{colspan:"8"}
+                      %p.empty_msg.text-center
+                        No data Available.
+          - if !@temp_table.blank?
+            .col-md-6.pl0
+              .proceed_to_lead.fl
+                %a.btn.btn-info{href: "/proceed_to_bulk_contacts_lead"}
+                  Proceed &raquo
+              .proceed_to_lead.fl.ml10
+                %a.btn.btn-danger{href: "/remove_temp_contacts",:data=>{:method=>"delete",confirm: "Are you sure to remove the Temporary Contacts?"}}
+                  Remove Temporary Contacts
+          .digg_pagination.fr
+            = will_paginate @temp_table, :container => false

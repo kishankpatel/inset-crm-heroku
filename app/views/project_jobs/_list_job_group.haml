@@ -1,0 +1,7 @@
+.groups
+  - @project_job_groups.each do |job_group|
+    .job_group{style: "", id: "job_group_#{job_group.id}"}
+      .fl.job_group_name
+        = job_group.name
+      .fr
+        %span.glyphicon.glyphicon-pencil{value: "#{job_group.id}", data: { toggle: "modal", target: "#editJobGroup", id: job_group.id, :name => job_group.name }}

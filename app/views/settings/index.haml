@@ -1,0 +1,198 @@
+:css
+  #my_alert_msg ul li{list-style-type: none}
+  .con-box1 .reduce-modal-height { min-height: 700px; }
+%script{src: "assets/jquery.tagsinput.min.js"}
+
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/settings"} Settings
+          / %li.active
+          /   %span settings
+        
+      %h2.font-light.m-b-xs Settings
+      .small 
+        =#@project.name
+.content
+  .row.comapny-settings
+    .col-md-2.p0.style_bod.reduce-modal-height
+      .hpanel
+        .panel-body
+          %h2.ul-head Public
+          %ul.h-list.m-t
+            %li.c_acn.active#li_lead_stages
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('lead_stages')"} Lead Stages
+
+            %li.c_acn#li_tasks_type
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('tasks_type')"} Task Type
+            %li.c_acn#li_goals
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('goals')", class: "mygroups"} Goals  
+            / %li.c_acn#li_sns
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('sns')"} SNS Medias
+            %li.c_acn#li_widgets
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('widgets')"} Widgets
+            %li.c_acn#li_project_stages
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('project_stages')"} Project Stages              
+            %li.c_acn#li_job_types
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('job_types')"} Job Types
+            / %li.c_acn#li_job_groups
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('job_groups')"} Job Groups
+            %li.c_acn#li_lost_reasons
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('lost_reasons')"} Lost Reasons  
+            /%li.c_acn#li_project_task_type
+            /  %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('project_task_type')"} Project Task Types
+          
+          %h2.ul-head Personal
+          %ul.h-list.m-t
+            / %li.c_acn#li_profile
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('profile')"} Profile
+
+            / %li.c_acn#li_chart
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('chart')"} Charts
+            - if user_signed_in? && @current_user.is_admin?
+
+              %li.c_acn#li_group
+                %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('group')", class: "mygroups"} User Groups
+            %li.c_acn#li_email_setup
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('email_setup')", class: "email_setup"} Setup Email
+
+          %h2.ul-head Account
+          %ul.h-list.m-t
+            - if current_user.is_admin?  || current_user.is_super_admin?
+              %li.c_acn#li_org
+                %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('org')"} Organization
+              %li.c_acn#li_user_designations
+                %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('user_designations')"} User Designations
+              / %li.c_acn#li_user_hourly_billables
+              /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('user_hourly_billables')"} User Hourly Billable
+              %li.c_acn#li_priority
+                %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('priority')"} Lead Type
+              %li.c_acn#li_default_currency
+                %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('default_currency')"} Default Currency  
+              / %li.c_acn#li_admin
+              /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('admin')"} Admin
+              / %li.c_acn#li_report
+              /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('report')"} Report
+              / %li.c_acn#li_send_weekly_email
+              /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('send_weekly_email')"} Send Weekly Email
+              /%li.c_acn#li_deal
+              /  %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('deal')"} Deal Status
+
+            / %li.c_acn#li_user_label
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('user_label')", class: "mylabels"} Label
+
+
+            / %li.c_acn#li_api_token
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('api_token')"} API Token
+            / %li.c_acn#li_weekly_digest
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('weekly_digest')"} Weekly Digest     
+
+                       
+            %li.c_acn#li_task_outcome
+              %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('task_outcome')"} Task Outcomes
+            / %li.c_acn#li_api_integration
+            /   %a{ href: "javascript:void(0)", :onclick=>"display_sectionajax('api_integration')"} Api Integration
+
+    .col-md-10      
+      .hpanel
+        - if user_signed_in?
+          #lead_stages{:style=>"display:none"}
+            / = render :partial=> "lead_stages"
+          #tasks_type{:style=>"display:none"}
+          #sns{:style=>"display:none"}
+          #widgets{:style=>"display:none"}
+          /#group{:style=>"display:none"}
+          /  = render :partial=> "groups"
+          #project_stages{:style=>"display:none"}
+          #job_types{:style=>"display:none"}
+          #job_groups{:style=>"display:none"}
+          #lost_reasons{:style=>"display:none"}
+          #project_task_type{:style=>"display:none"}
+          #chart{:style=>"display:none"}
+          - if current_user.is_admin?
+            #group{:style=>"display:none"}
+            #org{:style=>"display:none"}
+            #user_designations{:style=>"display:none"}
+            #user_hourly_billables{:style=>"display:none"}
+            #priority{:style=>"display:none"}
+            #task_outcome{:style=>"display:none"}
+            #goals{:style=>"display:none"}
+          #api_integration{:style=>"display:none"}
+          #deal{:style=>"display:none"}
+          #user_label{:style=>"display:none"}
+          #email_notification{:style=>"display:none"}
+          #api_token{:style=>"display:none"}
+          #weekly_digest{:style=>"display:none"}
+          #email_setup{:style=>"display:none"}
+          #default_currency{:style=>"display:none"}
+    .cb
+
+:javascript
+  function display_section(tab){
+   //alert($('.col-md-10').find('.active').html());
+   $('.col-md-10').find('.active').css('display','none');
+   $('.c_acn').removeClass('active');
+   $('#li_'+tab).addClass('active');
+   $('#'+tab).addClass('active').css('display','block');
+  }
+  function display_sectionajax(tab){
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      type: "POST",
+      url: "settings/fetch_pages",
+      data: {tab:tab},
+      success: function(data){ 
+        $('#'+tab).html(data);  
+        display_section(tab);
+        $("#task_loader,.fixed_loader").hide();
+       },
+      error: function(data){
+        alert('got an error');
+      }
+    });  
+  }
+  $(function() { 
+    var hash_url = window.location.hash.substr(1);
+    
+    var settings = window.location.hash.replace("javascript:void(0)","")
+    if(window.location.hash == ""){
+
+      display_sectionajax('lead_stages')
+    }
+    else {
+
+      if(hash_url=="create_group"){
+
+        display_sectionajax('group');
+      }
+      else{
+
+        display_section(settings)
+      }
+    }
+  });
+
+  // function save_feeds_org(){
+  //   var feed = $('#tags_feed_keywords_settings').val();
+  //   $.ajax({
+  //     beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+  //     type: "POST",
+  //     url: "settings/update_feed_keyword_org",
+  //     data: {keywords:feed},
+  //     success: function(data){
+  //       //$('#feed').html(data);
+  //       $(document).trigger("add-alerts", [{'message': "Settings for Feed keywords updated successfully.",'priority': 'info'}]);
+  //     },
+  //     error: function(data){
+  //       alert('got an error');
+  //     }
+  //   });
+  // }
+

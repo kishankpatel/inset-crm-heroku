@@ -1,0 +1,318 @@
+/ :css
+/   .empty_list_container{text-align: center;}
+= hidden_field_tag "hdn_total_users", @users.count
+- if @users.present?
+  - @users.each_with_index do |user,index|
+    -if(index % 4 == 0)
+      .cb
+    .col-lg-3
+      .hpanel.contact-panel{:id => "user-div-"+user.id.to_s, :class => user.is_disabled || !user.is_active || user.is_blocked ? "hred blocked_user" : "hgreen enabled_user"}
+        .panel-body
+          .fr
+            - if user.admin_type.nil?
+              %span.user-role-type.owner-clr.label.label-success.pull-right{:class=> "user_type_#{user.id}"}
+                Not Defined
+            - elsif user.is_super_admin?
+              %span.user-role-type.owner-clr.label.label-primary.pull-right{:class=> "user_type_#{user.id}"}
+                Super Admin
+            - elsif user.is_admin?
+              %span.user-role-type.admin-clr.label.label-info.pull-right{:class=> "user_type_#{user.id}"}
+                Admin
+            - else
+              %span.user-role-type.user-clr.label.label-warning.pull-right{:class=> "user_type_#{user.id}"}
+                User
+              - if user.user_role.present? && user.user_role.role.present?
+                %span{:title=> "Groups"}                    
+                  = user.user_role.role.name
+            %br
+            %span.dropdown.fr
+              %a.dropdown-toggle.active{"data-target" => "#", "data-toggle" => "dropdown", :href => "javascript:void(0);"}
+                %span.fal.fa-ellipsis-v-alt
+                /%i.material-icons 
+              - if user.is_active  
+                %ul.dropdown-menu.dropdown-menu-right.user-actions
+                  - if user.invitation_token.present? && !user.invitation_accepted_at.present?
+                    %li
+                      %a.edit-exist-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "resend_invitation('#{user.id}')"}
+                        %span.fal.fa-user-tie
+                        Resend Invitation
+                    %li
+                      %a.edit-exist-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "delete_invitation_user('#{user.id}')"}
+                        %span.fal.fa-trash
+                        Delete
+                  - else
+                    - if @current_user.is_super_admin? && @current_user != user && !user.is_active  
+                      %li
+                        %a.disable_user{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => @current_organization.is_exceed_limit?('user') ? "show_alert_message('danger','Oops! you have reached your user limit.')" : "enable_disable_user('#{user.id}')"}
+                          %span.fal.fa-user-slash
+                          Enable
+                    - else 
+                      - unless user.is_blocked
+                        %li
+                          %a.icon-assign-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "assign_deal_to_user('#{user.id}')"}
+                            %span.fal.fa-suitcase
+                            Assign Lead
+                        %li
+                          %a.icon-remprj-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "remove_lead('#{user.id}')"}
+                            %span.fal.fa-unlink
+                            Remove Lead
+                      - if user.admin_type.present? && @current_user.id != user.id  && !user.is_super_admin?
+                        %li
+                          %a{"data-usr-id" => "block_#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "block_unblock_user('#{user.id}', '#{user.is_blocked ? "unblock" : "block"}')", id:"block_div_#{user.id}"}
+                            %span.fal.fa-ban
+                            = user.is_blocked ? "Unblock" : "Block"
+                        - unless user.is_blocked
+                          %li
+                            %a{"data-usr-id" => "grant_revoke_#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "grant_revoke_admin('#{user.id}', '#{user.is_admin? ? "revoke" : "grant"}')", :id=>"admin_div_#{user.id}"}
+                              %span.fal.fa-universal-access
+                              = user.is_admin? ? "Revoke Admin" : "Grant Admin"
+                      - if (@current_user.admin_type == 2 && user.admin_type !=1 && user.admin_type !=2) || (@current_user.admin_type == 2 && @current_user.id == user.id) || @current_user.is_super_admin?
+                        - unless user.is_blocked
+                          %li
+                            %a.edit-exist-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "edit_user('#{user.id}')"}
+                              %span.fal.fa-pen-square
+                              Edit Profile
+                    - if @current_user.is_admin?
+                      %li
+                        - encrypt_user = AESCrypt.encrypt(user.id, "userid").gsub("/","-").strip.strip
+                        %a.edit-exist-usr{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"/profile/#{encrypt_user}", :target => "_blank"}
+                          %span.fal.fa-eye
+                          View Profile
+                      - if @current_user.is_super_admin? && @current_user != user
+                        %li
+                          %a.disable_user{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "enable_disable_user('#{user.id}')"}
+                            %span.fal.fa-microphone-alt-slash{:class => user.is_disabled ? "enabled" : "disabled"}
+                            = user.is_disabled ? "Enable" : "Disable"
+              - else
+                %ul.dropdown-menu.right0.user-actions
+                  %li
+                    %a.disable_user{"data-usr-id" => "#{user.id}", "data-usr-name" => "#{user.full_name}", :href=>"javascript:void(0)", :onclick => "enable_disable_user('#{user.id}')"}
+                      %span.fal.fa-microphone-alt-slash{:class => user.is_disabled ? "enabled" : "disabled"}
+                      = user.is_disabled ? "Enable" : "Disable"
+            %br
+            
+          .fl
+            - if user.first_name.present?
+              - char_name = user.first_name
+            - else
+              - char_name = user.email
+            .user_img.img-circle.m-b{:style => "background: #{user.get_user_color_code(char_name.downcase[0])} !important"}
+              - if user.image.present?
+                = image_tag user.image.image.url(:thumb),:class=>"img-circle m-b",:onError=>"this.src='/assets/new-ui/user.png'; this.onerror=null;"
+              - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                = image_tag gravtar_img_url, alt: "",:class=>"img-circle m-b",:onError=>"this.src='/assets/new-ui/user.png'; this.onerror=null;"
+              - else
+                %span.name_txt
+                  = char_name[0]
+          .cb
+          %h3
+            %a{:href => ""} 
+              = user.full_name.present? ? user.full_name : user.email.split("@")[0] 
+          %small
+            =user.email
+          .text-muted.font-bold.m-b-xs 
+            = char_name[0,3].upcase
+          - if user.user_designation.present?
+            .label.label-info
+              = user.user_designation.name
+          %p
+            .user_bottom_info 
+              .fl.user_added_on
+                Added on: 
+                = user.created_at.strftime("%b %d, %Y")
+              - if user.is_disabled
+                %span.blocked_lable.fl.btn.btn-xs.btn-danger
+                  Disabled
+              - elsif user.invitation_token.present? && !user.invitation_accepted_at.present?
+                .fl.invitation_sent_label.btn.btn-xs.btn-outline.btn-primary
+                  = "Invitation Sent"
+                - if user.is_email_bounce
+                  .fl
+                    %i.fal.fa-exclamation-triangle.tooltip{"aria-hidden" => "true", title:"This email id seems to be invalid & couldn't be reached. Please try another one & delete this.", style:"margin-top: 4px;color: #c32929;"}
+              .fl{:class=>"user_block_#{user.id}"}  
+                - if user.is_blocked
+                  %span.blocked_lable.btn.btn-xs.btn-outline.btn-danger
+                    Blocked
+              - if @current_user.is_siteadmin?
+                .fl.user_added_on{style:"margin-bottom:10px"}
+                  - if user.last_sign_in_at.present?   
+                    Last login at: 
+                    = user.last_sign_in_at.strftime("%b %d, %Y %H:%M %p")
+                    %br
+                  - if user.sign_in_count.present?  
+                    Login count:
+                    = user.sign_in_count
+              
+        .panel-footer.contact-footer
+          .row.lead-task-blk
+            .col-md-4.border-right
+              .leads-tasks-count.contact-stat
+                %span Leads
+                %strong
+                  = user.all_assigned_deal.where("is_won IS NULL and is_active=?",true).count
+            .col-md-4
+              .leads-tasks-count.contact-stat
+                %span Tasks
+                %strong
+                  = user.all_tasks_assigned.where("is_completed=?",false).count
+            .col-md-4
+              .leads-tasks-count.contact-stat
+                %span Activities
+                %strong
+                  = user.activities.count
+- else
+  - if params[:type] == "admin"
+    .empty_list_container{style: "margin-top:5%;"}
+      %img{src:"/assets/new-ui/Admin_Bo_Msg.png"}
+      %br
+      =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+        %span.pls + 
+        Invite to your team
+  - elsif params[:type] == "user"
+    .empty_list_container{style: "margin-top:5%;"}
+      %img{src:"/assets/new-ui/Users_Bo_Msg.png"}
+      %br
+      =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+        %span.pls + 
+        Invite to your team
+  - elsif params[:type] == "blocked"
+    .empty_list_container{style: "margin-top:5%;"}
+      %img{src:"/assets/new-ui/Block_Bo_Msg.png"}
+  - elsif params[:type] == "invite_sent"
+    .empty_list_container{style: "margin-top:5%;"}
+      %img{src:"/assets/new-ui/Invite_Send_Bo_Msg.png"}
+      %br
+      =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+        %span.pls + 
+        Invite a person
+  - elsif params[:type] == "disabled"
+    .empty_list_container{style: "margin-top:5%;"}
+      %img{src:"/assets/new-ui/disable_welcome_Bo_Msg.png"}
+/ .proj_grid.m-cmn-flow
+/   .user_div_bk.usrs_page.m-list-tbl{style: "padding-right: 15px;"}
+/     = hidden_field_tag "hdn_total_users", @users.count
+/     - if @users.present?
+/       - @users.each do |user|
+/         .col-md-4.padrht
+/           .usr_mcnt.cmn_bdr_shadow{:id => "user-div-"+user.id.to_s, :class => user.is_disabled || !user.is_active || user.is_blocked ? "" : "enabled_user"}
+/             %div{:class => user.is_disabled || !user.is_active || user.is_blocked ? "disabled_div" : "", :id => "block_disabled_"+user.id.to_s}
+/             .usr_top_cnt
+/               .usr_act_det.fr
+                
+
+/               .user-pfimg-name
+/                 %ul
+/                   %li
+/                     - if user.first_name.present?
+/                       - char_name = user.first_name
+/                     - else
+/                       - char_name = user.email
+/                     .user_img{:style => "background: #{user.get_user_color_code(char_name.downcase[0])} !important"}
+/                       - if user.image.present?
+/                         = image_tag user.image.image.url(:thumb)
+/                       - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+/                         = image_tag gravtar_img_url, alt: ""
+/                       - else
+/                         %span.name_txt
+/                           = char_name[0]
+/                     %h3#pn_11.invite_user_cls
+/                       = user.full_name.present? ? user.full_name : user.email.split("@")[0] 
+/                     .email-txt
+/                       = user.email
+/                     %span#psn_11
+/                       = char_name[0,3].upcase
+/                     |
+/                     - if user.admin_type.nil?
+/                       %span.user-role-type.owner-clr{:class=> "user_type_#{user.id}"}
+/                         Not Defined
+/                     - elsif user.is_super_admin?
+/                       %span.user-role-type.owner-clr{:class=> "user_type_#{user.id}"}
+/                         Super Admin
+/                     - elsif user.is_admin?
+/                       %span.user-role-type.admin-clr{:class=> "user_type_#{user.id}"}
+/                         Admin
+/                     - else
+/                       %span.user-role-type.user-clr{:class=> "user_type_#{user.id}"}
+/                         User
+/                       - if user.user_role.present? && user.user_role.role.present?
+/                         |
+/                         %span{:title=> "Groups"}                    
+/                           = user.user_role.role.name
+/             .usr_cnts
+/               %ul
+/                 /%li
+/                 /  %b Created:
+/                 /  = user.created_at.strftime("%b %d, %Y %H:%M:%S")
+/                 /%li
+/                 /  %b Leads:
+/                 /  = user.all_assigned_deal.present? ? user.all_assigned_deal.map{|column| column.title}.map(&:inspect).join(",").gsub('"','').truncate(30, omission: '...') : "NA"
+/                 %li
+/                   .lead-task-blk
+/                     .col-md-4
+/                       .leads-tasks-count
+/                         %strong Leads
+/                         = user.all_assigned_deal.where("is_won IS NULL and is_active=?",true).count
+/                     .col-md-4
+/                       .leads-tasks-count
+/                         %strong Tasks
+/                         = user.all_tasks_assigned.where("is_completed=?",false).count
+/                     .col-md-4
+/                       .leads-tasks-count
+/                         %strong Activities
+/                         = user.activities.count
+/                     .cb
+/             .user_bottom_info  
+/               - if user.is_disabled
+/                 %span.blocked_lable.fl
+/                   Disabled
+/               - elsif user.invitation_token.present? && !user.invitation_accepted_at.present?
+/                 .fl.invitation_sent_label
+/                   = "Invitation Sent"
+/                 - if user.is_email_bounce
+/                   .fl
+/                     %i.fa.fa-exclamation-triangle.tooltip{"aria-hidden" => "true", title:"This email id seems to be invalid & couldn't be reached. Please try another one & delete this.", style:"margin-top: 4px;color: #c32929;"}
+/               .fl{:class=>"user_block_#{user.id}"}  
+/                 - if user.is_blocked
+/                   %span.blocked_lable
+/                     Blocked
+/               - if @current_user.is_siteadmin?
+/                 .fl.user_added_on{style:"margin-bottom:10px"}
+/                   - if user.last_sign_in_at.present?   
+/                     Last login at: 
+/                     = user.last_sign_in_at.strftime("%b %d, %Y %H:%M %p")
+/                     %br
+/                   - if user.sign_in_count.present?  
+/                     Login count:
+/                     = user.sign_in_count
+/               .fr.user_added_on
+/                 Added on: 
+/                 = user.created_at.strftime("%b %d, %Y")
+/               .cb
+/     - else
+/       - if params[:type] == "admin"
+/         .empty_list_container{style: "margin-top:5%;"}
+/           %img{src:"/assets/new-ui/Admin_Bo_Msg.png"}
+/           %br
+/           =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+/             %span.pls + 
+/             Invite to your team
+/       - elsif params[:type] == "user"
+/         .empty_list_container{style: "margin-top:5%;"}
+/           %img{src:"/assets/new-ui/Users_Bo_Msg.png"}
+/           %br
+/           =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+/             %span.pls + 
+/             Invite to your team
+/       - elsif params[:type] == "blocked"
+/         .empty_list_container{style: "margin-top:5%;"}
+/           %img{src:"/assets/new-ui/Block_Bo_Msg.png"}
+/       - elsif params[:type] == "invite_sent"
+/         .empty_list_container{style: "margin-top:5%;"}
+/           %img{src:"/assets/new-ui/Invite_Send_Bo_Msg.png"}
+/           %br
+/           =link_to "#inviteuserModal", "data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+/             %span.pls + 
+/             Invite a person
+/       - elsif params[:type] == "disabled"
+/         .empty_list_container{style: "margin-top:5%;"}
+/           %img{src:"/assets/new-ui/disable_welcome_Bo_Msg.png"}

@@ -1,0 +1,219 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  } 
+.panel-heading.hbuilt
+  %h4.fl Define your sales pipeline
+  %a#addnewlabel.easyui-linkbutton.fr{href: '#leadStageModal', 'data-toggle' => 'modal', onclick: '$("#lead_error").hide();cleanstage()'}
+    %button.btn.btn-primary.btn-success.pad2{type: 'button'}
+      %span.glyphicon.glyphicon-plus-sign
+      New Stage
+  .cb
+.panel-body
+  .stage-instruction
+    %h5 Note:
+    %p Here you can customize the lead stages for your company. Just click "New Lead Stage" to add additional steps, or click on the current stage names to edit or delete them.
+    %p Please bear in mind the following:
+    %ul
+      %li Lead stages are shared with all users throughout your company.
+      %li You can re-order the stages on this page by dragging them.
+      %li Do not use "won" or "lost" as stages. You already can mark deals won or lost regardless of the stage they are in.
+  .table-responsive.mtop10
+    #lead-stage-content
+      %table.table
+        %tbody
+          / %tr
+          /   %td{style: 'border-top: none !important'}
+          /     Click and drag to rearrange the sequence.
+          %tr
+            %td{style: "border-top: none !important;"}
+
+              / ......Make sortable to the status............
+              #sortable_stage
+                = render :partial => "sort_lead_status"
+/ ................Modals.......................
+#leadStageModal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Lead Stage
+      .modal-body
+        = form_for(DealStatus.new, :url => '', :html=>{:class => 'form', onsubmit: 'addLeadStage(this); return false;'}) do |f|
+          .row#lead_error
+            .form-group.col-md-12
+              %p.text-danger Failed to add Lead Stage. Please try again.
+          .row
+            .form-group.col-md-8
+              %label.control-label{:for => "input"} Lead Stage Name*
+              %i.bar
+              =f.text_field :name, :required => true, :maxlength=> '50', :style=> 'height:41px; resize: none;'
+            / .form-group.col-md-8
+            /  =f.text_field :color, :id => '', :class=> 'col-md-12 form-control deal-color', :style=> 'height:41px; resize: none;', :placeholder => 'Select Deal Color'
+            /.form-group.col-md-10
+            /  .col-md-4.modal-checkbox
+            /    = f.check_box :is_visible, checked: true, title: 'Checked to view in Leads page'
+            /    %label{for: "deal_status_is_visible"}
+            /      %span
+            /      = 'is visible'
+            /   
+            /  .col-md-6.modal-checkbox
+            /    = f.check_box :is_funnel_view, checked: true, title: 'Checked to view in Leads Funnel View'
+            /    %label{for: "deal_status_is_funnel_view"}
+            /      %span
+            /      = 'is funnel view'
+          .form-group
+            %button.btn.btn-success{type: 'submit',data: {:disable_with => "Please wait..."}, id: 'deal_submit_btn', class: 'add_submit_btn'} Save
+            %a.btn.btn-default{style: 'top:0px ', href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'}
+              %span.c_links
+                Cancel
+
+/ ...................Modal for Edit status................
+#editStageModal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal', onclick: "$('#edit_error').hide();"} &times;
+        %h4.modal-title Edit Lead Stage
+      .modal-body
+        = form_for(DealStatus.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateLeadStage(this); return false;'}) do |f|
+          = f.hidden_field 'id'
+          #edit_error{style:"display:none;"}
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Lead Status Name*
+              %i.bar
+              =f.text_field :name, id: 'txt-edit-stage', :maxlength=> '50', :class=> 'form-control', :required => true
+            / .form-group.col-md-8
+            /   =f.text_field :color, :id => 'txt-deal-color', :class=> 'col-md-12 form-control deal-color', :style=> 'height:41px; resize: none;', :placeholder => 'Select Deal Color'
+            /.form-group.col-md-10
+            /  .col-md-4.modal-checkbox
+            /    = f.check_box :is_visible,id: 'is_showable', title: 'Checked to view in Leads page'
+            /    %label{for: "is_showable"}
+            /      %span
+            /      = 'is visible'
+            /  .col-md-6.modal-checkbox
+            /    = f.check_box :is_funnel_view,id: 'is_funnel', title: 'Checked to view in Leads Funnel View'
+            /    %label{for: "is_funnel"}
+            /     %span
+            /      = 'is funnel view'
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'deal_submit_btn', class: "edit_submit_btn"} Update
+              %a.btn.btn-default{href:'javascript:', :onclick => "$('#edit_error').hide();", 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+:javascript
+  $(function() {
+    $(".deal-color").minicolors({theme: 'bootstrap'});
+  });
+  var dualListBox = $('.dual_list_box').bootstrapDualListbox({
+    nonSelectedListLabel: 'Available Lead Stages',
+    selectedListLabel: 'Selected Lead Stages',
+    preserveSelectionOnMove: 'moved',
+    moveOnSelect: false,
+  });
+  function cleanstage()
+  {
+  $("#deal_status_name").val('')
+  }
+  function submitData() {
+    var selectedStages = $('[name="lead_stages[]"]').val()
+    if (selectedStages == null || selectedStages == undefined || selectedStages == "") {
+      $("#error_content").show();
+      return false;
+    }
+    else {
+      $("#error_content").hide();
+    }
+
+    $.ajax({
+      url: 'settings/update_lead_stages',
+      type: 'POST',
+      data: {stages: selectedStages},
+      success: function(res) {
+        show_alert_message('success',"Settings for lead stages updated successfully.");
+      },
+      error: function(res) {
+        show_alert_message("warning", "Failed to update settings for lead stages.");
+      }
+    });
+  }
+  function addLeadStage(formObject) {
+    var color = $(formObject).find(".deal-color").val();
+    var leadStage = $("#deal_status_name").val();
+    if($("#deal_status_is_visible").prop("checked") == true){
+      is_visible = "true";
+    }
+    else{
+      is_visible = "false";
+
+    }
+    if($("#deal_status_is_funnel_view").prop("checked") == true){
+      is_funnel_view = "true";
+    }
+    else{
+      is_funnel_view = "false";
+
+    }
+    $.ajax({
+      url: 'settings/add_lead_stage',
+      type: 'POST',
+      data: {name: leadStage, is_visible: is_visible, color: color, is_funnel_view: is_funnel_view},
+      success: function(res) {
+        $("#leadStageModal").modal('hide');
+        $('#leadStageModal').on('hidden.bs.modal', function () {
+          $('#lead_stages').html('').html(res);
+          show_alert_message("success", "Wow! You've added a new Lead Stage. Let's keep going.")
+        })
+      },
+      error: function(res) {
+        $("#lead_error").show();
+        $(".add_submit_btn").removeAttr("disabled").text("Save");
+        if(res.responseText == "not_allowed"){
+          $(".text-danger").html("You can not add 'Won' or 'Lost' as a lead stages.");
+        }
+        if(res.responseText == "stage_exists"){
+          $(".text-danger").html("Stage name already exists. Please enter different name.");
+        }
+      }
+    });
+  }
+
+
+  function editLeadStage(val){
+    var leadStatus_id = $(val).data("id");
+    $.ajax({
+      url: '/edit_status',
+      type: 'PATCH',
+      data: {id: leadStatus_id},
+      success: function(res) {
+        $('.edit-modal-body').html('').html(res);
+      },
+      error: function(res) {
+        $("#lead_error").show();
+      }
+    });
+  }
+
+  function deleteLeadStage(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_stage/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#sortable").find("#btn_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success", "Lead stage deleted successfully.")
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  }

@@ -1,0 +1,64 @@
+#view_content.lead-page.custom-kls
+=hidden_field_tag :show_lead_details,(params[:page_source].present? && params[:page_source] == 'project') ? false : true
+.table-responsive
+  / %table.table.table-striped.table-bordered.table-hover.no-footer.ajax-project-job-listing.dataTable{:id=>"projectJobDataTable", "data-source"=>project_project_jobs_url(project,format: 'json',params: {cuser: current_user.id, by_group_name: params[:by_group_name], asg_to: cookies[:asg_to_val], job_type: cookies[:job_type_val], job_status: params[:job_status], assigned_to: params[:assigned_to], created_by: params[:created_by], cre_by: cookies[:cre_by], cre_by_val: cookies[:cre_by_val], asg_by: cookies[:asg_by], asg_by_val: cookies[:asg_by_val], proj: cookies[:proj], proj_val: cookies[:proj_val], daterange: cookies[:daterange], dt_range: cookies[:dt_range],last_touch: cookies[:last_touch],last_tch: cookies[:last_tch], status: cookies[:status], status_val: cookies[:status_val], label_type: cookies[:label_type], user_label: cookies[:user_label], user_label_val: cookies[:user_label_val],priority: cookies[:priority], priority_val: cookies[:priority_val],status: cookies[:status], status_val: params[:status_val],proj_stage: params[:proj_stage],  proj_stage_val: params[:proj_stage_val],page_tab: cookies[:page_tab],page_source: params[:page_source]})}
+  %table.table.table-striped.table-bordered.table-hover.no-footer.ajax-project-job-listing.dataTable{:id=>"projectJobDataTable", "data-source"=>project_project_jobs_url(project,format: 'json',params: {cuser: current_user.id, by_group_name: params[:by_group_name], asg_to: params[:asg_to_val], job_type: params[:job_type_val], job_status: params[:job_status], assigned_to: params[:assigned_to], created_by: params[:created_by], cre_by: params[:cre_by], cre_by_val: params[:cre_by_val], asg_by: params[:asg_by], asg_by_val: params[:asg_by_val], proj: params[:proj], proj_val: params[:proj_val], daterange: params[:daterange], dt_range: params[:dt_range],last_touch: params[:last_touch],last_tch: params[:last_tch], status: params[:status], status_val: params[:status_val], label_type: params[:label_type], user_label: params[:user_label], user_label_val: params[:user_label_val],priority: params[:priority], priority_val: params[:priority_val],status: params[:status], status_val: params[:status_val],proj_stage: params[:proj_stage],  proj_stage_val: params[:proj_stage_val],page_tab: params[:page_tab],page_source: params[:page_source]})}
+    %thead
+      %tr
+        %th #Sl.
+        %th
+          %div.checkbox.checkbox-inline
+            %input{type:"checkbox", id:"select_all_jobs"}
+            %label{:for => "select_all_jobs"}
+          .dropdown
+            %a.dropdown-toggle{:id=> "jobListingDropdown",:href=>"javascript:","data-toggle" => "dropdown"}
+              %small.text-muted
+                %b.caret
+            %ul.dropdown-menu.animated.flipInX.m-t-xs{:id=> "ProjectListing_sub_menu"}
+              %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Resolve Selected jobs", onclick:"$('#confirmJobResolve').modal('show');"}
+              %span
+                Complete
+
+              %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Close Selected jobs", onclick:"$('#confirmJobClose').modal('show');"}
+                %span.glyphicon.glyphicon-trash
+                  Close
+          / .dropdown#project_label_menu
+          /   %input{type:"checkbox", id:"select_all", style:"display: inline-block;vertical-align: middle;margin-top: 1px;margin-right: 2px;"}
+          /   %a.dropdown-toggle{:id=> "jobListingDropdown",:href=>"javascript:","data-toggle" => "", :style=> "display: inline-block;cursor:default;text-decoration:none;text-align:left;"}
+          /     .label_arrow{:id=> "jobtListingLabel", style:"text-align:center;"}
+          /       %span.icon-chevron-down{:style => "cursor:pointer;"}
+          /         =image_tag("drop-down-arrow.png")
+          /   %ul.dropdown-menu.custom-menu.fl.show-drop-down.project-custom-drop{:id=> "jobListing_sub_menu", :style=>"right:auto;left:16px;min-width:110px"}
+          /     %li.arrow_top{style: "left:7px;z-index:99"}
+          /     %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Resolve Selected jobs", onclick:"$('#confirmJobResolve').modal('show');",:style=>"padding:2px 5px 2px 10px;cursor:pointer;text-align:left;"}
+          /       %span.cwkp-sprite.reopen
+          /       Resolve
+          /     %li.divider
+          /     %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Close Selected jobs", onclick:"$('#confirmJobClose').modal('show');",:style=>"padding:2px 5px 2px 10px;cursor:pointer;text-align:left;"}
+          /       %span.cwkp-sprite.close_filter_icon
+          /       Close
+        %th Job Title / Name
+        / -if !(params[:page_source].present? && params[:page_source] == 'project')
+        %th Opportunity     
+        %th Project Stage         
+        / -else
+        /   %th{style:"display:none"}
+        /   %th{style:"display:none"}
+        %th Assigned to
+        %th Priority
+        %th Updated
+        %th Status
+        %th Due Date
+    %tbody
+:javascript
+  showLoader();
+  $('#task_loader,.fixed_loader').show();
+  "use strict";
+  $(function() {  
+    if((r_ctrl == 'projects' && r_act == 'show') || (r_ctrl == 'project_jobs' && r_act == 'index'))
+    {
+      fillProjectJobsListing()
+    }
+  });
+
+  

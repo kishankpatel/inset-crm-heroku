@@ -1,0 +1,719 @@
+:css
+  .dropdown-menu{
+    min-width:95px;
+  }
+.white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 33px;"}
+  %span{style: "margin-top:5px"}  
+    %span.navigation_sec
+      %a{href: "/projects"}
+        Projects
+      ="/" 
+    %span.curr_page_name
+      Board View
+  .navbar-right
+    .btn-group{style:"top: -7px;"}
+      .dropdown-toggle.f_menu{"data-toggle" => "dropdown", type: "button",onclick: "reser_all_submenu();", :style => "cursor:pointer;margin-top:-13px;box-shadow:none;"}
+        %span.cwkp-sprite.filter{:title => "Filter"}
+      %ul.dropdown-menu.main_menu{role: "menu", style: "top: 10px;right:0px;"}
+        %li.arrow_top{style: "left:72%;z-index:99"}
+        %li.dropdown-submenu{:style => "position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('created');"} Created By
+          #cr.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 104px;"}
+            .arrow_left.lead_arrow.cre_arw{style: "display:none;left: -12px;"}
+            %ul#cre_by_app.dropdown-menu{style: "height:198px;overflow-y:scroll;overflow-x:hidden;display:inline-block;"}
+              - all_org_users.each do |cre_by|
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{cre_by.id},'created')",class: "filterSelectDropdow"}
+                    %input{id:"cre_by_#{cre_by.id}", class: "cre_by_c",type: "checkbox", value: "#{cre_by.id}",c_name: "#{cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split('@')[0]}",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "created_by"}
+                      - cre_usr = cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split("@")[0]
+                      %span{title:cre_usr}
+                        = cre_usr.truncate(13)
+                %li.divider
+        %li.divider
+        / %li.dropdown-submenu{:style => "position: relative;"}
+        /   %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('assigned');"} Assigned To
+        /   #asg.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+        /     .arrow_left.lead_arrow.asg_arw{style: "display:none;right:3px;"}
+        /     %ul.dropdown-menu{style: "height:198px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left: -15px;"}
+        /       - select_all_org_users.each do |assg_by|
+        /         %li
+        /           - assg_by.is_active == false ? sty = "background-color:#f0f0f0;" : sty = ""
+        /           %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{assg_by.id},'assigned')",class: "filterSelectDropdow", style:sty}
+        /             %input{id:"assg_by_#{assg_by.id}", class: "asg_by_c",type: "checkbox", value: "#{assg_by.id}",a_name: "#{assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split('@')[0]}",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "assg_by"}
+        /               - assn_by = assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split("@")[0]
+        /               %span{title:assn_by}
+        /                 = assn_by.truncate(13)
+        /         %li.divider
+        / %li.divider
+        %li.dropdown-submenu{:style => "position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('lead');"} Opportunity
+          #lead.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 87px;"}
+            .arrow_left.lead_arrow.lead_arw{style: "display:none;right:3px;"}
+            %ul.dropdown-menu{style: "height:198px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left: -15px;"}
+              - @current_organization.deals.each do |lead|
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{lead.id},'lead')",class: "filterSelectDropdow",title: "#{lead.title}"}
+                    %input{id:"lead_#{lead.id}", class: "lead",type: "checkbox", value: "#{lead.id}",a_name: "#{lead.title}",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "lead"}
+                      =truncate(lead.title, :length => 13, :ommission => "..")
+                %li.divider
+        %li.divider
+        %li.dropdown-submenu{onclick: "display_hide_submenu('anytime');", :style=>"position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Anytime
+          #any.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 87px;"}
+            .arrow_left.lead_arrow.any_arw{style: "display:none;right:3px;"}
+            %ul.dropdown-menu{style: "display:inline-block;position:relative;left: -15px;"}
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_week','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_week", class: "any_time",type: "radio", value: "Past Week",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Past Week
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_two_weeks','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_two_weeks", class: "any_time",type: "radio", value: "Past Two Weeks",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Past Two Weeks
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_three_weeks','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_three_weeks", class: "any_time",type: "radio", value: "Past Three Weeks",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Past Three Weeks
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_month','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_month", class: "any_time",type: "radio", value: "Past Month",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Past Month
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_year','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_year", class: "any_time",type: "radio", value: "Past Year",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Past Year
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('cu_date','any')",class: "filterSelectDropdow"} 
+                  %input{id:"cu_date", class: "any_time",type: "radio", value: "Custom Date",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "anytime"}
+                  Custom Date
+              %li#custom_date{style: "display:none;margin:4px;"}
+                =text_field_tag "project_from","",value: "",class: "form-control typeahead",placeholder: "From"
+                .cb10
+                =text_field_tag "project_to","",value: "",class: "form-control typeahead",placeholder: "To"
+                .cb10
+                %button.btn.btn-primary{class: "filterSelectDropdow",type: "button",rel: "tooltip", title: "Filter" } 
+                  Search
+
+        %li.divider
+    %a{href: projects_path, title: "List View"}    
+      %span.cwkp-sprite.new_list_view_icon
+    %a{href: details_view_projects_path, title: "Detailed View"}  
+      %span.cwkp-sprite.new_eye_icon
+    %span.cwkp-sprite.active_grid_view_icon{title: "Board View"}
+    %a{href:"/projects/kanban", title: "Kanban View"}
+      %span.cwkp-sprite.new_kanban_view_icon
+  .cb
+%ul.tag_filter{style: "margin-left:0px;text-align:center;display:none;"}
+  %li#show_filter_dealmsg
+  %li.created_by_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#created_by_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('created_by','cre_by_c');"} x
+  %li.assigned_to_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#assigned_to_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('assigned_to','asg_by_c');"} x
+  %li.lead_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#lead_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('lead','lead');"} x
+  %li.date_range_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#from_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date_range','any_time');"} x
+  %li.date_tag.com_cls{style: "display: none;"}
+    .tag_dd
+      %span#date_tag_txt
+      %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date','any_time');"} x          
+  %li.reset_tag.com_cls
+    %div
+      %a{href: "javascript:void(0);", onclick: "reset_all_filter();reset_filter_val();", class: "btn btn-xs btn-warning"} RESET
+  =hidden_field_tag "filter_get_val","0"
+  =hidden_field_tag 'hdndeals', 'mydeals'
+  =hidden_field_tag 'lead'
+.project_board_view_page.show_projects
+  / = render partial: "project_board_view"
+/= render partial: "cta_buttons"
+/ .crt_btn_btm
+/   .ws_plus
+/     .c_ttip
+/       %span.label.label-default Create Project
+/     =link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');", class: "create_project_temp" do
+/       =image_tag "new-ui/project-Icon.png", class:"c_icn"
+/       =image_tag "new-ui/plus.png", class:"add_icn"
+= hidden_field_tag "hdn_add_users"
+= hidden_field_tag "hdn_remove_users"
+=render :partial=>'add_user_modal'
+/ #addUserModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "assignLeadModal", role: "dialog", tabindex: "-1"}
+/   .modal-dialog.new_form_layout{:style => "width: 1050px;"}
+/     .modal-content
+/       .modal-header
+/         %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+/         %span.cwkp-sprite.assign_lead_logo
+/         %h4.modal-title{style:"margin-left:5px;display:inline-block;"} ADD USERS
+/       .modal-body
+/         #add_user_content
+:javascript
+  $(".btn.btn-xs.btn-warning").click();
+  // function update_project(id,type){
+  //   if(confirm("Are you sure?")){
+  //     $.ajax({
+  //       type: "PUT",
+  //       url: "complete_project",
+  //       data: {id:id, type:type},
+  //       success: function(data){         
+  //         $('.dropdown-toggle').removeAttr("onclick");
+  //         if(type=='reopen'){
+  //           $("#project-"+id).find(".triangle-topright-sts").removeClass("completed started").addClass("re-opened").html("<span style ='font-size:11px;'>Re-opened</span>");
+  //           $("#project-"+id).find("ul li:nth-child(2)").html("<a title='Complete project' style='cursor: pointer;' onclick='update_project("+ id +",\"complete\")' href='javascript:void(0)'>Complete</a>");
+  //         }else{
+  //           $("#project-"+id).find(".triangle-topright-sts").removeClass("started re-opened").addClass("completed").html("<span style ='font-size:11px;'>Completed</span>");
+            
+  //           $("#project-"+id).find("ul li:nth-child(2)").html("<a title='Re-opened project' style='cursor: pointer;' onclick='update_project("+ id +",\"reopen\")' href='javascript:void(0)'>Re-opened</a>");
+  //         }
+  //         //$("#project-"+id).find(".dropdown").hide();
+  //       },
+  //       error: function(data){
+  //         alert('got an error');
+  //       }
+  //     });
+  //   }
+  // }
+
+  // function archive_project(id){
+  //   if(confirm("Are you sure?")){
+  //     $.ajax({
+  //       type: "PUT",
+  //       url: "#{archive_project_projects_path}",
+  //       data: {id:id},
+  //       beforeSend: function(){
+  //         $('#task_loader,.fixed_loader').show();
+  //       },
+  //       success: function(data){
+  //         window.location.reload();
+  //       },
+  //       error: function(data){
+  //         alert('got an error');
+  //       }
+  //     });
+  //   }
+  // }
+
+  // function add_project_user(id){
+  //   $.ajax({
+  //     type: "POST",
+  //     url: "/add_project_user",
+  //     dataType: 'json',
+  //     async: false,
+  //     data: {id: id},
+  //     beforeSend: function(){
+  //       $("#task_loader").show();
+  //     },
+  //     success: function(data)
+  //     {
+  //     },
+  //     error: function(data) {
+  //       $("#task_loader").hide();
+  //     },
+  //     complete: function(data) {
+  //       $("#addUserModal").modal("show");
+  //       $("#add_user_content").html(data.responseText);
+  //       $("#task_loader").hide();
+  //     }
+  //   });
+  // }
+
+  // function  update_project_users(id){
+  //   var add_users = $('#hdn_add_users').val();
+  //   var remove_users = $('#hdn_remove_users').val();
+  //   $.ajax({
+  //     type: "POST",
+  //     url: "/update_project_users",
+  //     data: {remove_user_ids: remove_users, add_user_ids: add_users, id: id},
+  //     beforeSend: function(){
+  //       $("#task_loader").show();
+  //     },
+  //     success: function(result) {
+  //       $("#project-"+id).find("#users-count").text(result["users_count"]);
+  //       $('#task_loader').hide();
+  //       $("#addUserModal").modal("hide");
+  //     }
+  //   });
+  // }
+
+
+
+
+
+
+  select_filter_from_cookies();
+  function display_hide_submenu(type)
+  {
+    if(type == "created")
+    {
+      reser_all_submenu();
+      $('.cre_arw').show();
+      $('#cr').show();
+
+    }
+    else if(type == "assigned")
+    {
+      reser_all_submenu();
+      $('.asg_arw').show();
+      $('#asg').show();
+    }
+    
+    else if(type == "anytime")
+    {
+      reser_all_submenu();
+      $('.any_arw').show();
+      $('#any').show();
+    }
+    else if(type == "last")
+    {
+      reser_all_submenu();
+      $('.lst_arw').show();
+      $('#lat').show();
+    }
+   else if(type == "lead")
+    {
+      reser_all_submenu();
+      $('.lead_arw').show();
+      $('#lead').show();
+    }
+  }
+  function reser_all_submenu()
+  {
+   $('.cre_arw').hide();
+   $('#cr').hide();
+   $('.asg_arw').hide();
+   $('#asg').hide();   
+   $('.any_arw').hide();
+   $('#any').hide();
+   $('.lst_arw').hide();
+   $('#lat').hide();
+   $('.lead_arw').hide();
+   $('#lead').hide();
+  }
+
+
+  function chk_radio_button(id, type, inputNode){
+    if(type == "created")
+    {
+      $("input:checkbox[name='created_by']:checked").each(function() {
+        var values = $(this).val();
+        $("#cre_by_"+values).attr("checked", true);
+      });
+    }
+    else if(type == "assigned")
+    {
+     $("input:checkbox[name='assg_by']:checked").each(function() {
+      var values = $(this).val();
+      $("#assg_by_"+values).prop("checked", true);
+     });
+    }
+    else if(type == "any")
+    {
+     $("#"+id).prop("checked", true);
+    }
+    else if(type == "last")
+    {
+     $("#"+id).prop("checked", true);
+    }
+    else if(type == "lead")
+    {
+     $("input:checkbox[name='lead']:checked").each(function() {
+       var values = $(this).val();
+       $("#lead_"+values).attr("checked", true);
+     });
+    }
+    multi_filter_projects();
+  }
+
+  function multi_filter_projects(get_stage,get_stage_val,get_stage_txt) {
+    $("#task_loader,.fixed_loader").show();
+    var cre_by_val = "";
+    var lead_val = "";
+    var asg_by_val = "";
+    $("input:checkbox[name='created_by']:checked").each(function(i) {
+      var values = $(this).val() + "|";
+      cre_by_val += values;
+    });    
+    $("input:checkbox[name='assg_by']:checked").each(function(i) {
+      var assg_vals = $(this).val() + "|";
+      asg_by_val += assg_vals;
+    });
+    $("input:checkbox[name='lead']:checked").each(function(i) {
+      var values = $(this).val() + "|";
+      lead_val += values;
+    });
+
+    var dt_range = $("input:radio[name='anytime']:checked").val();
+    var last_touch = $("input:radio[name='last_touch']:checked").val();
+    var dt_range_from = $("#project_from").val();
+    var dt_range_to = $("#project_to").val();
+    if(dt_range == "Custom Date")
+      $("#custom_date").show();
+    else
+      $("#custom_date").hide();
+    var posturl="/get_projects_list/project_board_view";
+    divid= "view_content";
+    $("#filter_get_val").val(1);
+
+    var cre_by = false;
+    var asg_by = false;
+    var lead = false;
+    var daterange = false;
+    var last_tch = false;
+    var dtrange_from = false;
+    var dtrange_to = false;
+
+    if(cre_by_val != "" && typeof cre_by_val != 'undefined'){
+
+      cre_by = true;
+      var cre_by_txt = "";
+      $("input:checkbox[name='created_by']:checked").each(function(i) {
+        cre_by_txt += $('#cre_by_'+$(this).val()).attr("c_name") + '|';
+      });
+      cre_by_txt = cre_by_txt.slice(0,-1);
+      document.cookie="cre_by=true"
+      document.cookie="cre_by_val="+cre_by_val;
+      document.cookie="cre_by_txt="+cre_by_txt;
+      $(".tag_filter").show();
+      $(".created_by_tag").show();
+      $("#created_by_tag_txt").html(cre_by_txt.split('|').join(','));
+    }
+
+    if(dt_range != "" && typeof dt_range != 'undefined'){
+     if(dt_range != "Custom Date"){
+      $("#project_from").val('');
+      $("#project_to").val('');
+      $(".date_range_tag").hide();
+      $.removeCookie("dtrange_from");
+      $.removeCookie("dt_range_from");
+      $.removeCookie("dt_range_frm_txt");
+      $.removeCookie("dtrange_to");
+      $.removeCookie("dt_range_to");
+      $.removeCookie("dt_range_to_txt");
+      daterange = true;
+      date_txt=dt_range
+
+      document.cookie="daterange=true";
+      document.cookie="dt_range="+dt_range;
+      document.cookie="dt_range_txt="+date_txt;
+      $(".tag_filter").show();
+      $(".date_tag").show();
+      $("#date_tag_txt").html(date_txt)
+    }
+    else
+    {
+     if(dt_range_from != "" && dt_range_to != ""){
+     daterange = false;
+     $(".date_tag").hide();
+     $.removeCookie("daterange");
+     $.removeCookie("dt_range");
+     $.removeCookie("dt_range_txt");
+     dtrange_from = true;
+     dtrange_to = true;
+     from_date=$("#project_from").val();
+     to_date=$("#project_to").val();
+
+     document.cookie="dtrange_from=true";
+     document.cookie="dt_range_from="+dt_range_from;
+     document.cookie="dt_range_frm_txt="+from_date;
+
+     document.cookie="dtrange_to=true";
+     document.cookie="dt_range_to="+dt_range_to;
+     document.cookie="dt_range_to_txt="+to_date;
+     $(".tag_filter").show();
+     $(".date_range_tag").show();
+     $("#from_tag_txt").html(from_date +" to "+ to_date);
+    }else{
+     $(".date_range_tag").hide();
+     $.removeCookie("dtrange_from");
+     $.removeCookie("dt_range_from");
+     $.removeCookie("dt_range_frm_txt");
+     $.removeCookie("dtrange_to");
+     $.removeCookie("dt_range_to");
+     $.removeCookie("dt_range_to_txt");
+    }
+    }
+    }else if(dt_range_from == "" || dt_range_to === 'undefined'){
+       daterange = false;
+
+       $(".date_tag").hide();
+       $.removeCookie("daterange");
+       $.removeCookie("dt_range");
+       $.removeCookie("dt_range_txt");
+       $(".date_range_tag").hide();
+       $.removeCookie("dtrange_from");
+       $.removeCookie("dt_range_from");
+       $.removeCookie("dt_range_frm_txt");
+       $.removeCookie("dtrange_to");
+       $.removeCookie("dt_range_to");
+       $.removeCookie("dt_range_to_txt");
+    }
+
+
+    if(cre_by_val == "" || typeof cre_by_val === 'undefined'){
+
+      $(".created_by_tag").hide();
+      $.removeCookie("cre_by");
+      $.removeCookie("cre_by_val");
+      $.removeCookie("cre_by_txt");
+    }
+    if(asg_by_val != "" && typeof asg_by_val != 'undefined'){
+
+      asg_by = true;
+      //asg_by_txt=$('#assg_by_'+asg_by_val).attr("a_name");
+
+      var asg_by_txt = "";
+      $("input:checkbox[name='assg_by']:checked").each(function() {
+        asg_by_txt += $('#assg_by_'+$(this).val()).attr("a_name") + '|';
+      });
+      asg_by_txt = asg_by_txt.slice(0,-1);
+      document.cookie="asg_by=true";
+      document.cookie="asg_by_val="+asg_by_val;
+      document.cookie="asg_by_txt="+asg_by_txt;
+      $(".tag_filter").show();
+      $(".assigned_to_tag").show();
+      $("#assigned_to_tag_txt").html(asg_by_txt.split('|').join(','))
+    }
+    if(asg_by_val == "" || typeof asg_by_val === 'undefined'){
+
+      $(".assigned_to_tag").hide();
+      $.removeCookie("asg_by");
+      $.removeCookie("asg_by_val");
+      $.removeCookie("asg_by_txt");
+    }
+    if(lead_val != "" && typeof lead_val != 'undefined'){
+
+      lead = true;
+      var lead_txt = "";
+      $("input:checkbox[name='lead']:checked").each(function() {
+        lead_txt += $('#lead_'+$(this).val()).attr("a_name") + '|';
+      });
+      lead_txt = lead_txt.slice(0,-1);
+      document.cookie="lead=true";
+      document.cookie="lead_val="+lead_val;
+      document.cookie="lead_txt="+lead_txt;
+      $(".tag_filter").show();
+      $(".lead_tag").show();
+      $("#lead_tag_txt").html(lead_txt.split('|').join(','))
+    }
+    if(lead_val == "" || typeof lead_val === 'undefined'){
+
+     $(".location_tag").hide();
+     $.removeCookie("lead");
+     $.removeCookie("lead_val");
+     $.removeCookie("lead_txt");
+    }
+
+
+    if(cre_by_val == "" && lead_val == "" && asg_by_val == "" && lead_val != 1 && (last_touch == "") && dt_range_from == "" && dt_range_to == "" && ((dt_range == "" || typeof dt_range === 'undefined') && dt_range != "Custom Date")){
+      $('.reset_tag').hide();
+      $(".tag_filter").hide();
+    }
+    else if(dt_range == "Custom Date" &&(dt_range_from == "" && dt_range_to == ""))
+    {
+     $('.reset_tag').hide();
+    }
+    else if(typeof cre_by_val === 'undefined' && typeof lead_val === 'undefined' && typeof asg_by_val === 'undefined' && typeof dt_range === 'undefined' && (typeof dt_range_from === 'undefined' || dt_range_from == "") && (typeof dt_range_to === 'undefined' || dt_range_to == ""))
+    {
+      $('.reset_tag').hide();
+    }
+    else{
+      $('.reset_tag').show();
+      $(".tag_dd").show();
+    }
+    if((typeof cre_by_val != "undefined" || cre_by_val != "") || (typeof asg_by_val != "undefined" || asg_by_val != "") || (typeof lead_val != "undefined" || lead_val != "") || (typeof dt_range != 'undefined' && dt_range != "Custom Date"))
+    {
+      $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, lead: lead, lead_val: lead_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to},
+        success: function(result) {
+          $(".show_projects").html(result);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+     }
+    else if(dt_range_from != "" && dt_range_to != "")
+    {
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, loc: loc, loc_val: loc_val, priority: priority, priority_val: priority_val,next: next, next_val: next_val, daterange: daterange, dt_range: dt_range, last_touch: last_touch, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to,tag:tag_val, stage: stage, stage_val: stage_val, user_label: user_label, user_label_val: user_label_val,label_type:is_label},
+        success: function(result) {
+          $(".show_projects").html(result);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+    else if(cre_by_val == "" && asg_by_val == "" && dt_range == "" && (dt_range_from == "" || dt_range_to == ""))
+    {
+
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to,tag:tag_val},
+        success: function(result) {
+          $(".show_projects").html(result);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+
+    }
+    else if(typeof cre_by_val === 'undefined' && typeof asg_by_val === 'undefined'&& typeof dt_range === 'undefined' && (dt_range_from == "" || dt_range_to == "") && typeof stage_val === 'undefined')
+    {
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to},
+        success: function(result) {
+          $("#"+divid).html("");
+          $("#"+divid).html(result);
+        }
+      });
+    }
+  }
+
+
+  function select_filter_from_cookies(){
+    if(("#{cookies[:cre_by]}" == "true" ) || ("#{cookies[:asg_by]}" == "true" ) || ("#{cookies[:lead]}" == "true" ) || ("#{cookies[:daterange]}" == "true" ) || ("#{cookies[:dtrange_from]}" == "true" && "#{cookies[:dtrange_to]}" == "true")){
+      if("#{cookies[:cre_by]}" == "true" ){
+        var cre_split = "#{cookies[:cre_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<cre_split.length;i++)
+        {
+          $("#cre_by_"+cre_split[i]).prop("checked", true)
+        }        
+
+        $(".tag_filter").show();
+        $(".created_by_tag").show();
+        $("#created_by_tag_txt").html("#{cookies[:cre_by_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:asg_by]}" == "true" ){
+        var asg_split = "#{cookies[:asg_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<asg_split.length;i++)
+        {
+          $("#assg_by_"+asg_split[i]).prop("checked", true)
+        }
+      
+        $(".tag_filter").show();
+        $(".assigned_to_tag").show();
+        $("#assigned_to_tag_txt").html("#{cookies[:asg_by_txt]}".split('|').join(','));
+      }
+
+      if("#{cookies[:lead]}" == "true" ){
+        var lead_split = "#{cookies[:lead_val]}".slice(0,-1).split('|');
+        for(var i=0;i<lead_split.length;i++)
+        {
+          $("#lead_"+lead_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".lead_tag").show();
+        $("#lead_tag_txt").html("#{cookies[:lead_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:daterange]}" == "true" ){
+        var daterange_id = "#{cookies[:dt_range]}".toLowerCase().split(' ').join('_');
+        $("#"+daterange_id).prop("checked", true)
+        $(".tag_filter").show();
+        $(".date_tag").show();
+        $("#date_tag_txt").html("#{cookies[:dt_range_txt]}")
+      }
+
+      if("#{cookies[:dtrange_from]}" == "true" ){
+        $(".tag_filter").show();
+        $(".date_range_tag").show();
+        $("#project_from").val("#{cookies[:dt_range_from]}");
+        $("#project_to").val("#{cookies[:dt_range_to]}");
+        $("#from_tag_txt").html("#{cookies[:dt_range_frm_txt]} to #{cookies[:dt_range_to_txt]}");
+      }
+    }
+  }
+
+  function reset_filter(id,class_n,stage_f){
+    $('.'+id+"_tag").hide();
+    if(id == "date_range")
+    {
+      $('.'+class_n).removeAttr('checked');
+      $('#project_from').val('');
+      $('#project_to').val('');
+    }
+    else if(id == "stage"){
+      $('.'+class_n).removeAttr('checked');
+      $('.ui-state-default').removeClass('btn-highlighed');
+      $('.btn-check-sign').removeClass('btn-check-sign');
+    }
+    else
+    {
+      $('.'+class_n).removeAttr('checked');
+    }
+    $("#show_filter_dealmsg").html('');
+
+    $("#filter_get_val").val(0);
+   
+    multi_filter_projects();
+  }
+
+  function reset_all_filter(){
+    $("#filter_get_val").val(0);
+    $('.created_by_tag').hide();
+    $('.assigned_to_tag').hide();
+    $('.reset_tag').hide();
+    $('.tag_filter').hide();
+    $('.cre_by_c').removeAttr('checked');
+    $('.lead').removeAttr('checked');
+    $('.asg_by_c').removeAttr('checked');
+    $('.any_time').removeAttr('checked');
+
+    $('#project_from').val('');
+    $('#project_to').val('');
+    //$("#lead").val(0);
+    $.each(["cre_by","cre_by_val","cre_by_txt", "lead","lead_val","lead_txt","daterange","dt_range","dt_range_txt","asg_by","asg_by_val","asg_by_txt","last_touch","last_tch","last_touch_txt","dtrange_from","dt_range_from","dt_range_frm_txt","dtrange_to","dt_range_to","dt_range_to_txt"], function( index, value ) {
+       $.removeCookie(value);
+    });
+    multi_filter_projects();
+  }
+  function reset_filter(id,class_n,stage_f){
+    $('.'+id+"_tag").hide();
+    if(id == "date_range")
+    {
+      $('.'+class_n).removeAttr('checked');
+      $('#project_from').val('');
+      $('#project_to').val('');
+    }
+    else
+    {
+      $('.'+class_n).removeAttr('checked');
+    }
+    $("#show_filter_dealmsg").html('');
+
+    $("#filter_get_val").val(0);
+
+    if(id == "lead"){
+      $("#lead").val(0);
+      $('.lead_tag').hide();
+      $.removeCookie("lead");
+    }
+  
+    multi_filter_projects();
+    $("#task_loader,.fixed_loader").hide();
+  }
+  function reset_filter_val(){
+    $("#filter_get_val").val(0);
+  }
+
+  $(window).click(function() {
+    $('.main_menu').hide();
+  });
+
+  $('.main_menu').click(function(event){
+    event.stopPropagation();
+  });

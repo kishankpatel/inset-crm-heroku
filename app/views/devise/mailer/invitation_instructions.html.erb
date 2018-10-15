@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <title>Invitation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Arial'; font-size:13px;color:#666;" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px;line-height:20px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px;color:#666666;padding:20px;">
+                <p>
+                 Hi&nbsp;<%= @resource.full_name.present? ? @resource.full_name : @resource.email %>,
+                </p>
+                <p >
+                  '<%= @resource.invited_by_wus_user %>' has invited you to join the organization '<%= @resource.organization.name %>' on InSet CRM.
+                </p>
+				  <p>Please click on the link below, to proceed further.</p>
+          <p>
+				  <div>
+            <%unless @resource.provider.present?%>
+              <a href="<%=accept_invitation_url(@resource, :invitation_token => @token)%>" target="_blank" style="cursor: pointer;text-decoration: none;border: 1px solid #01447a;color: #FFFFFF;font-weight: bold;margin-top: 20px;padding: 15px 140px;text-align: center;background: #277dc2;margin: 40px auto;font-size: 16px;display:block;">Accept Invitation</a>
+            <%else%>
+              <a href="<%=accept_social_invitation_url(:id=>@resource.id)%>" target="_blank" style="cursor: pointer;text-decoration: none;border: 1px solid #01447a;color: #FFFFFF;font-weight: bold;margin-top: 20px;padding: 15px 140px;text-align: center;background: #277dc2;font-size: 16px;display:block;">Join Today</a>
+              As you have signed up using your <%=@resource.provider=="linkedin" ? "Linkedin" : "Google"%> account, please use the same credentials to start using the CRM.
+            <%end%>
+			    </div>
+				 </p>
+				<br>
+				<p>
+				   If you don't want to accept the invitation, please ignore this email.
+				</p>
+        <p>
+          <%unless @resource.provider.present?%>
+            Your account won't be created until you access the link above and set your password.
+          <%else%>
+            For any assistance, write to us on <a href="mailto:support@parkpointsoftware.com" style="color:#105687;text-decoration:none" target="_blank">support@parkpointsoftware.com</a>.
+          <%end%>
+        </p>
+        <br/>
+        <p>Regards,</p>
+        <p>Your Friends at InSet CRM</p>
+        </td>
+			</tr>
+      </table>
+      </td>
+      </tr>
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+.new-left-menu
+  %ul.menu-list
+    - if (params[:controller] != 'beta_accounts') && (@current_user.is_admin? || @current_user.is_super_admin?)
+      - if (params[:controller] == "home" && params[:action] == "dashboard")
+        - act_cls = "active"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - act_cls = ""
+        - sub_menu_cls = ""
+      %li
+        %a{:href => "/dashboard", "class" => sub_menu_cls}
+          %span.dashboard_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Dashboard"}
+          %span.dashboard_icn.extend_icon
+          .list_name Dashboard
+      - if @current_user.is_admin? || @current_user.is_super_admin?
+        - if (params[:controller] == "contacts" || params[:controller] == "home") && (params[:action] == "index" || params[:action] == "all_contacts" || params[:action] == "list_companies")
+          - act_cls = "active"
+          - sub_menu_cls = "sub_menu_active"
+        - else
+          - act_cls = ""
+          - sub_menu_cls = ""
+        %li{class: act_cls}
+          %a{:href => "/all_contacts", :class => request.path == "/all_contacts" ? "sub_menu_active" : ""}
+            %span.cont_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Contacts"}
+            %span.cont_icn.extend_icon
+            .list_name Contacts
+          
+      - if (params[:controller] == "deals" || params[:controller] == "tasks") && params[:action] == "index"
+        - act_cls = "active"
+      - else
+        - act_cls = ""
+      %li.new-sub-list{class: act_cls}
+        - if request.path.include?("leads") || request.path.include?("tasks")
+          - sub_menu_cls = "sub_menu_active"
+        - else
+          - sub_menu_cls = ""
+        %a{:href => "javascript:void(0)", :class => sub_menu_cls}
+          %span.opp_icn.colaps_icon
+          %span.opp_icn.extend_icon
+          .list_name Opportunities
+          .new-sub-menu  
+            %ul
+              %li
+                %a.sub-menu-list{:href => "/leads", :class => (params[:controller] == "deals" && request.path != "/leads/kanban") ? "sub_menu_active" : ""} Opportunities List
+              %li
+                %a.sub-menu-list{:href => "/leads/kanban", :class => request.path == "/leads/kanban" ? "sub_menu_active" : ""} Sales Pipeline
+              %li
+                %a.sub-menu-list{:href => "/tasks", :class => (params[:controller] == "tasks" && params[:action] == "index") ? "sub_menu_active" : ""} Tasks
+
+
+    - if request.path.include?("project")
+      - sub_menu_cls = "sub_menu_active"
+    - else
+      - sub_menu_cls = ""
+    %li.new-sub-list{class: act_cls}
+      %a{:href => "/projects", :class => sub_menu_cls}
+        %span.project_icn.colaps_icon
+        %span.project_icn.extend_icon
+        .list_name Projects
+      .new-sub-menu    
+        %ul
+          %li
+            %a.sub-menu-list{:href => "/projects/kanban", class: sub_menu_cls} Projects View
+          %li
+            %a.sub-menu-list{:href => "/project_jobs/kanban", :class => request.path == "/project_jobs" && request.path == "/kanban" ? sub_menu_cls : ""} Jobs View
+            - job_count_box = @current_organization.present? ? @current_organization.project_jobs.count : 0
+
+    %li.new-sub-list
+      - if params[:controller] == "resource_allocations"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - sub_menu_cls = ""
+      %a{:href => "javascript:void(0)", :class => sub_menu_cls}
+        %span.resource_icn.colaps_icon
+        %span.resource_icn.extend_icon
+        .list_name Resource
+      .new-sub-menu    
+        %ul
+          %li
+            %a.sub-menu-list{:href => "/resource_allocations", :class => request.path == "/resource_allocations" ? "sub_menu_active" : ""} Allocation
+          %li
+            %a.sub-menu-list{:href => "/resource_utilization", :class => request.path == "/resource_utilization" ? "sub_menu_active" : ""} Utilization
+          %li
+            %a.sub-menu-list{:href => "/weekly_timesheet", :class => request.path == "/weekly_timesheet" ? "sub_menu_active" : ""} Weekly Timesheet
+    %li
+      - if request.path == "/users"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - sub_menu_cls = ""
+      %a{:href => "/users", :class => sub_menu_cls}
+        %span.team_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Team"}
+        %span.team_icn.extend_icon
+        .list_name Team
+    %li
+      - if params[:controller] == "mail"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - sub_menu_cls = ""
+    
+      %a{:href => "/mail/connect", :class => sub_menu_cls}
+        %span.office_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Office 365"}
+        %span.office_icn.extend_icon
+        .list_name Office 365
+    %li
+      - if params[:controller] == "mail"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - sub_menu_cls = ""
+      %a{:href => "/calendar", :class => sub_menu_cls}
+        %span.calendar_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Calendar"}
+        %span.calendar_icn.extend_icon
+        .list_name Calendar
+    - if @current_user.is_siteadmin?
+      %li.new-sub-list
+        %a{:href => "javascript:void(0)", :class => request.path == "/organizations" ? "sub_menu_active" : ""}
+          %span.siteadmin_icn.colaps_icon{"data-toggle" => "tooltip", "data-placement" => "right", title:"Siteadmin"}
+          %span.siteadmin_icn.extend_icon
+          .list_name Siteadmin
+          .new-sub-menu 
+            %ul
+              %li
+                %a.sub-menu-list{:href => "/organizations", class: sub_menu_cls} Organizations
+                - Organization.count
+      
+
+
+
+
+
+:javascript
+  $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+  });

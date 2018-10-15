@@ -1,0 +1,52 @@
+-jobtimelogs = project_job.job_time_logs 
+- if jobtimelogs.present?
+  %table.table.table-strip.table-hover
+    %thead
+      %tr
+        %th{style:"width:120px"}
+          Resource
+        %th
+          Date
+        %th
+          Start Time
+        %th
+          End Time
+        %th
+          Break Time
+        %th
+          Spent Hours
+        %th
+          Billable?
+        %th
+          Note
+        %th
+          
+    %tbody
+      -jobtimelogs.each do |jtl|
+        
+        %tr
+          %td
+            =jtl.user.full_name.present? ? jtl.user.full_name : jtl.user.email
+          %td
+            =jtl.log_start_time.strftime("%m/%d/%Y") if jtl.log_start_time.present?
+          %td
+            =jtl.log_start_time.strftime("%I:%M %p") if jtl.log_start_time.present?
+          %td
+            =jtl.log_end_time.strftime("%I:%M %p") if jtl.log_end_time.present?
+          %td
+            =getHourMinuteFromSeconds(jtl.break_time)  if jtl.break_time.present?
+          %td
+            =getHourMinuteFromSeconds(jtl.spent_hours)  if jtl.spent_hours.present?
+          %td
+            -if jtl.is_billable
+              %i.fal.fa-check
+            -else
+              %i.fal.fa-square
+          %td
+            -note =ActionController::Base.helpers.strip_tags(jtl.note)
+            = note[0,50] if note.present?
+          %td
+            %a{title: "Edit this Timelog",href: "javascript:void(0)",:style=>"cursor: pointer;", :onclick=>"get_time_log_form(#{jtl.project_job_id},#{jtl.id})",:href=>"#timeLogModal", :data=>{:toggle=>"modal" }}
+              %span.glyphicon.glyphicon-pencil
+            %a{title: "Delete this Timelog",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "removeJobTimeLog('#{jtl.id}','#{jtl.project_job_id}')"}
+              %span.glyphicon.glyphicon-trash

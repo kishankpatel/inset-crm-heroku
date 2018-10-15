@@ -1,0 +1,167 @@
+=hidden_field_tag "clicked_button_ref",""
+= form_for(Task.new, :remote => true, :html=>{:class => "form",:method=> "post",:id=> "task_form"}) do |f|
+  %input{:type=>"hidden",:id=>"is_edit_deal",:name=> "is_edit_deal"}
+  =f.hidden_field :recurring_type, :value=> "none"
+  .color-line
+  .modal-header
+    %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+      %i.fal.fa-times.fa-2x
+    %h4.modal-title
+      Follow up the task      
+  .modal-body
+    .form-group
+      %label.control-label.control-mr-top15{:for => "input"} Task title
+      =f.text_field :title, :required => true,:html=>{:maxlength=> "100"}, :class => "form-control", :required => true, :value=> @follow.title if @follow.present?
+    .row
+      .form-group.col-md-6
+        - follow_up_date = (@follow.present? && @follow.due_date > Time.zone.now) ? @follow.due_date : Time.zone.now
+        %label.control-label{:for => "input"} Due date
+        = text_field_tag "due_date_task_follow","",value: "#{Time.zone.now.strftime('%b-%Y')}", id: "datetimepicker_follow" , autocomplete: "off",onchange: "change_mnth_days();" ,:value=> (follow_up_date.strftime("%m-%d-%Y") if @follow.present?), :placeholder => "Due date",:required => true,:onkeydown => "disable_text(event);", :class => "form-control",:style=>"width:155px"
+        =text_field_tag "due_time","" ,id: "dftime" ,:class=> "form-control",:value=> (follow_up_date.strftime("%H:%M") if @follow.present?), placeholder: "Select Time *",:style=>"width:125px;margin-left:183px;margin-top: -35px;",:required => true,:onkeydown => "disable_text(event);"
+        =f.hidden_field :due_date, required: "true",:class=> "col-md-12 form-control" , :placeholder => "Due date", :required => true, :value=> follow_up_date.strftime("%Y-%m-%d %H:%M")
+      .form-group.col-md-6
+        %label.control-label.control-lbl-add.control-lbl-add-txt{:for => "input"} Follow up
+        =text_field_tag "task_type", "Follow-up", :required => true, :readonly => true, :style => "color: #333;", :class => "form-control"
+        =f.hidden_field :task_type_id, value: TaskType.where("organization_id=? AND name=?", @current_organization.id, "Follow-up").first.id
+    .row
+      .form-group.col-md-6
+        %label.control-label{:for => "select"} Follow up
+        =f.select :assigned_to, options_from_collection_for_select(all_org_users, 'id', 'full_name', (@follow.assigned_to if @follow.present?)), {:include_blank => '- Assign User -'},:class=>"all_assign_name form-control", :required => true
+      .form-group.col-md-6
+        %label.control-label{:for => "input"} Mail To
+        =f.email_field :mail_to, :class=>"follow_mail form-control", :value=> @follow.mail_to if @follow.present?
+        %label{id:"email_err",class: "error", style:"display:none"}
+    .row
+      .form-group.col-md-6
+        %label.control-label{:for => "select"} Priority
+        /=f.select :priority, ["Low", "Medium", "High"], {:include_blank => '- Priority -'},:class=>"custom-frm-inner form-control"
+        = f.select :priority, options_for_select([['Low','Low'],['Medium','Medium'],['High','High']]), {}, { :class => 'custom-frm-inner form-control' }
+
+        /=f.select :priority_id, options_from_collection_for_select(@current_organization.priority_types, 'id', 'name', (@follow.priority_id if @follow.present?)), {:include_blank => '- Task Priority -'},:class=>"form-control"
+      .form-group.col-md-6
+        %label.control-label.control-lbl-add.control-lbl-add-txt{:for => "input"} Assign Lead
+        =text_field_tag "deal_title", @follow.deal.present? ? @follow.deal.title : "",:class=>"form-control", "data-provide"=> "typeahead" , :autocomplete=>"off", disabled: true, :style => "color:#333;"
+        - if @taskable_type.present?
+          = f.hidden_field :taskable_id, value: @taskable_id
+        - else
+          = f.hidden_field :deal_id, value: @follow.deal_id
+        =hidden_field_tag :taskable_type, @taskable_type.present? ? @taskable_type : "Deal"
+        =hidden_field_tag :taskable_id, @taskable_id.present? ? @taskable_id : nil
+  .modal-footer
+    %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"}
+      Cancel
+    =f.submit "Create Task", :class=> "btn btn-info",:onclick=> "return validate_email('task_mail_to')", :disable_with => "Please wait ..."        
+:javascript
+  $( ".custom-frm-inner" ).click(function() {
+    $(this).parent().next('.control-label').addClass("control-lbl-add")
+  });
+  $( ".custom-frm-inner" ).focusout(function() {
+    if($(this).val() == ""){
+      $(this).parent().next('.control-label').removeClass("control-lbl-add")
+    }else{
+      $(this).parent().next('.control-label').addClass("control-lbl-add-txt")
+    }
+  });
+  var date = new Date();
+  date.setDate(date.getDate());
+  var nwdate = new Date();
+  nwdate.setDate(nwdate.getDate() - 1); 
+  $('#dftime').timepicker({ 'timeFormat': 'H:i:s' });
+  $('#datetimepicker_follow').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM-DD-YYYY', pickTime: false}).on('change', function(){
+        $(this).blur();
+    });
+  $('#task_form').bind('ajax:success', function(evt, data, status, xhr)
+    {
+      if(data.status == "true" || data.status == true){
+        $("#taskFollowModal").modal('hide');
+        $('.modal-backdrop').attr('style','display:none');
+        var deal_id = $("#task_deal_id").val();
+        if($('#ref_page_info').val() == "dealsshow"){ 
+          load_activity_cum_deals('task_list');
+          }
+        else if($('#ref_page_info').val() == "contactsshow_contact_detail"){ 
+          load_activity_cum_deals('task_list');
+        } 
+        else if($('#ref_page_info').val() == "contactscompany_contact_detail"){ 
+          load_activity_cum_deals('task_list');
+        }else if($('#ref_page_info').val() == "homedashboard"){
+          load_summary_section();
+          load_header_count();
+          load_dashboard_task_widget();
+          get_activity_data();
+        //}
+        //else if($('#ref_page_info').val() == "tasksindex"){
+        //  var task_tab = $('#clicked_button_ref').val().split('Task')[0];
+        //  load_task_tabs(task_tab, (data.tdate == task_tab));          
+        }else{
+          window.location.href ="/tasks";
+        }
+        //$(document).trigger("add-alerts", [{'message': data.msg ,'priority': 'success'}]);
+        show_alert_message('success',data.msg)
+      }else{
+        $("#task_alert_msg").show();
+        $("#task_msg_div").html(data.msg);
+      }
+    });
+
+    $('#task_form').bind('ajax:before', function(evt, data, status, xhr){
+      //$('#loader').show();
+    });
+
+    $("#task_form").bind("ajax:complete", function(evt, data, status, xhr) {
+      //if(("#{escape_once(params[:controller])}" == "tasks") && ("#{escape_once(params[:action])}" == "follow_up_task"))
+        //window.location.reload();
+      //else
+        //window.location.href ="/tasks";
+      //$("#taskFollowModal").modal('hide');
+      //alert("complete")
+      //$("#task_header").html(data.responseText);
+      
+    });
+    
+   $('.all_assign_name').on("change",function() {
+
+      if($(this).val() != ""){
+
+       $('#task_loader,.fixed_loader').show();
+       $.get("/get_user_email",{id: $(this).val() },function(res){
+           if(res != null){
+            $(".follow_mail").val(res.email);
+            $('#task_loader,.fixed_loader').hide();
+           }
+        });
+      }else{ $(".follow_mail").val("");}
+   });
+  /*auto expandable textarea */
+  var txt = $('#task_title'),
+      hiddenDiv = $(document.createElement('div')),
+      content = null;
+  
+  txt.addClass('txtstuff');
+  hiddenDiv.addClass('hiddendiv common');
+  
+  $('body').append(hiddenDiv);
+  
+  txt.on('keyup', function () {
+  
+      content = $(this).val();
+  
+      content = content.replace(/\n/g, '<br>');
+      hiddenDiv.html(content + '<br class="lbr">');
+  
+      $(this).css('height', hiddenDiv.height());
+  
+  });
+  function change_mnth_days()
+  {
+      period_val=$("#datetimepicker_follow").val();
+      date=period_val.split(" ")[0];
+      time = period_val.split(" ")[1];
+      year = date.split("-")[2]
+      month = date.split("-")[0]
+      day = date.split("-")[1]
+      $("#task_due_date").val(year+"-"+month+"-"+day + " " +time);      
+  }
+  function daysInMonth(month,year) {
+    return new Date(year, month, 0).getDate();
+  }

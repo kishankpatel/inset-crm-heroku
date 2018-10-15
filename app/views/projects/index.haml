@@ -1,0 +1,61 @@
+=render :partial=>'project-breadcrumb'
+- if !@current_organization.projects.present?
+  = render :partial => "shared/show_empty_banner"
+- elsif request.fullpath.include? "kanban"  
+  .content.ling_mcnt
+    .hpanel.green.m-b-none
+      .panel-body
+        = render :partial => "show_kanban_view"
+- else 
+  .ling_mcnt
+    .row
+      .col-lg-12
+        %ul.tag_filter.text-center{style: "display:none;"}
+          %li#show_filter_dealmsg
+          %li.created_by_tag.com_cls{style: "display: none;"}
+            .tag_dd
+              %span#created_by_tag_txt
+              %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('created_by','cre_by_c');"} x
+          %li.assigned_to_tag.com_cls{style: "display: none;"}
+            .tag_dd
+              %span#assigned_to_tag_txt
+              %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('assigned_to','asg_by_c');"} x
+          %li.lead_tag.com_cls{style: "display: none;"}
+            .tag_dd
+              %span#lead_tag_txt
+              %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('lead','lead');"} x
+          %li.date_range_tag.com_cls{style: "display: none;"}
+            .tag_dd
+              %span#from_tag_txt
+              %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date_range','any_time');"} x
+          %li.date_tag.com_cls{style: "display: none;"}
+            .tag_dd
+              %span#date_tag_txt
+              %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date','any_time');"} x          
+          %li.reset_tag.com_cls
+            %div
+              %a{href: "javascript:void(0);", onclick: "reset_all_filter();reset_filter_val();", class: "btn btn-xs btn-warning"} RESET
+        =hidden_field_tag "filter_get_val","0"
+        =hidden_field_tag 'hdndeals', 'mydeals'
+        =hidden_field_tag 'lead'
+      .col-lg-12
+        .hpanel.m-b-none
+          .panel-heading
+            .row
+              .col-md-6
+                Projects List
+              .col-md-6.float-right
+                =render :partial=>"filters"
+                =link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');", class: "btn btn-default create_project_temp pull-right" do
+                  New
+                / %a{:href => ""}
+                /   %i.fal.fa-filter.fa-2x
+                / %a.btn.btn-default.btn-sm{:href => ""} New
+
+          .panel-body#view_content
+            = render :partial => "projects_list"
+
+=render :partial=>'confirm_project_complete'
+=render :partial=>'confirm_project_archive'
+=render :partial=>'add_user_modal'
+=render :file=>'projects/index.js'

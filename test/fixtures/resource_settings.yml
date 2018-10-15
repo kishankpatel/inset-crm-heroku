@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  hours_of_work: 1
+  week_off_days: MyString
+
+two:
+  hours_of_work: 1
+  week_off_days: MyString

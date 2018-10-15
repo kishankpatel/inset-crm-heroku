@@ -1,0 +1,26 @@
+#res-utilization-list.col-md-12
+  .w-box.tab-pane
+    %div.table-responsive
+      %table#dataTableResourceUtilization.table.table-condensed.table-hover.table-striped.white-table{:style=>"border:1px solid #D1D1D1", :cellspacing=>"40","data-source"=>resource_utilization_url(format: 'json',params: {project_id: params[:project_id],user_id: params[:user_id],sSearch: params[:sSearch],from_log_date: params[:from_log_date],to_log_date: params[:to_log_date],cuser: current_user.id})}
+        %thead
+          %tr
+            %th Date
+            %th Resource
+            %th Project
+            %th Job
+            %th Estimated Hour(s)
+            %th Spent Hour(s)
+            %th Billable?
+            %th Status
+        %tbody.fnt-11
+          
+:javascript
+  
+  $(function(){
+  fillResourceUtilizationData()
+     
+  });
+   function fillResourceUtilization(){
+     oTableResource.fnFilter($('#myInputTextField').val())
+   }
+  

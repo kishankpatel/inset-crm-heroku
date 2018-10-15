@@ -1,0 +1,994 @@
+- if !@project.project_jobs.present?
+  = render :partial => "shared/show_empty_banner"
+- elsif request.fullpath.include? "kanban"  
+  .container{style: "padding-left:0;padding-right:0"}
+    #view_content.lead-page.custom-kls
+      = render :partial => "show_kanban_view"
+  .crt_btn_btm
+    .ws_plus
+      .c_ttip
+        %span.label.label-default Create Job
+      = link_to "javascript:void(0)", class: "create_project_temp",:data=>{:toggle=> "modal"},:onclick=> "$('#projectJobModal').modal('show');"  do
+        =image_tag "new-ui/job-Icon.png", class:"c_icn"
+        =image_tag "new-ui/plus.png", class:"add_icn"
+- else
+  .container.task_page
+  %div
+    .top-task-bar.task-white-bar.fixed-in-app-header
+      .tasks-tabs.fl
+        %ul{style:"margin-bottom:0"}
+          = render :partial => "job_tab_data"
+        .cb
+      .navbar-right
+        .div{style:"margin-top: 5px;"}
+          .btn-group
+            .dropdown-toggle.f_menu{"data-toggle" => "dropdown", type: "button",onclick: "reser_all_submenu();", :style => "cursor:pointer;margin-top:-23px;box-shadow:none;"}
+              %span.cwkp-sprite.filter{:title => "Filter", :style => "background-position: -817px 5px;"}
+            %ul.dropdown-menu.main_menu{role: "menu", style: "top: 10px;margin-left:-100px;"}
+              %li.arrow_top{style: "left:auto;z-index:99;right:0;"}
+              %li.dropdown-submenu{:style => "position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('created');"} Created By
+                #cr.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 316px;"}
+                  .arrow_left.lead_arrow.cre_arw{style: "display:none;left:165px;z-index: 8;"}
+                  %ul#cre_by_app.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;left: 50px;"}
+                    - all_org_users.each do |cre_by|
+                      %li
+                        %a{href: "#",onclick: "chk_radio_button(#{cre_by.id},'created')",class: "filterSelectDropdow"}
+                          %input{id:"cre_by_#{cre_by.id}", class: "cre_by_c",type: "checkbox", value: "#{cre_by.id}",c_name: "#{cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split('@')[0]}",style: "margin-left: -5px;cursor: pointer;margin-top: 0;display: inline-block;vertical-align: middle;",name: "created_by"}
+                            - name = cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split("@")[0]
+                            %span{title:name}
+                              = name.truncate(13)
+                      %li.divider
+              %li.divider
+              %li.dropdown-submenu{:style => "position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('assigned');"} Assigned To
+                #asg.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+                  .arrow_left.lead_arrow.asg_arw{style: "display:none;left:102px;"}
+                  %ul.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left:-14px;"}
+                    - select_all_org_users.each do |assg_by|
+                      %li
+                        - assg_by.is_active == false ? sty = "background-color:#f0f0f0;" : sty = ""
+                        %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{assg_by.id},'assigned')",class: "filterSelectDropdow", style:sty}
+                          %input{id:"assg_by_#{assg_by.id}", class: "asg_by_c",type: "checkbox", value: "#{assg_by.id}",a_name: "#{assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split('@')[0]}",style: "cursor:pointer;",name: "assg_by"}
+                            - assn_by = assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split("@")[0]
+                            %span{title:assn_by}
+                              = assn_by.truncate(13)
+                      %li.divider
+              %li.divider
+              %li.dropdown-submenu{:style => "position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('proj');"} Project
+                #proj.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 124px;"}
+                  .arrow_right.proj_arrow.proj_arw{style: "display:none;left:103px;"}
+                  %ul.dropdown-menu{style: "height:200px;overflow-y:scroll;overflow-x:hidden;display:inline-block;position:relative;left:-12px;"}
+                    - @current_organization.projects.each do |proj|
+                      %li
+                        %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{proj.id},'proj')",class: "filterSelectDropdow",title: "#{proj.name}"}
+                          %input{id:"proj_#{proj.id}", class: "proj",type: "checkbox", value: "#{proj.id}",a_name: "#{proj.name}",style: "cursor:pointer;",name: "proj"}
+                            =truncate(proj.name, :length => 13, :ommission => "..")
+                      %li.divider
+              %li.divider
+              %li.dropdown-submenu{onclick: "display_hide_submenu('priority');", :style=>"position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Priority
+                #pr.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+                  .arrow_left.lead_arrow.pri_arw{style: "display:none;left:71px;"}
+                  %ul.dropdown-menu{style: "display:inline-block;position:relative;min-width: 100px;left: -14px;"}
+                    - priorities = [["Low", "Low"], ["Medium", "Medium"], ["High", "High"]]
+                    - priorities.each do |pri|
+                      %li
+                        %a{href: "javascript:void(0)",onclick: "chk_radio_button('#{pri[0]}','priority')",class: "filterSelectDropdow"}  
+                          %input{id:"priority_#{pri[0]}", class: "priority_c",type: "checkbox", value: "#{pri[0]}",prio_name: "#{pri[0]}",style: "cursor:pointer;",name: "prio"}
+                          =pri[0]
+                      %li.divider
+              %li.divider
+              %li.dropdown-submenu{onclick: "display_hide_submenu('status');", :style=>"position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Status
+                #st.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 123px;"}
+                  .arrow_left.lead_arrow.sta_arw{style: "display:none;left:102px;"}
+                  %ul.dropdown-menu{style: "display:inline-block;position:relative;left: -13px;"}
+                    - statuses = [["New", "New"], ["In Progress", "In Progress"], ["Resolved", "Resolved"], ["Blocked", "Blocked"], ["Closed", "Closed"]]
+                    - statuses.each do |sta|
+                      %li
+                        %a{href: "javascript:void(0)",onclick: "chk_radio_button('#{sta[0]}','status')",class: "filterSelectDropdow"}  
+                          %input{id:"status_#{sta[0].gsub(' ', '_')}", class: "status_c",type: "checkbox", value: "#{sta[0]}",stat_name: "#{sta[0]}",style: "cursor:pointer;",name: "stat"}
+                          =sta[0]
+                      %li.divider
+              %li.divider
+              %li.dropdown-submenu{onclick: "display_hide_submenu('anytime');", :style=>"position: relative;"}
+                %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Anytime
+                #any.sec_mnu{style: "display: none;position: absolute;left: initial;top: -11px;display: block;right: 155px;"}
+                  .arrow_left.lead_arrow.any_arw{style: "display:none;left:147px;"}
+                  %ul.dropdown-menu{style: "display:inline-block;position:relative;left:19px;"}
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_week','any')",class: "filterSelectDropdow"}  
+                        %input{id:"past_week", class: "any_time",type: "radio", value: "Past Week",style: "cursor:pointer;",name: "anytime"}
+                        Past Week
+                    %li.divider
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_two_weeks','any')",class: "filterSelectDropdow"}  
+                        %input{id:"past_two_weeks", class: "any_time",type: "radio", value: "Past Two Weeks",style: "cursor:pointer;",name: "anytime"}
+                        Past Two Weeks
+                    %li.divider
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_three_weeks','any')",class: "filterSelectDropdow"}  
+                        %input{id:"past_three_weeks", class: "any_time",type: "radio", value: "Past Three Weeks",style: "cursor:pointer;",name: "anytime"}
+                        Past Three Weeks
+                    %li.divider
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_month','any')",class: "filterSelectDropdow"}  
+                        %input{id:"past_month", class: "any_time",type: "radio", value: "Past Month",style: "cursor:pointer;",name: "anytime"}
+                        Past Month
+                    %li.divider
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_year','any')",class: "filterSelectDropdow"}  
+                        %input{id:"past_year", class: "any_time",type: "radio", value: "Past Year",style: "cursor:pointer;",name: "anytime"}
+                        Past Year
+                    %li.divider
+                    %li
+                      %a{href: "javascript:void(0)",onclick: "chk_radio_button('cu_date','any')",class: "filterSelectDropdow"} 
+                        %input{id:"cu_date", class: "any_time",type: "radio", value: "Custom Date",style: "cursor:pointer;",name: "anytime"}
+                        Custom Date
+                    %li#custom_date{style: "display:none;margin:4px;"}
+                      =text_field_tag "project_job_from","",value: "",class: "form-control typeahead",placeholder: "From"
+                      .cb10
+                      =text_field_tag "project_job_to","",value: "",class: "form-control typeahead",placeholder: "To"
+                      .cb10
+                      %button.btn.btn-primary{class: "filterSelectDropdow",type: "button",rel: "tooltip", title: "Filter" } 
+                        Search
+              %li.divider
+          - unless params[:by_group_name].present?
+            %span.cwkp-sprite.active_list_view_icon{title: "List View"}
+            = link_to project_project_jobs_path(@project, :by_group_name => true), title: "Group by type" do
+              %span.cwkp-sprite.new_comp_size_icon
+          - else
+            = link_to project_project_jobs_path(@project), title: "List View" do
+              %span.cwkp-sprite.new_list_view_icon
+            %span.cwkp-sprite.active_job_group_icon{title: "Group by type", style: "background-position: -1691px -204px;"}
+          %span{:id => "calendar_view"}
+            = link_to "javascript:void(0)", :onclick => "display_calendar_view()", title: "Calendar View" do
+              %span.cwkp-sprite.new_calendar_icon{style: "background-position:-1688px -25px;"}
+          %span{:id => "kanban_view"}
+            = link_to "/projects/#{@project.id}/jobs/kanban", title: "Kanban View" do
+              %span.cwkp-sprite.new_kanban_view_icon
+      .cb
+  %ul.tag_filter{style: "margin-left:0px;text-align:center;display:none;"}
+    %li#show_filter_dealmsg
+    %li.created_by_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#created_by_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('created_by','cre_by_c');"} x
+    %li.assigned_to_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#assigned_to_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('assigned_to','asg_by_c');"} x
+    %li.proj_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#proj_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('proj','proj');"} x
+    %li.date_range_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#from_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date_range','any_time');"} x          
+    %li.last_touch_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#last_touch_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('last_touch','lst_tch');"} x      
+    %li.date_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#date_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date','any_time');"} x          
+    %li.status_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#status_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('status','status_c');"} x
+    %li.priority_tag.com_cls{style: "display: none;"}
+      .tag_dd
+        %span#priority_tag_txt
+        %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('priority','priority_c');"} x
+    %li.reset_tag.com_cls
+      %div
+        %a{href: "javascript:void(0);", onclick: "reset_all_filter();reset_filter_val();", class: "btn btn-xs btn-warning"} RESET
+  .container{style:"padding-left:15px;padding-right:15px;"}
+    .project_job_top_sec
+      .left_sec.fl
+        %div{:style => "font-size:14px;"} 
+          Displaying 
+          %span.display_job_type{style:"min-width:20px"} all 
+          jobs
+        %div
+          %a.proj_link_colour{href: "javascript:void(0)", onclick: "$('#quick_job').show();$(this).hide();$('#project_job_name').focus();", style:"font-weight: bold;font-size:12px;", title: "Add a Job in seconds"}
+            + Quick Job
+
+      .right_sec.fr
+        %span.status_new.status_box
+          - new_jobs = @project.project_jobs.new_jobs("New",false)
+          - total_jobs = @project.project_jobs.count
+          %span.lft_qtr
+            New
+            |
+            = new_jobs.count
+          %span.rht_qtr
+            = (new_jobs.present? ? (((new_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        %span.status_in_prog.status_box
+          - progess_jobs = @project.project_jobs.by_status("In Progress")
+          %span.lft_qtr
+            In Progress
+            |
+            = progess_jobs.count
+          %span.rht_qtr
+            = (progess_jobs.present? ? (((progess_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        %span.status_resolved.status_box
+          - resolved_jobs = @project.project_jobs.by_status("Resolved")
+          %span.lft_qtr
+            Resolved
+            |
+            = resolved_jobs.count
+          %span.rht_qtr
+            = (resolved_jobs.present? ? (((resolved_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        %span.status_catchup_ltr.status_box
+          - catch_up_jobs = @project.project_jobs.by_status("Blocked")
+          %span.lft_qtr
+            Blocked
+            |
+            = catch_up_jobs.count
+          %span.rht_qtr
+            = (catch_up_jobs.present? ? (((catch_up_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+        %span.status_closed.status_box
+          - closed_jobs = @project.project_jobs.by_status("Closed")
+          %span.lft_qtr
+            Closed
+            |
+            = closed_jobs.count
+          %span.rht_qtr
+            = (closed_jobs.present? ? (((closed_jobs.count.to_f / total_jobs.to_f) * 100.0).round.to_s) : "0") + "%"
+      .cb
+      #quick_job{:style=>"display:none;"}
+        - @project_job = ProjectJob.new()
+        = form_for @project_job, :url => { :action => "create"},  :class => "form",:method=>"post",:id=>"project-job-form" do |f|
+          .row
+            .form-group.col-md-4
+              .form_fld 
+                %span.cwkp-sprite.proj_name
+                =f.text_field :name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a name to this job", :maxlength => "50", :style => "font-size:12px;"
+                = f.hidden_field :project_id, value: @project.id.to_s
+                = f.hidden_field :assigned_to, value: @current_user.id.to_s
+                = f.hidden_field :priority, value: "Low"
+                = f.hidden_field :created_by, value: @current_user.id.to_s
+                = f.hidden_field :organization_id, value: @current_organization.id.to_s
+                = f.hidden_field :status, value: "New"
+                = f.hidden_field :project_job_type_id, value: @project.project_task_type_id.to_s
+                = hidden_field_tag :quick, value: true
+                /= hidden_field_tag :create_type, "", value: "quick"
+
+            = submit_tag "" , id: "quick_job_btn", class: "cwkp-sprite disabled_quick_job_icon", :disabled => "disabled"
+    #jobs_list
+      = render :partial => "jobs_list", :locals => {project: @project}
+    =hidden_field_tag "project_id", @project.id
+  /.fr{:style => "margin-top:10%;"}
+  /  = link_to new_project_project_job_path(@project), title: "Add Job" do
+  /    %span.cwkp-sprite.new_project_job
+  .crt_btn_btm
+    .ws_plus
+      .c_ttip
+        %span.label.label-default Create Job
+      = link_to new_project_project_job_path(@project), class: "create_project_temp" do
+        =image_tag "new-ui/job-Icon.png", class:"c_icn"
+        =image_tag "new-ui/plus.png", class:"add_icn"
+#confirmJobResolve.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      = form_tag update_mass_project_jobs_path,  :class => "form",:method=>"PUT",:id=>"archive_projects" do |f|
+        .modal-header
+          %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+          %span.cwkp-sprite.resolve_header_icon
+          %h4.modal-title{style: "display:inline-block;"} Do you want to resolve the selected job(s)?
+        .modal-body
+          = hidden_field_tag "resolve_job_ids",""
+          = hidden_field_tag "type","resolve"
+          = hidden_field_tag "project_id", @project.id
+          %div
+            .navbar-left.form-layout-footer
+              = submit_tag "Ok", class: "btn btn-info", disable_with: "Please wait..."
+              %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+#confirmJobClose.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      = form_tag update_mass_project_jobs_path,  :class => "form",:method=>"PUT",:id=>"archive_projects" do |f|
+        .modal-header
+          %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+          %span.cwkp-sprite.close_header_icon
+          %h4.modal-title{style: "display:inline-block;"} Do you want to close the selected job(s)?
+        .modal-body
+          = hidden_field_tag "close_job_ids",""
+          = hidden_field_tag "type","close"
+          = hidden_field_tag "project_id", @project.id
+          %div
+            .navbar-left.form-layout-footer
+              = submit_tag "Ok", class: "btn btn-info", disable_with: "Please wait..."
+              %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+:javascript
+  $(document).ready(function(){
+    t = $('#job_assigned_to').val("#{params[:assigned_to]}");
+    document.cookie="job_assigned_to="+t.val();
+    document.cookie="t_type=#{params[:t_type]}";
+    $('input[name="filterTasks"]').removeAttr('checked');
+    
+    if(#{params[:type].present?} == true){
+      display_project_jobs("#{params[:type]}")
+    }
+  });
+
+  
+  //function change_assign_user_for_job(project_job_id,user_id){
+  //   $("#task_loader,.fixed_loader").show();
+  //   $.ajax({
+  //     url: "/change_assign_user_for_job",
+  //     data: {project_job_id: project_job_id, user_id: user_id, page: "job_listing"},
+  //     success: function(data){ 
+  //       if(data.length > 12){
+  //         name = data.substring(0,10) + ".."
+  //       }else{
+  //         name = data
+  //       }
+  //       $(".project_job_ass_"+project_job_id).html(name);
+  //       $("#task_loader,.fixed_loader").hide();
+  //     },
+  //     error: function(data){
+  //       alert('Got an error while getting user list.');
+  //     }
+  //   });
+  // }
+
+  function change_priority(project_job_id, priority){
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      url: "/change_priority_for_project_job",
+      data: {project_job_id: project_job_id, priority: priority, page: "job_listing"},
+      success: function(data){ 
+        if(data.length > 12){
+          name = data.substring(0,10) + ".."
+        }else{
+          name = data
+        }
+        $(".project_job_pri_"+project_job_id).text(name);
+        $(".project_job_pri_col_"+priority.toLowerCase()).html(name);
+        $(".job_pri_"+project_job_id).removeClass("High").removeClass("Medium").removeClass("Low");
+        $(".job_pri_"+project_job_id).addClass(priority);
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data){
+        alert('Got an error while changing priority.');
+      }
+    });
+  }
+
+  function fetch_project_jobs(id){
+    var cuser = "#{current_user.id}";
+    $("#task_loader,.fixed_loader").show();
+    $.ajax({
+      type: 'GET',
+      url: "/projects/" + id +"/jobs",
+      dataType: 'json',
+      data: {cuser: cuser},
+      async: true,
+      complete: function(data){ 
+        window.history.pushState(null, "Title", "/projects/" + id + "/jobs");
+        display_project_jobs("all",id);
+        $(".top-task-bar").load(location.href + " .top-task-bar");
+        $(".project_job_top_sec").load(location.href + " .project_job_top_sec");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }
+
+  select_filter_from_cookies();
+  function display_hide_submenu(type)
+  {
+    if(type == "created")
+    {
+      reser_all_submenu();
+      $('.cre_arw').show();
+      $('#cr').show();
+
+    }
+    else if(type == "assigned")
+    {
+      reser_all_submenu();
+      $('.asg_arw').show();
+      $('#asg').show();
+    }
+    else if(type == "priority")
+    {
+      reser_all_submenu();
+      $('.pri_arw').show();
+      $('#pr').show();
+    }
+    else if(type == "status")
+    {
+      reser_all_submenu();
+      $('.sta_arw').show();
+      $('#st').show();
+    }    
+    else if(type == "anytime")
+    {
+      reser_all_submenu();
+      $('.any_arw').show();
+      $('#any').show();
+    }
+    else if(type == "last")
+    {
+      reser_all_submenu();
+      $('.lst_arw').show();
+      $('#lat').show();
+    }
+   else if(type == "proj")
+    {
+      reser_all_submenu();
+      $('.proj_arw').show();
+      $('#proj').show();
+    }
+  }
+  function reser_all_submenu()
+  {
+   $('.cre_arw').hide();
+   $('#cr').hide();
+   $('.asg_arw').hide();
+   $('#asg').hide();
+   $('.any_arw').hide();
+   $('#any').hide();
+   $('.proj_arw').hide();
+   $('#proj').hide();
+   $('.pri_arw').hide();
+   $('#pr').hide();
+   $('.sta_arw').hide();
+   $('#st').hide();
+  }
+
+
+  function chk_radio_button(id, type, inputNode){
+    if(type == "created")
+    {
+      $("input:checkbox[name='created_by']:checked").each(function() {
+        var values = $(this).val();
+        $("#cre_by_"+values).attr("checked", true);
+      });
+    }
+    else if(type == "assigned")
+    {
+     $("input:checkbox[name='assg_by']:checked").each(function() {
+      var values = $(this).val();
+      $("#assg_by_"+values).prop("checked", true);
+     });
+    }
+    else if(type == "priority")
+    {
+     $("input:checkbox[name='prio']:checked").each(function() {
+       var values = $(this).val();
+       $("#priority_"+values).attr("checked", true);
+     });
+    }
+    else if(type == "status")
+    {
+     $("input:checkbox[name='stat']:checked").each(function() {
+       var values = $(this).val();
+       $("#status_"+values).attr("checked", true);
+     });
+    }
+    else if(type == "any")
+    {
+     $("#"+id).prop("checked", true);
+    }
+    else if(type == "last")
+    {
+     $("#"+id).prop("checked", true);
+    }
+    else if(type == "proj")
+    {
+     $("input:checkbox[name='proj']:checked").each(function() {
+       var values = $(this).val();
+       $("#proj_"+values).attr("checked", true);
+     });
+    }
+    multi_filter_project_jobs();
+  }
+
+  function multi_filter_project_jobs(tab) {
+    var page_tab = tab;
+    var cre_by_val = "";
+    var proj_val = "";
+    var asg_by_val = "";
+    var proj_val = "";
+    var priority_val = "";
+    var status_val = "";
+    $("input:checkbox[name='created_by']:checked").each(function(i) {
+      var values = $(this).val() + "|";
+      cre_by_val += values;
+    });    
+    $("input:checkbox[name='assg_by']:checked").each(function(i) {
+      var assg_vals = $(this).val() + "|";
+      asg_by_val += assg_vals;
+    });
+    $("input:checkbox[name='proj']:checked").each(function(i) {
+      var values = $(this).val() + "|";
+      proj_val += values;
+    });
+    $("input:checkbox[name='prio']:checked").each(function(i) {
+      var pri_val = $(this).val() + "|";
+      priority_val += pri_val;
+    });
+    $("input:checkbox[name='stat']:checked").each(function(i) {
+      var sta_val = $(this).val() + "|";
+      status_val += sta_val;
+    }); 
+    if(page_tab==""){
+      document.cookie="page_tab=all";
+    }else{
+      document.cookie="page_tab="+page_tab;
+    }
+    var dt_range = $("input:radio[name='anytime']:checked").val();
+    var last_touch = $("input:radio[name='last_touch']:checked").val();
+    var dt_range_from = $("#project_from").val();
+    var dt_range_to = $("#project_to").val();
+    if(dt_range == "Custom Date")
+      $("#custom_date").show();
+    else
+      $("#custom_date").hide();
+
+    if("#{params[:by_group_name].present?}"=="true"){
+      var by_group_name = "true";
+    }else{
+      var by_group_name = "false";
+    }
+    var posturl= "jobs_list";
+    divid= "jobs_list";
+    $("#filter_get_val").val(1);
+    var project_id = $("#project_id").val();
+    var cre_by = false;
+    var asg_by = false;
+    var proj = false;
+    var priority = false;
+    var status = false;
+    var daterange = false;
+    var dtrange_from = false;
+    var dtrange_to = false;
+
+    if(cre_by_val != "" && typeof cre_by_val != 'undefined'){
+
+      cre_by = true;
+      var cre_by_txt = "";
+      $("input:checkbox[name='created_by']:checked").each(function(i) {
+        cre_by_txt += $('#cre_by_'+$(this).val()).attr("c_name") + '|';
+      });
+      cre_by_txt = cre_by_txt.slice(0,-1);
+      document.cookie="cre_by=true"
+      document.cookie="cre_by_val="+cre_by_val;
+      document.cookie="cre_by_txt="+cre_by_txt;
+      $(".tag_filter").show();
+      $(".created_by_tag").show();
+      $("#created_by_tag_txt").html(cre_by_txt.split('|').join(','));
+    }
+
+    if(dt_range != "" && typeof dt_range != 'undefined'){
+     if(dt_range != "Custom Date"){
+      $("#project_from").val('');
+      $("#project_to").val('');
+      $(".date_range_tag").hide();
+      $.removeCookie("dtrange_from");
+      $.removeCookie("dt_range_from");
+      $.removeCookie("dt_range_frm_txt");
+      $.removeCookie("dtrange_to");
+      $.removeCookie("dt_range_to");
+      $.removeCookie("dt_range_to_txt");
+      daterange = true;
+      date_txt=dt_range
+
+      document.cookie="daterange=true";
+      document.cookie="dt_range="+dt_range;
+      document.cookie="dt_range_txt="+date_txt;
+      $(".tag_filter").show();
+      $(".date_tag").show();
+      $("#date_tag_txt").html(date_txt)
+    }
+    else
+    {
+     if(dt_range_from != "" && dt_range_to != ""){
+     daterange = false;
+     $(".date_tag").hide();
+     $.removeCookie("daterange");
+     $.removeCookie("dt_range");
+     $.removeCookie("dt_range_txt");
+     dtrange_from = true;
+     dtrange_to = true;
+     from_date=$("#project_from").val();
+     to_date=$("#project_to").val();
+
+     document.cookie="dtrange_from=true";
+     document.cookie="dt_range_from="+dt_range_from;
+     document.cookie="dt_range_frm_txt="+from_date;
+
+     document.cookie="dtrange_to=true";
+     document.cookie="dt_range_to="+dt_range_to;
+     document.cookie="dt_range_to_txt="+to_date;
+     $(".tag_filter").show();
+     $(".date_range_tag").show();
+     $("#from_tag_txt").html(from_date +" to "+ to_date);
+    }else{
+     $(".date_range_tag").hide();
+     $.removeCookie("dtrange_from");
+     $.removeCookie("dt_range_from");
+     $.removeCookie("dt_range_frm_txt");
+     $.removeCookie("dtrange_to");
+     $.removeCookie("dt_range_to");
+     $.removeCookie("dt_range_to_txt");
+    }
+    }
+    }else if(dt_range_from == "" || dt_range_to === 'undefined'){
+       daterange = false;
+
+       $(".date_tag").hide();
+       $.removeCookie("daterange");
+       $.removeCookie("dt_range");
+       $.removeCookie("dt_range_txt");
+       $(".date_range_tag").hide();
+       $.removeCookie("dtrange_from");
+       $.removeCookie("dt_range_from");
+       $.removeCookie("dt_range_frm_txt");
+       $.removeCookie("dtrange_to");
+       $.removeCookie("dt_range_to");
+       $.removeCookie("dt_range_to_txt");
+    }
+    
+    if(cre_by_val == "" || typeof cre_by_val === 'undefined'){
+
+      $(".created_by_tag").hide();
+      $.removeCookie("cre_by");
+      $.removeCookie("cre_by_val");
+      $.removeCookie("cre_by_txt");
+    }
+    if(asg_by_val != "" && typeof asg_by_val != 'undefined'){
+
+      asg_by = true;
+      //asg_by_txt=$('#assg_by_'+asg_by_val).attr("a_name");
+
+      var asg_by_txt = "";
+      $("input:checkbox[name='assg_by']:checked").each(function() {
+        asg_by_txt += $('#assg_by_'+$(this).val()).attr("a_name") + '|';
+      });
+      asg_by_txt = asg_by_txt.slice(0,-1);
+      document.cookie="asg_by=true";
+      document.cookie="asg_by_val="+asg_by_val;
+      document.cookie="asg_by_txt="+asg_by_txt;
+      $(".tag_filter").show();
+      $(".assigned_to_tag").show();
+      $("#assigned_to_tag_txt").html(asg_by_txt.split('|').join(','))
+    }
+    if(asg_by_val == "" || typeof asg_by_val === 'undefined'){
+
+      $(".assigned_to_tag").hide();
+      $.removeCookie("asg_by");
+      $.removeCookie("asg_by_val");
+      $.removeCookie("asg_by_txt");
+    }
+    if(proj_val != "" && typeof proj_val != 'undefined'){
+
+      proj = true;
+      var proj_txt = "";
+      $("input:checkbox[name='proj']:checked").each(function() {
+        proj_txt += $('#proj_'+$(this).val()).attr("a_name") + '|';
+      });
+      proj_txt = proj_txt.slice(0,-1);
+      document.cookie="proj=true";
+      document.cookie="proj_val="+proj_val;
+      document.cookie="proj_txt="+proj_txt;
+      $(".tag_filter").show();
+      $(".proj_tag").show();
+      $("#proj_tag_txt").html(proj_txt.split('|').join(','))
+    }
+    if(proj_val == "" || typeof proj_val === 'undefined'){
+
+     $(".proj_tag").hide();
+     $.removeCookie("proj");
+     $.removeCookie("proj_val");
+     $.removeCookie("proj_txt");
+    }
+    if(priority_val != "" && typeof priority_val != 'undefined'){
+
+      priority = true;
+
+      var priority_txt = "";
+      $("input:checkbox[name='prio']:checked").each(function() {
+        priority_txt += $('#priority_'+$(this).val()).attr("prio_name") + '|';
+      });
+      priority_txt = priority_txt.slice(0,-1);
+      document.cookie="priority=true";
+      document.cookie="priority_val="+priority_val;
+      document.cookie="priority_txt="+priority_txt;
+      $(".tag_filter").show();
+      $(".priority_tag").show();
+      $("#priority_tag_txt").html(priority_txt.split('|').join(','));
+    }
+    if(priority_val == "" || typeof priority_val === 'undefined'){
+
+      $(".priority_tag").hide();
+      $.removeCookie("priority");
+      $.removeCookie("priority_val");
+      $.removeCookie("priority_txt");
+    }
+
+    if(status_val != "" && typeof status_val != 'undefined'){
+
+      status = true;
+
+      var status_txt = "";
+
+      $("input:checkbox[name='stat']:checked").each(function() {
+        status_txt += $('#status_'+$(this).val().replace(' ','_')).attr("stat_name") + '|';
+      });
+      
+      status_txt = status_txt.slice(0,-1);
+      document.cookie="status=true";
+      document.cookie="status_val="+status_val;
+      document.cookie="status_txt="+status_txt;
+      $(".tag_filter").show();
+      $(".status_tag").show();
+      $("#status_tag_txt").html(status_txt.split('|').join(','));
+    }
+    if(status_val == "" || typeof status_val === 'undefined'){
+
+      $(".status_tag").hide();
+      $.removeCookie("status");
+      $.removeCookie("status_val");
+      $.removeCookie("status_txt");
+    }
+
+    if(priority_val == "" && status_val == "" && cre_by_val == "" && proj_val == "" && asg_by_val == "" && proj_val != 1 && (typeof last_touch === 'undefined') && dt_range_from == "" && dt_range_to == "" && ((dt_range == "" || typeof dt_range === 'undefined') && dt_range != "Custom Date")){
+      $('.reset_tag').hide();
+      $(".tag_filter").hide();
+    }
+    else if(dt_range == "Custom Date" &&(dt_range_from == "" && dt_range_to == ""))
+    {
+     $('.reset_tag').hide();
+    }
+    else if(typeof priority_val === 'undefined' && typeof status_val === 'undefined' && typeof cre_by_val === 'undefined' && typeof proj_val === 'undefined' && typeof asg_by_val === 'undefined' && typeof dt_range === 'undefined' && (typeof dt_range_from === 'undefined' || dt_range_from == "") && (typeof dt_range_to === 'undefined' || dt_range_to == ""))
+    {
+      $('.reset_tag').hide();
+    }
+    else{
+      $('.reset_tag').show();
+      $(".tag_dd").show();
+    }
+    if((typeof priority_val != "undefined" || priority_val != "") || (typeof status_val != "undefined" || status_val != "") || (typeof proj_val != "undefined" || proj_val != "") || (typeof cre_by_val != "undefined" || cre_by_val != "") || (typeof asg_by_val != "undefined" || asg_by_val != "") || (typeof dt_range != 'undefined' && dt_range != "Custom Date"))
+    {
+      $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {project_id: project_id, cre_by: cre_by, cre_by_val: cre_by_val, proj: proj, proj_val: proj_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to, priority: priority, priority_val: priority_val, status: status, status_val: status_val, page_tab: page_tab, by_group_name: by_group_name},
+        success: function(result) {
+          //$(".nav.nav-tabs").find("li").removeClass("active");
+          //$(".tag_filter").show();
+          //$("#all_tab").removeClass("active");
+          $("#"+divid).html("");
+          $("#"+divid).html(result);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+     }
+    else if(dt_range_from != "" && dt_range_to != "")
+    {
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, last_touch: last_touch, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to},
+        success: function(result) {
+          $("#"+divid).html("");
+          $("#"+divid).html(result);
+        }
+      });
+    }
+    else if(cre_by_val == "" && asg_by_val == "" && loc_val == "" && dt_range == "" && (dt_range_from == "" || dt_range_to == ""))
+    {
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to},
+        success: function(result) {
+          $("#"+divid).html("");
+          $("#"+divid).html(result);
+        }
+      });
+
+    }
+    else if(typeof cre_by_val === 'undefined' && typeof asg_by_val === 'undefined' && typeof dt_range === 'undefined' && (dt_range_from == "" || dt_range_to == ""))
+    {
+       $.ajax( {
+        type: "POST",
+        url: posturl ,
+        data: {cre_by: cre_by, cre_by_val: cre_by_val, asg_by: asg_by, asg_by_val: asg_by_val, daterange: daterange, dt_range: dt_range, dtrange_from: dtrange_from,dt_range_from: dt_range_from,dtrange_to: dtrange_to,dt_range_to: dt_range_to},
+        success: function(result) {
+          $("#"+divid).html("");
+          $("#"+divid).html(result);
+        }
+      });
+    }
+  }
+
+
+  function select_filter_from_cookies(){
+    if(("#{cookies[:priority]}" == "true" ) || ("#{cookies[:status]}" == "true" ) || ("#{cookies[:cre_by]}" == "true" ) || ("#{cookies[:asg_by]}" == "true" ) || ("#{cookies[:proj]}" == "true" ) || ("#{cookies[:daterange]}" == "true" ) || ("#{cookies[:last_tch]}" == "true" ) || ("#{cookies[:dtrange_from]}" == "true" && "#{cookies[:dtrange_to]}" == "true")){
+      if("#{cookies[:cre_by]}" == "true" ){
+        var cre_split = "#{cookies[:cre_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<cre_split.length;i++)
+        {
+          $("#cre_by_"+cre_split[i]).prop("checked", true)
+        }        
+
+        $(".tag_filter").show();
+        $(".created_by_tag").show();
+        $("#created_by_tag_txt").html("#{cookies[:cre_by_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:asg_by]}" == "true" ){
+        var asg_split = "#{cookies[:asg_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<asg_split.length;i++)
+        {
+          $("#assg_by_"+asg_split[i]).prop("checked", true)
+        }
+      
+        $(".tag_filter").show();
+        $(".assigned_to_tag").show();
+        $("#assigned_to_tag_txt").html("#{cookies[:asg_by_txt]}".split('|').join(','));
+      }
+
+      if("#{cookies[:proj]}" == "true" ){
+        var proj_split = "#{cookies[:proj_val]}".slice(0,-1).split('|');
+        for(var i=0;i<proj_split.length;i++)
+        {
+          $("#proj_"+proj_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".proj_tag").show();
+        $("#proj_tag_txt").html("#{cookies[:proj_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:priority]}" == "true" ){
+        var priority_split = "#{cookies[:priority_val]}".slice(0,-1).split('|');
+        for(var i=0;i<priority_split.length;i++)
+        {
+          $("#priority_"+priority_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".priority_tag").show();
+        $("#priority_tag_txt").html("#{cookies[:priority_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:status]}" == "true" ){
+        var status_split = "#{cookies[:status_val]}".slice(0,-1).split('|');
+        for(var i=0;i<status_split.length;i++)
+        {
+          $("#status_"+status_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".status_tag").show();
+        $("#status_tag_txt").html("#{cookies[:status_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:daterange]}" == "true" ){
+        var daterange_id = "#{cookies[:dt_range]}".toLowerCase().split(' ').join('_');
+        $("#"+daterange_id).prop("checked", true)
+        $(".tag_filter").show();
+        $(".date_tag").show();
+        $("#date_tag_txt").html("#{cookies[:dt_range_txt]}")
+      }
+
+      if("#{cookies[:dtrange_from]}" == "true" ){
+        $(".tag_filter").show();
+        $(".date_range_tag").show();
+        $("#project_from").val("#{cookies[:dt_range_from]}");
+        $("#project_to").val("#{cookies[:dt_range_to]}");
+        $("#from_tag_txt").html("#{cookies[:dt_range_frm_txt]} to #{cookies[:dt_range_to_txt]}");
+      }
+    }
+  }
+
+  function reset_filter(id,class_n,stage_f){
+    $('.'+id+"_tag").hide();
+    if(id == "date_range")
+    {
+      $('.'+class_n).removeAttr('checked');
+      $('#project_from').val('');
+      $('#project_to').val('');
+    }
+    else
+    {
+      $('.'+class_n).removeAttr('checked');
+    }
+    $("#show_filter_dealmsg").html('');
+
+    $("#filter_get_val").val(0);
+    
+    multi_filter_project_jobs();
+  }
+
+  function reset_all_filter(){
+    $("#filter_get_val").val(0);
+    $('.label_tag').hide();
+    $('.created_by_tag').hide();
+    $('.assigned_to_tag').hide();    
+    $('.priority_tag').hide();
+    $('.status_tag').hide();
+    $('.reset_tag').hide();
+    $('.tag_filter').hide();
+    $('.cre_by_c').removeAttr('checked');
+    $('.proj').removeAttr('checked');
+    $('.asg_by_c').removeAttr('checked');
+    $('.any_time').removeAttr('checked');
+    $('.lst_tch').removeAttr('checked');
+    $('.priority_c').removeAttr('checked');
+    $('.status_c').removeAttr('checked');
+
+    $('#project_from').val('');
+    $('#project_to').val('');
+    $("#proj").val(0);
+    $.each(["cre_by","cre_by_val","cre_by_txt", "proj","proj_val","proj_txt","daterange","dt_range","dt_range_txt","asg_by","asg_by_val","priority","priority_val","status","status_val","asg_by_txt","dtrange_from","dt_range_from","dt_range_frm_txt","dtrange_to","dt_range_to","dt_range_to_txt","page_tab"], function( index, value ) {
+       $.removeCookie(value);
+    });
+    multi_filter_project_jobs();
+  }
+  function reset_filter(id,class_n,stage_f){
+    $('.'+id+"_tag").hide();
+    if(id == "date_range")
+    {
+      $('.'+class_n).removeAttr('checked');
+      $('#project_from').val('');
+      $('#project_to').val('');
+    }
+    else
+    {
+      $('.'+class_n).removeAttr('checked');
+    }
+    $("#show_filter_dealmsg").html('');
+
+    $("#filter_get_val").val(0);
+
+    if(id == "proj"){
+      $("#proj").val(0);
+      $('.proj_tag').hide();
+      $.removeCookie("proj");
+    }
+   
+    multi_filter_project_jobs();
+    $("#task_loader,.fixed_loader").hide();
+  }
+  function reset_filter_val(){
+    $("#filter_get_val").val(0);
+  }
+
+
+  $("#project_job_name").focusout(function() {
+    var name = $("#project_job_name").val();
+    if($.trim(name) == ''){
+      $('#quick_job').hide();
+      $('.proj_link_colour').show();
+    }
+  });
+
+  $("#project_job_name").keyup(function() {
+    var name = $("#project_job_name").val();
+    if($.trim(name) == ''){
+      $('#quick_job_btn').removeClass("active_quick_job_icon").addClass("disabled_quick_job_icon").prop("disabled",true);
+    }else{
+      $('#quick_job_btn').removeClass("disabled_quick_job_icon").addClass("active_quick_job_icon").removeAttr("disabled");
+    }
+  });  
+  $(window).click(function() {
+    $('.main_menu').hide();
+  });
+
+  $('.main_menu').click(function(event){
+    event.stopPropagation();
+  });
+
+  $("#jobListingDropdown").click(function() {  
+    var isChecked = $('input[name="job_check_box"]:checked').length;
+    if(isChecked > 0){
+      $("#jobListing_sub_menu").toggle();
+    }
+  });

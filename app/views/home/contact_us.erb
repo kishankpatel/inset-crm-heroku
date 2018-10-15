@@ -1,0 +1,106 @@
+<style type="text/css">
+    .modify_input{height: 50px;background-color: #fff;border-radius: 0;}
+    html,body{background: #fff}
+    .contact_us_header h1 {
+        font-size: 30px;
+        margin-top: 0;
+    }
+    .contact_us_header p{
+        margin: 10px 0;
+        font-size: 16px;
+    }
+    .cont_us_info p{
+        font-size: 16px;
+    }
+</style>
+<div class="body_container">
+<div class="contact_us_page">
+    <div class="banner-image contact_us_banner">
+        <h1>
+            Support Portal
+        </h1>
+        <p>
+            Drop us a line, We will provide you a quick & efficient service.
+        </p>
+  </div>
+</div>
+<div class="container overwrite_container cont_us_container">   
+    <div class="row">
+        <div class="col-md-7 col-sm-7 col-xs-12">
+            <div class="">
+                <div class="contact_us_header">
+                <h1>WakeUpSales Support</h1>
+                <p>Need help, have questions or want to suggest a feature? Send us a message here</p>
+                </div>                
+                <%= form_tag("/contact-us", method: "post") do %>         
+                    <div class="form-group">
+                        <%= text_field_tag :name,"",:required => 'true',:class => 'form-control modify_input',:placeholder => 'Name'  %>
+                    </div>
+                    <div class="form-group">
+                        <%= email_field_tag :email,"",:required => 'true',:class => 'form-control modify_input',:placeholder => 'Email' %>
+                        <label id="email_contact_us" style="display:none" class="error"></label>
+                    </div>
+                    <div class="form-group">
+                        <select name="need_help" class="form-control modify_input" required="required" >
+                            <option value="" selected="selected">
+                                What do you need help with?
+                            </option>
+                            <option value="I'm having trouble accessing my account">
+                                I'm having trouble accessing my account
+                            </option>
+                            <option value="Before I sign up I have some questions">
+                                Before I sign up I have some questions
+                            </option>
+                            <option value="I'd like some advice on using WakeUpSales">
+                                I'd like some advice on using WakeUpSales
+                            </option>
+                            <option value="I need help with the Google Apps integration">
+                                I need help with the Google Apps integration
+                            </option>
+                            <option value="I have a billing question">
+                                I have a billing question
+                            </option>
+                            <option value="I have a great idea for a new feature">
+                                I have a great idea for a new feature
+                            </option>
+                            <option value="I think there's a bug">
+                                I think there's a bug
+                            </option>
+                            <option value="Other">
+                                Other
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <%=text_area_tag :comment,"", :size => '15x5',:required => 'true',:class => 'form-control contact_txtarea modify_input', :placeholder => 'Write your comment'%>
+                    </div>
+                       <button class="btn" type="submit" onclick="return validate_email_con_us()" style="padding: 10px 30px;font-size: 18px;border-radius: 0;background: #458ccf;color: #fff;">Submit</button>  
+                <% end %>
+            </div>
+        </div>
+        <div class="col-md-5 col-sm-5 col-xs-12 cont_us_info" style="">
+            <p>Feel free to fill in our contact form if you have any questions. You can expect a reply from our customer support team with in 24 hours. </p>
+            <hr>
+            <p>Alternatively, you can email us at <a href="mailto:support@parkpointsoftware.com">support@parkpointsoftware.com</a></p>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    function validate_email_con_us()
+    {
+        var email_con=$("#email").val();
+        var atpos=email_con.indexOf("@");
+        var dotpos=email_con.lastIndexOf(".");
+        if (email_con != '' && (atpos<1 || dotpos<atpos+2 || dotpos+2>=email_con.length))
+        {
+            $("#email_contact_us").show();
+            $("#email_contact_us").html('Please enter a valid email address.')
+            return false;
+        }
+        else
+        {
+            $("#email_contact_us").hide();
+        }
+    }
+</script>

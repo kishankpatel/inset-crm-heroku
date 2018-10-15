@@ -1,0 +1,31 @@
+- @project_users.each do |p|
+  - if p.user.present?
+    - user_nm = p.user.full_name.present? ? p.user.full_name : p.user.email
+    %li.modify-assigned-user-for-job{  title: user_nm,data: {project_job_id: params[:project_job_id], user_id: p.user.id,color_code: p.user.get_user_color_code(user_nm[0].downcase),user_name: user_nm[0].upcase}}
+      = user_nm.truncate(20)
+    %li.divider
+=hidden_field_tag "user_color_code", ""
+
+:javascript
+  $(document).ready(function () {
+    $(".modify-assigned-user-for-job").on("click",function(){
+   
+      var project_job_id = $(this).data("project-job-id");
+      var user_id = $(this).data("user-id");
+      var color_code = $(this).data("color-code");
+      var user_name = $(this).data("user_name")
+
+      if(change_assign_user_for_job(project_job_id,user_id))
+      {
+        set_user_color_code(color_code,user_name); 
+        $('#reAllocateResourceModal').modal('show');
+        get_reallocate_resource(project_job_id,'all')
+      }
+      
+    });
+  });
+  function set_user_color_code(color, user_first_char){
+    $(".lead-profile-icon.ass_lead").css("background",color);
+    $(".lead-profile-icon.ass_lead").html(user_first_char);
+  }
+  

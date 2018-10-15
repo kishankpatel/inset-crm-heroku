@@ -1,0 +1,43 @@
+.table-responsive
+  %table.table{:cellpadding => "1", :cellspacing => "1"}
+    %thead
+      %tr
+        %th 
+          %span.fal.fa-suitcase.fl
+          %span.fl
+            &nbsp;Jobs
+          &nbsp;
+        %th Status
+    %tbody
+      - if @project_jobs.present?
+        - @project_jobs.each do |job|
+          -if deal
+            %tr
+              %td
+                %p
+                  =link_to job.title, project_job_path(job.project.id,job.id), class: "text-success font-bold"
+                %p
+                  =job.description
+                %ul
+                  %li
+                    Assigned to
+                    =job.assigned_user.full_name if deal.assigned_user.present?
+                  %li
+                    Due on
+                    =job.due_date
+                  %li
+                    =job.estimated_hours
+              %td.vmiddle
+                -if job.status.present? 
+                  .labelTaskType.btn.btn-outline.btn-success
+                    =job.status
+                - else
+                  NA
+      - else
+        %tr
+          %td.text-center
+            %span{style: "color:red"}
+              No jobs found !!!
+                        
+                        
+          

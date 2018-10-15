@@ -1,0 +1,55 @@
+:javascript
+  select_filter_from_cookies();
+  function select_filter_from_cookies(){
+    if(("#{cookies[:cre_by]}" == "true" ) || ("#{cookies[:asg_by]}" == "true" ) || ("#{cookies[:lead]}" == "true" ) || ("#{cookies[:daterange]}" == "true" ) || ("#{cookies[:dtrange_from]}" == "true" && "#{cookies[:dtrange_to]}" == "true")){
+      if("#{cookies[:cre_by]}" == "true" ){
+        var cre_split = "#{cookies[:cre_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<cre_split.length;i++)
+        {
+          $("#cre_by_"+cre_split[i]).prop("checked", true)
+        }        
+
+        $(".tag_filter").show();
+        $(".created_by_tag").show();
+        $("#created_by_tag_txt").html("#{cookies[:cre_by_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:asg_by]}" == "true" ){
+        var asg_split = "#{cookies[:asg_by_val]}".slice(0,-1).split('|');
+        for(var i=0;i<asg_split.length;i++)
+        {
+          $("#assg_by_"+asg_split[i]).prop("checked", true)
+        }
+      
+        $(".tag_filter").show();
+        $(".assigned_to_tag").show();
+        $("#assigned_to_tag_txt").html("#{cookies[:asg_by_txt]}".split('|').join(','));
+      }
+
+      if("#{cookies[:lead]}" == "true" ){
+        var lead_split = "#{cookies[:lead_val]}".slice(0,-1).split('|');
+        for(var i=0;i<lead_split.length;i++)
+        {
+          $("#lead_"+lead_split[i]).prop("checked", true)
+        }        
+        
+        $(".tag_filter").show();
+        $(".lead_tag").show();
+        $("#lead_tag_txt").html("#{cookies[:lead_txt]}".split('|').join(','));
+      }
+      if("#{cookies[:daterange]}" == "true" ){
+        var daterange_id = "#{cookies[:dt_range]}".toLowerCase().split(' ').join('_');
+        $("#"+daterange_id).prop("checked", true)
+        $(".tag_filter").show();
+        $(".date_tag").show();
+        $("#date_tag_txt").html("#{cookies[:dt_range_txt]}")
+      }
+
+      if("#{cookies[:dtrange_from]}" == "true" ){
+        $(".tag_filter").show();
+        $(".date_range_tag").show();
+        $("#project_from").val("#{cookies[:dt_range_from]}");
+        $("#project_to").val("#{cookies[:dt_range_to]}");
+        $("#from_tag_txt").html("#{cookies[:dt_range_frm_txt]} to #{cookies[:dt_range_to_txt]}");
+      }
+    }
+  }

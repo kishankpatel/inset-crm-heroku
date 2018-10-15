@@ -1,0 +1,3 @@
+.input-group-addon
+  %span.fal.fa-briefcase
+= select_tag :invoice_project_id, options_for_select( @projects.map{|prj| [prj.name,prj.id]}), {:prompt => "- Select Project -", :class=>"form-control", :name => "invoice[project_id]"}

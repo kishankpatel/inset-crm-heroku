@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Confirmation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Arial'; font-size:13px;color:#666;" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px;line-height:20px">
+            <tr>
+              <td height="50" style="text-align: center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height:100%;"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px;color:#666666;padding:20px;">
+                <p>
+                 Hey there,
+                </p>
+                <p >
+                  Thank you for your interest and welcome to InSet CRM Cloud Edition. Kindly verify your account by clicking the link below.
+                </p>
+                <div style="margin: 40px auto;font-size: 16px;">
+                <a href="<%=confirmation_url(@user, :confirmation_token => @token)%>" target="_blank" style="cursor: pointer;text-decoration: none;border: 1px solid #01447a;color: #FFFFFF;font-weight: bold;margin-top: 20px;padding: 15px 100px;width: 100%;text-align: center;background: #277dc2;"> Confirm my account > </a>
+                </div>
+               <p>For any questions, queries or help write to us at <a href="mailto:support@parkpointsoftware.com">support@parkpointsoftware.com</a>  & we'll get back to you as soon as we can.</p>
+                <p>
+                  InSet team works really hard to make customer relationship management easier for you every single day and that got us listed in some of the top review sites. It would be great if you could put your kind words of appreciation at the list below;
+                </p>
+                <div style="clear:both;"></div>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>
+

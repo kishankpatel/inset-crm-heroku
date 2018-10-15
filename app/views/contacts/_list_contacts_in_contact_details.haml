@@ -1,0 +1,24 @@
+/ Listing contact in contact details page.
+.contact-left
+  - @contacts.each do |con|        
+    - @name = con.class.name == "IndividualContact" ? con.first_name : con.name
+    - @email = con.email.split("@")[0] if con.email.present?
+    .col-md-6.other_cont_in_cont_details
+      %span.cont_icn{style:"background:"+Contact.get_color_code(@name.present? ? @name[0].downcase : (@email.present? ? @email[0].downcase : ""))}
+        - if @name.present?
+          = @name[0].upcase
+        - else
+          = @email[0].upcase if @email.present?
+      - if con.class.name == "IndividualContact"
+        %a{href: "/contact/#{con.to_param}"}
+          - if @name.present?
+            = @name.titlecase
+          - else
+            = @email.titlecase if @email.present?
+      - else
+        %a{href: "/contact/#{con.to_param}?type=company"} 
+          - if @name.present?
+            = @name.titlecase
+          - else
+            = @email.titlecase if @email.present?
+  .cb

@@ -1,0 +1,14 @@
+= hidden_field_tag "hdn_add_users"
+= hidden_field_tag "hdn_remove_users"
+#addUserModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "assignLeadModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout{:style => "width: 1050px;"}
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-user-plus
+          ADD USERS
+      .modal-body
+        #add_user_content

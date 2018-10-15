@@ -1,0 +1,87 @@
+#addTaskType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Task Type
+      .modal-body
+        = form_for(TaskType.new, :url => '', :html=>{:class => 'form', onsubmit: 'addTaskType(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.text_field :name, :required => true, id: 'txt-add-task-type', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Task Type*
+              %i.bar
+          .form-group
+            %button{type: 'submit', id: 'deal_submit_btn'} Save
+            %a.btn.btn-success{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+              %span.c_links
+                Cancel
+
+:javascript
+  function deleteTaskType(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_task_type/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#task_type_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  } 
+  $(function() {
+        $('#editTaskType').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget)
+          var statusName = button.data('name')
+          var statusId = button.data('id')
+          $('#txt-edit-task-type').val(statusName);
+          $('#task_type_id').val(statusId);
+        });
+        $('#addTaskType').on('show.bs.modal', function (event) {            
+            $("#txt-add-task-type").val('')
+        });
+    
+    });
+    function updateTaskType() {
+      var taskType = $("#txt-edit-task-type").val();
+      var taskId = $('#task_type_id').val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: 'update_task_type',
+          type: 'POST',
+          data: {id: taskId,
+              name: taskType },
+          success: function(res) {
+              $("#editTaskType").modal('hide');
+              $("#task_type_"+taskId).find( ".task_type_name" ).html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#task_type_error").show();
+          }
+      });
+    }  
+
+    function addTaskType() {  
+      var taskType = $("#txt-add-task-type").val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: 'add_task_type',
+          type: 'POST',
+          data: { name: taskType },
+          success: function(res) {
+              $("#addTaskType").modal('hide');
+              $("#list_task_type").html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#task_type_error").show();
+          }
+      });
+    }  

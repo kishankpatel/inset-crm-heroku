@@ -1,0 +1,756 @@
+.free_download_page .free-download-container {
+    position: relative;
+    text-align: center;
+    font-family: 'Roboto';
+    min-height: 400px;
+    background: url("images/knowledge-base-banner.png") no-repeat;
+    background-size: 100%;
+    background-position: center -7px;
+}
+.free_download_page #contact_response_msg_dwn {
+    position: absolute;
+    padding: 15px 20px;
+    top: 10px;
+    left: 24%;
+}
+.free_download_page .free-download-container h1 {
+    position: relative;
+    font-size: 44px;
+    color: #333333;
+    margin: 0px;
+        margin-bottom: 0px;
+    padding: 0px;
+        padding-top: 0px;
+    padding-top: 48px;
+    margin-bottom: 17px;
+}
+.free_download_page .run {
+    color: #078cff;
+    font-size: 27px;
+    position: relative;
+    margin-bottom: 17px;
+}
+.free_download_page .run sup {
+    font-size: 10px;
+    position: absolute;
+    top: 5px;
+}
+.free_download_page #download {
+    margin-top: 10px;
+}
+.free_download_page .mail_dl_osc {
+    width: 100%;
+    margin: 0 0 20px 0;
+}
+
+.free_download_page .dwnd-btn-nx {
+    text-align: center;
+}
+.free_download_page .dwnd-btn-nx a {
+    position: relative;
+}
+.free_download_page .dwnd-btn-nx a {
+    vertical-align: middle;
+    padding: 15px 20px;
+    margin-bottom: 7px;
+    display: block;
+    background: #078cff;
+    border-radius: 4px;
+    font-size: 22px;
+    max-width: 450px;
+    margin: 0px auto;
+}
+.free_download_page .dwnd-icon {
+    display: inline-block;
+    margin-right: 17px;
+    vertical-align: middle;
+}
+
+.our_dl_journey_section {
+    padding: 30px 0;
+}
+.our_dl_journey_section h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+.color-333 {
+    color: #333;
+}
+.our_dl_journey {
+    border: 1px solid #E1E9EC;
+    background: #EAEFF2;
+}
+.our_dl_journey ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    display: table;
+    width: 100%;
+}
+.our_dl_journey ul li {
+    display: table-cell;
+    vertical-align: middle;
+    color: #94a4a9;
+    font-size: 16px;
+    padding: 21px 19px;
+    border-right: 1px solid #DBDFE0;
+}
+.our_dl_journey ul li.one {
+    font-size: 13px;
+}
+.our_dl_journey ul li.four {
+    font-size: 17px;
+    color: #00cccc;
+    background: url(/assets/org_page/up-arrow.png) no-repeat 100% 0;
+}
+.installs-guide {
+    padding: 20px 0px;
+    background: #F4F5F8;
+}
+.width-49 {
+    width: 49%;
+    min-height: 200px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+.free_download_page .list-setup {
+    font-size: 22px;
+    line-height: 20px;
+    margin-top: 0px;
+    font-weight: bold;
+}
+.free_download_page ul.install-platform {
+    display: inline-block;
+    text-align: left;
+}
+
+.install-platform li {
+    padding-left: 32px;
+    line-height: 40px;
+}
+
+.free_download_page .install-platform li.linux{background: url("/assets/org_page/30.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.mac{background: url("/assets/org_page/31.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.doc{background: url("/assets/org_page/28.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.win{background: url("/assets/org_page/27.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.heroku{background: url("/assets/org_page/29.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.cus{background: url("/assets/org_page/32.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.google{background: url("/assets/org_page/google_calendar.png") no-repeat;background-size: 30px 30px;background-position: left center}
+.free_download_page .install-platform li.centos{background: url("/assets/org_page/centos_logo.png") no-repeat;background-size: 30px 30px;background-position: left center}
+
+.free_download_page .install-platform li a:hover {
+    color: #333;
+}
+.free_download_page .install-platform li a {
+    color: #333;
+}
+.free_download_page .install-platform a:hover {
+    text-decoration: underline;
+}
+.free_download_page .requirements ul li ul li {
+    line-height: 30px;
+    color:#333;
+}
+.free_download_page .requirements ul li{color: #333}
+.free_download_page .quick-instal-pg img {
+    width: 100%;
+    vertical-align: bottom;
+}
+.free_download_page .a-quest-cont {
+    display: table;
+}
+.free_download_page .circle-img {
+    width: 43%;
+    padding: 32px 20px 20px;
+    box-sizing: border-box;
+    text-align: center;
+    display: table-cell;
+}
+.free_download_page .circle-img img {
+    width: 40%;
+}
+.free_download_page .circle-img h3 {
+    font-size: 30px;
+    text-align: center;
+    margin-top: 0px;
+}
+.free_download_page .circle-img p {
+    text-align: center;
+}
+.free_download_page .help-pages {
+    text-align: center;
+    margin-top: 20px;
+}
+.free_download_page .help-pages a {
+    color: #333;
+    text-decoration: underline;
+}
+.free_download_page .help-pages {
+    text-align: center;
+    margin-top: 20px;
+}
+.free_download_page .a-quest-content {
+    width: 49%;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+.free_download_page .a-quest-content h3 {
+    font-size: 30px;
+    text-align: center;
+    margin-top: 25px;
+}
+.free_download_page .a-quest-content a {
+    margin-right: 5px;
+}
+.free_download_page .error-border {
+    border: 2px solid red !important;
+}
+.thank-you-container {
+    text-align: center;
+    padding-bottom: 30px;
+    background-size: 100% 100%;
+    padding: 80px 0px 30px;
+    display: none;
+}
+.inst_supp{display: none;}
+.thank-you-container h1 {
+    font-size: 42px;
+    color: #000000;
+    margin: 0px;
+    padding: 0px;
+    padding-top: 20px;
+}
+.thank-you-container p {
+    font-size: 27px;
+    text-transform: capitalize;
+    margin: 0px;
+    padding: 0px;
+    color: #35689a;
+    margin-bottom: 80px;
+}
+
+
+
+
+
+/*setup linux page*/
+.top_mid_bg_shadow1{color:#333;}
+.top_mid_bg_shadow1 img{max-width:100%;}
+.step-guid-head {
+    background: #485665;
+    color: #fff;
+    padding: 15px;
+    width: 100%;
+}
+.step-guid-head {
+    margin: 0 auto;
+    width: 1070px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+    font-weight: normal;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+.step-guid-head h1{font-size: 24px;}
+.wakeupsales-main-content {
+    margin: 0 auto !important;
+    width: 79% !important;
+    background: #fff;
+}
+.top_mid_bg_shadow1 li{color:#333;}
+.cnt_all_osc h3 {
+    font-size: 22px;
+    font-weight: bold;
+}
+.cnt_all_osc h2 {
+    color: #428fd0;
+    font-size: 20px;
+    font-weight: normal;
+    padding: 15px 0;
+}
+.cnt_all_osc a:hover {
+    text-decoration: underline;
+}
+.cnt_all_osc a {
+    color: #428fd0;
+}
+
+/*css for setup-mac page */
+.setup-mac-banner {
+    background: url(/assets/org_page/mac-banner2.png) no-repeat;
+    height: 400px;
+    text-align: center;
+    padding-bottom: 30px;
+    background-position: center 88%;
+    background-size: 68% auto;
+}
+.contact-support h5 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+.dwnld-btn {
+    font-size: 20px;
+    color: #428FD0;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: 500;
+    padding: 5px 10px;
+    line-height: 25px;
+    width: 290px;
+    text-decoration: none;
+    text-align: center;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.dwnld-btn:hover{text-decoration: underline;}
+.contact-support {
+    text-align: center;
+    padding: 15px 0px 40px;
+    width: 79%;
+    margin: 0 auto;
+}
+.top_mc_img_con p{font-weight: bold;}
+.margin_left_30{margin-left: 30px;}
+.list_style_circle{list-style-type: circle !important;}
+.list_style_disc{list-style-type: disc !important;}
+.list_style_sq{list-style-type: square !important;}
+.ul li, ol li{color: #333;}
+.banner-page-head {
+    top: 70px;
+    color: #fff;
+    font-size: 35px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    position: absolute;
+    line-height: 50px;
+}
+.step-guid-head {
+    margin: 0 auto;
+    width: 1070px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+    font-weight: normal;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background: #EFF0F1;
+}
+.service_cnt_bg {
+    background: none;
+    box-shadow: none;
+    margin: 15px 0 0;
+    padding: 20px 0 0;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+.cnt_all_osc ol {
+    margin: 0;
+    padding: 5px 0 0 30px;
+}
+.cnt_all_osc.lft_cnt_ig.active {
+    border: 0 none;
+    width: 100%;
+}
+.wrap_osc_ig.wkps-wraprer, .wkps-wraprer {
+    width: 90%;
+    margin: 0 auto;
+}
+.cnt_all_osc ol li {
+    color: #171717;
+    font-size: 16px;
+    line-height: 25px;
+    margin-bottom: 5px;
+}
+.g-sync-image {
+    text-align: center;
+}
+.wrap_osc_ig p {
+    margin-left: 20px;
+    padding: 8px 0;
+}
+.cnt_all_osc h2 {
+    color: #428fd0;
+    font-size: 25px;
+    font-weight: normal;
+    padding: 15px 0;
+}
+
+
+/*css for quick installation support page*/
+.makplace-details, .marketplace-page.makplace-details .mkp-tab {
+    background: #fff;
+}
+.sendgrid_top_banner {
+    position: relative;
+}
+.sendgrid_top_banner {
+    background: url(/assets/org_page/sendgrid-bnr.jpg) no-repeat center center;
+    background-size: cover;
+    width: 100%;
+    display: block;
+    height: 285px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+.inside-contain {
+    display: table;
+    height: 100%;
+}
+.inside-contain > div:first-child {
+    padding-left: 20px;
+    box-sizing: border-box;
+}
+.inside-contain div {
+    display: table-cell;
+    vertical-align: middle;
+}
+.width-20 {
+    width: 20%;
+}
+.inside-contain div {
+    display: table-cell;
+    vertical-align: middle;
+}
+.plug-logo {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    text-align: center;
+    background: #fff;
+}
+.plug-logo img {
+    width: 50%;
+    vertical-align: bottom;
+}
+.makplace-details .page-flow a {
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 16px;
+    color: #727376;
+    display: inline-block;
+}
+.makplace-details .page-flow a.clr {
+    color: #3CC5F9;
+}
+.marketplace-page.makplace-details .width-50 {
+    width: 50%;
+}
+.makplace-details .mkp-price-dtl h2 {
+    font-size: 40px;
+    line-height: 90px;
+    color: #303030;
+    display: inline-block;
+    margin: 15px 0px 0px 0px;
+}
+.makplace-details .mkp-price-dtl h2 span {
+    font-size: 30px;
+    display: inline-block;
+}
+.makplace-details .mkp-price-dtl h4 {
+    font-size: 21px;
+    line-height: 60px;
+    color: #9C9C9C;
+    display: inline-block;
+    text-decoration: line-through;
+    font-weight: 500;
+    margin: 0 5px;
+}
+.mkp-price-dtl .lft_price img {
+    height: 66px;
+    width: 137px;
+    display: inline-block;
+    margin-left: 10px;
+}
+.add-cart {
+    text-decoration: none;
+    padding: 4px 15px;
+    font-weight: bold;
+    margin-top: 20px;
+    background: #0C9;
+    color: #fff;
+    border-radius: 5px;
+    display: inline-block;
+}
+.makplace-details .buy-now-btn {
+    text-decoration: none;
+    color: #fff;
+    background: #1bb52e;
+    padding: 4px 50px;
+    text-align: center;
+    display: inline-block;
+    font-size: 22px;
+    border-radius: 5px;
+}
+
+.sendgrid_top_banner .width-40 a {
+    background: #1bb52e;
+    border-radius: 2px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+}
+.makplace-details, .marketplace-page.makplace-details .mkp-tab {
+    background: #fff;
+}
+.marketplace-page .mkp-tab {
+    padding: 35px 0px;
+    width: 100%;
+}
+.marketplace-page .mkp-tab .wrapper .tab-btn ul.tabs {
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+    width: 100%;
+    height: 50px;
+}
+.marketplace-page .mkp-tab .tab-btn ul.tabs {
+    margin: 0px;
+    padding: 0px;
+    list-style-type: none;
+    text-align: center;
+}
+.marketplace-page.makplace-details .mkp-tab .tab-btn ul.tabs li {
+    width: auto;
+    display: inline-block;
+    min-width: 150px;
+}
+
+.marketplace-page.makplace-details .mkp-tab .tab-btn ul.tabs li a.active {
+    border-color: #05A8E9;
+    color: #373435;
+    font-weight: 600;
+    background: none;
+    font-size: 14px;
+}
+.marketplace-page .mkp-tab .tab-btn ul.tabs li a.active {
+    background: #35CE95;
+    color: #fff;
+}
+.marketplace-page.makplace-details .mkp-tab .tab-btn ul.tabs li a {
+    background: none;
+    color: #96989A;
+    border-right: 1px dotted #ccc;
+    font-size: 14px;
+    border-radius: 0px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.marketplace-page .mkp-tab .tab-btn ul.tabs li a {
+    text-decoration: none;
+    position: relative;
+    background: #ccc;
+    color: #222;
+    display: block;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 30px;
+    color: #303030;
+    border-radius: 5px;
+    outline: none;
+}
+.marketplace-page .mkp-tab .wrapper .tab-btn ul.tabs li a.active::before {
+    background: #36c3f9;
+    bottom: -2px;
+    display: block;
+    height: 3px;
+    width: 100%;
+    border-top: 0px;
+}
+
+.marketplace-page .mkp-tab .tab-btn ul.tabs li a.active:before {
+    border-top: 15px solid #35CE95;
+}
+.marketplace-page.makplace-details .mkp-tab .tab-btn ul.tabs li a:before {
+    border: none;
+}
+.marketplace-page .mkp-tab .tab-btn ul.tabs li a:before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #ccc;
+}
+.marketplace-page .mkp-tab .tab-btn ul.tabs li a.active::after {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #36c3f9;
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    margin-left: -5px;
+}
+.marketplace-page.makplace-details .mkp-tab .tab-btn ul.tabs li {
+    width: auto;
+    display: inline-block;
+    min-width: 150px;
+}
+
+.marketplace-page.makplace-details .mkp-tab .plug-integ {
+    margin: 50px 0px 0px;
+}
+
+.marketplace-page.makplace-details .mkp-tab .plug-integ {
+    background: #fff;
+    padding: 0px;
+    margin: 50px 0 0;
+}
+.plug-integ.tab-cont-detail span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.send_grid_box {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+}
+.plug-integ.tab-cont-detail span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.plug-integ.tab-cont-detail span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.plug-integ .wus_logo {
+    height: 90px;
+}
+.plug-integ .wus_logo img {
+    height: 100%;
+}
+.tab-cont-detail div:nth-child(2) > h2 {
+    font-size: 17px;
+    color: #373435;
+    font-weight: 600;
+    margin-top: 0px;
+}
+.price_tbl_ser {
+    display: none;
+    width: 80%;
+    margin: 20px auto;
+    position: relative;
+}
+.price_tbl_ser table {
+    table-layout: fixed;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+.price_tbl_ser table th:first-child, .price_tbl_ser table td:first-child {
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table th {
+    padding: 15px 10px;
+    border-bottom: 1px solid #696969;
+    font-size: 20px;
+    color: #221f1f;
+    text-align: center;
+}
+.price_tbl_ser table td:nth-child(2), .price_tbl_ser table th:nth-child(2) {
+    text-align: center;
+}
+.plug-integ.tab-cont-detail span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.price_tbl_ser table th:first-child, .price_tbl_ser table td:first-child {
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table th:first-child, .price_tbl_ser table td:first-child {
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table th:first-child, .price_tbl_ser table td:first-child {
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table th:first-child, .price_tbl_ser table td:first-child {
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table td, .price_tbl_ser table th {
+    position: relative;
+    text-align: left;
+    width: 50%;
+}
+.price_tbl_ser table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #c1c1c1;
+    font-size: 18px;
+    color: #505050;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+.srv-cmn-sprite.cvi {
+    background-position: 6px -158px;
+}
+.srv-cmn-sprite {
+    background: url(/assets/org_page/Sprite_icons_marketplace_WUS.png) no-repeat;
+    min-height: 38px;
+    width: 40px;
+    background-size: 34px;
+    display: inline-block;
+    position: relative;
+    left: 0;
+    top: 0;
+    vertical-align: middle;
+    margin-left: 50px;
+    margin-left: 10px;
+    margin-right: 14px;
+    background-size: 34px;
+}
+
+.tmonial_section {
+    background: url(/assets/org_page/tmonial.png) no-repeat center center;
+    width: 100%;
+    height: 465px;
+    background-size: cover;
+    text-align: center;
+    color: #fff;
+}
+.tmonial_section img {
+    padding: 60px 0px 30px 0px;
+}
+.tmonial_section .c_name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0px;
+}
+.tmonial_section .c_address {
+    font-size: 15px;
+    font-weight: 300;
+    margin-top: 0px;
+}
+.tmonial_section .client_quote {
+    font-size: 22px;
+    font-weight: 500;
+    margin-top: 30px;
+}

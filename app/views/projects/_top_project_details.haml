@@ -1,0 +1,122 @@
+:css
+  .edit_contact_container {overflow-y: auto;max-height:500px}
+
+%div  
+  .col-md-12.new_form_layout
+    .contact_detail_top_sec.cont_box.priority_border{style:"padding: 8px 15px;"}
+      .pfl_contact_detail
+        .change_lead_stage_sec
+          .rectanglar-sts{:class => @project.status.downcase.gsub(" ", "_")}
+            %span{:style => "font-size:11px;"}
+              = @project.status
+          / - if !@project.is_completed
+          /   - cls = 'active'
+          / - else
+          /   - cls = ''
+          / %button.won_lead{href:"javascript:void(0)", :class => @project.is_completed.to_s.present? && @project.is_completed ? "active" : "#{cls}", :disabled => @project.is_completed.to_s.present? && @project.is_completed} Complete
+          /%button.lost_lead{href:"javascript:void(0)", :class => (@project.is_archive.to_s.present? && !@project.is_archive) ? "active" : "#{cls}", :disabled => (@project.is_archive.to_s.present? && !@project.is_archive)} Archive
+          
+        %ul.m0
+          %li
+            .fl
+              .opp_title_sec.mt10.tooltip{title: @project.name}
+                %span.cwkp-sprite.opp_title_icon
+                = @project.name.truncate(40)
+                .cont_top_r 
+                  - if @project.deal.present?
+                    - lead = @project.deal
+                    - if lead.custom_value.present?
+                      .opp_ld_amt
+                        = lead.custom_value
+                    - else
+                      .price
+                        - if lead.currency_type == 'S$'
+                          - currency = 'SGD($)'
+                        - elsif lead.currency_type == '€'
+                          - currency = 'EUR(€)'
+                        - elsif lead.currency_type == 'INR'
+                          - currency = 'INR'
+                        - elsif lead.currency_type == '£'
+                          - currency = 'GBP(£)'
+                        - elsif lead.currency_type == 'DZD'
+                          - currency = 'DZD'
+                        - else
+                          - currency = 'USD($)'
+                        %span.clr.tooltip{title:"Amount #{currency}", style: "font-size: 12px;"}
+                      .opp_ld_amt{title:"Amount #{currency}"}
+                        = lead.currency_type
+                        = lead.amount.present? ? number_to_currency(lead.amount.to_f, precision: 2).gsub("$", "") : 0
+                        
+              - if lead.present? && lead.billing_type.present?
+                - if lead.billing_type != "Fixed bid" && lead.billing_type != "Custom" && @billing_type.include?(lead.billing_type)
+                  - if lead.amount.present? && lead.amount != 0
+                    - duration = lead.billing_type.split("Per ")[1]
+                    .duration-sec
+                      %b
+                        = lead.duration.present? ? lead.duration : 0
+                        = duration + "s"
+                      at
+                      %b
+                        = number_to_currency(lead.ref_billing_amount.to_f, :precision => 2).gsub("$", "")
+                      = lead.currency_type + "/" + duration if lead.currency_type.present?
+                    
+              - if @project.created_user.present?
+                .cont_top_r.contactImage  
+                  - if @project.created_user.image.present?
+                    .userImage
+                      = image_tag @project.created_user.image.image.url(:thumb), onError: "this.src='/assets/new-ui/user.png'"
+                  - else
+                    - unless @name.nil?
+                      - contact_letter = @name[0]
+                    
+                    - if @name.present?   
+                      %span.assn-pf-icon{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+                        = contact_letter.upcase
+                .cont_top_r.cont_basic_info
+                  
+                  .cont_name{style: "text-align:center;padding-left:0;"}
+                    -user_name = @project.created_user.full_name.present? ? @project.created_user.full_name : @project.created_user.email
+                    =link_to user_name, "/profile/#{@project.created_user.id}", class: "link_n"
+            .fr
+              
+              .cont_top_r.assn-user-top.opp_assign_action{style:"margin-right: 10px;"}
+                - if @project.project_users.present?
+                  - @project.project_users.each do |puser|
+                    - user= puser.associated_user
+                    - if user
+                      - user_name =  user.full_name.present? ? user.full_name : user.email
+                      - color_code = user.get_user_color_code(user_name.downcase[0])
+                      - color_code = color_code.present? ? color_code : "#ddd"
+                      %span.lead-profile-icon.ass_lead{title: user_name, :style => "background:" + color_code}
+                        = user_name.upcase[0]
+                  
+              .cont_top_r.dropdown
+                .cont_more_icn.cont_visibility_icn.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+                  %span.cwkp-sprite
+                %ul.dropdown-menu.pull-right{:style => "min-width:110px;"}
+                  %li.arrow_top{:style => "left: auto;right:0"}
+                  %li
+                    %a{:href => "javascript:void(0)", :onclick => "update_project('#{@project.id}','complete')", :rel => "tooltip", :title => "Mark this project as \"Complete\""}
+                      %span.cwkp-sprite.complete>
+                      Complete
+                  %li.divider
+                  %li
+                    %a{:href => "javascript:", :onclick => "add_project_user('#{@project.id}')", :style => "cursor:pointer;", :title => "Add new Users to this project"}
+                      %span.filter-cwkp-sprite.filter_created_by>
+                      Add Users
+                  %li.divider
+                  %li
+                    %a{:href => "javascript:void(0)", :onclick => "archive_project('#{@project.id}')", :rel => "tooltip", :title => "Delete this project"}
+                      %span.glyphicon.glyphicon-trash>
+                      Delete
+
+              
+            .cb
+            .opp_status_bar_sec
+              - @current_organization.project_stages(:is_active => true).all.each do |prj_stage|
+                %span.opp_status{:class=> "#{@project.project_stage_id == prj_stage.id ? 'active' : ''} "}
+                  = prj_stage.name
+             
+
+:javascript
+  

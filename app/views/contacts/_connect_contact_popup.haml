@@ -1,0 +1,88 @@
+#connectContactModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y: scroll;"}
+  .modal-dialog
+    .modal-content
+      .color-line
+      .modal-header.header_icon
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"}
+          %span.fal.fa-address-card
+          ADD A NEW CONTACT
+        .modal-body
+          .row
+            .col-md-12
+              .form-group
+                = text_field_tag :connect_contact_first_name,"",:class=>"form-control  company-contact-name typeahead col-md-12",:onkeyup=>"return onlycharacters(event)",:onkeydown=>"return onlycharacters(event)", "data-provide"=> "typeahead" , :autocomplete=>"off",  placeholder: "Name of contact *"
+                
+                =hidden_field_tag :comp_individual_contact_id
+                =hidden_field_tag :company_contact_id, @contact.id
+          .row
+            .col-md-12
+              #display_contact_info_comp
+        .modal-footer
+          %button.btn.btn-info.cont_submit_btn{ :onclick=>"connect_company()"} Connect
+          - curr_country_id = @contact.country.present? ? @contact.country.id : ''
+          - org_state = @contact.address.present? ? @contact.address.state : ''
+          - org_city = @contact.address.present? ? @contact.address.city : ''
+          =link_to "#contactModal", "data-toggle" => "modal", "onclick" => "$('#new-contact')[0].reset();$('#email_err_i').html('');$('#company_added_info_div').css('display','none');display_company_div('hide');$('#company_contact_id').val(#{@contact.id});$('.company-name-typeahead').val('#{@contact.name.present? ? @contact.name : @contact.email}').attr('disabled','disabled');$('#website').val('#{@contact.website}');$('#company_strength').val('#{@contact.company_strength_id}');$('#country').val(#{curr_country_id});prefill_extension('#{curr_country_id}','extension_for_contact','extension_contact_popup');select_country_state('#{curr_country_id}', '#{org_state}');$('#city').val('#{org_city}');", :class => "btn btn-success btn-sm" do
+            + Add New Contact   
+          
+:javascript
+  $(function(){
+    $('.company-contact-name.typeahead').typeahead([{
+      name: 'contacts',
+      minLength: 0,
+      limit: 500,
+      valueKey: 'name',
+      remote: {url: '/get_contacts/'+ #{current_user.organization.id if current_user.organization.present?}+ "?q=%QUERY"},
+      template: "<p style='word-wrap: break-word;'><strong>{{name}}</strong> - {{email}}</p>",
+      engine: Hogan
+      }]).on('typeahead:selected',onSelectedContactForCompany).on('typeahead:opened',onOpened);
+  });
+  function onSelectedContactForCompany($e,datum){
+    console.log("autocompleted");
+    console.log(datum);
+    $('#comp_individual_contact_id').val(datum.id);
+    $.ajax({
+      type: "POST",
+      url: "/display_contact_info",
+      data: {id: datum.id},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#display_contact_info_comp").html(data);
+        $("#display_contact_info_comp").show();
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }
+  function connect_company(){
+    if($('#comp_individual_contact_id').val() != "")
+    {
+      var ind_contact_id = $('#comp_individual_contact_id').val() ;
+      var comp_contact_id =$('#company_contact_id').val() 
+      $.ajax({
+      type: "POST",
+      url: "/connect_contact_to_company",
+      data: {contact_id: ind_contact_id,company_contact_id: comp_contact_id},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#task_loader,.fixed_loader").hide();
+        window.location.reload()
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+    }
+  }

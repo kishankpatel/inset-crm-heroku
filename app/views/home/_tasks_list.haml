@@ -1,0 +1,46 @@
+.table-responsive
+  %table.table
+    %tr
+      %th #
+      %th Name
+      %th Type
+      %th Assigned to
+      %th Due date
+      %th Actions
+    - if @tasks.present?
+      - i = 0
+      - @tasks.each do |task|
+        %tr{:id => "task_"+task.id.to_s}
+          %td.num
+            = i+=1
+          %td
+            = task.title
+          %td
+            = task.task_type.present? ? task.task_type.name : "None"
+          %td
+            = task.assigned_user_name
+          %td
+            = task.due_date.strftime("%b %d, %Y") if task.due_date.present?
+          %td.actions
+            %a{:href => "javascript:void(0)", :onclick => "$('#editTaskModal').modal('show');edit_popup('#{task.id}');"}
+              %i.fal.fa-pencil{"aria-hidden" => "true"}
+            %a{:href => "javascript:void(0)", :onclick => "delete_task(#{task.id})"}
+              %i.fal.fa-trash{"aria-hidden" => "true"}
+      - if @tasks.size == 10
+        %tr
+          %td.text-right{colspan: "6"}
+            %a{href:"/tasks"} View all
+    - else
+      %tr
+        %td{colspan: "6"}
+          %div{style: "margin-top: 55px;text-align: center;width: 100%;"}
+            - if params[:task_type].present? &&  params[:task_type] == "all"
+              You haven't created any tasks yet.  
+            - elsif params[:task_type].present? &&  params[:task_type] == "upcoming"
+              Oh! You have no Upcoming tasks
+            -else  
+              Oops! There are no tasks
+              = params[:task_type].present? ? params[:task_type].capitalize() : "Today"
+            %br
+            =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "$('#task_referrer').val('Header');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#deal_title_task').prop('required','true');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');" do
+              +Create one

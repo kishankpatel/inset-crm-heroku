@@ -1,0 +1,84 @@
+:javascript
+  $('.privacy_file').hover( function() { $(this).find('.pencilr').toggle();} );
+  $('.edit_pr_file').click( function() { $(this).parent().parent().parent().find('.edit_pr_file_div').slideToggle("slow");} );
+.row
+  .col-md-12.tooltip-demo
+    -if @notes.present?
+      -@notes.each do |at_a|
+        - note_attachments = NoteAttachment.where(note_id: at_a.id)
+        - if note_attachments.present?
+          - note_attachments.each do |file|
+            -if file.attachment.present?
+
+              .col-md-3.project-widget-files.text-center.mb10
+                -@filename = file.attachment_file_name.split("/").last
+                -@ext = File.extname(@filename)
+                - file_type = file.attachment_content_type.present? ? file.attachment_content_type.split("/").last : "NA"
+                - if file_type.downcase == "doc" || file_type.downcase == "docx"
+                  - file_title = "Document"
+                  - file_class = "fal fa-file-word text-info"
+                - elsif file_type.downcase == "zip"
+                  - file_title = "ZIP File"
+                  - file_class = "fa-file-archive text-primary"
+                - elsif file_type.downcase == "xls" || file_type.downcase == "csv"
+                  - file_title = "Excel Sheet"
+                  - file_class = "fa-file-excel text-success"
+                - elsif file_type.downcase == "exe"
+                  - file_title = "Application"
+                  - file_class = "fa-file-alt text-primary-2"
+                - elsif file_type.downcase == "txt"
+                  - file_title = "Text"
+                  - file_class = "fa-file-alt text-primary"
+                - elsif file_type.downcase == "png" || file_type.downcase == "jpg" || file_type.downcase == "jpeg"
+                  - file_title = "Image"
+                  - file_class = "fa-file-image text-warning"
+                - elsif file_type.downcase == "pdf"
+                  - file_title = "Pdf"
+                  - file_class = "fa-file-pdf text-danger"
+                - elsif file_type.downcase == "ppt" || file_type.downcase == "pptx"
+                  - file_title = "Presentation"
+                  - file_class = "fa-file-powerpoint text-danger"
+                - elsif file_type.downcase == "mp4" || file_type.downcase == "wmv" || file_type.downcase == "flv" || file_type.downcase == "avi" || file_type.downcase == "mov"
+                  - file_title = "Video"
+                  - file_class = "fa-file-video text-primary-2"
+                - elsif file_type.downcase == "mp3" || file_type.downcase == "wav" || file_type.downcase == "wma"
+                  - file_title = "Audio"
+                  - file_class = "fa-file-audio text-warning"
+                - else
+                  - file_title = file_type
+                  - file_type = "other"
+                  - file_class = "fa-file-alt text-info"
+                - if at_a.notable_type == "Comment"
+                  - comment = Comment.where(id: at_a.notable_id, commentable_type: "ProjectJob").first
+                  - if comment.present?
+                    .hpanel
+                      .panel-body.file-body
+                        .display_attached_file
+                          %a{href: file.attachment.url, download:file.attachment.url, "data-toggle"=>"tooltip", title:"Download - #{file.attachment_file_name}" }
+                            %span.fal.fa-4x{class: "#{file_class} file_#{file_type.downcase}"}
+                        %a.view-project-job.text-danger{href: project_project_job_path(@project.id, comment.commentable_id), target: "_blank", "data-toggle"=>"tooltip", title:"This file belongs to a project job, Click to go to the project job"}
+                          %span.fal.fa-eye
+                      .panel-footer
+                        %a{href: project_project_job_path(@project.id, comment.commentable_id), target: "_blank", "data-toggle"=>"tooltip", title:"This file belongs to a project job, Click to go to the project job" }
+                          %span{class: "file-name file_#{file_type.downcase}"}
+                            = file.attachment_file_name
+                - else
+                  .hpanel
+                    .panel-body.file-body{"data-toggle"=>"tooltip", title:"This file belongs to a note."}
+                      .display_attached_file
+                        %a{href: file.attachment.url, download:file.attachment.url, "data-toggle"=>"tooltip", title:"Download - #{file.attachment_file_name}" }
+                          %span.fal.fa-4x{class: "#{file_class} file_#{file_type.downcase}"}
+                    .panel-footer
+                      %a{href: file.attachment.url, download:file.attachment.url, "data-toggle"=>"tooltip", title:"Download - #{file.attachment_file_name}" }
+                        %span{class: "file-name file_#{file_type.downcase}"}
+                          = file.attachment_file_name
+    - else
+      .co-md-12.text-center
+        No files found. Please uplaod files in notes or project job comments.
+
+:javascript
+    // Initialize tooltips
+    $('.tooltip-demo').tooltip({
+        selector: "[data-toggle=tooltip]"
+    });
+         

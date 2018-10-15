@@ -1,0 +1,20 @@
+#addJobGroup.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Job Group
+      .modal-body
+        = form_for(ProjectJobGroup.new, :url => '', :html=>{:class => 'form', onsubmit: 'addJobGroup(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.hidden_field :project_id
+              =f.text_field :name, :required => true, id: 'txt-add-job-group', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Job Group*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{group: 'submit', id: 'deal_submit_btn'} Save
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel

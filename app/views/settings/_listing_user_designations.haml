@@ -1,0 +1,8 @@
+.tasks
+  - @current_organization.user_designations.each do |user_designation|
+    %div{style: "margin-bottom: 15px;background-color: #eee;border-radius: 5px;border: 1px solid rgb(153, 153, 153);padding: 10px 5px;height: 40px;cursor: pointer", id: "user_Desg_#{user_designation.id}"}
+      .fl.task_type_name
+        = user_designation.name
+      .fr
+        %span.glyphicon.glyphicon-pencil{value: "#{user_designation.id}", data: { toggle: "modal", target: "#editUserDesg", id: user_designation.id, :name => user_designation.name }}
+        %span.glyphicon.glyphicon-trash{value: "#{user_designation.id}", onclick: "deleteUserDesg(this)", title: "Delete", data: { id: user_designation.id }}

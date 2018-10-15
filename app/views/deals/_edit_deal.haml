@@ -1,0 +1,24 @@
+:css
+  #deal_tags_tag{width: 100px}
+  #deal_tags_tagsinput{width:242px!important;border-radius:4px;}
+  .con-box1{min-height: 165px;}
+  .ht-20{height:20px;}
+  .input-sm{width: 200px!important}
+  .mt10{margin-top:6px;margin-left:0px;}
+%script{src: "/assets/jquery.tagsinput.min.js"}
+= javascript_include_tag "skypeCheck"
+#editDealModal.modal.fade.bs-example-modal-lg{"aria-hidden" => "true", "aria-labelledby" => "editDealModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.modal-lg
+    .modal-content.tooltip-demo
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4{style:"display:inline-block;vertical-align: middle;"}
+          %span.fal.fa-briefcase
+          EDIT OPPORTUNITY
+      #edit-contact-alert-msg.alert.fade.in.alert-danger{style: "display:none;"}
+        %button.close{onclick: "$('#edit-contact-alert-msg').hide();$('#loader').hide();"} x
+        #edit-deal_msg_div
+      #edit_deal
+

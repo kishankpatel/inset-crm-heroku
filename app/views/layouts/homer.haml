@@ -1,0 +1,122 @@
+!!!
+%html{lang: "en"}
+  %head
+    - if request.fullpath.include? "sign-in"
+      - @title = "InSet CRM | Client Management Software"
+      - @description = "Registered user can sign in to InSet CRM the free CRM tool using their personal credentials. User can also sign in using Google+ and LinkedIn social accounts."
+      - @keywords = "free crm, crm tool, best crm tool, best crm app, free crm app, crm software, free crm tool, best free crm, free crm software, best crm software, cloud crm software, lead management tool, lead management app, client management tools, free lead management tool, lead management software, client management software, customer management system, free lead management software, customer management software, crm customer relationship management, crm for small business, cloud crm, crm application, top crm software, lead tracking software, free crm tools, best crm tools, best crm for sales, free cloud crm software, Cloud CRM Tool, Free Cloud CRM Tool, Free Cloud CRM app, Self-hosted, CRM for startups"  
+    %meta{charset: "utf-8"}
+    %meta{content: "IE=Edge", "http-equiv" => "X-UA-Compatible"}
+    %meta{content: @description.present? ? @description : "InSet CRM is the best free CRM tool to streamline the sales activities, manage leads, create powerful customer relationships and improve the productivity with CRM Solution.", name: "description"}
+    %meta{content: @keywords.present? ? @keywords : "free crm software, best crm software, client management software, customer management software, lead management software, customer management system, free lead management tool, free crm tool, cloud crm software, lead management tool, free crm app, crm software, best free crm, free crm, contact management software, free lead management software, Lead Management crm tool, client relationship management, free crm solution, cloud crm Tool, Free cloud crm tool, relationship management, customer management, crm", name: "keywords"}
+    %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+    %title 
+      = @title.present? ? @title : "InSet CRM | Client Management Software" 
+    - if( (params[:controller] == "home" && (params[:action] == "index" || params[:action] == "how_it_works" || params[:action] == "features" || params[:action] == "success_story"  || params[:action] == "success_story_ajay" || params[:action] == "pricing_new" || params[:action] == "pricing_self_hosted" || params[:action] == "about_us" || params[:action] == "contact_us" || params[:action] == "security"  || params[:action] == "integration" || params[:action] == "awards_and_recognitions" || params[:action] == "report_a_bug") ) || request.fullpath.include?("users/sign-up") )
+      /= stylesheet_link_tag "bootstrap.min"
+      = stylesheet_link_tag "sign-up"
+    - else  
+      = stylesheet_link_tag "application", :media => "all"
+      /= stylesheet_link_tag "custom.min"
+    :javascript
+      var org_id= "#{current_user.organization.id if current_user.present? && current_user.organization.present?}";
+    = javascript_include_tag "application"
+    %link{:href => "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700", :rel => "stylesheet"}
+    = csrf_meta_tags
+    = favicon_link_tag 'inset_favicon.ico', :rel => 'shortcut icon'
+  - if user_signed_in?
+    %body.fixed-navbar.sidebar-scroll.fixed-footer
+      #toast-container.toast-top-center
+        = bootstrap_flash
+      =render partial: "saas/shared/header"
+
+          
+      %div#search_result
+      #wrapper
+        =render partial: "saas/shared/side_menu"
+        = yield
+        /=render partial: "saas/shared/right_sidebar"
+        =render partial: "saas/shared/footer"
+        #task_loader.wus-loader
+          .fixed_loader
+  -else
+    %body.blank
+      #toast-container.toast-top-center
+        = bootstrap_flash
+      = yield
+      
+- if user_signed_in? && current_user.organization.present?
+  /- unless current_user.is_siteadmin?
+  = render partial: "home/import_contact_modal"
+  = render :partial => "shared/deal"
+  = render :partial => "shared/add_contact"
+  - unless params[:controller] == "projects"
+    = render :partial => "shared/notes_attachment"
+  = render :partial => "shared/send_email"
+  = render :partial => "shared/apply_label"    
+  = render :partial => "users/invite_user"
+  = render :partial => "tasks/task_popup"
+  / = render :partial => "tasks/task_popup",:locals=>{appoint_scheudle: true}
+  = render :partial => "tasks/google_calendar_popup"
+  = render :partial => "shared/add_organization"
+  = render :partial => "project_jobs/time_log_popup"
+  = render :partial => "resource_allocations/reallocate_popup"
+  = render :partial => "project_jobs/edit_project_job_popup"
+
+  - if params[:controller] == "deals"
+    = render :partial => "shared/bulk_lead"
+  - if params[:controller] == "project_jobs"
+    = render :partial => "project_jobs/project_job_group_popup"
+    = render :partial => "project_jobs/new_job_group"
+    / phase 3
+    /- if params[:controller] == "projects"
+    /  = render :partial => "projects/bulk_project"
+
+    /- if !@current_user.confirmed_at.present?  
+    /  .confirmation_message
+    /    %div  
+    /      ="Account verification email has been sent to your inbox."
+    /      = link_to 'Resend email', "javascript:void(0)", data: { method: :post }, id:"resend_verification_email"      
+  = render :partial => "projects/create_project_popup"
+  - if controller.controller_name != "subscriptions" && !@current_user.is_siteadmin?
+    = render partial:"shared/add_on_hover",:locals=>{:project=> @project.present? ? @project : nil}
+  /= render partial:"shared/show_on_boarding"
+  = render :partial => "shared/users_list"
+/%link{:href => "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", :rel => "stylesheet"}
+- if user_signed_in?    
+  #WUSConfirmPopup
+    .confirm_content_sec
+      .confirm_body_sec
+        .confirm_close.confirm_close_btn 
+          %i.fal.fa-times.fa-2x.fnt-white
+        .confirm_bo_icon
+          %i.fal.fa-question-circle.fa-2x.text-primary
+          /%img{src:"/assets/new-ui/confirm_bo.png", alt:"confirm_bo"}
+        .confirm_msg_sec.fnt-white
+        .confirm_footer.text-right
+          %a.confirm_ok{href:"javascript:void(0)"} Ok
+          %a.confirm_cancel.confirm_close{href:"javascript:void(0)"} Cancel
+-if current_user.present? && params[:controller] != 'beta_accounts' 
+  :javascript
+    window.inlineManualTracking = {
+      uid: "#{current_user.id}", 
+      email: "#{current_user.email}",
+      username: "#{current_user.full_name}",
+      name: "#{current_user.full_name}",
+      created: "#{current_user.created_at}",
+      updated: "#{current_user.updated_at}",
+      roles: ["#{current_user.role.name if current_user.role.present?}"],
+      group: "#{current_user.organization}",
+      plan: "#{current_user.organization.is_premium? ? "Premium" : "Free"}"
+    }
+:javascript
+  var r_ctrl='#{params[:controller]}';
+  var r_act='#{params[:action]}';
+  var r_pg_tab = '#{params[:page_tab]}';
+  var r_job_status = '#{params[:job_status]}';
+  var cuser = "#{current_user.id if current_user.present?}";
+  var ld_track_event = '', ld_track_referrer='';
+  var user_email_id="#{@current_user.present? ? @current_user.email : ''}";
+
+  !function(){var e=document.createElement("script"),t=document.getElementsByTagName("script")[0];e.async=1,e.src="https://inlinemanual.com/embed/player.88ac16479b0be6de555682ba26e29adc.js",e.charset="UTF-8",t.parentNode.insertBefore(e,t)}();
+  

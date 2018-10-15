@@ -1,0 +1,212 @@
+- unless @job_statuses.present?
+  - @job_statuses = ProjectJob::JOB_STATUSES
+
+#kanbanCanvas
+  #kanbanContainer
+    #kanbanStages.table-responsive.kanban.animate-panel{"data-child"=>"hpanel"}
+      %table.table.table-bordered.table-striped
+        %tbody
+          -if(params[:user_id].present? && params[:user_id] == 'All')
+            - users = @current_organization.active_users
+            - active_user_ids = users.map(&:id)
+          -else
+            - users = [User.where(:id=>params[:user_id]).first]
+            - active_user_ids = [params[:user_id].to_i]
+          %tr
+            %td Resource
+            %td
+              .stages.ready
+                %ul
+                  - @job_statuses.each do |job_status|
+                    %li.showWeighted{"data-stage-id" => job_status}
+                      %span.stagename{title: job_status}
+                        = job_status
+                      %b
+                        - total_jobs = ProjectJob.get_project_jobs(@current_organization.id, params[:project_id], params[:user_id], job_status, active_user_ids)
+                        = total_jobs.count
+          -users.each do |user|
+            -jobs_exist = ProjectJob.check_project_jobs_exists(@current_organization.id,params[:project_id].present? ? params[:project_id] : 'All',user.id)
+            -if jobs_exist > 0
+              %tr
+                %td
+                  = user.full_name
+                  -assigned_user = user
+                  - get_char =  user.present? ? (user.full_name.present? ? user.full_name.strip.downcase[0] : user.email.downcase[0]) : "n"
+                  - color_code = user.present? ? user.get_user_color_code(get_char) : "#000"
+                  - color_code = color_code.present? ? color_code : "#ccc"
+
+                  - if user.present? && user.image.present? && user.image.image.present?
+                    %img.img-circle.img-xs-small{:alt => "logo", :src => assigned_user.image.image.url(:thumb)}
+                  - else
+                    .contact-small-profile-icon{:style => "background:" + color_code}
+                      = get_char.upcase
+                %td#projectjobsContainer
+                  .projectjobs.hasScrollbar.ready.narrow
+                    .emptyPipeline.hidden
+                    .projectJobsTable
+                      - @job_statuses.each do |job_status|
+                        - total_jobs = ProjectJob.get_project_jobs(@current_organization.id, params[:project_id],user.id,job_status, active_user_ids)
+                        .stage.droppable_stage{name: "#{job_status}"}
+                          -if total_jobs.present?
+                            - total_jobs.each do |project_job|
+                              .hpanel.hgreen
+                                .panel-body.draggable_project{id: "status_#{project_job.id}", draggable: "true", name: "#{project_job.id}"}
+                                  .block
+                                    %a.front{:draggable => "false", :href => "/projects/#{project_job.project_id}/jobs/#{project_job.id}"}
+                                      -if(project_job.project.project_type == 'Administrative' && project_job.contactable.present?)
+                                        .ellipsis-div
+                                          - project = project_job.project
+                                          -if project_job.contactable.class.name == "IndividualContact"  
+                                            = link_to(project_job.contactable.name, "/contact/"+project_job.contactable.to_param, :title => project_job.contactable.name, :class=>"change-color-ll") 
+                                          -elsif project_job.contactable.class.name == "CompanyContact"  
+                                            = link_to(project_job.contactable.name, "/company_contacts/"+project_job.contactable.to_param, :title => project_job.contactable.name, :class=>"change-color-ll")
+                                      .ellipsis-div
+                                        %strong 
+                                          ="#" + project_job.job_no.to_s + ":"
+                                          %span{title:project_job.name}  
+                                            = project_job.name if project_job.name.present?
+                                      -if(type == 'all_user')
+                                        %small
+                                          = project_job.project.name if project_job.project.present?
+                                      -if project_job.project.present? && project_job.project.deal.present? && project_job.project.deal.individual_contact.present?
+                                        
+                                        %small
+                                          = project_job.project.deal.individual_contact.full_name 
+                                      -if project_job.due_date.present?
+                                        %div
+                                          %i.fal.fa-calendar-check
+                                            
+                                            = project_job.due_date.utc.strftime("%m-%d") if project_job.due_date.present?
+                                      .cb
+                                      %div.fl
+                                        - if project_job.project_job_type.present?
+                                          %span.fal.fa-tags{title: "#{project_job.project_job_type.name }"}
+                                        %span.fal.fa-calendar-alt{title: "Last Updated by #{project_job.last_updated_user.full_name}"}
+                                        
+                                        %span.fal.fa-comment
+                                          =project_job.comments.count
+                                      .cb
+                                        
+                                      %div
+                                        %span.fl
+                                         
+                                          - if assigned_user.present? && assigned_user.image.present? && assigned_user.image.image.present?
+
+                                            %img.img-circle.img-xs-small{:alt => "logo", :src => assigned_user.image.image.url(:thumb),onError: "this.src='/assets/new-ui/user.png'"}
+                                          - else
+                                            .profile-icon-xs{:style => "background:" + color_code}
+                                              = get_char.upcase
+                                          -if project_job.project_stage.present?
+                                            = project_job.project_stage.name
+                                        %span.fr
+                                          = project_job.estimate_hour.present? ?  project_job.estimate_hour : 0
+                                          h
+                                      
+                                    .cb                                
+                                
+- if  @current_organization.projects.present?
+  =render :partial=> '/project_jobs/project_job_popup',:locals=>{:project_id=> @current_organization.projects.first.id}
+:javascript
+  //initialize_tooltipster();
+  $('#dealmoveModal').on('show.bs.modal', function (e) {
+    $("#deal_move_note").val("")
+  });
+  $('#move_deal_popup').bind('ajax:complete', function(evt, data, status, xhr){
+    //alert('complete')
+    $("#dealmoveModal").modal('hide');    
+    show_kanban_view();
+  });
+  
+ 
+  function show_kanban_view(){
+    $("#task_loader,.fixed_loader").show();
+
+    var project_id = $("#filter_project_id").val();
+    var user_id = $("#filter_by_project_user").val()
+    var s_type = $(".leadtype.active").text();
+    $.ajax( {
+      type: "GET",
+      url: "/project_jobs/get_kanban_view",
+      data: {user_id: user_id, project_id: project_id,type: $('#kanban_type').val() },
+      success: function(result) {
+        $(".kanban_view").html(result);
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(res) {
+          alert("Some error has been occured.");
+          $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  }
+  // Implement drag and drop functionality
+  //$( function() {
+    $( ".draggable_project" ).draggable({helper: "clone",
+      containment: "div.kanban_view",
+      start: function(e, ui)
+        {
+          $(ui.helper).css({"border":"1px solid #999","box-shadow":"0 0 10px #777","-ms-transform":"rotate(7deg)","-webkit-transform":"rotate(7deg)","transform":"rotate(7deg)","background":"#f1f1f1"});
+        }
+    });
+    $( ".droppable_stage" ).droppable({
+      drop: function( event, ui ) {
+        //retrieve the lead_id and status name from draggable lead and dropable status
+        lead_id = ui.draggable.attr("name");
+        project_job_id = ui.draggable.attr("name");
+        status = $(this).attr("name");
+        var cur_lead;
+        cur_lead = "status_"+project_job_id.toString();
+        x = $("#"+cur_lead).closest(".droppable_stage").attr("name");
+        
+        if(x == status){
+          $(".draggable_project").css({"z-index":"0","cursor":"default"});
+          $( ".droppable_stage .status_content" ).css({"border":"1px solid #e5e5e5"});
+          //alert("Opps! Lead has already the dropped Status");
+          return false;
+        }
+        $('#task_loader,.fixed_loader').show();
+        var user_id=$("#filter_by_user").val();
+        $.ajax( {
+          type: "POST",
+          url: "/change_project_job_status?user_id="+user_id,
+          data: {project_job_id: project_job_id, status: status},
+          success: function(result) {
+            if(result.status == "success"){
+              $(".kanban_view").html(result);
+              $('#task_loader,.fixed_loader').hide();
+              show_alert_message("success","Job has been moved successfully.");
+              show_kanban_view()
+              if($("#project-detail-contents").length){
+                get_jobs_kanban_view(result.project_id)
+              }
+            }
+            
+          },
+          error: function(res) {
+              alert("Some error has been occured.");
+              $('#task_loader,.fixed_loader').hide();
+          }
+        });
+      }
+    });
+  //} );
+  
+  // Display movable Lead as the top of all other Lead
+  $( ".draggable_project" ).mousedown(function(){
+    $(this).css({"z-index":"1","cursor":"crosshair"});
+  });
+  $( ".draggable_project" ).click(function(){
+    $(".draggable_project").css({"z-index":"0"});
+    $(this).css({"z-index":"1","cursor":"crosshair"});
+  });
+  $(".draggable_project").bind('drag',function( event ){
+    $( ".droppable_stage .status_content" ).css({"border":"1px solid #0099CB"});
+    $( this ).closest(".status_content").css({"border":"1px solid #e5e5e5"});
+  });
+  
+  $(".delete-project-job").on("ajax:beforeSend", function(){
+   $('#task_loader,.fixed_loader').show();
+  }).on("ajax:complete", function(){
+      $('#task_loader,.fixed_loader').hide();
+      show_alert_message("success","Job has been removed successfully.");
+      show_kanban_view()
+  });

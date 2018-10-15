@@ -1,0 +1,57 @@
+/ :css
+/   .right-container{
+/     padding-top: 75px;
+/   }
+/   .glintcontent path {cursor:default !important;}
+/   .chart canvas{height:auto !important;width:55px !important;}
+/   .right-won-chart canvas{height:auto !important;width:180px !important;}
+.dashboard-page.content
+  .row
+    .hpanel
+      .panel-body
+        .col-md-3 
+          /.col-md-offset-7
+          = select(:fiter_duration, :type, [['This Week', 'thisweek'], ['Last Week', 'lastweek'], ['This Month', 'thismonth'], ['Last Month', 'lastmonth'], ['This Quarter', 'thisquarter'], ['Last Quarter', 'lastquarter'], ['This Year', 'thisyear'], ['Last Year', 'lastyear']], {:selected => 'thismonth'}, :class => "apply_filter filter_dashboard js-source-states")
+        .col-md-3
+          = select_tag "fiter_user_type", options_for_select(all_org_users.collect {|c| [ c.full_name.present? ? c.full_name : c.email, c.id ]} + ['All'], :selected => @current_user.is_user? ? @current_user.id : 'All'),:class=>"apply_filter filter_user js-source-states", :disabled => @current_user.is_user?,:style=>"width:200px"
+      
+
+  .row
+    #dashboard-div
+      = render :partial => "dashboard_partial"
+-if user_signed_in?
+  #editTaskModal.modal.fade.new_form_layout{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+    .modal-dialog
+      .modal-content
+        #edit_task_form_content
+          /- @task=Task.new
+          /=render :partial => "tasks/task_form", :object => @task, :title=> :""
+- if params[:type].present? && params[:type] == "show_free_plan_info"  
+  = render partial:"show_free_plan_info_popup"
+:javascript
+  $(function(){
+
+  });
+  $(".apply_filter").on('change', function() {
+    var filter_type = $("#fiter_duration_type").val();
+    var filter_user_id = $("#fiter_user_type").val();
+    //alert(filter_type+":"+filter_user);
+    $.ajax({
+      type: "GET",
+      url: "#{dashboard_path}",
+      dataType: 'json',
+      data: {filter_type: filter_type, filter_user_id: filter_user_id},
+      async: true,
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data){},
+      error: function(data) {
+        $("#task_loader,.fixed_loader").hide();
+      },
+      complete: function(data) {
+        $("#dashboard-div").html(data.responseText);
+      }
+    });
+  });
+ 

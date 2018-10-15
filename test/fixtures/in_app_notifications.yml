@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  organization: 
+  user: 
+  activity_type: MyString
+  notificationable: 
+  message: MyString
+  is_read: false
+
+two:
+  organization: 
+  user: 
+  activity_type: MyString
+  notificationable: 
+  message: MyString
+  is_read: false

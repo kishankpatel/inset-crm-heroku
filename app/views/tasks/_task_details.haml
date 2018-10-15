@@ -1,0 +1,110 @@
+.row
+  .col-md-6
+    %p
+      %strong
+        Task Name:
+      =@task.title
+    %p
+      %strong
+        Assigned To:
+      =@task.user.full_name.present? ? @task.user.full_name : @task.user.email
+    %p
+      %strong
+        Task Category:
+      - @name = @task.task_type.present? ? @task.task_type.name : "None"
+      %span.btn.btn-primary.btn-xs
+        =@name      
+    %p
+      %strong
+        Due Date:
+      =@task.due_date.present? ? (@task.due_date.strftime("%a - %b %d, %Y")) : ""
+    %p
+      %strong
+        Created By:
+      -@usr = User.find @task.created_by
+      =@usr.full_name.present? ? @usr.full_name : @usr.email 
+    %p
+      %strong
+        Description:
+      =@task.details.present? ? @task.details : " "    
+  .col-md-6
+    %p
+      %strong
+        Related To:
+      =@task.linked_with
+    %p
+      %strong
+        Title:
+      - @ur = @task.is_archive ? "javascript:void(0)" : @task.get_url
+      =link_to @task.get_opportunity_title, @ur
+      /=@task.get_opportunity_title
+    -if @task.linked_with == "Opportunity" && @task.deal_id.present?
+      - @d = Deal.find @task.deal_id
+      - @stg = DealStatus.find @d.deal_status_id
+      %p
+        %strong
+          Stage:
+        =@stg.name
+
+/ %div{:style=>"float:left;color:#888888"}
+/   Task Name:
+/ %div{:style=>"float:left;margin-left:25px"}
+/   =@task.title 
+/ .cb  
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Assigned To:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/   =@task.user.full_name.present? ? @task.user.full_name : @task.user.email  
+/ .cb  
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Task Category:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/   - @name = @task.task_type.present? ? @task.task_type.name : "None"
+/   .labelTaskType.col-md-10{:class => "label#{@name} labelTaskType",:style=>"width:auto;font-size:12px"} 
+/     =@name 
+/ .cb  
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Due Date:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/   =@task.due_date.present? ? (@task.due_date.strftime("%a - %b %d, %Y")) : "" 
+/ .cb  
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Created By:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/   -@usr = User.find @task.created_by
+/   =@usr.full_name.present? ? @usr.full_name : @usr.email 
+/ .cb  
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Description:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px;width:515px"}
+  
+/   =@task.details.present? ? @task.details : " "  
+/ .cb
+/ %br
+/ %h4.vb{:style=>"font-size:15px;margin-left: -40px;position: relative;"} 
+/   Related To 
+/ .cb
+/ %div{:style=>"float:left;color:#888888"}
+/   Related To:
+/ %div{:style=>"float:left;margin-left:25px"}
+/   =@task.linked_with 
+/ .cb
+/ %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/   Title:
+/ %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/   - @ur = @task.is_archive ? "javascript:void(0)" : @task.get_url
+/   =link_to @task.get_opportunity_title, @ur
+/   /=@task.get_opportunity_title
+/ -if @task.linked_with == "Opportunity" && @task.deal_id.present?
+/   - @d = Deal.find @task.deal_id
+/   - @stg = DealStatus.find @d.deal_status_id
+/   .cb
+/   %div{:style=>"float:left;color:#888888;margin-top:10px"}
+/     Stage:
+/   %div{:style=>"float:left;margin-left:25px;margin-top:10px"}
+/     =@stg.name  
+
+   
+
+/ %br
+/ %br  

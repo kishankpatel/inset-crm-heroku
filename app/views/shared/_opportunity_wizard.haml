@@ -1,0 +1,358 @@
+#opportunityStepStart.modal.fade.cmn_wf_steps{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  - deal=Deal.new
+  = form_for deal, :url => leads_path, :html=>{:class => "form",:id=>"new_wizard_deal"},:method=>"post",:remote=>true do |f|
+    .opportunityStepsSlider
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Opportunity Name
+                %h5 Please provide your Opportunity name
+              .modal-body
+                .row
+                  .col-md-12
+                    =f.label :title, "Opportunity name"
+                    =f.text_field :title, :required => true,:html=>{:maxlength=> "100"}, :onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :placeholder => "Name of the opportunity *", :class => "form-control custom-frm-inner", :maxlength => 130, :autocomplete=>"off"
+              .modal-footer
+                %a.opp-pager-next.btn.w-xs.btn-success{:href => "javascript:void(0)", :type => "name_field"}
+                  %i.icon-chevron-right>
+                  Next
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold What is the estimated value
+              .modal-body
+                .row
+                  .col-md-12.billing-type-width-wizard
+                    .form-group
+                      =f.label :billing_type,"Billing Type"
+                      = f.select :billing_type, @billing_type, {}, {class: "form-control custom-frm-inner" ,:id=>"deal_billing_type_wizard"}
+                .row
+                  .col-md-6.amount-width-wizard
+                    .form-group
+                      =f.label :currency_type,"Currency Type"
+                      = f.select :currency_type, @cur.collect {|c| [ c[0] , c[1], title: c[1] ]}, {:selected => current_user.present? && current_user.organization.present? && current_user.organization.default_currency.present? ? current_user.organization.default_currency : 'USD'}, {class: "form-control", :"data-live-search" => true}
+                  .col-md-6
+                    .form-group
+                      =f.label :amount,"Amount"
+                      = f.text_field :amount, :class => "form-control new_amt_field decimal_only custom-frm-inner", placeholder: "Amount"
+
+                
+                  .col-md-6.custom-width-wizard{:style=>"display:none"}
+                    .form-group
+                      =f.label :custom_value,"Value"
+                      = f.text_field :custom_value, :placeholder => "Enter Value", :size => "30", :class => "form-control"
+                  .col-md-6.duration-width-wizard{:style=>"display:none"}
+                    .form-group
+                      =f.label :for,"For"
+                      %div
+                        .fl
+                          = f.text_field :duration, :class => "form-control ", :onkeydown => "return numbersonly(event)", :onkeyup => "return numbersonly(event)", :size => "30", :style => ""
+                        .fl
+                          .per_type{:style => "color:#000;font-size: 15px;padding: 10px;"} Hour(s)
+
+              .modal-footer
+                %a.opp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.opp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "billing_field"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Expected Close Date
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      =f.label :expected_close_date,"Expected Close Date"
+                      .input-group.date                        
+                        = f.text_field "expected_close_date", autocomplete: "off" ,:onkeydown => "disable_text(event);", :class => "form-control expected_closed_date", placeholder: "Expected close date"
+                        %span.input-group-addon
+                          %span.fa.fa-calendar
+                        
+              .modal-footer
+                %a.opp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.opp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "closing_date_field"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+      / .slide
+      /   .hmodal-success
+      /     .modal-dialog
+      /       .modal-content
+      /         .color-line
+      /         .modal-header
+      /           %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+      /             %i.fal.fa-times.fa-2x
+      /           %h2.font-bold Who would you like to assign the opportunity to?
+      /         .cmn_bx_hover.modal-body
+      /           / .col-lg-4
+      /           /   .hpanel.m-b-none
+      /           /     %a{"data-dismiss" => "modal", "data-target" => "#indvComp", "data-toggle" => "modal", :href => "javascript:void(0)"}
+      /           /       .panel-body.text-center
+      /           /         %i.pe-7s-graph1.fa-4x
+      /           /         %h4.font-extra-bold Contact
+      /           .row
+      /             .col-lg-6
+      /               .hpanel.m-b-none
+      /                 %a.opp-pager-next.open-contact{:href => "javascript:void(0)"}
+      /                   .panel-body.text-center
+      /                     %i.pe-7s-graph1.fa-4x
+      /                     %h4.font-extra-bold Contact
+      /             .col-lg-6
+      /               .hpanel.m-b-none
+      /                 %a.opp-pager-next.open-company{:href => "javascript:void(0)"}
+      /                   .panel-body.text-center
+      /                     %i.pe-7s-graph1.fa-4x
+      /                     %h4.font-extra-bold Company
+                  
+      /         .modal-footer
+      /           %a.opp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+      /             %i.icon-chevron-left>
+      /             Prev
+      /           %a.opp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+      /             %i.icon-chevron-right>
+      /             Next
+      /           .cb
+      /           / %button.btn.w-xs.btn-success.fr{:type=>"submit"}
+      /           /   %i.icon-chevron-right>
+      /           /   Submit
+      /           / .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Which contact you would like to associate with the opportunity to?
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.text_field :first_name,:class=>"form-control typeahead deal-contact-name",:onkeyup=>"return onlycharacters(event)",:onkeydown=>"return onlycharacters(event)", "data-provide"=> "typeahead" , :autocomplete=>"off", :required => true, placeholder: "Name of contact *"
+                      
+                      =f.hidden_field :contact_id, :id=>"deal_individual_contact_id"
+                .row
+                  .col-md-12
+                    #display_contact_info_lead
+              .modal-footer
+                %a.opp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.opp-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)",type:"first_name_field"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Complete Opportunity Creation
+              .cmn_bx_hover.modal-body
+                %h4.text-center
+                  Data for Opportunity is configured. Let's Complete it.
+              .modal-footer
+                %a.opp-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                =submit_tag "Submit" ,class: "btn w-xs btn-success fr" do
+                  /%button.btn.w-xs.btn-success.fr{:type=>"submit"}
+                  %i.icon-chevron-right>
+                  Submit
+                .cb
+      .slide
+        .modal-dialog
+          .modal-content
+
+:javascript
+  $(document).ready(function(){
+    var opp_slider = $('.opportunityStepsSlider').bxSlider({
+      minSlides: 1,
+      maxSlides: 1,
+      moveSlides: 1,
+      pager: false,
+      controls: false,
+      autoControls: false,
+      auto: false
+    });
+    $('a.opp-pager-prev').click(function () {
+      var opp_current = opp_slider.getCurrentSlide();
+      opp_slider.goToPrevSlide(opp_current) - 1;
+    });
+    $('a.opp-pager-next').click(function () {
+      var type = $(this).attr("type");
+      if(type == "name_field"){
+        if($("#deal_title").valid()){
+          var opp_current = opp_slider.getCurrentSlide();
+          opp_slider.goToNextSlide(opp_current) + 1;
+        }else{
+          return false;
+        }
+      }
+      else if(type == "billing_field"){
+        if($("#deal_title").valid()){
+          var opp_current = opp_slider.getCurrentSlide();
+          opp_slider.goToNextSlide(opp_current) + 1;
+        }else{
+          return false;
+        }
+      }
+      else
+      {
+      var opp_current = opp_slider.getCurrentSlide();
+      opp_slider.goToNextSlide(opp_current) + 1;
+      }
+    });
+  });
+
+  $('.deal-contact-name.typeahead').typeahead([{
+    name: 'contacts',
+    minLength: 0,
+    limit: 500,
+    valueKey: 'name',
+    remote: {url: '/get_contacts/'+ #{current_user.organization.id if current_user.organization.present?}+ "?q=%QUERY"},
+    template: "<p style='word-wrap: break-word;'><strong>{{name}}</strong> - {{email}}</p>",
+    engine: Hogan
+    }]).on('typeahead:selected',onSelectedContact).on('typeahead:opened',onOpened);
+  function onSelectedContact($e,datum){
+    console.log("autocompleted");
+    console.log(datum);
+    $('#deal_individual_contact_id').val(datum.id);
+    $.ajax({
+      type: "POST",
+      url: "/display_contact_info",
+      data: {id: datum.id},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        $("#display_contact_info_lead").html(data);
+        $("#display_contact_info_lead").show();
+        $("#task_loader,.fixed_loader").hide();
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+    //alert(datum);
+    //    var hfield = document.getElementById('hfield');
+    var email = document.getElementById('deal_email');
+    //var country = document.getElementById('deal_country');
+    var workphone = document.getElementById('deal_work_phone');
+    console.log(datum.id);
+    //    hfield.value = datum.id;
+    $("#deal_contact_id").val(datum.id);
+    $("#company_type").val(datum.company_type)
+    
+    email.value = datum.email;
+
+    $(".company_name_typeahead").val(datum.comp_name).prop("disabled",true);
+    $(".company_id").val(datum.comp_id);
+    $("#deal_country_id").val(datum.comp_country);
+    $("#deal_email").prop("disabled",true);
+    $(this).val(datum.name);
+    $("#hidden_first_name").val(datum.name);
+    //country.value=datum.country_id;
+    workphone.value = datum.phone_no;
+    //$("#deal_country").trigger("change")
+
+    
+  }
+  function onOpened($e){ 
+    $("#deal_email").prop("disabled",false);
+    //$("#deal_email").val("");
+    $("#deal_contact_id").val("");
+
+    
+
+    console.log('Opned');
+  }
+  $(".deal-contact-name").blur(function() {
+    $(this).val($("#hidden_first_name").val());
+  });
+
+  $('.deal-contact-name.typeahead').keyup( function(event){
+    $("#deal_email").prop("disabled",false).val('');
+    $(".company_name_typeahead").val('').prop("disabled",false);
+    $(".company_id").val("");
+    $("#deal_country_id").val($("#hdn_country_id").val());
+  })
+  $("#deal_billing_type_wizard").change(function() {
+    var type = $(this).val();
+    if(type == "Custom"){
+      $(".duration-width-wizard").hide();
+      $(".amount-width-wizard").hide();
+      $("#deal_custom_value").attr("required", "required");
+      $(".billing-type-width-wizard").removeClass("col-md-3").addClass("col-md-6");
+      $(".custom-width-wizard").show();
+    }else if(type != "Fixed bid" && type != "Custom"){
+      $(".custom-width").hide();
+      var arr = type.split('Per ');
+      $(".duration-width-wizard").show();
+      $(".amount-width-wizard").show();
+      $("#deal_custom_value").removeAttr("required");
+      $(".per_type").text(arr[1].substring(0, 1).toUpperCase() + arr[1].substring(1).toLowerCase() + "(s)");
+      $(".billing-type-width-wizard").removeClass("col-md-6").addClass("col-md-3");
+      //$(".amount-width").removeClass("col-md-6").addClass("col-md-4");
+    }else{
+      $(".custom-width-wizard").hide();
+      $(".duration-width-wizard").hide();
+      $(".amount-width-wizard").show();
+      $("#deal_custom_value").removeAttr("required");
+      $(".billing-type-width-wizard").removeClass("col-md-3").addClass("col-md-6");
+      //$(".amount-width").removeClass("col-md-4").addClass("col-md-6");
+    }
+  })
+
+  $('form#new_wizard_deal').bind('ajax:success', function(evt, data, status, xhr){
+  
+    $("#task_loader,.fixed_loader").hide();
+    $("#opportunityStepStart").modal("hide")
+    window.location.href ="/leads/kanban";
+
+  });
+
+  $('form#new_wizard_deal').bind('ajax:before', function(evt, data, status, xhr){
+  
+  $("#task_loader,.fixed_loader").show();
+  $(".opportunityStepsSlider").find(".slide:last-child").remove()
+  });
+
+  $("form#new_wizard_deal").bind("ajax:complete", function(evt, data, status, xhr) {
+
+    if(data.responseText == "success"){
+      $("#task_loader,.fixed_loader").hide();
+      $("#alert-msg").show();
+      $("#opportunityStepStart").modal("hide")
+      $("#msg_div").html(data.responseText);
+      $('form#new_wizard_deal')[0].reset();
+    }
+    
+  });

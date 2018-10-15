@@ -1,0 +1,482 @@
+#projectStepStart.modal.fade.cmn_wf_steps{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  
+  - project = Project.new(:organization_id=>@current_organization.id)
+  - project_users = project.project_users.build if project.new_record?
+  = form_for project, :url => "/projects",  :class => "form",:method=>"post", remote: true, html: {:id=>"project_wizard"} do |f|
+    .projectStepsSlider
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Project Name
+                %h5 Please provide your Project name
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :name
+                      = f.text_field :name,:class=>"form-control", :autocomplete=>"off", :required => true, placeholder: "Give a name to your project"
+                      /= f.text_field :name,:class=>"form-control", :autocomplete=>"off", :required => true, placeholder: "Give a name to your project", :maxlength=>"50"
+              .modal-footer
+                %a.project-pager-next.btn.w-xs.btn-success{:href => "javascript:void(0)", :type => "name_field"}
+                  %i.icon-chevron-right
+                  Next
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Your Project is related to
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :linked_with, "Related to"
+                      = f.select :linked_with, options_for_select([["None", ""], ["Company","Organization"], "Contact", "Opportunity"]), {:prompt => "- Related to -"}, {:class => "form-control", id: "prj_linked_with"}
+                  .col-md-12.prj-company-contact-div-wizard{style: "display:none"}
+                    .form-group
+                      = f.label :company_contact_id, "Company Contact"
+                      = f.select :company_contact_id, @current_organization.company_contacts.order("name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose a Company'}, :class => "form-control ", id: "prj_company_contact_id"
+                  .col-md-12.prj-individual-contact-div-wizard{style: "display:none"}
+                    .form-group
+                      = f.label :individual_contact_id, "Individual Contact"
+                      = f.select :individual_contact_id, @current_organization.individual_contacts.order("first_name, last_name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose a Contact to link', selected: @deal.present? && @deal.class.name == "Deal" ? "#{@deal.deals_contacts.present? && @deal.deals_contacts.first.contactable.present? ? @deal.deals_contacts.first.contactable.id : ''}" : ""}, :class => "form-control ", id: "prj_individual_contact_id"
+                  .col-md-12.prj-lead-div-wizard{style: "display:none"}
+                    .form-group
+                      = f.label :deal_id, "Opportunity"
+                      =f.select :deal_id, @current_organization.deals.order("title").collect {|d| [ d.title , d.id ]}, {:include_blank => 'Choose an Opportunity to link', selected: @deal.present? && @deal.class.name == "Deal" ? "#{@deal.id}" : ""}, :class => "form-control ", id: "prj_deal_id"
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "linked_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Project Short Name
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :short_name, "Project short name"
+                      /= f.text_field :short_name, :class=>"form-control", :placeholder => "Enter your short name",:required=>true
+                      = f.text_field :short_name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a short name to your project", :maxlength => "5"
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "short_name_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Project Default Job type
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                    =f.hidden_field :project_task_type_id
+                    =f.label "job_type_dropdown",  "Job Type",:class=>"control-label"
+                    
+                    #job_type_dropdown.dropdown.form_fld.cmn_selct_fld
+                      %input.dropdown-toggle.job-type-toggle.form-control{"data-toggle" => "dropdown", :type => "text", "aria-expanded" => "false", :style =>"background:white", :onclick => "$('#job-type-dropdown-menu').show() ;$('#custom-add-type').focus();", :id => "job-type-toggle", :placeholder => "Select the Job Type", :required => true, :onkeydown=>"$('#custom-add-type').focus();return false;", :class => "form-control custom-frm-inner", :readonly => true}
+            
+                      %ul{:class=>"dropdown-menu ul-dropdown", :id => "job-type-dropdown-menu", :style => "display:none"}
+                        %li{:class=>"dropdownjs-add", :id => "type-li", :tabindex=>"-1"}
+                          %input{:name => "custom-add", :id => "custom-add-type", :class => "custom-add-type", :placeholder=>"+ Add New", :onclick => "event.stopPropagation();", :style => "", :class => "form-control"}
+                        - @current_organization.project_job_types.each do |pj|
+                          %li{:value=> pj.id, :tabindex=> "0", :class=>"selected"}
+                            = pj.name
+                            %span{:class=>"close"}					
+					
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "task_type_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Please choose a project Stage
+              .cmn_bx_hover.modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :project_stage_id, "Project Stage"
+                      = f.select :project_stage_id, @current_organization.active_project_stages.collect{|ps| [ps.name,ps.id]},{:include_blank => 'Select the project Stage', },class: "form-control",:required=>true
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "stage_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Please choose a project Manager
+              .cmn_bx_hover.modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :project_manager_id, "Project Manager"
+                      = f.select :project_manager_id, @current_organization.admins.collect{|ps| [ps.full_name.present? ? ps.full_name : ps.email,ps.id]},{:include_blank => 'Select the project manager', },class: "form-control",:required=>true
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "manager_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Please Describe your project
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :description
+                      = f.text_area :description,:class=>"form-control", :autocomplete=>"off", placeholder: "Describe your project",:rows=>3
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "description_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Please choose the users you would like to assign to this project
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      .modal-checkbox
+                        - if project.new_record?
+                          - indx = 0
+                          - all_org_users.each do |u|
+                            = f.fields_for :project_users do |proj_user|
+                              %span.col-md-3.checkbox.checkbox-inline
+                                = proj_user.check_box :user_id, {}, u.id, nil
+                                %label{for: "project_project_users_attributes_#{indx}_user_id"}
+                                  %span
+                                  = u.full_name.present? ? u.full_name : u.email.split("@")[0]
+                              - indx = indx + 1
+                .row
+                  .col-md-12
+                    .form-group.modal-checkbox
+                      %span{class: "modal-checkbox checkbox  checkbox-primary"}
+                        = check_box_tag :invite_user, false
+                        %label{for: "invite_user"}
+                          %span
+                          Invite User
+                .row
+                  .col-md-12
+                    .form-group
+                      =text_field_tag :users_email,"", :class=>"form-control custom-frm-inner", :autocomplete=>"off", placeholder: "Invite multiple users separated by comma email ID", disabled: true, style: "background:#eee"
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "invite_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Project Duration
+              .modal-body
+                .row
+                  .col-md-6
+                    .form-group
+                      = f.label :start_date
+                      = f.text_field :start_date,:class=>"form-control custom-frm-inner proj-datetimepicker", id: "pstart-datetimepicker", autocomplete: "off",:onkeydown => "disable_text(event);", placeholder: "Start date"
+                  .col-md-6
+                    .form-group
+                      = f.label :end_date
+                      = f.text_field :end_date,:class=>"form-control proj-datetimepicker", id: "pend-datetimepicker", autocomplete: "off",:onkeydown => "disable_text(event);", placeholder: "End date"
+
+                      = f.hidden_field :created_by, value: current_user.id.to_s
+                      = f.hidden_field :organization_id, value: @current_organization.id.to_s
+                      /= f.hidden_field :deal_id, value: @deal_org.id.to_s
+                      = f.hidden_field :status, value: "Started"
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left
+                  Prev
+                %a.project-pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)", :type => "start_date_field"}
+                  %i.icon-chevron-right
+                  Next
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+              .color-line
+              .modal-header
+                %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+                  %i.fal.fa-times.fa-2x
+                %h2.font-bold Complete Project Creation
+              .cmn_bx_hover.modal-body
+                %h4.text-center
+                  Data for Project is configured. Let's Complete it.
+              .modal-footer
+                %a.project-pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.btn.w-xs.btn-success.fr#submitProjectWizard{:href => "javascript:void(0)"}
+                  %i.icon-chevron-right
+                  Submit
+                .cb
+      .slide
+        .hmodal-success
+          .modal-dialog
+            .modal-content
+                
+:javascript
+  var formValues ={};
+  var projectSlider = null;
+  $(window).load(function() {
+  //$(document).ready(function(){
+    projectSlider = $('.projectStepsSlider').bxSlider({
+      //minSlides: 1,
+      //maxSlides: 1,
+      moveSlides: 1,
+      pager: false,
+      controls: false,
+      autoControls: false,
+      auto: false,
+      onSliderLoad: function(){ $(".bxslider").css("transform", "translate3d("+($(".bxslider li:eq(0)").width()*-1)+"px, 0px, 0px)"); }
+    });
+  });
+  $(document).ready(function(){
+    $('a.project-pager-prev').click(function () {
+      var projectCurrent = projectSlider.getCurrentSlide();
+      projectSlider.goToPrevSlide(projectCurrent) - 1;
+    });
+    // $('a.project-pager-next').click(function () {
+    //   var projectCurrent = projectSlider.getCurrentSlide();
+    //   projectSlider.goToNextSlide(projectCurrent) + 1;
+    // });
+    var nwdate = new Date();
+    nwdate.setDate(nwdate.getDate() - 1); 
+
+    var start_date = new Date();
+
+
+    $("#pstart-datetimepicker").datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on("dp.change", function (e) {
+      start_date = new Date(e.date);
+      $(this).blur();
+      //alert(start_date);
+    });
+
+
+    $('#pend-datetimepicker').datetimepicker({minDate: start_date.setDate(start_date.getDate()), useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on("dp.change", function (e) {
+      end_date = new Date(e.date);
+      if(start_date > end_date){
+        $("#pend-datetimepicker").val("");
+        show_alert_message("danger","End date must be greater than start date.");
+        $(this).blur();
+        return false;
+      }
+    });
+
+    $("#prj_individual_contact_id").change(function() {
+      var id =$(this).val();
+      $.ajax({
+        type: "GET",
+        url: "/get_lead_opportunity",
+        data: {id: id},
+        async: true,
+        beforeSend: function(){
+          $("#task_loader, .fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader, .fixed_loader").hide();
+        },
+        complete: function(data) {
+          $("#prj_deal_id").html(data.responseText);
+          $("#prj_deal_id").select2();
+          $("#task_loader, .fixed_loader").hide();
+        }
+      });
+    });
+
+    $('a.project-pager-next').click(function () {
+      var type = $(this).attr("type");
+      if(type == "name_field"){
+        if($("#project_name").valid()){
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "linked_field"){
+        if($("#prj_linked_with").val() != ""){
+          console.log($("#project_linked_with").val())
+          if(($("#prj_linked_with").val() == "Organization" && $("#prj_company_contact_id").val() != "" ) || ($("#prj_linked_with").val() == "Contact" && $("#prj_individual_contact_id").val() != "" ) || ($("#prj_linked_with").val() == "Opportunity" && $("#prj_deal_id").val() != "" && $("#prj_individual_contact_id").val() != ""))
+          {
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent);
+          }
+          else
+          {
+            console.log("first else condition")
+            return false;
+          }
+        }else{
+        console.log("second else condition")
+          return false;
+        }
+      }else if(type == "short_name_field"){
+        if($("#project_short_name").valid()){
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "task_type_field"){
+        if($("#project_project_task_type_id").valid()){
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "stage_field"){
+        if($("#project_project_stage_id").valid()){
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent) + 1;
+        }else{
+          return false;
+        }
+      }else if(type == "manager_field"){
+        if($("#project_project_manager_id").valid()){
+          var projectCurrent = projectSlider.getCurrentSlide();
+          projectSlider.goToNextSlide(projectCurrent) + 1;
+        }else{
+          return false;
+        }
+      }else{
+        var projectCurrent = projectSlider.getCurrentSlide();
+        projectSlider.goToNextSlide(projectCurrent) + 1;
+      }
+    });
+    $("#project-type-dropdown-menu-wizard li").click(function() {
+      $(".project-type-toggle-wizard").val($.trim($(this).text()));
+      $("#project_wizard").find("#project_project_type_id").val($(this).val());
+    });
+    $("#project-stage-dropdown-menu-wizard li").click(function() {
+      alert('selected')
+      $(".project-stage-toggle-wizard").val($.trim($(this).text()));
+      $("#project_wizard").find("#project_project_stage_id").val($(this).val());
+    });
+    $("#prj_linked_with").on('change', function(){
+      var val = $(this).val();
+      showHideTypeRelationProjectWizard(val)
+    })
+  });
+  
+  
+  $("#submitProjectWizard").on("click", function(){
+    $(".projectStepsSlider").find(".slide:last-child").remove()
+    $.ajax({
+        url: '/projects',
+        type: 'post',
+        data: $("form#project_wizard").serialize(),
+        beforeSend: function(){
+          $("#task_loader, .fixed_loader").show();
+        },
+        success: function(data) {
+          //alert(1)
+        },
+        complete: function(data) {
+          window.location.href = "/projects";
+          $("#task_loader, .fixed_loader").hide();
+        },
+        error: function(data) {
+          //alert(3)
+          $("#task_loader, .fixed_loader").hide();
+        }
+    });
+  })
+  var nwdate = new Date();
+  nwdate.setDate(nwdate.getDate() - 1); 
+  $('.proj-datetimepicker').datetimepicker({minDate: nwdate, useCurrent: false,  format: 'MM/DD/YYYY',pickTime: false}).on('change', function(){
+        $(this).blur();
+  });
+
+
+  
+  var enable_invite_user = "true";
+  $(".projectStepsSlider").find("#invite_user").on("change", function(){
+    if(enable_invite_user == "true"){
+      $(".projectStepsSlider").find("#users_email").removeAttr("disabled").css("background","#fff");
+      enable_invite_user = "false";
+      $(".projectStepsSlider").find("#invite_user").val("true");
+    }
+    else{
+      $(".projectStepsSlider").find("#users_email").attr("disabled","disabled").css("background","#eee").val("");
+      enable_invite_user = "true";
+      $(".projectStepsSlider").find("#invite_user").val("false");
+    }
+  })
+  

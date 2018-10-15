@@ -1,0 +1,145 @@
+.panel-heading.hbuilt
+  %h4.fl Manage User Hourly Billable
+  %a#addnewlabel.easyui-linkbutton.fr{href: '#addUserHrBillable', 'data-toggle' => 'modal', onclick: '$("#bill_error").hide();cleanbill();'}
+    %button.btn.btn-primary.btn-success.pad2{type: 'button'}
+      %span.glyphicon.glyphicon-plus-sign
+      Add User Hourly Billable
+  .cb
+.panel-body
+  .table-responsive.mtop10
+    %table.table
+      %tbody
+        %tr
+          %td{style: "border-top: none !important;"}
+            #list_user_hrly_billalbe= render :partial => "listing_user_hourly_billables"
+/ ................Modals.......................
+#addUserHrBillable.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add User Hourly Billable
+      .modal-body
+        = form_for(UserHourlyBillable.new, :url => '', :html=>{:class => 'form', onsubmit: 'addUserHrBillalbe(); return false;'}) do |f|
+          .row#bill_error
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group.col-md-8
+              %label.control-label{:for => "input"} Amount*
+              %i.bar
+              =f.text_field :amount, :required => true, :maxlength=> '50', :style=> 'height:41px; resize: none;', :onkeydown => "return numbersonly(event)", :onkeyup => "return numbersonly(event)"
+          .form-group
+            %button.btn.btn-success{type: 'submit',data: {:disable_with => "Please wait..."}, id: 'desg_submit_btn', class: 'bill_submit_btn'} Save
+            %a.btn.btn-default{style: 'top:0px ', href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'}
+              %span.c_links
+                Cancel
+/ ...................Modal for Edit status................
+#editUserHrBillable.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal', onclick: "$('#bill_error').hide();"} &times;
+        %h4.modal-title Edit User Hourly Billable
+      .modal-body
+        = form_for(UserHourlyBillable.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateUserHrBillalbe(this); return false;'}) do |f|
+          = f.hidden_field 'id'
+          .row#bill_error
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Amount*
+              %i.bar
+              =f.text_field :amount, id: 'txt-edit-userhrbill', :maxlength=> '50', :class=> 'form-control', :required => true, :onkeydown => "return numbersonly(event)", :onkeyup => "return numbersonly(event)"
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'edit_bill_submit_btn', class: "edit_bill_submit_btn"} Update
+              %a.btn.btn-default{href:'javascript:', :onclick => "$('#bill_error').hide();", 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+:javascript
+  var editButton;
+  $(function() {
+      $('#editUserHrBillable').on('show.bs.modal', function (event) {
+        editButton = $(event.relatedTarget);
+        var hrlyAmount = editButton.data('name');
+        var hrlyid = editButton.data('id');
+        $('#txt-edit-userhrbill').val(hrlyAmount);
+        $('#user_hourly_billable_id').val(hrlyid);
+      });
+  });
+  function cleanbill()
+  {
+    $("#user_hourly_billable_amount").val('')
+  }
+  function addUserHrBillalbe() {
+    var userHrBillable = $("#user_hourly_billable_amount").val();
+    $.ajax({
+      url: 'settings/add_user_hrly_billable',
+      type: 'POST',
+      data: {amount: userHrBillable},
+      success: function(res) {
+        $("#addUserHrBillable").modal('hide');
+        $(".bill_submit_btn").removeAttr("disabled").text("Save");
+        $('#addUserHrBillable').on('hidden.bs.modal', function () {
+          $('#list_user_hrly_billalbe').html('').html(res);
+          show_alert_message("success", "User hourly billable was saved.")
+        })
+      },
+      error: function(res) {
+        $("#bill_error").show();
+        $(".bill_submit_btn").removeAttr("disabled").text("Save");
+        if(res.responseText == "amount_exists"){
+          $(".text-danger").html("User hourly billable with this value already exists. Please enter different value.");
+        }
+        if(res.responseText == "failed"){
+          $(".text-danger").html("Failed to update settings for user designation.");
+        }
+      }
+    });
+  }
+  function updateUserHrBillalbe(val){
+    var user_desg_id = $('#user_hourly_billable_id').val();
+    var user_desg = $("#txt-edit-userhrbill").val();
+    $.ajax({
+      url: 'settings/update_user_hrly_billable',
+      type: 'POST',
+      data: {id: user_desg_id, amount: user_desg},
+      success: function(res) {
+        $("#editUserHrBillable").modal('hide');
+        $(".edit_bill_submit_btn").removeAttr("disabled").text("Update");
+        $('#editUserHrBillable').on('hidden.bs.modal', function () {
+          $('#list_user_hrly_billalbe').html('').html(res);
+          show_alert_message("success", "User hourly billable was updated.")
+        })
+      },
+      error: function(res) {
+        $("#bill_error").show();
+        $(".edit_bill_submit_btn").removeAttr("disabled").text("Update");
+        if(res.responseText == "amount_exists"){
+          $(".text-danger").html("User hourly billable already exists. Please enter different name.");
+        }
+        if(res.responseText == "failed"){
+          $(".text-danger").html("Failed to update settings for user designation.");
+        }
+      }
+    });
+  }
+  function deleteUserHrBillable(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_user_hrly_billable/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#user_hr_bill_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success", "User hourly billable deleted successfully.")
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  }

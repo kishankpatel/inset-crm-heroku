@@ -1,0 +1,113 @@
+#list_lost_reasons
+  = render :partial => "listing_lost_reasons" 
+
+#editLostReason.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Edit Lost Reason
+      .modal-body
+        = form_for(LostReason.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateLostReason(); return false;'}) do |f|
+          = f.hidden_field 'id'
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Lost Reason*
+              %i.bar
+              =f.text_field :reason, :required => true, id: 'txt-edit-lost-reason', :maxlength=> '50', :class=> 'form-control'
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'deal_submit_btn'} Update
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+#addLostReason.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Lost Reason
+      .modal-body
+        = form_for(LostReason.new, :url => '', :html=>{:class => 'form', onsubmit: 'addLostReason(); return false;'}) do |f|
+          .row
+            .form-group.col-md-12
+              =f.text_field :reason, :required => true, id: 'txt-add-lost-reason', :maxlength=> '50', :style=> 'height:41px; resize: none;'
+              %label.control-label{:for => "input"} Lost Reason*
+              %i.bar
+          .modal-footer
+            .pull-left
+              %button{type: 'submit', id: 'deal_submit_btn'} Save
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel 
+
+                  
+:javascript
+  function deleteLostReason(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_lost_reason/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#lost_reason_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+    else{
+      return false;
+    }
+  } 
+  $(function() {
+    $('#editLostReason').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget)
+      var statusName = button.data('reason')
+      var statusId = button.data('id')
+      $('#txt-edit-lost-reason').val(statusName);
+      $('#lost_reason_id').val(statusId);
+    });
+    $('#addLostReason').on('show.bs.modal', function (event) {            
+      $("#txt-add-lost-reason").val('')
+    });  
+  });
+
+  function updateLostReason() {
+      var lostReason = $("#txt-edit-lost-reason").val();
+      var lostReasonId = $('#lost_reason_id').val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/update_lost_reason',
+          type: 'POST',
+          data: {id: lostReasonId,
+              reason: lostReason },
+          success: function(res) {
+              $("#editLostReason").modal('hide');
+              $("#lost_reason_"+lostReasonId).find( ".reason_text" ).html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#lost_reason_error").show();
+          }
+      });
+    }  
+
+    function addLostReason() {
+      var lostReason = $("#txt-add-lost-reason").val();
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/add_lost_reason',
+          type: 'POST',
+          data: { reason: lostReason },
+          success: function(res) {
+              $("#addLostReason").modal('hide');
+              $(".modal-backdrop").remove();
+              $("#list_lost_reasons").html(res);
+              $("#task_loader,.fixed_loader").hide();
+          },
+          error: function(res) {
+            $("#lost_reason_error").show();
+          }
+      });
+    }

@@ -1,0 +1,123 @@
+/- @projects = Project.last(5)
+- if @projects.present?
+  - @projects.each do |proj|
+    - if (params[:controller] == "deals" && params[:action] == "opportunity_widget") || (params[:controller] == "contacts" && params[:action] == "contact_widget") || (params[:controller] == "contacts" && params[:action] == "company_widget")
+      - cls = "col-md-6"
+    - else
+      - cls = "col-md-3"
+    .proj-sec.padrht{class: cls}
+      .hpanel.hgreen.proj-board-div{:id => "project-"+ proj.id.to_s}
+        .panel-body.over_hidden
+          .fl.triangle-topright-sts{:class => proj.status.downcase.gsub(" ", "_")}
+            %span.fnt-12
+              = proj.status
+          - if current_user.is_siteadmin? || current_user.is_admin?
+            .fr
+              .dropdown
+                %a{:style=>'cursor:pointer', :rel=>'tooltip', :'data-toggle' => 'dropdown', :class=> 'deal_set dropdown-toggle more-in-ll'}
+                  %span.btn.btn-default.btn-xs.pe-7s-more
+                %ul.dropdown-menu.dropdown-menu-right{role: "menu"}
+                  %li{:class=>"arrow_top"}
+                  - if !proj.is_completed
+                    %li.dropdown-submenu{style: "position:relative;"}
+                      %a{title: "Mark this project as 'Complete'",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "update_project(#{proj.id},'complete')"}
+                        %span.fal.fa-clipboard-check
+                        Complete
+                  - else
+                    %li.dropdown-submenu{style: "position:relative;"}
+                      %a{title: "Re-open this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "update_project(#{proj.id},'reopen')"}
+                        %span.fal.fa-door-open
+                        Re-open
+                  %li.dropdown-submenu{style: "position:relative;"}
+                    %a{title: "Add new Users to this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "add_project_user('#{proj.id}')"}
+                      %span.fal.fa-user
+                      Add Users
+                  %li.divider
+                  %li.dropdown-submenu{style: "position:relative;"}
+                    %a{title: "Delete this project",href: "javascript:void(0)",:style=>"cursor: pointer;", onclick: "archive_project('#{proj.id}')"}
+                      %span.fal.fa-trash
+                      Delete
+          .cb
+          .div-center-align
+            .proj_img.short_nm_proj
+              %h4
+                = proj.short_name
+              = image_tag "new-ui/board_view_icon.png"      
+          %h4
+            = link_to project_path(proj) do
+              = truncate(proj.name, :length => 20, :ommission => "...")
+          .created_by
+            Created by
+            - if proj.created_user.present?
+              - created_by = proj.created_user.full_name.present? ? proj.created_user.full_name : proj.created_user.email
+              %span{title: created_by}
+                = created_by.truncate(20)
+            %br
+            on
+            = proj.created_at.strftime("%b %d, %Y %H:%M %P")
+          .other-info
+            .other-info-title
+              Managed by:
+            .other-info-desc
+              = proj.project_manager.full_name.present? ? proj.project_manager.full_name : proj.project_manager.email
+          .other-info
+            .other-info-title
+              Last Activity:
+            .other-info-desc
+              = proj.updated_at.strftime("%b %d, %Y %H:%M %P")
+          .other-info
+            .other-info-title
+              User(s):
+            #users-count.other-info-desc
+              - users = proj.project_users.map{|p|p.user}.compact
+              = users.count
+              / - if users.present?
+              /   - users.each do |user|
+              /     - if user.image.present?
+              /       .user-profile.fl
+              /         .userImage
+              /           = image_tag user.image.image.url(:thumb), onError: "this.src='/assets/new-ui/user.png'"
+              /     - else
+              /       - @name = user.full_name.present? ? user.full_name : user.email
+              /       - unless @name.nil?
+              /         - contact_letter = @name[0]
+              /       - if @name.present?   
+              /         .lead-details-page.fl
+              /           %span.assn-pf-icon{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+              /             = contact_letter.upcase
+              /     .fl=user.full_name
+              /   .cb
+          .other-info
+            .other-info-title
+              Job(s):
+            .other-info-desc
+              = proj.project_jobs.count
+          .other-info
+            - if (proj.linked_with == "Contact")
+              .other-info-title
+                Contact Associated:
+              .other-info-desc
+                = proj.individual_contact.present? ? proj.individual_contact.name : "NA"
+            - elsif (proj.linked_with == "Opportunity")
+              .other-info-title
+                Opportunity Associated:
+              .other-info-desc
+                - if proj.deal.present? 
+                  %span{title:proj.deal.title}
+                    = truncate(proj.deal.title, :length => 30, :ommission => "...")
+                - else
+                  = "NA"
+            - elsif (proj.linked_with == "Organization")
+              .other-info-title
+                Organization Associated:
+              .other-info-desc
+                = proj.company_contact.present? ? proj.company_contact.name : "NA"
+            -else
+              .other-info-title
+                Individual Project
+              .other-info-desc
+                &nbsp;
+          
+  .cb
+- else
+  .text-center No data available

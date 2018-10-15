@@ -1,0 +1,80 @@
+.col-md-12.con-box1{style: "border-top:none;border-radius:0;background:#fff;"}
+  #cumulative_signup_chart_sec.body.collapse.in
+:javascript
+  Highcharts.chart('cumulative_signup_chart_sec', {
+      chart: {
+          zoomType: 'xy'
+      },
+      title: {
+          text: 'Sign-up Cumulative Chart'
+      },
+      subtitle: {
+          text: 'www.wakeupsales.com'
+      },
+      xAxis: [{
+          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          crosshair: true
+      }],
+      yAxis: [{ // Primary yAxis
+          labels: {
+              floor: 0,
+              style: {
+                  color: Highcharts.getOptions().colors[1]
+              }
+          },
+          title: {
+              text: 'Total Sign-up',
+              style: {
+                  color: Highcharts.getOptions().colors[1]
+              }
+          }
+      }, { // Secondary yAxis
+          title: {
+              text: 'No of Sign-up',
+              style: {
+                  color: Highcharts.getOptions().colors[0]
+              }
+          },
+          labels: {
+              floor: 0,
+              style: {
+                  color: Highcharts.getOptions().colors[0]
+              }
+          },
+          opposite: true
+      }],
+      tooltip: {
+          shared: true
+      },
+      legend: {
+          layout: 'vertical',
+          align: 'left',
+          x: 120,
+          verticalAlign: 'top',
+          y: 100,
+          floating: true,
+          backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+      },
+      series: [{
+          name: 'No of Sign-up',
+          type: 'column',
+          yAxis: 1,
+          data: #{@all_month_sign_up_users}
+      }, {
+          name: 'Total Sign-up',
+          type: 'spline',
+          data: #{@cumulative_data}
+      }]
+  });
+
+  function filter_cumulative_by(filter_by){
+    $.ajax( {
+      type: "POST",
+      url: "/cumulative_signup_chart" ,
+      data: {filter_by: filter_by},
+      success: function(result) {
+        $(".filter_by_txt").html(filter_by);
+        $("#cumulative_chart_div").html(result);
+      }
+    });
+  }

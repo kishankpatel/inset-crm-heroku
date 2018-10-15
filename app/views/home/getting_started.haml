@@ -1,0 +1,112 @@
+.normalheader
+  .hpanel.tour-1
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right.m-t-lg
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/"} Dashboard
+          
+          %li.active
+            %a{:href => "/"} Tour
+            
+      %h2.font-light.m-b-xs
+        Tour
+      %small Welcome to InsetCRM. It's time to Streamline Your Sales Pipeline & Team Collaboration!
+      %small Here are a few shortcuts to help you get started.
+
+.content
+  
+  .row
+    .col-lg-12
+      .hpanel.tour-2
+        .panel-heading
+          Get Started with InsetCRM!
+        .panel-body
+          .row
+            .col-lg-4.tour-3
+              .add_lead
+                =link_to "#dealModal", "data-toggle" => "modal", "onclick" => "$('#new_deal')[0].reset();$('.error').html('');$('#deal_first_name').attr('disabled', false);set_ld_track_event('WUS - Create Lead', 'Getting Started')" do
+                  .get_start.font-bold
+                    Add a Lead
+                  .hz_br
+                  .desc.small
+                    Leads are people who you think can be your future customers.
+            .col-md-4.tour-3
+              .add_task
+                =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "set_ld_track_event('WUS - Create Task', 'Getting Started');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#deal_title_task').prop('required','true');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');" do
+                  .get_start.font-bold
+                    Create a Task
+                  .hz_br
+                  .desc.small
+                    Tasks are actions to be performed related to an opportunity.
+            .col-md-4.tour-3
+              .profile_setting
+                %a{href:"/profile"}
+                  .profile_header.font-bold
+                    Personalize settings
+                  .get_start
+                    Timezone & Profile Settings
+                  .hz_br
+                  .desc.small
+                    Personalize your CRM account by selecting your country, timezone & other preferences. 
+            .cb
+    .col-lg-12
+      .hpanel.tour-2
+        .panel-heading
+          Administrator Setup
+        .panel-body
+          .bottom_wrapper
+            .col-md-6  
+              =link_to "#inviteuserModal","data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+                .sec_1
+                  .invite_user
+                    .get_start.font-bold
+                      Invite a Person
+                    .hz_br
+                    .desc.small
+                      Get your team on-board. Team work is fun.
+            .col-md-6
+              %a{href:"/settings"}
+                .settings
+                  .get_start.font-bold
+                    Account Settings
+                  .hz_br
+                  .desc.small
+                    Customize your CRM account as per your preferences.
+            .cb
+          .cb
+=render :partial=>"shared/getting_started_wizard"
+:javascript
+  $(".close_onbording").click(function(){
+    $(".onbording_sec").hide();
+  })
+  $(".next_btn").click(function(){
+    current_page = parseInt($(this).data("id"));
+    $(this).data("id",(current_page + 1).toString());
+    $(".pre_btn").data("id",(current_page + 1).toString());
+    if(current_page == 4){      
+      $(this).html("Let's get started");
+    }
+    if(current_page != 5 ){
+      $(".pre_btn").show();
+      $(".onbording_image img.onb_img_"+current_page).hide();
+      $(".onbording_image img.onb_img_"+(current_page + 1)).show();
+    }else if(current_page == 5){
+      $(".onbording_sec").hide();
+    }
+  })
+
+  $(".pre_btn").click(function(){
+    current_page = parseInt($(this).data("id"));
+    $(this).data("id",(current_page - 1).toString());
+    $(".next_btn").data("id",(current_page - 1).toString());
+    $(".next_btn").html("Next");
+    if(current_page == 2){      
+      $(".pre_btn").hide();
+    }
+    $(".onbording_image img.onb_img_"+current_page).hide();
+    $(".onbording_image img.onb_img_"+(current_page - 1)).show();
+  })

@@ -1,0 +1,213 @@
+:css
+  .minicolors-swatch{
+    height: 35px !important;
+    width: 35px !important;
+  } 
+.panel-heading.hbuilt
+  %h4.fl Define your project pipeline
+  %a#addnewlabel.easyui-linkbutton.fr{href: '#projectStageModal', 'data-toggle' => 'modal', onclick: '$("#project_error").hide();cleanstage()'}
+    %button.btn.btn-primary.btn-success{type: 'button'}
+      %span.glyphicon.glyphicon-plus-sign
+      New Project Stage
+  .cb
+.panel-body
+  .stage-instruction
+    %h5 Note:
+    %p Here you can customize the project stages for your company. Just click "New Project Stage" to add additional steps, or click on the current stage names to edit or delete them.
+    %p Please bear in mind the following:
+    %ul
+      %li Project stages are shared with all users throughout your company.
+  .table-responsive.mtop10
+    #project-stage-content
+      %table.table
+        %tbody
+          %tr
+            %td{style: "border-top: none !important;"}
+
+              / ......Make sortable to the status............
+              #sortable_project_stage
+                = render :partial => "sort_project_status"
+/ ................Modals.......................
+#projectStageModal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Add Project Stage
+      .modal-body
+        = form_for(ProjectStage.new, :url => '', :html=>{:class => 'form', onsubmit: 'addProjectStage(this); return false;'}) do |f|
+          .row#project_error
+            .form-group.col-md-12
+              %p.text-danger Failed to add Project Stage. Please try again.
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Project Stage Name*
+              %i.bar
+              =f.text_field :name, :required => true, :maxlength=> '50', :class=> 'form-control'
+            
+            .form-group
+              %button.btn.btn-success{type: 'submit',data: {:disable_with => "Please wait..."}, id: 'project_submit_btn', class: 'add_submit_btn'} Save
+              %a.btn.btn-default{style: 'top:0px ', href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal'}
+                %span.c_links
+                  Cancel
+
+/ ...................Modal for Edit status................
+#editProjectStageModal.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal', onclick: "$('#edit_error').hide();"} &times;
+        %h4.modal-title Edit Project Stage
+      .modal-body
+        = form_for(ProjectStage.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateProjectStage(this); return false;'}) do |f|
+          = f.hidden_field 'id'
+          #edit_error{style:"display:none;"}
+            .form-group.col-md-12
+              %p.text-danger
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Project Stage Name*
+              %i.bar
+              =f.text_field :name, id: 'project-txt-edit-stage', :maxlength=> '50', :class=> 'form-control', :required => true
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'project_submit_btn', class: "edit_submit_btn"} Update
+              %a.btn.btn-default{href:'javascript:', :onclick => "$('#edit_error').hide();", 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+:javascript
+  $(function() {
+    $(".deal-color").minicolors({theme: 'bootstrap'});
+  });
+  var dualListBox = $('.dual_list_box').bootstrapDualListbox({
+    nonSelectedListLabel: 'Available Project Stages',
+    selectedListLabel: 'Selected Project Stages',
+    preserveSelectionOnMove: 'moved',
+    moveOnSelect: false,
+  });
+  function cleanstage()
+  {
+  $("#project_stage_name").val('')
+  }
+  function submitData() {
+    var selectedStages = $('[name="project_stages[]"]').val()
+    if (selectedStages == null || selectedStages == undefined || selectedStages == "") {
+      $("#error_content").show();
+      return false;
+    }
+    else {
+      $("#error_content").hide();
+    }
+
+    $.ajax({
+      url: 'settings/update_project_stages',
+      type: 'POST',
+      data: {stages: selectedStages},
+      success: function(res) {
+        show_alert_message('success',"Settings for project stages updated successfully.");
+      },
+      error: function(res) {
+        show_alert_message("warning", "Failed to update settings for project stages.");
+      }
+    });
+  }
+  function addProjectStage(formObject) {
+    var color = $(formObject).find(".deal-color").val();
+    var projectStage = $("#project_stage_name").val();
+    if($("#project_stage_is_visible").prop("checked") == true){
+      is_visible = "true";
+    }
+    else{
+      is_visible = "false";
+
+    }
+    if($("#project_stage_is_funnel_view").prop("checked") == true){
+      is_funnel_view = "true";
+    }
+    else{
+      is_funnel_view = "false";
+
+    }
+    $.ajax({
+      url: 'settings/add_project_stage',
+      type: 'POST',
+      data: {name: projectStage, is_visible: is_visible, color: color, is_funnel_view: is_funnel_view},
+      success: function(res) {
+        $("#projectStageModal").modal('hide');
+        $('#projectStageModal').on('hidden.bs.modal', function () {
+          $('#project_stages').html('').html(res);
+          show_alert_message("success", "Wow! You've added a new Project Stage. Let's keep going.")
+        })
+        refreshProjectStages()
+      },
+      error: function(res) {
+        $("#project_error").show();
+        $(".add_submit_btn").removeAttr("disabled").text("Save");
+        if(res.responseText == "not_allowed"){
+          $(".text-danger").html("");
+        }
+        if(res.responseText == "stage_exists"){
+          $(".text-danger").html("Stage name already exists. Please enter different name.");
+        }
+      }
+    });
+  }
+
+
+  function editProjectStage(val){
+    var projectStatus_id = $(val).data("id");
+    $.ajax({
+      url: '/edit_project_status',
+      type: 'PATCH',
+      data: {id: projectStatus_id},
+      success: function(res) {
+        $('.edit-modal-body').html('').html(res);
+      },
+      error: function(res) {
+        $("#project_error").show();
+      }
+    });
+  }
+
+  function deleteProjectStage(val){
+    if(confirm("Are you sure?")){
+      var id = $(val).data("id");
+      $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/delete_project_stage/'+id,
+        type: 'DELETE',
+        success: function(res) {
+          $("#sortableProject").find("#btn_"+id).remove();
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success", "Project stage deleted successfully.")
+        },
+        error: function(res){
+        if(res.responseText == "Fail")
+        {
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("error", "Unable to remove the Project Stage. Projects are associated with this stage")
+        }
+        }
+
+      });
+    }
+    else{
+      return false;
+    }
+  }
+  function refreshProjectStages()
+  {
+    $("#task_loader,.fixed_loader").show();
+      $.ajax({
+        url: '/get_project_stages/',
+        type: 'get',
+        success: function(res) {
+          $("#task_loader,.fixed_loader").hide();
+          $("#sortable_project_stage").html("").html(res.responseText)
+        },
+        error: function(res){
+          $("#task_loader,.fixed_loader").hide();
+        }
+
+      });
+  }

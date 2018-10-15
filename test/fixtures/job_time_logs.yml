@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  project_job: 
+  user: 
+  log_start_time: 2018-04-17 05:23:30
+  log_end_time: 2018-04-17 05:23:30
+  break_time: 2018-04-17 05:23:30
+  spent_hours: 2018-04-17 05:23:30
+  note: 
+  is_billable: false
+
+two:
+  project_job: 
+  user: 
+  log_start_time: 2018-04-17 05:23:30
+  log_end_time: 2018-04-17 05:23:30
+  break_time: 2018-04-17 05:23:30
+  spent_hours: 2018-04-17 05:23:30
+  note: 
+  is_billable: false

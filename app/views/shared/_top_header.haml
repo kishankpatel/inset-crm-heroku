@@ -1,0 +1,492 @@
+:css
+  .custom-pad a {padding: 0 !important}
+  @media (min-width: 768px) {
+    .navbar-nav.navbar-right:last-child {
+        margin-right: 0;
+    }
+  }
+:javascript
+  $(function(){
+   //$('a[rel="tooltip"],i,input:checkbox,button,div').powerTip({placement: 'n'});
+   // $(".slide_m").hide();
+   // $(".nav.navbar-nav li a").hover(function(){
+   //   $(this).find(".slide_m").show('slide', { direction: 'right' }, 300);
+   // },function(){
+   //   $(this).find(".slide_m").hide();
+   // });
+   $('.f_menu').click(function() {
+    //$(this).preventDefault();
+    $(this).next('.dropdown-menu').toggle(100);
+    //$(this).find('.dropdown-menu').stop(true, true).slideToggle(100);
+    //e.preventDefault()
+   });
+  });
+  function send_mail(){
+    $('#task_loader,.fixed_loader').show();
+    $.ajax({type: "POST",
+      url: "/send_latest_blog_mail" ,
+      data: {},
+      success: function(result) {
+        $('#task_loader,.fixed_loader').hide();
+        show_alert_message('success',"Latest blog mail sent successfully.");
+      },
+      complete: function(result) {
+        $('#task_loader,.fixed_loader').hide();
+        
+      },
+      error: function(result) {
+        
+        $('#task_loader,.fixed_loader').hide();
+        
+      }
+    });
+  }     
+=hidden_field_tag "ref_page_info", "#{params[:controller]+params[:action]}"
+%input{:type=>"hidden",:id=>"is_login",:value=>"1"}
+%input{:type=>"hidden",:id=>"hdn_sqllite",:value=>"0"}
+.nav_menu
+  %nav{:role => "navigation"}
+    .nav_title{:style => "border: 0;border-right: 1px solid rgba(6, 136, 185, 0.75);"}
+      %a.site_title{:href => "/"}
+        %span.header-small-logo
+        / %span{style: "position: relative;font-weight: bold;font-size: 18px;padding-left: 5px;top: -20px;"}
+        /   WakeUpSales
+        / %span{style: "position: relative;top: -64px;font-size: 8px;left: 69px;border: 1px solid #666;color: #333;padding: 0 4px;font-weight: bold;background: #eee;border-radius: 3px;"}
+        /   All-in-One CRM Suite 
+        %span.header-logo
+    .nav.toggle{style: "width: 37px;"}
+      %a#menu_toggle{onclick: "toggleLeftMenu()"}
+        %i.fal.fa-bars.tooltip.bar_1{title:"Compress the Left Panel", onclick: "$.cookie('togglemenu', 'collapse')"}
+        %i.fal.fa-bars.tooltip.bar_2{title:"Expand the Left Panel", onclick: "$.cookie('togglemenu', 'expand')"}
+      
+    .nav.toggle{style: "width: 37px;"}
+      %a.tooltip{href:"javascript:void(0)",style:"padding-left: 7px;",title:"Go back to the previous page", onclick:"window.history.back();"}  
+        %span.cwkp-sprite.top-arrow
+    - if @current_user.is_siteadmin? && ((controller.controller_name == "users" && controller.action_name == "index") || controller.action_name == "org_billing_history")
+      %span{style: "color: #fff;position:absolute;margin-top:20px;"}
+        = @organization.name
+    %input{:type=>"hidden",:id=>"session_authenticity_token",:value=>session[:_csrf_token]}
+    - if params[:controller] == "project_jobs" && params[:action] == "index"
+      %ul.nav.navbar-nav.navbar-left.f_disp
+        %li
+          .dropdown
+            %span.dropdown-toggle.project_dropdown{"data-toggle" => "dropdown"}
+              .fl{title: @project.name.size > 25 ? @project.name : "", :class =>  @project.name.size > 25 ? "tooltip" : "", style:"line-height: 20px;"}
+                = @project.name.truncate(25)
+              .fr
+                %span.caret
+              .cb
+            %ul.dropdown-menu.project_dropdown_list
+              - if @remaining_projects.present?
+                - @remaining_projects.each do |proj|
+                  %li
+
+                    %a{:href => "/projects/" + proj.id.to_s + "/jobs", title: proj.name.size > 28 ? proj.name : "", :class =>  proj.name.size > 28 ? "tooltip" : ""}
+                      = proj.name.truncate(28)
+                    %li.divider
+              - else
+                %li{style:"text-align:center;"}
+                  No more projects found
+    %ul.nav.navbar-nav.navbar-left.f_disp
+      / - cache("header_right_menu_admin_#{@current_user.is_admin?}", skip_digest: true) do
+      - unless current_user.is_siteadmin?
+        %li
+          %div{onclick: "sch_slide()"}
+            .navbar-right.input-group
+              = form_tag "/search_all", method: :get, id: "search_form" do
+                = text_field_tag :query,"", class: "form-control srch_fld",:required=> true, :placeholder => "Search..."
+                .input-group-btn{style: "position:inherit;"}
+                  = submit_tag "", name: nil, class: "nav_srch_box", :disable_with => ""
+    - is_lead_page = params[:controller] == "deals" && params[:action] == "index"
+    - is_lead_details_page = params[:controller] == "deals" && params[:action] == "show"
+    - is_lprojects_page = params[:controller] == "projects" && params[:action] == "index"
+    - is_tasks_page = params[:controller] == "tasks" && params[:action] == "index"
+    - if is_lead_page || is_lead_details_page || is_lprojects_page || is_tasks_page
+      - if( (is_lead_page && @current_organization.deals.where(is_active: true).count == 0) || (is_lprojects_page && @current_organization.projects.count == 0) || (is_tasks_page && @current_organization.tasks.count == 0) )
+        %div{style: "position:relative;display: inline-block;"}
+          .show_onboarding{onmouseover:"$('.show_onboarding_bo_notification').show()", onmouseout:"$('.show_onboarding_bo_notification').hide()"}
+            %span.cwkp-sprite
+          .show_onboarding_bo_notification.fr
+            .bulb_arrow_left
+            .task_bulb
+              .data-box{style:"min-width: 390px;"}
+                %div
+                  - if params[:controller] == "projects" && params[:action] == "index"
+                    - msg = "Project"
+                  - elsif params[:controller] == "tasks" && params[:action] == "index"
+                    - msg = "Task"
+                  - elsif params[:controller] == "deals" && params[:action] == "index"
+                    - msg = "Lead"
+
+                  = "Oops! Please create a new #{msg} to start On-boarding. "
+      - else
+        %div{style: "position:relative;display: inline-block;"}
+          .show_onboarding.show{onmouseover:"$('.show_onboarding_bo_notification').show()", onmouseout:"$('.show_onboarding_bo_notification').hide()"}
+            %span.cwkp-sprite
+          .show_onboarding_bo_notification.fr
+            .bulb_arrow_left
+            .task_bulb
+              .data-box{style:"min-width: 150px;"}
+                %div
+                  = "Start On-Boarding"
+        
+    - if @current_organization.present?  
+      .fr{style: "margin-right: 15px;"}
+        %ul.nav.navbar-nav.navbar-right.top-menu-icon
+          %div.top_right_menu
+            - unless current_user.is_siteadmin?  
+              %span{style: "margin-top: 4px;display: inline-block;"}  
+
+                %li.feedback{style:"margin-right: 15px; margin-top: 3px;"}
+                  =link_to "javascript:void(0)", "data-target" => "#feedback_modal", "data-toggle" => "modal", :title => "Feedback", :rel => "tooltip" do
+                    = image_tag 'feedback_icon.png', height: "20px", width: "20px"
+                %li.dropdown{:role => "presentation"}
+                  %a.dropdown-toggle{"data-toggle" => "dropdown", href: "#", style: "padding-top:0"}
+                    %span.more_text_in_header
+                    Quick Links
+                    %span.cwkp-sprite.down_arrow
+                  - if current_user.is_admin? && !current_user.is_siteadmin? 
+                    %ul.dropdown-menu.dropdown-usermenu.pull-right.dropdown-new-menu.custom-pad{style: "margin-right: 0;top: 36px;width:550px !important;padding: 10px 0px;"}
+                      .col-md-4.padlft.new_left_menu
+                        %li
+                          %strong
+                            Add New   
+                        .create_new_menu
+                          %li.add_lead_icon
+                            =link_to "#dealModal", "data-toggle" => "modal", "onclick" => "$('#lead_referrer').val('Header');$('#new_deal')[0].reset();$('.error').html('');$('#deal_first_name').attr('disabled', false);reset_deal_popup_info();show_lead_fields();" do
+                              %span.deal-larg
+                              Lead
+                          %li.add_project_icon
+                            =link_to "javascript:void(0)", "data-toggle" => "modal", "onclick" => "$('#projectModal').modal('show');$('#link_lead_no').prop('checked',true);$('#lead_section').hide();$('#project_individual_contact_id').removeAttr('required');$('#project_deal_id').removeAttr('required');" do
+                              %span.project-larg
+                              Project
+                          %li.add_task_icon
+                            =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "$('#task_referrer').val('Header');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#deal_title_task').prop('required','true');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');" do
+                              %span.task-larg
+                              Task
+                          %li.add_contact_icon
+                            =link_to "#contactModal", "data-toggle" => "modal", "onclick" => "$('#new-contact')[0].reset();$('#email_err_i').html('');$('#company_added_info_div').css('display','none');display_company_div('hide')" do
+                              %span.con-larg          
+                              Contact
+                          %li.add_contact_icon
+                            =link_to "#orgModal", "data-toggle" => "modal" do
+                              %span.cwkp-sprite.org{:style=>"background-position: -472px -267px;color: rgb(0, 0, 0);width: 25px;height: 25px;display: inline-block;vertical-align: middle;"}
+                              %span{:style=>"padding-top: 8px;vertical-align: middle;margin-left:5px"}
+                                Organization  
+                          - if (current_user.present? && (current_user.is_admin? || current_user.is_super_admin?))
+                            %li.invite_user_icon
+                              =link_to "#inviteuserModal","data-toggle" => "modal", "onclick" => "$('#user_invite_form')[0].reset();$('.show-alert').hide();$('#email_err_usr').html('');" do
+                                %span.invt-larg
+                                Invite a Person
+                      .col-md-4.padlft.padrht
+                        %li 
+                          %strong
+                            Premium
+                        .others_menu  
+                          %li#mail_box_menu
+                            %a{:href => "/emails/connect", title: "Sync your GMail Mailbox right inside Wakeupsales"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.ht-20.mail_box_menu
+                              %span
+                                Gmail
+                          %li#manage_invoice_menu
+                            %a{:href => "/manage_invoice", title: "Create, Save, Send and Manage Invoice activities"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.manage_invoice_menu
+                              %span
+                                Manage Invoice
+                          %li#web_to_lead_menu
+                            %a{:href => "/manage_web_form", title: "Convert your website contacts as leads in Wakeupsales, Automatically"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.web_to_lead_menu
+                              %span
+                                Web to Lead
+                          %li#track_email_menu
+                            %a{:href => "/track_emails/index", title: "Email Tracking"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.track_email_icon
+                              %span
+                                Email Tracking
+                          %li#goal_view                           
+                            %a{:href => "/goals",  title: "Goals"}
+                              %span.menu_icon  
+                                %span.active-goals.cwkp-sprite.tooltip
+                              %span
+                                Goals
+                      .col-md-4.padrht
+                        %li 
+                          %strong
+                            Others
+                        .others_menu  
+                          %li#files_menu
+                            %a{:href => "/files"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.files_menu{title: "Files"}
+                              %span
+                                Files
+
+                          %li#reports_menu
+                            %a{:href => "/reports"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.reports_menu{title: "Reports"}
+                              %span
+                                Reports & Analytics
+                          %li#activities_menu
+                            %a{:href => "/activities"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.activity_menu{title: "Activity"}
+                              %span
+                                Activities
+                          %li#daily_update
+                            %a{:href => "/daily_updates"}
+                              %span.menu_icon  
+                                %span.cwkp-sprite.contact.daily_update{title: "Daily Updates"}
+                              %span
+                                Daily Updates
+                      .cb
+                  - else
+                    %ul.dropdown-menu.dropdown-usermenu.pull-right.dropdown-new-menu.only_user_menu.custom-pad{style: "margin-right: 0;top: 36px;min-width:150px !important;"}  
+                      .new_left_menu
+                        %li
+                          %strong
+                            New
+                        .create_new_menu  
+                          %li.add_lead_icon
+                            =link_to "#dealModal", "data-toggle" => "modal", "onclick" => "set_ld_track_event('WUS - Create Lead', 'Quick Links');$('#new_deal')[0].reset();$('.error').html('');$('#deal_first_name').attr('disabled', false);show_lead_fields();" do
+                              %span.deal-larg
+                              Lead
+                          / %li.add_opportunity_icon
+                          /   =link_to "#dealModal", "data-toggle" => "modal", "onclick" => "$('#lead_referrer').val('Header');$('#new_deal')[0].reset();$('.error').html('');$('#deal_first_name').attr('disabled', false);reset_deal_popup_info();hide_lead_fields();$('.opportunity_header').click();" do
+                          /     %span.deal-larg.add_oppt
+                          /     Opportunity
+                          %li.add_task_icon
+                            =link_to "#taskModal", "data-toggle" => "modal", "onclick" => "default_for_lead_task();set_ld_track_event('WUS - Create Task', 'Quick Links');$('#task_notify_email').val(1);$('#task_form')[0].reset();$('#email_err').html('');$('#puppy_gooddog').prop('checked', true);$('.deal_list').show();$('.contact_firstname_div').hide();$('#check_deal_show').val('false');$('#deal_title_task').removeAttr('disabled');$('#clicked_button_ref').val('headermenu');reset_recurring_option();reset_event();$('.assign_deal_label').removeClass('control-lbl-add-txt');" do
+                              %span.task-larg
+                              Task
+                          / %li.divider
+                          %li.add_contact_icon
+                            =link_to "#contactModal", "data-toggle" => "modal", "onclick" => "$('#new-contact')[0].reset();$('#email_err_i').html('');$('#company_added_info_div').css('display','none');display_company_div('hide');$('#country').val('236');prefill_extension('236','extension_for_contact','extension_contact_popup');get_country_states('236');" do
+                              %span.con-larg
+                              Contact
+                          %li.add_contact_icon{style: "margin-bottom: 5px;"}
+                            =link_to "#orgModal", "data-toggle" => "modal" do
+                              %span.cwkp-sprite.org{:style=>"background-position: -472px -267px;color: rgb(0, 0, 0);width: 25px;height: 25px;display: inline-block;vertical-align: middle;"}
+                              %span{:style=>"margin-top: 5px;vertical-align: middle;margin-left: 10px;position: absolute;"}
+                                Organization
+                
+              %li{style:"margin-left: 5px;"}
+                %span.cwkp-sprite.vertical-bar
+            %li.settings_icon_allignment
+              - cache("user_menu_#{@current_user.id}", skip_digest: true) do
+                - display_name = current_user.full_name.blank? ? (current_user.organization.present? ? current_user.organization.name : "NA") : current_user.full_name
+                %a.user-profile.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;",style: "font-size: 22px;padding-left: 5px;padding-top:0;"}
+                  %span.cwkp-sprite.setting
+              %ul.dropdown-menu.dropdown-usermenu.pull-right{style: "margin-top:4px;width:180px;"}
+                - if current_user.is_admin?  
+                  %li.header_get_started
+                    =link_to "/getting_started" do
+                      %span.cwkp-sprite
+                      Getting Started
+                - if current_user.is_siteadmin?
+                  %li.divider
+                  %li
+                    =link_to "#", :onclick => "send_mail()" do
+                      %span.glyphicon.glyphicon-send{:style => "color:#333;"}
+                      Send Latest Blog Mail
+                - unless current_user.is_siteadmin?
+                  - if current_user.is_admin?    
+                    %li.divider
+                    %li.header_comp_setting
+                      =link_to "/settings" do
+                        %span.cwkp-sprite
+                        Company Settings
+                  %li.divider
+                  %li.header_profile_icon
+                    =link_to "/profile" do
+                      %span.cwkp-sprite
+                      Profile
+                  
+                  / %li.divider
+                  / %li
+                  /   =link_to "/plugin_integration" do
+                  /     %span{style: "background: url('/assets/plugin_icon.png');height: 15px;width: 15px;background-size: 15px 15px;display: inline-block;vertical-align: middle;"}
+                  /     %span
+                  /       Plugin Integrations
+                  %li.divider
+                  %li.header_import_icon
+                    %a{"data-target" => "#ImportContactModal", "data-toggle" => "modal", rel: "tooltip",href: "javascript:void(0)", onclick: "open_crm_modal('sugar_crm');show_crm_radio();"} 
+                      %span.cwkp-sprite
+                      Import
+                  %li.divider
+                  %li.header_logout_icon
+                    = link_to destroy_user_session_path, :method => :delete,:id=>"logout", :onclick=>"return track_logout();" do
+                      %span.cwkp-sprite
+                      Log Out
+            - is_lead_page = params[:controller] == "deals" && params[:action] == "index"
+            - is_lead_details_page = params[:controller] == "deals" && params[:action] == "show"
+            
+            - is_tasks_page = params[:controller] == "tasks" && params[:action] == "index"
+            
+            - is_contacts_page = params[:controller] == "contacts" && params[:action] == "index"
+            - is_contact_details_page = params[:controller] == "contacts" && params[:action] == "show_contact_detail"
+            - is_users_page = params[:controller] == "users" && params[:action] == "index"
+            - is_dashboard_page = params[:controller] == "home" && params[:action] == "dashboard"
+            /- if is_lead_page || is_lead_details_page || is_contacts_page || is_contact_details_page || is_tasks_page || is_users_page || is_dashboard_page
+            /  %li.header_help_sec
+            /    %a.toggle_help.header_help_icon
+            /      ?
+            /    .help-arrow-down
+            /    .show_help_sec{style: "border: none;"} 
+            /      = render partial: "/shared/header_help_section"
+            /%li.dropdown.mega-dropdown{:role => "presentation"}
+            /  %a.dropdown-toggle{"data-toggle" => "dropdown", href: "#", style: "padding-top:0"}
+            /    %span.cwkp-sprite.down_arrow
+            /  .dropdown-menu.mega-dropdown-menu{style: "border: none;"} 
+            /    = render partial: "/shared/header_help_section"
+= render partial: "home/import_contact_modal"
+
+
+:javascript      
+  // To make default compress the left menu  
+  // $(function(){
+  //   toggleLeftMenu();
+  // })
+  $(".toggle_help").click(function(){
+    $(".show_help_sec").toggle();
+    if( $(".show_help_sec").is(":visible") )
+      $(".help-arrow-down").show();
+    else
+      $(".help-arrow-down").hide();
+  })
+  //*Menu-toggle*/
+  $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("active");
+      //alert(1);
+  });  
+  $('#my-link').click(function (event) {
+    alert('Hooray!');    
+    event.preventDefault(); // Prevent link from following its href
+    track_logout();
+  });
+
+  function toggleLeftMenu(){
+    // Toggle right => 
+    var togglemenu = $.cookie("togglemenu");
+    if ( $(".left_col.menu_fixed").hasClass("small_menu") == true && (togglemenu != "" && togglemenu != "undefined" && togglemenu == "expand"))
+    {
+      toggleRight();
+    }
+    else
+    {
+      toggleLeft();
+    }
+    
+  }
+
+  function toggleRight(){
+    $(".left_col.menu_fixed").removeClass("small_menu");
+    $(".right-container").css({"padding": "135px 0 0 200px"});
+    $(".nav.side-menu > li > a").css("padding","15px");
+    $(".side-menu .menu_icon").css("display","inline-block");
+    $(".side-menu .menu_name").css({"display":"inline-block"});
+    $(".menu_section .drop_down_section").css("font-size","14px");
+    $(".side-menu .menu_name.ml-3").css({"margin-left":"0"});
+    $(".lead-location").show();
+    $(".count-box").show();
+    $(".link_name").addClass("fl");
+    $(".menu_name").show();
+    $(".short_menu_name").hide();
+    $(".nav_title").css({"width":"200px"});
+    $(".span.header-logo").show();
+    $(".profile_menu_list").removeClass("show-pf-options");
+    $(".fixed-in-app-header").css({"width":"85%%","padding-right":"210px"});
+    $(".dashboard-page").closest(".right-container").css({"padding-top":"75px"});
+    $("#menu_toggle .bar_1").css("display","inline-block");
+    $("#menu_toggle .bar_2").hide();
+    $("#mail_box .pro").css("left","43px");
+    $(".confirmation_message").css('padding-left','200px');
+    $(".left-project-count-box").removeClass("left-project-count-box").addClass("project-count-box");
+    $(".left-org-count-box").removeClass("left-org-count-box").addClass("org-count-box");
+    $(".left-task-count-box").removeClass("left-task-count-box").addClass("task-count-box");
+    $(".left-contact-count-box").removeClass("left-contact-count-box").addClass("contact-count-box");
+    $(".left-user-count-box").removeClass("left-user-count-box").addClass("user-count-box");
+    $(".left-lead-count-box").removeClass("left-lead-count-box").addClass("lead-count-box");
+    $(".left-goal-count-box").removeClass("left-goal-count-box").addClass("goal-count-box");
+    //$(".custom_right_padding").parent().css({"padding-top":"85px"});
+    $(".projects, .lds, .task, .contact, .org-left, .users").css("margin-top","0px");
+  }
+  function toggleLeft(){
+    $(".left_col.menu_fixed").addClass("small_menu");
+    $(".right-container").css({"padding": "135px 0 0 60px"});
+    $(".nav.side-menu > li > a").css("padding","5px");
+    $(".side-menu .menu_icon").css("display","block");
+    $(".side-menu .menu_name").css({"display":"block","margin-top":"-5px"});
+    $(".menu_section .drop_down_section").css("font-size","12px");
+    $("#gettingStarted .menu_name").css({"line-height":"15px","margin-top":"-2px"});
+    $(".side-menu .menu_name.ml-3").css({"margin-left":"-3px"});
+    $(".count-box").show();
+    $(".link_name").removeClass("fl");
+    $(".menu_name").hide();
+    $(".short_menu_name").show();
+    $(".nav_title").css({"width":"60px"});
+    $(".span.header-small-logo").show();
+    $(".profile_menu_list").hide();
+    $(".profile_menu_list").addClass("show-pf-options");
+    $(".fixed-in-app-header").css({"width":"100%","padding-right":"70px"});
+    $(".dashboard-page").closest(".right-container").css({"padding-top":"75px"});
+    $("#menu_toggle .bar_1").hide();
+    $("#menu_toggle .bar_2").css("display","inline-block");
+    $("#mail_box .pro").css("left","18px");
+    $(".confirmation_message").css('padding-left','60px');
+    //$(".custom_right_padding").parent().css({"padding-top":"85px"});
+    $(".project-count-box").removeClass("project-count-box").addClass("left-project-count-box");
+    //$(".projects, .lds, .task, .contact, .org-left, .users").css("margin-top","9px");
+    $(".org-count-box").removeClass("org-count-box").addClass("left-org-count-box");
+    $(".task-count-box").removeClass("task-count-box").addClass("left-task-count-box");
+    $(".contact-count-box").removeClass("contact-count-box").addClass("left-contact-count-box");
+    $(".user-count-box").removeClass("user-count-box").addClass("left-user-count-box");
+    $(".lead-count-box").removeClass("lead-count-box").addClass("left-lead-count-box");
+    $(".goal-count-box").removeClass("goal-count-box").addClass("left-goal-count-box");
+  }
+  
+  function reset_deal_popup_info(){
+    // $("#dealModal .modal-title").html("ADD A NEW LEAD");
+    $("#deal_submit_more").show();
+    $("#deal_first_name").removeAttr("readonly");
+    $("#deal_email").removeAttr("readonly");
+  }
+
+  $(".show_onboarding").click(function(){
+    $(".onboarding_page").show();
+    $(".user_onbording_container").hide();
+    $(".onboarding_leads").show();
+  })
+  function show_free_plan_error(){
+    show_alert_message("danger", "Oops! Please choose a plan to Continue.");
+  }
+
+  function excees_limit_error(){
+    show_alert_message("danger", "Oops! you have reached your free plan limit.");
+  }
+
+  function show_privilege_bo_message(){
+    show_alert_message("danger", "Oops! Your subscription was expired.");
+  }
+  // Hide help section only click of outside and the help icon itself
+  $(window).click(function() {
+    $('.show_help_sec').hide();
+    $(".help-arrow-down").hide();
+  });
+
+  $('.header_help_sec').click(function(event){
+    event.stopPropagation();
+  });
+
+  $('.upgrade_error_on_header').click(function(event){
+    show_alert_message("danger", "You don't have sufficient permission to view this page.");
+  });
+
+
+
+  

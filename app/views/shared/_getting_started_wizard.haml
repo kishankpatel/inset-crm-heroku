@@ -1,0 +1,1152 @@
+.g_started_sec.modal.fade.in
+  .gsSlider
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h4.modal-title Inset CRM
+            .modal-body.text-center
+              %h2.font-extra-bold.m-b Welcome
+              %h4 Let's get you started
+            .modal-footer.text-center
+              %a.pager-next.btn.w-xs.btn-success{:href => "javascript:void(0)"} Start
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your Name
+              %h5 Please provide your first and last name
+            = form_for(@current_user,:url=> gs_save_name_path, :html=>{:class => "form",:id=>'ga_save_name'},:remote=>true) do  |f|
+              .modal-body
+                .row
+                  .col-md-6
+                    .form-group
+                      = f.label :first_name
+                      = f.text_field  :first_name, :class=>"form-control", :placeholder=>"Enter your first name",:required=>true
+                      
+                  .col-md-6
+                    .form-group
+                      = f.label :last_name
+                      = f.text_field   :last_name, :class=>"form-control", :placeholder=>"Enter your first name",:required=>true
+              .modal-footer
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your Phone Number
+            = form_for(@current_user,:url=> gs_save_phone_no_path,:html=> {:class => "form",:id=>'gs_save_phone_no'},:remote=>true) do  |f|
+              .modal-body
+                .row
+                  .col-md-4
+                    .form-group
+                      - phone = @current_user.phone
+                      = f.label :area_code
+                      = f.text_field  :area_code, :class=>"form-control", :placeholder=>"Area Code",:required=>true,:value=>phone.present? ? phone.extension : "",:onkeydown => "plusandnumbersonly(event);"
+                  .col-md-8
+                    .form-group
+                      = f.label :phone_no
+                      = f.text_field  :phone_no, :class=>"form-control", :placeholder=>"Phone Number",:required=>true,:value=>phone.present? ? phone.phone_no : "", onkeydown: "numbersonly(event);"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    / .slide
+    /   .hmodal-success
+    /     .modal-dialog
+    /       .modal-content
+    /         .color-line
+    /         .modal-header
+    /           %h2.font-bold Password
+    /         .modal-body
+    /           .row
+    /             .col-md-6
+    /               .form-group
+    /                 %label{:for => ""} Password
+    /                 %input.form-control{:id => "", :name => "", :placeholder => "Password", :type => "password"}/
+    /             .col-md-6
+    /               .form-group
+    /                 %label{:for => ""} Confirm Password
+    /                 %input.form-control{:id => "", :name => "number", :placeholder => "Confirm Password", :type => "password"}/
+    /         .modal-footer
+    /           %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-left>
+    /             Prev
+    /           %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-right>
+    /             Next
+    /           .cb
+    //Company Address
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Company Address
+              %h5 Please enter your organizations primary billing or shipping address
+            = form_for(@current_user,:url=> gs_save_address_path, :html=>{:class => "form",:id=>'gs_save_address'},:remote=>true) do  |f|
+              -if !@current_user.address.present?
+                - address = Address.new(:organization_id=>@current_user.organization_id)
+                - @current_user.address = address
+              .modal-body
+                =f.fields_for :address do |address_fields|
+                  .row
+                    .col-md-12
+                      .form-group
+                        = address_fields.label :address,"Street Address"
+                        = address_fields.text_field  :address, :class=>"form-control", :placeholder=>"Enter Apt., Suite,Street Address",:required=>true
+                  .row
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :city
+                        = address_fields.text_field   :city, :class=>"form-control", :placeholder=>"Enter your city",:required=>true
+                    .col-md-6
+                      .form-group
+                        = address_fields.label :state,"State / Province"
+                        = address_fields.text_field   :state, :class=>"form-control", :placeholder=>"Enter your state",:required=>true
+                  .row
+                    .col-md-6
+                      .form-group.m-b-none
+                        = address_fields.label :country_id , "Country"
+                        = address_fields.select :country_id, Country.find(:all).collect {|c| [ c.name, c.id ]}, {},{:class => "form-control js-source-states"}
+                    .col-md-6
+                      .form-group.m-b-none
+                        = address_fields.label :zipcode,"Postal / Zip Code"
+                        = address_fields.text_field   :zipcode, :class=>"form-control", :placeholder=>"Enter your zipcode",:required=>true
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    //Company Size
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Company Size
+            = form_for(@current_user.organization,:url=> gs_save_org_size_path, :html=>{:class => "form",:id=>'gs_save_org_size'},:remote=>true) do  |f|
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group.m-b-none
+                      = f.label :size_id , "Company Size"
+                      = f.select :size_id, CompanyStrength.all.uniq(&:range).collect {|c| [ c.range, c.id ]}, {:include_blank => '- Organization Size -'},  :required => "true", :class=>"form-control"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    //timezone
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Time Zone
+            = form_for(@current_user.organization,:url=> gs_save_time_zone_path, :html=>{:class => "form",:id=>'gs_save_time_zone'},:remote=>true) do |f|
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group
+                      = f.label :time_zone, "Time Zone"
+                      = f.select :time_zone, get_all_time_zones.map {|c| [ c[:text], c[:value] ]}, {:include_blank => '- Time Zone -'},  :required => "true", :class=>"form-control"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    // Upload Company Logo
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Upload Your Company Logo
+              %h5 Your logo will be used to identify your company in the application and your email templates
+            = form_for(@current_user.organization,:url=> gs_save_org_image_path, :html=>{:class => "form",:id=>'gs_save_org_image',:multipart=>true},:remote=>true) do  |f|
+              -if !@current_user.organization.image.present?
+                - image = Image.new(:organization_id=>@current_user.organization_id)
+                - @current_user.organization.image = image
+              .modal-body
+                .row
+                  .col-md-12
+                    .form-group.upload_logo
+                      
+                      /%input{:type=>"hidden",:value=>"#{@user.id}",:id=>"user_id"}
+                      =f.fields_for :image do |image_fields|
+                        %img{:id=>"org_image_url",:src=>image_fields.object.image.url}
+                        =image_fields.label :image,"Upload Image"
+                        =image_fields.file_field :image ,:class=>"form-control btn-metis-7 btn-file file_hid_block", :onchange=> "checkFile_withtype(this);$('#gs_save_org_image').submit();" 
+                  
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    // Industry
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Industry
+            = form_for(@current_user.organization,:url=> gs_save_industries_path, :html=>{:class => "form",:id=>'gs_save_industries'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow
+                  .row.mr-0
+                    - company_industries = CompanyIndustry.all
+                    / - if project.new_record?
+                    /   - indx = 0
+                    /   - all_org_users.each do |u|
+                    /     = f.fields_for :project_users do |proj_user|
+                    /       %span.col-md-3.checkbox.checkbox-inline
+                    /         = proj_user.check_box :user_id, {}, u.id, nil
+                    /         %label{for: "project_project_users_attributes_#{indx}_user_id"}
+                    /           %span
+                    /           = u.full_name.present? ? u.full_name : u.email.split("@")[0]
+                    /       - indx = indx + 1
+                    / - else
+                    - indx = 0
+                    - industry_ids = []
+                    -org_industries = @current_user.organization.organization_industries.map(&:company_industry_id)
+                    - organization_industries = @current_user.organization.organization_industries # if @current_user.organization.organization_industries.count == 0
+                    = f.fields_for :organization_industries,:wrapper=>false do |comp_industry|
+                      
+                      - u = comp_industry.object
+                      - if u.present? && u.id.present?
+                        - industry_ids << u.id
+                        .col-md-6.checkbox.checkbox-inline.checkbox-success
+                          = comp_industry.check_box :company_industry_id, {}, u.id, nil
+                          %label{for: "organization_organization_industries_attributes_#{indx}_company_industry_id"}
+                            %span
+                            = u.company_industry.name
+                        - indx = indx + 1
+                    /=debug(company_industries)
+                    - company_industries.each do |u|
+                      - unless org_industries.include? u.id
+                        .col-md-6.checkbox.checkbox-inline.checkbox-success
+                          %input{type: 'checkbox', id: "organization_organization_industries_attributes_#{indx}_company_industry_id", name: "organization[organization_industries_attributes][#{indx}][company_industry_id]", value: u.id}
+                          %label{for: "organization_organization_industries_attributes_#{indx}_company_industry_id"}
+                            %span
+                            = u.name
+                        - indx = indx + 1
+                
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    // Currency
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Please select your default currency
+              %h5 Your currency options can be changed at any time in your account settings.
+            = form_for(@current_organization,:url=> gs_save_currency_path, :html=>{:class => "form",:id=>'gs_save_currency'},:remote=>true) do  |f|
+              .modal-body
+                .row
+                  .col-md-6
+                    .form-group
+                      = f.label :default_currency
+                    = f.select :default_currency, @cur.collect {|c| [ c[0] , c[1], title: c[1] ]}, {:selected => @current_organization.default_currency.present? ? @current_organization.default_currency : 'USD'}, {class: "form-control", :"data-live-search" => true}
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    // Sales Opportunity Stages
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Let's setup your sales opportunity stages
+              %h5 Your task types allow you to categorize your tasks for reporting and automation purposes.
+            = nested_form_for(@current_user.organization,:url=> gs_save_sales_stages_path, :html=>{:class => "form",:id=>'gs_save_sales_stages'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow{id: "deal-statuses"}
+                  
+                  = f.fields_for :deal_statuses, :wrapper => false  do |ds_form|
+                    .col-md-6.nested-row
+                      .row
+                        .form-group.col-md-10
+                          =ds_form.text_field :name, :required => true, :maxlength=> '50',:class=>"form-control"
+                        /=debug(ds_form.object.name)
+                        -display =  ds_form.object.name.present? && (ds_form.object.name.downcase != "won" || ds_form.object.name.downcase != "lost") ? "block" : "none"
+                        =hidden_field_tag :none_remove,display
+                        .col-md-2{style: "display:block"}
+                          %label
+                            = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                            %span.fal.fa-trash
+                .row
+                  .col-md-12
+                    = f.link_to_add "+ Add More", :deal_statuses,"data-target"=>"#deal-statuses","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your sales opportunity stages have been successfully created! Next we'll customize your opportunity task types.
+              %h5 If you skip this step, the default task types will be assigned to your organization. You can always change the task types later from your settings.
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200.pager-next.skip2{:type => "button"} Maybe Later
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    // Task types
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Task Types
+              %h5 Your task types allow you to categorize your tasks for reporting and automation purposes.
+            = nested_form_for(@current_user.organization,:url=> gs_save_task_types_path, :html=>{:class => "form",:id=>'gs_save_task_types'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow
+                  %div{id: "task-types"}
+                    = f.fields_for :task_types, :wrapper => false  do |ds_form|
+                      .col-md-6.nested-row
+                        .row
+                          .form-group.col-md-10
+                            =ds_form.text_field :name, :required => true, :maxlength=> '50',:class=>"form-control"
+                          /=debug(ds_form.object.name)
+                          -display =  ds_form.object.name.present? && (ds_form.object.name.downcase != "appointment" ) ? "block" : "none"
+                          =hidden_field_tag :none_remove,display
+                          .col-md-2{style: "display:block"}
+                            %label
+                              = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                              %span.fal.fa-trash
+                .row
+                  .col-md-12
+                    = f.link_to_add "+ Add More", :task_types,"data-target"=>"#task-types","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your opportunity tasks have been successfully created! Next we'll customize your opportunity task followup categories
+              %h5 Setting up your task outcomes allows you to define automated followup tasks based on the criteria you select.
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200.pager-next.skip2{:type => "button"} Maybe Later
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Automate your follow-up tasks
+              %h5 You can setup your task outcomes to automatically setup followup tasks based on the criteria you select.
+            = nested_form_for(@current_user.organization,:url=> gs_save_task_outcomes_path, :html=>{:class => "form",:id=>'gs_save_task_outcomes'},:remote=>true) do  |f|
+              .modal-body
+                %div{id: "task-outcomes"}
+                  = f.fields_for :task_outcomes, :wrapper => false  do |ds_form|
+                    .row.nested-row
+                      .form-group.col-md-4
+                        =ds_form.label :name,"Outcome Name"
+                        =ds_form.text_field :name, :required => true, :maxlength=> '50',:class=>"form-control"
+                      .form-group.col-md-4
+                        =ds_form.label :task_out_type,"Outcome Type"
+                        =ds_form.select :task_out_type,options_from_collection_for_select(@current_organization.task_types, "id", "name") , :required => true, :class=>"form-control"
+                      .form-group.col-md-2
+                        =ds_form.label :task_duration,"Duration"
+                        =ds_form.select :task_duration,["1 Day","2 Day","1 Week","2 Weeks","1 Month"] , :required => true, :class=>"form-control"
+                      .col-md-2
+                        %label
+                          = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                          %span.fal.fa-trash
+
+                .col-md-12
+                  = f.link_to_add "+ Add More", :task_outcomes,"data-target"=>"#task-outcomes","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your followup tasks have been successfully created! Next we'll customize your opportunity lost reason categories
+              %h5 Your opportunity lost reasons allow you to identify and report on where and why you're opportunities were lost
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200.pager-next.skip2{:type => "button"} Maybe Later
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Opportunity Lost Reasons
+              %h5 Your opportunity lost reasons allow you to identify and report on where and why you're opportunities were lost
+            = nested_form_for(@current_user.organization,:url=> gs_save_lost_reasons_path, :html=>{:class => "form",:id=>'gs_save_lost_reasons'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow
+                  %div{id: "lost-reasons"}
+                    
+                    = f.fields_for :lost_reasons, :wrapper => false  do |ds_form|
+                      .col-md-6.nested-row
+                        .row
+                          .form-group.col-md-10
+                            =ds_form.text_field :reason, :required => true, :maxlength=> '50',:class=>"form-control"
+                          .col-md-2{style: "display:block"}
+                            %label
+                              = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                              %span.fal.fa-trash
+                .row
+                  .col-md-12
+                    = f.link_to_add "+ Add More", :lost_reasons,"data-target"=>"#lost-reasons","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Congratulations! Your Opportunity Lost Reasons has been successfully configured! Now let's configure your project pipeline stages
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200.pager-next.skip2{:type => "button"} Maybe Later
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    //project pipeline stages
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Let's setup your project pipeline stages
+              %h5 Your project pipeline stages help you see the status of your projects and are used to automate your project and task actions
+            = nested_form_for(@current_user.organization,:url=> gs_save_project_stages_path, :html=>{:class => "form",:id=>'gs_save_project_stages'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow
+                  %div{id: "project-stages"}
+                    
+                    = f.fields_for :project_stages, :wrapper => false  do |ds_form|
+                      .col-md-6.nested-row
+                        .row
+                          .form-group.col-md-10
+                            =ds_form.text_field :name, :required => true, :maxlength=> '50',:class=>"form-control"
+
+                          /=debug(ds_form.object.name)
+                          -display =  ds_form.object.name.present? && (ds_form.object.name.downcase != "appointment" ) ? "block" : "none"
+                          =hidden_field_tag :none_remove, display
+                          .col-md-2{style: "display:block"}
+                            %label
+                              = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                              %span.fal.fa-trash
+                .row
+                  .col-md-12
+                    = f.link_to_add "+ Add More", :project_stages,"data-target"=>"#project-stages","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    / .slide
+    /   .hmodal-success
+    /     .modal-dialog
+    /       .modal-content
+    /         .color-line
+    /         .modal-header
+    /           %h2.font-bold Your project stages have been successfully created! Next we'll customize your project job categories
+    /           %h5 If you skip this step, the default project job types will be assigned to your organization. You can always change the job types later from your settings.
+    /         .modal-body.text-center
+    /           %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+    /           %button.btn.btn-outline.btn-primary.btn-lg.m-w-200{:type => "button"} Maybe Later
+    /         .modal-footer
+    /           %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-left>
+    /             Prev
+    /           %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-right>
+    /             Next
+    /           .cb
+    / .slide
+    /   .hmodal-success
+    /     .modal-dialog
+    /       .modal-content
+    /         .color-line
+    /         .modal-header
+    /           %h2.font-bold Let's setup your project job stages
+    /           %h5 Your project job stages help you manage and view the status of each job associated with your projects and are used to automate your project and task actions
+    /         .modal-body
+    /           .row
+    /             .col-md-11
+    /               .form-group
+    /                 %input.form-control{:id => "", :name => "", :placeholder => "", :type => "text"}/
+    /             .col-md-1
+    /               %a{:href => ""}
+    /                 %i.fa.fa-trash.fa-2x
+    /           .row
+    /             .col-md-11
+    /               .form-group
+    /                 %input.form-control{:id => "", :name => "", :placeholder => "", :type => "text"}/
+    /             .col-md-1
+    /               %a{:href => ""}
+    /                 %i.fa.fa-trash.fa-2x
+    /           .row
+    /             .col-md-11
+    /               .form-group
+    /                 %input.form-control{:id => "", :name => "", :placeholder => "", :type => "text"}/
+    /             .col-md-1
+    /               %a{:href => ""}
+    /                 %i.fa.fa-trash.fa-2x
+    /           %button.btn.w-xs.btn-primary{:type => "button"} Add More
+    /         .modal-footer
+    /           %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-left>
+    /             Prev
+    /           %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-right>
+    /             Next
+    /           .cb
+    / .slide
+    /   .hmodal-success
+    /     .modal-dialog
+    /       .modal-content
+    /         .color-line
+    /         .modal-header
+    /           %h2.font-bold Your project settings have been successfully created! Next we'll import your existing contacts.
+    /           %h5 You can upload your existing contacts from an excel or .csv file. If you skip this step, you can always do it later from your contact listing page.
+    /         .modal-body.text-center
+    /           %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:type => "button"} Get Started
+    /           %button.btn.btn-outline.btn-primary.btn-lg.m-w-200{:type => "button"} Maybe Later
+    /         .modal-footer
+    /           %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-left>
+    /             Prev
+    /           %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-right>
+    /             Next
+    /           .cb
+    / .slide
+    /   .hmodal-success
+    /     .modal-dialog
+    /       .modal-content
+    /         .color-line
+    /         .modal-header
+    /           %h2.font-bold Upload Contacts
+    /         .modal-body
+    /           %button.btn.btn-primary{:type => "button"}
+    /             %i.fa.fa-upload
+    /             %span.bold Choose an image
+    /         .modal-footer
+    /           %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-left>
+    /             Prev
+    /           %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+    /             %i.icon-chevron-right>
+    /             Next
+    /           .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your project stages have been successfully created! Would you like to integrate your email with Inset
+              %h5 Integrating your email allows administrators to view all sent and received emails for a contact, customer, company or project (*non admin users will only be allowed to see emails that they sent or received)
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:type => "button"} Yes
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200{:type => "button"} No
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left
+                Prev
+              %button.pager-next.btn.w-xs.btn-success.fr.skip2{:href => "javascript:void(0)"}
+                %i.icon-chevron-right
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your project stages have been successfully created! Would you like to integrate your email with Inset
+              %h5 Integrating your email allows administrators to view all sent and received emails for a contact, customer, company or project (*non admin users will only be allowed to see emails that they sent or received)
+            .modal-body.text-center
+              %a.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:href => "/mail/connect"}
+                %i.fab.fa-windows
+                Office 365
+              %a.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:href => "/emails/connect"}
+                %i.fal.fa-envelope
+                Gmail
+              / %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:type => "button"} Yes
+              / %button.btn.btn-outline.btn-primary.btn-lg.m-w-200{:type => "button"} No
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left
+                Prev
+              %button.pager-next.btn.w-xs.btn-success.fr.skip2{:href => "javascript:void(0)"}
+                %i.icon-chevron-right
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your email has been successfully configured! Now let's configure your Team.
+              %h5 Add users to your team
+            .modal-body.text-center
+              %button.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200.pager-next{:type => "button"} Get Started
+              %button.btn.btn-outline.btn-primary.btn-lg.m-w-200.pager-next.skip2{:type => "button"} Maybe Later
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+              %a.pager-next.btn.w-xs.btn-success.fr{:href => "javascript:void(0)"}
+                %i.icon-chevron-right>
+                Next
+              .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Let's setup your departments
+            = nested_form_for(@current_user.organization,:url=> gs_save_user_roles_path, :html=>{:class => "form",:id=>'gs_save_user_roles'},:remote=>true) do  |f|
+              .modal-body
+                .gs_overflow
+                  %div{id: "user-roles"}
+                    = f.fields_for :roles, :wrapper => false  do |ds_form|
+                      .col-md-6.nested-row
+                        .row
+                          .form-group.col-md-10
+                            =ds_form.text_field :name, :required => true, :maxlength=> '50',:class=>"form-control"
+                          -display =  ds_form.object.present? && ds_form.object.name.present? ? "block" : "none"
+                          =hidden_field_tag :none_remove, display
+                          .col-md-2{style: "display:block"}
+                            %label
+                              = ds_form.check_box '_destroy',style: "display:none",:onclick=>'highlightRow(this)'
+                              %span.fal.fa-trash
+                .row
+                  .col-md-12
+                    = f.link_to_add "+ Add More", :roles,"data-target"=>"#user-roles","data-block"=>"div"
+              .modal-footer
+                %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                  %i.icon-chevron-left>
+                  Prev
+                %button.pager-next.btn.w-xs.btn-success{type: "submit"}
+                  %i.icon-chevron-right>
+                  Next
+                .cb
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Invite Your Team
+            =render :partial=>"/users/invite_user_form",:locals=>{:from_getting_started_page=>true}
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+            .color-line
+            .modal-header
+              %h2.font-bold Your Team is setup successfully configured. Lets Start 
+              %h5 
+            .modal-body.text-center
+              %a.btn.btn-outline.btn-primary.btn-lg.m-r-md.m-w-200{:href=>"/dashboard"} Get Started
+             
+            .modal-footer
+              %a.pager-prev.btn.w-xs.btn-success.fl{:href => "javascript:void(0)"}
+                %i.icon-chevron-left>
+                Prev
+    .slide
+      .hmodal-success
+        .modal-dialog
+          .modal-content
+  #bx-pager
+    %ul
+      %li
+        %a{"data-slide-index" => "0", :href => ""}
+      %li
+        %a{"data-slide-index" => "1", :href => ""}
+      %li
+        %a{"data-slide-index" => "2", :href => ""}
+      %li
+        %a{"data-slide-index" => "3", :href => ""}
+      %li
+        %a{"data-slide-index" => "4", :href => ""}
+      %li
+        %a{"data-slide-index" => "5", :href => ""}
+      %li
+        %a{"data-slide-index" => "6", :href => ""}
+      %li
+        %a{"data-slide-index" => "7", :href => ""}
+      %li
+        %a{"data-slide-index" => "8", :href => ""}
+      %li
+        %a{"data-slide-index" => "9", :href => ""}
+      %li
+        %a{"data-slide-index" => "10", :href => ""}
+      %li
+        %a{"data-slide-index" => "11", :href => ""}
+      %li
+        %a{"data-slide-index" => "12", :href => ""}
+      %li
+        %a{"data-slide-index" => "13", :href => ""}
+      %li
+        %a{"data-slide-index" => "14", :href => ""}
+      %li
+        %a{"data-slide-index" => "15", :href => ""}
+      %li
+        %a{"data-slide-index" => "16", :href => ""}
+      %li
+        %a{"data-slide-index" => "17", :href => ""}
+      %li
+        %a{"data-slide-index" => "18", :href => ""}
+      %li
+        %a{"data-slide-index" => "19", :href => ""}
+      %li
+        %a{"data-slide-index" => "20", :href => ""}
+      %li
+        %a{"data-slide-index" => "21", :href => ""}
+      %li
+        %a{"data-slide-index" => "22", :href => ""}
+      %li
+        %a{"data-slide-index" => "23", :href => ""}
+      %li
+        %a{"data-slide-index" => "24", :href => ""}
+      %li
+        %a{"data-slide-index" => "25", :href => ""}
+=render :partial => "users/profile_img_crop"
+:javascript
+  var formValues ={};
+  var slider = $('.gsSlider').bxSlider({
+      pagerCustom: '#bx-pager',
+      minSlides: 1,
+      maxSlides: 1,
+      //moveSlides: 1,
+      pager: true,
+      controls: false,
+      autoControls: false,
+      auto: false
+    });
+  $(document).ready(function(){
+    formValues["ga_save_name"]= $('form#ga_save_name').serialize();
+    formValues["gs_save_phone_no"]= $('form#gs_save_phone_no').serialize();
+    formValues["gs_save_address"]= $('form#gs_save_address').serialize();
+    formValues["gs_save_org_size"]= $('form#gs_save_org_size').serialize();
+    formValues["gs_save_industries"]= $('form#gs_save_industries').serialize();
+    //formValues["gs_save_"]= $('form#gs_save_org_size').serialize();
+    formValues["gs_save_currency"]= $('form#gs_save_currency').serialize();
+    formValues["gs_save_sales_stages"]= $('form#gs_save_sales_stages').serialize();
+    formValues["gs_save_task_types"]= $('form#gs_save_task_types').serialize();
+    formValues["gs_save_task_outcomes"]= $('form#gs_save_task_outcomes').serialize();
+    formValues["gs_save_lost_reasons"]= $('form#gs_save_lost_reasons').serialize();
+    formValues["gs_save_user_roles"]= $('form#gs_save_user_roles').serialize();
+    formValues["user_invite_form"]= $('form#user_invite_form').serialize();
+    
+    $('a.pager-prev').click(function () {
+      var current = slider.getCurrentSlide();
+      slider.goToPrevSlide(current) - 1;
+    });
+    $('a.pager-next').click(function () {
+      var current = slider.getCurrentSlide();
+      slider.goToNextSlide(current) + 1;
+    });
+    $('button.pager-next').click(function () {
+      var skipvalue = 1;
+      if($(this).hasClass("skip2"))
+      {
+        
+        skipvalue = 2
+       
+        var current = slider.getCurrentSlide();
+        slider.goToSlide(current + skipvalue) ;
+      }
+      else if($(this).closest('form').length > 0)
+      {
+        if($(this).closest('form').valid())
+        {
+          formid = $(this).closest('form').attr("id");
+          if(formValues[formid] == $('form#' + formid).serialize())
+          {
+            event.preventDefault();
+            var current = slider.getCurrentSlide();
+            slider.goToNextSlide(current) ;
+            return false;
+          }
+          else
+          {
+            var current = slider.getCurrentSlide();
+            if($(this).hasClass("add_more")){
+              $.post($(this).closest('form').attr("action"), $(this).closest('form').serialize(), function(res){});
+              slider.goToSlide(current);
+              $(this).closest('form')[0].reset();
+              return false;
+            }else{
+              slider.goToNextSlide(current) + skipvalue;
+            }
+          }
+        }
+      }
+      else
+      {
+      var current = slider.getCurrentSlide();
+      slider.goToNextSlide(current) + skipvalue;
+      }
+    });
+    
+    $("#ga_save_name").bind("ajax:complete",function(){
+
+    })
+    $("#gs_save_user_roles").bind("ajax:complete",function(){
+      $.get("/get_user_roles", function(res){
+        $('#roles_div').html(res)
+      });      
+    })
+  });
+  $('#gs_save_org_image').submit(function() {
+        //formValidation();
+        // inside event callbacks 'this' is the DOM element so we first
+        // wrap it in a jQuery object and then invoke ajaxSubmit
+        $(this).ajaxSubmit(options);
+
+        // !!! Important !!!
+        // always return false to prevent standard browser submit and page navigation
+        return false;
+    });
+ 
+    var options = {
+        target:        '#crop_data_area',   // target element(s) to be updated with server response
+        beforeSubmit:  showRequest_ImgSave,  // pre-submit callback
+        success:       showResponse_ImgSave, // post-submit callback
+        //data: { key1: 'value1', key2: 'value2' }
+        // other available options:
+        //url:       url         // override for form's 'action' attribute
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type)
+        clearForm: true        // clear all form fields after successful submit
+        //resetForm: true        // reset the form after successful submit
+
+        // $.ajax options can be used here too, for example:
+        //timeout:   3000
+    };
+    // pre-submit callback
+    function showRequest_ImgSave(formData, jqForm, options) {
+    var queryString = $.param(formData);
+
+    return true;
+    }
+    // post-submit callback
+    function showResponse_ImgSave(responseText, statusText, xhr, $form)  {
+      console.log(responseText)
+      $("#org_image_url").attr("src",responseText)
+    }
+    function highlightRow(obj)
+    {
+
+      if($(obj).is(':checked'))
+      {
+        var name = $(obj).attr("name");
+        if($("input[name='"+name.replace("[_destroy]","[id]")+"'").length > 0)
+        {
+        $(obj).closest("div.nested-row").addClass("removed-row")
+        $(obj).closest("div.nested-row").find("input").removeAttr("required")
+        }
+        else
+        {
+        $(obj).closest("div.nested-row").remove()
+        $("input[name='"+name.replace("[_destroy]","[id]")+"'").remove()
+        // $(obj).closest("div.nested-row").addClass("removed-row")
+        // $(obj).closest("div.nested-row").find("input").removeAttr("required")
+        }
+        //$(obj).closest("div.nested-row").remove()
+        $(obj).closest("div.nested-row").addClass("removed-row")
+        $(obj).closest("div.nested-row").find("input").removeAttr("required")
+       
+      }
+      else
+      {
+        $(obj).closest("div.nested-row").removeClass("removed-row")
+        $(obj).closest("div.nested-row").find("input").attr("required","required")
+      }
+    }
+
+    // $('.profile_time_zone').editable({
+    //     url: '/users/gs_save_time_zone',
+    //     pk: 4,
+    //     title: 'Enter time zone',
+    //     type: 'select',
+    //     placement: 'top',
+    //     emptytext: 'Enter time zone',
+    //     data: {custom: 'text'},
+    //     validate: function(value) {
+    //       if($.trim(value) == '' || $.trim(value) == 'NA')
+    //         return 'Please enter time zone';
+
+    //     },
+    //     source: [
+    //             {value: 'Hawaii', text:'(GMT-10:00) Hawaii'},
+    //             {value: 'Alaska', text:'(GMT-09:00) Alaska'},
+    //             {value: 'Pacific Time (US & Canada)', text:'(GMT-08:00) Pacific Time (US & Canada)'},
+    //             {value: 'Arizona', text:'(GMT-07:00) Arizona'},
+    //             {value: 'Mountain Time (US & Canada)', text:'(GMT-07:00) Mountain Time (US & Canada)'},
+    //             {value: 'Central Time (US & Canada)', text:'(GMT-06:00) Central Time (US & Canada)'},
+    //             {value: 'Eastern Time (US & Canada)', text:'(GMT-05:00) Eastern Time (US & Canada)'},
+    //             {value: 'Indiana (East)', text:'(GMT-05:00) Indiana (East)'},
+    //             {value: '', text:'-------------'},
+    //             {value: 'American Samoa', text:'(GMT-11:00) American Samoa'},
+    //             {value: 'International Date Line West', text:'(GMT-11:00) International Date Line West'},
+    //             {value: 'Midway Island', text:'(GMT-11:00) Midway Island'},
+    //             {value: 'Tijuana', text:'(GMT-08:00) Tijuana'},
+    //             {value: 'Chihuahua', text:'(GMT-07:00) Chihuahua'},
+    //             {value: 'Mazatlan', text:'(GMT-07:00) Mazatlan'},
+    //             {value: 'Central America', text:'(GMT-06:00) Central America'},
+    //             {value: 'Guadalajara', text:'(GMT-06:00) Guadalajara'},
+    //             {value: 'Mexico City', text:'(GMT-06:00) Mexico City'},
+    //             {value: 'Monterrey', text:'(GMT-06:00) Monterrey'},
+    //             {value: 'Saskatchewan', text:'(GMT-06:00) Saskatchewan'},
+    //             {value: 'Bogota', text:'(GMT-05:00) Bogota'},
+    //             {value: 'Lima', text:'(GMT-05:00) Lima'},
+    //             {value: 'Quito', text:'(GMT-05:00) Quito'},
+    //             {value: 'Caracas', text:'(GMT-04:30) Caracas'},
+    //             {value: 'Atlantic Time (Canada)', text:'(GMT-04:00) Atlantic Time (Canada)'},
+    //             {value: 'Georgetown', text:'(GMT-04:00) Georgetown'},
+    //             {value: 'La Paz', text:'(GMT-04:00) La Paz'},
+    //             {value: 'Santiago', text:'(GMT-04:00) Santiago'},
+    //             {value: 'Newfoundland', text:'(GMT-03:30) Newfoundland'},
+    //             {value: 'Brasilia', text:'(GMT-03:00) Brasilia'},
+    //             {value: 'Buenos Aires', text:'(GMT-03:00) Buenos Aires'},
+    //             {value: 'Greenland', text:'(GMT-03:00) Greenland'},
+    //             {value: 'Mid-Atlantic', text:'(GMT-02:00) Mid-Atlantic'},
+    //             {value: 'Azores', text:'(GMT-01:00) Azores'},
+    //             {value: 'Cape Verde Is', text:'(GMT-01:00) Cape Verde Is.'},
+    //             {value: 'Casablanca', text:'(GMT+00:00) Casablanca'},
+    //             {value: 'Dublin', text:'(GMT+00:00) Dublin'},
+    //             {value: 'Edinburgh', text:'(GMT+00:00) Edinburgh'},
+    //             {value: 'Lisbon', text:'(GMT+00:00) Lisbon'},
+    //             {value: 'London', text:'(GMT+00:00) London'},
+    //             {value: 'Monrovia', text:'(GMT+00:00) Monrovia'},
+    //             {value: 'UTC', text:'(GMT+00:00) UTC'},
+    //             {value: 'Amsterdam', text:'(GMT+01:00) Amsterdam'},
+    //             {value: 'Belgrade', text:'(GMT+01:00) Belgrade'},
+    //             {value: 'Berlin', text:'(GMT+01:00) Berlin'},
+    //             {value: 'Bern', text:'(GMT+01:00) Bern'},
+    //             {value: 'Bratislava', text:'(GMT+01:00) Bratislava'},
+    //             {value: 'Brussels', text:'(GMT+01:00) Brussels'},
+    //             {value: 'Budapest', text:'(GMT+01:00) Budapest'},
+    //             {value: 'Copenhagen', text:'(GMT+01:00) Copenhagen'},
+    //             {value: 'Ljubljana', text:'(GMT+01:00) Ljubljana'},
+    //             {value: 'Madrid', text:'(GMT+01:00) Madrid'},
+    //             {value: 'Paris', text:'(GMT+01:00) Paris'},
+    //             {value: 'Prague', text:'(GMT+01:00) Prague'},
+    //             {value: 'Rome', text:'(GMT+01:00) Rome'},
+    //             {value: 'Sarajevo', text:'(GMT+01:00) Sarajevo'},
+    //             {value: 'Skopje', text:'(GMT+01:00) Skopje'},
+    //             {value: 'Stockholm', text:'(GMT+01:00) Stockholm'},
+    //             {value: 'Vienna', text:'(GMT+01:00) Vienna'},
+    //             {value: 'Warsaw', text:'(GMT+01:00) Warsaw'},
+    //             {value: 'West Central Africa', text:'(GMT+01:00) West Central Africa'},
+    //             {value: 'Zagreb', text:'(GMT+01:00) Zagreb'},
+    //             {value: 'Athens', text:'(GMT+02:00) Athens'},
+    //             {value: 'Bucharest', text:'(GMT+02:00) Bucharest'},
+    //             {value: 'Cairo', text:'(GMT+02:00) Cairo'},
+    //             {value: 'Harare', text:'(GMT+02:00) Harare'},
+    //             {value: 'Helsinki', text:'(GMT+02:00) Helsinki'},
+    //             {value: 'Istanbul', text:'(GMT+02:00) Istanbul'},
+    //             {value: 'Jerusalem', text:'(GMT+02:00) Jerusalem'},
+    //             {value: 'Kyiv', text:'(GMT+02:00) Kyiv'},
+    //             {value: 'Pretoria', text:'(GMT+02:00) Pretoria'},
+    //             {value: 'Riga', text:'(GMT+02:00) Riga'},
+    //             {value: 'Sofia', text:'(GMT+02:00) Sofia'},
+    //             {value: 'Tallinn', text:'(GMT+02:00) Tallinn'},
+    //             {value: 'Vilnius', text:'(GMT+02:00) Vilnius'},
+    //             {value: 'Baghdad', text:'(GMT+03:00) Baghdad'},
+    //             {value: 'Kuwait', text:'(GMT+03:00) Kuwait'},
+    //             {value: 'Minsk', text:'(GMT+03:00) Minsk'},
+    //             {value: 'Nairobi', text:'(GMT+03:00) Nairobi'},
+    //             {value: 'Riyadh', text:'(GMT+03:00) Riyadh'},
+    //             {value: 'Tehran', text:'(GMT+03:30) Tehran'},
+    //             {value: 'Abu Dhabi', text:'(GMT+04:00) Abu Dhabi'},
+    //             {value: 'Baku', text:'(GMT+04:00) Baku'},
+    //             {value: 'Moscow', text:'(GMT+04:00) Moscow'},
+    //             {value: 'Muscat', text:'(GMT+04:00) Muscat'},
+    //             {value: 'St. Petersburg', text:'(GMT+04:00) St. Petersburg'},
+    //             {value: 'Tbilisi', text:'(GMT+04:00) Tbilisi'},
+    //             {value: 'Volgograd', text:'(GMT+04:00) Volgograd'},
+    //             {value: 'Yerevan', text:'(GMT+04:00) Yerevan'},
+    //             {value: 'Kabul', text:'(GMT+04:30) Kabul'},
+    //             {value: 'Islamabad', text:'(GMT+05:00) Islamabad'},
+    //             {value: 'Karachi', text:'(GMT+05:00) Karachi'},
+    //             {value: 'Tashkent', text:'(GMT+05:00) Tashkent'},
+    //             {value: 'Chennai', text:'(GMT+05:30) Chennai'},
+    //             {value: 'Kolkata', text:'(GMT+05:30) Kolkata'},
+    //             {value: 'Mumbai', text:'(GMT+05:30) Mumbai'},
+    //             {value: 'New Delhi', text:'(GMT+05:30) New Delhi'},
+    //             {value: 'Sri Jayawardenepura', text:'(GMT+05:30) Sri Jayawardenepura'},
+    //             {value: 'Kathmandu', text:'(GMT+05:45) Kathmandu'},
+    //             {value: 'Almaty', text:'(GMT+06:00) Almaty'},
+    //             {value: 'Astana', text:'(GMT+06:00) Astana'},
+    //             {value: 'Dhaka', text:'(GMT+06:00) Dhaka'},
+    //             {value: 'Ekaterinburg', text:'(GMT+06:00) Ekaterinburg'},
+    //             {value: 'Rangoon', text:'(GMT+06:30) Rangoon'},
+    //             {value: 'Bangkok', text:'(GMT+07:00) Bangkok'},
+    //             {value: 'Hanoi', text:'(GMT+07:00) Hanoi'},
+    //             {value: 'Jakarta', text:'(GMT+07:00) Jakarta'},
+    //             {value: 'Novosibirsk', text:'(GMT+07:00) Novosibirsk'},
+    //             {value: 'Beijing', text:'(GMT+08:00) Beijing'},
+    //             {value: 'Chongqing', text:'(GMT+08:00) Chongqing'},
+    //             {value: 'Hong Kong', text:'(GMT+08:00) Hong Kong'},
+    //             {value: 'Krasnoyarsk', text:'(GMT+08:00) Krasnoyarsk'},
+    //             {value: 'Kuala Lumpur', text:'(GMT+08:00) Kuala Lumpur'},
+    //             {value: 'Perth', text:'(GMT+08:00) Perth'},
+    //             {value: 'Singapore', text:'(GMT+08:00) Singapore'},
+    //             {value: 'Taipei', text:'(GMT+08:00) Taipei'},
+    //             {value: 'Ulaan Bataar', text:'(GMT+08:00) Ulaan Bataar'},
+    //             {value: 'Urumqi', text:'(GMT+08:00) Urumqi'},
+    //             {value: 'Irkutsk', text:'(GMT+09:00) Irkutsk'},
+    //             {value: 'Osaka', text:'(GMT+09:00) Osaka'},
+    //             {value: 'Sapporo', text:'(GMT+09:00) Sapporo'},
+    //             {value: 'Seoul', text:'(GMT+09:00) Seoul'},
+    //             {value: 'Tokyo', text:'(GMT+09:00) Tokyo'},
+    //             {value: 'Adelaide', text:'(GMT+09:30) Adelaide'},
+    //             {value: 'Darwin', text:'(GMT+09:30) Darwin'},
+    //             {value: 'Brisbane', text:'(GMT+10:00) Brisbane'},
+    //             {value: 'Canberra', text:'(GMT+10:00) Canberra'},
+    //             {value: 'Guam', text:'(GMT+10:00) Guam'},
+    //             {value: 'Hobart', text:'(GMT+10:00) Hobart'},
+    //             {value: 'Melbourne', text:'(GMT+10:00) Melbourne'},
+    //             {value: 'Port Moresby', text:'(GMT+10:00) Port Moresby'},
+    //             {value: 'Sydney', text:'(GMT+10:00) Sydney'},
+    //             {value: 'Yakutsk', text:'(GMT+10:00) Yakutsk'},
+    //             {value: 'New Caledonia', text:'(GMT+11:00) New Caledonia'},
+    //             {value: 'Vladivostok', text:'(GMT+11:00) Vladivostok'},
+    //             {value: 'Auckland', text:'(GMT+12:00) Auckland'},
+    //             {value: 'Fiji', text:'(GMT+12:00) Fiji'},
+    //             {value: 'Kamchatka', text:'(GMT+12:00) Kamchatka'},
+    //             {value: 'Magadan', text:'(GMT+12:00) Magadan'},
+    //             {value: 'Marshall Is.', text:'(GMT+12:00) Marshall Is.'},
+    //             {value: 'Solomon Is.', text:'(GMT+12:00) Solomon Is.'},
+    //             {value: 'Wellington', text:'(GMT+12:00) Wellington'},
+    //             {value: 'Nuku alofa', text:'(GMT+13:00) Nuku alofa'},
+    //             {value: 'Samoa', text:'(GMT+13:00) Samoa'},
+    //             {value: 'Tokelau Is', text:'(GMT+13:00) Tokelau Is'}
+    //     ],
+    //     success: function(data) {
+    //       show_alert_message("success", "Timezone updated successfully.")
+    //     },
+    //     error: function(data) {
+    //       var msg = '';
+    //       if(data.errors) { //validation error
+    //         $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+    //       }
+    //       else if(data.responseText) { //ajax error
+    //       msg = data.responseText;
+    //     }
+    //   }
+    // });
+    // 

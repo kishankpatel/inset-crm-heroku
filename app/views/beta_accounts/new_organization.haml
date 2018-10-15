@@ -1,0 +1,37 @@
+:css
+  .well {
+      background-color: #F5F5F5;
+      border: 1px solid #E3E3E3;
+      border-radius: 4px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+      margin-bottom: 20px;
+      min-height: 20px;
+      padding: 19px;
+  }
+  footer{display:none;}
+  / body{overflow:hidden}
+%div
+  .new_organization_page
+    .well
+      %legend Update Organization
+      - @user = User.where("id=?",params[:id]).first
+      = form_for(@user,as: "user", :url => update_organization_path, :html=>{:class => "form"}) do |f|
+        .form-group          
+          = f.text_field  :organization_name, :required => true, :class=>"form-control", :placeholder=>"Organization Name", :style=>"height:50px;font-size: 17px;"
+          = hidden_field_tag "user_id", @user.id
+        /.form-group
+        /  = f.email_field :email, :required => true, :class=>"form-control", :placeholder=>"Email", :style=>"height:50px;font-size: 17px;"
+        .form-group
+          = f.text_field  :organization_website, :class=>"form-control", :placeholder=>"Website", :style=>"height:50px;font-size: 17px;"
+        .form-group          
+          = f.select :organization_size, CompanyStrength.find(:all).collect {|c| [ c.range, c.id ]}, {:include_blank => 'Team Size'}, :class=>"form-control", :style=>"height:50px;font-size: 17px;"
+        /.form-group
+        /  = f.password_field :password, :required => true, :class=>"form-control", :placeholder=>"Password", :style=>"height:50px;font-size: 17px;"
+        /.form-group
+        /  = f.password_field :password_confirmation, :required => true, :class=>"form-control", :placeholder=>"Password Confirmation", :style=>"height:50px;font-size: 17px;"
+        .form-group
+          = f.submit "Update", :class=>"btn btn-primary btn-success"
+          = link_to 'Cancel', cancel_organization_path, :class => "btn btn-default"
+      /.form-group
+      /  = render "devise/shared/links"
+= stylesheet_link_tag "home"

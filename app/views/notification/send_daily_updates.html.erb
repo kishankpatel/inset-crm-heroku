@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>Confirmation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Trebuchet MS'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td bgcolor="#67BBAA" height="50">
+                <img src="<%=APP_CONFIG["host_url"]%>/assets/new_logo_i.png"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p>
+                 Hi,
+                </p>
+                <p >
+                  This is a reminder to post your today's updates to InSet CRM. Just reply to this email with the updates, it will be added to the project. 
+                </p>
+                <p>
+                  <b>NOTE:</b> DO NOT change the SUBJECT while replying.
+                </p>
+                <p>
+				 
+				 </p>
+                <div style="clear:both;height:5px"></div>
+              </td>
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+     
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

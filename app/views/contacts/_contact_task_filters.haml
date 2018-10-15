@@ -1,0 +1,133 @@
+.pull-right
+  .task_filter_sec
+    %i.fal.fa-filter.fa-2x.diblock.top5
+    %span.dropdown.task_filter_menu.diblock.m-l-xs
+      %a.dropdown-toggle.btn.btn-primary.btn-sm{"data-toggle" => "dropdown", :style => "cursor:pointer;"} 
+        %span.cont_top_r.curr_task_filter
+        %span.caret
+      %ul.dropdown-menu.pull-right
+        %li
+          %a{:href => "javascript:void(0)", :onclick => "widget_tasks('all')"} All
+        %li
+          %a{:href => "javascript:void(0)", :onclick => "widget_tasks('today')"} Today
+        %li
+          %a{:href => "javascript:void(0)", :onclick => "widget_tasks('overdue')"} Overdue
+        %li
+          %a{:href => "javascript:void(0)", :onclick => "widget_tasks('upcoming')"} Upcoming
+        
+.clearfix
+.tabbable.task_tab.task-list{style:"display:none;"}
+  .tab
+    =hidden_field_tag "latest_task_type", @contact.last_task.present? ? @contact.last_task.name : "No-Action"
+    - all_count = badge_all_deal(@contact.class.name, @contact.id)
+    
+    %span#allTask
+      - func = "widget_tasks('all')"
+      - toggle_val = "tab"
+      - href_val = "#all"  
+      %a{"data-toggle" => toggle_val, href: href_val, onclick: func}
+        %span  
+          %span  
+            All
+          %span 
+            ="(#{all_count})"
+    - today_count = badge_today_deal(@contact.class.name, @contact.id)
+    %span#todayTask
+      - func = "widget_tasks('today')"
+      - toggle_val = "tab"
+      - href_val = "#today"
+      %a{"data-toggle" => toggle_val, href: href_val, onclick: func}
+        %span  
+          %span  
+            Today
+          %span 
+            ="(#{today_count})"
+    - overdue_count = badge_overdue_deal(@contact.class.name, @contact.id)
+    %span#overdueTask
+      - func = "widget_tasks('overdue')"
+      - toggle_val = "tab"
+      - href_val = "#overdue"
+      %a{"data-toggle" => toggle_val, href: href_val, onclick: func}
+        %span  
+          %span  
+            Overdue
+          %span 
+            ="(#{overdue_count})"
+    - upcoming_count = badge_upcoming_deal(@contact.class.name, @contact.id)
+    %span#upcomingTask
+      - func = "widget_tasks('upcoming')"
+      - toggle_val = "tab"
+      - href_val = "#upcoming"
+      %a{"data-toggle" =>toggle_val, href: href_val, onclick: func}
+        %span  
+          %span  
+            Upcoming
+          %span 
+            ="(#{upcoming_count})"
+#task_list.body
+  =render :partial => "contacts/contact_tasks" 
+=hidden_field_tag "today_count", badge_today_deal(@contact.class.name, @contact.id)
+=hidden_field_tag "overdue_count", badge_overdue_deal(@contact.class.name, @contact.id)
+=hidden_field_tag "upcoming_count", badge_upcoming_deal(@contact.class.name, @contact.id)
+
+:javascript
+  $(function() {
+    if(#{escape_once(@comp_task_type).present?}){
+      widget_tasks("#{escape_once(@comp_task_type)}")
+      $("li").removeClass("active")
+      $("##{escape_once(@comp_task_type)}Task").addClass("active")
+    }
+    else{
+      tc=$("#today_count").val();
+      oc=$("#overdue_count").val();
+      uc=$("#upcoming_count").val();
+      //alert("tc="+tc);
+      //alert("oc="+oc);
+      //alert("uc="+uc);
+      if(tc > 0){
+         $("#todayTask").addClass("active");
+         widget_tasks('today');
+      }else if( tc == 0 && oc > 0){
+        $("#overdueTask").addClass("active");
+        widget_tasks('overdue');
+      }else if(tc==0 && oc ==0 && uc > 0){
+        $("#upcomingTask").addClass("active");
+        widget_tasks('upcoming');
+      }else{
+         $("#allTask").addClass("active");
+         widget_tasks('all');
+        
+      }
+    }
+  });
+  function widget_tasks(data){
+    $(".cont_top_r.curr_task_filter").html(data).css("text-transform","capitalize");
+    $(".task_tab.task-list .tab > span").removeClass("active");
+    $("#"+data+"Task").addClass("active");
+    action="/contact_task_widget"
+    $.ajax({
+        type: "POST",
+        url: action,
+        dataType: 'json',
+        data: {task_type: data, contact_id: "#{escape_once(@contact.id)}", taskable_type: "#{escape_once(@contact.class.name)}"},
+        async: true,
+        beforeSend: function(){
+          $("#ajax-loader_task").show();
+      
+        },
+        success: function(data)
+        {
+          
+         $("#ajax-loader_task").hide();
+        },
+        error: function(data) {
+          $("#ajax-loader_task").hide();
+        },
+        complete: function(data) {
+          
+          $("#task_list").html(data.responseText);
+          $("#ajax-loader_task").hide();
+          //timeout_trigger();
+        }
+    });
+  }

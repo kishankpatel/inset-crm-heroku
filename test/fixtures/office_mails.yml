@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  organization: 
+  user: 
+  office_mail: MyString
+  token_hash: MyText
+  token: MyString
+
+two:
+  organization: 
+  user: 
+  office_mail: MyString
+  token_hash: MyText
+  token: MyString

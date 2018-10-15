@@ -1,0 +1,319 @@
+/ :css
+/   .cont_activity_sec .timeline-centered:before {
+/     top: 0px !important;
+/   }
+/   .ajax-file-upload-green {background-color: #fff !important;}
+.cont_box.remove-pad
+  %a.toggle_note_form.add-pad{href:"javascript:void(0)"} Click here to quick notes...
+  .opp_note_form
+    .close_note_form ×
+    .add_note_form  
+      - note = Note.new
+      = form_for(note, :url=> "/add_notes", :remote=> true, :html=>{:class => "form cmn_new_popup_form add-form-pad",:method => "post",:id=>"new-notes-popup",:multipart => true}) do |f|
+        = hidden_field_tag :notable_type, "IndividualContact"
+        = hidden_field_tag :notable_id, @contact.id.to_s
+        = hidden_field_tag :remove_file_ids
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-clipboard-check
+            =f.text_field :title, :required => true, placeholder:"Note Title",:class=>'form-control'
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-newspaper
+            = f.select :note_type_id, @current_organization.note_types.collect {|c| [ c.name, c.id ]}, {:include_blank => 'Note Type'},  :required => "true", style:"color: #777;",:class=>'form-control'
+                  
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-pen-fancy
+            =hidden_field_tag "hidden_note","",name: "note[notes]"
+            =f.text_area :notes, :required => true,  :rows=>"4",:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", placeholder:"Your note description", class: "form-control"
+
+        .form-layout-footer{style:"margin-top: 5px;"}
+          =hidden_field_tag "note_from_deal", true
+          =hidden_field_tag "temp_file_ids", "", class: "temp_file_ids"
+          .show_attachment_error{style: "color: red;"}
+          %div{:style=>"overflow:auto;width:100%"}
+            #fileuploader
+              %span.fal.fa-cloud-upload
+          #show_file_name
+          .cb
+          .mt15
+            %button.btn.btn-info{type: "submit", disable_with: "Please wait...", id: "notes_submit_btn"} Save
+            %a.btn.btn-default.cls_note_form{href:"javascript:void(0)"}
+              Cancel
+.note-container.cont_activity_sec{style:"margin-top:0px;"}
+  .task-container.hpanel{ class: "task_widget_#{@contact.id}"}
+    .timeline-centered
+      - if @notes.present?
+        - @notes.each do |note| 
+          .vertical-timeline-block{:class => "quick_note_row_#{note.id}"}
+            .vertical-timeline-icon.navy-bg
+              %span.pe-7s-note.fnt-30
+            .vertical-timeline-content
+              .p-sm
+                %span.vertical-date.pull-right
+                  / date
+                  - match = ""
+                  - dt = note.created_at
+                  - unless match == dt.strftime("%b %d, %Y")
+                    - today = Time.zone.now.strftime('%Y-%m-%d')
+                    - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                    - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                    - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                      = f_date = "Today"
+                    - else
+                      - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                        = f_date = "Yesterday"
+                      - else
+                        - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                          = f_date = dt.strftime("%b %d")
+                        - else
+                          = f_date = dt.strftime("%b %d, %Y")
+                  = "at"
+                  %br
+                  %small
+                    = dt.strftime("%I:%M %p")
+                %span.pull-right
+                  /Dropdown menu
+                  = form_tag "/update_note_type",  :class => "form display_middle",:method=>"put",:id=>"update_note_type", :remote => true do |f|
+                    = hidden_field_tag :note_type_id
+                    %span.labelNoteType{style: "color:#fff;background:#{NoteType.get_color_code note.note_type.present? ? note.note_type.name.downcase : ''}", id: "labelNoteType_"+note.id.to_s}
+                      = note.note_type.present? ? note.note_type.name : "None"
+                    %span.dropdown
+                      %span.caret.dropdown-toggle.space-left.black{"data-toggle" => "dropdown", :style => "cursor:pointer"}
+                      %ul.dropdown-menu.pull-right
+                        %li.arrow_top
+                        - @current_organization.note_types.each do |nt|
+                          %li
+                            = hidden_field_tag :hdn_note_id, note.id, :class => "hdn_note_id"
+                            %a{:href => "javascript:void(0)", :id => nt.id, :class => "note_types", :name => "note_types", :value =>nt.name}
+                              %span
+                                = nt.name
+                %h2
+                  %a
+                    %span.cwkp-sprite.tag-arrow-icon
+                    / heading
+                    %span{title: note.title, class: ""}
+                      = note.title.truncate(40) if note.title.present?
+                
+                  / created by
+
+                  - note_created_user = note.created_user.present? ? (note.created_user.full_name.present? ? note.created_user.full_name : note.created_user.email) : "Not Available"
+                  - if note.created_user.image.present? && note.created_user.image.image.present?
+                    %span.user-profile
+                      %span.userImage
+                        = image_tag note.created_user.image.image.url(:thumb), :alt=>"", :title => "Created by: #{note_created_user}", :style => "cursor:pointer;", :class => "",onError: "this.src='/assets/new-ui/user.png';"
+                  - elsif (gravtar_img_url = gravatar_url(@contact.initiator.email)).present?
+                    %span.user-profile
+                      %span.userImage
+                        = image_tag gravtar_img_url, alt: "", :title => "Created by: #{note_created_user}", :style => "cursor:pointer;", :class => "",onError: "this.src='/assets/new-ui/user.png';"
+                  -else
+                    - if @contact.initiator.present?  
+                      %span.lead-details-page
+                        %span.people-involved.tooltip.assn-pf-icon{title: "Created by: #{note_created_user}", style: "background: #{@contact.initiator.get_user_color_code(note_created_user.downcase[0])}"}
+                          = note_created_user[0].upcase
+
+                  
+
+
+                .cb
+                %p
+                  / description
+                  = note.notes
+              .panel-footer
+                .fl
+                  
+                  %span{style:"margin-left:10px;"}
+                    Created by
+                    = note_created_user
+                .fr
+                  /attachments
+                  - files = note.note_attachments
+                  - files.each do |file|
+                    - file_type = file.attachment_file_name.present? ? file.attachment_file_name.split(".").last : "other"
+                    %a{"data-target" => "#ViewImageModal", "data-toggle" => "modal", href: "javascript:void(0)",onclick: "view_image('#{file.attachment.url}', '#{file.attachment_file_name}' )", title: "View - #{file.attachment_file_name}", style:"display: inline-block;"}
+                      %span.cwkp-sprite.tooltip{class: "file_#{file_type.downcase}", title:file.attachment_file_name}
+
+                   
+                .cb
+          
+      - else
+        %div{style:"text-align:center;"}
+          %a.toggle_note_form.add_new_btn{href:"javascript:void(0)"} + Add note
+  .cb
+#ViewImageModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1"}
+  .modal-dialog.new_form_layout
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-image
+          View Image
+      .modal-body
+:javascript
+  $(".toggle_note_form").click(function(){
+    $(".toggle_note_form").hide();
+    $(".opp_note_form").slideDown();
+  })
+  $(".close_note_form, .cls_note_form").click(function(){
+    $(".opp_note_form").hide();
+    $(".toggle_note_form").show();
+    $(".ajax-file-upload-statusbar").remove();
+    $(".tmp_file_ids").val("");
+    $("#prv_pub").remove();
+  })
+
+  $(function() {
+    $('.note_types').click(function() {
+      $('#task_loader,.fixed_loader').show();
+      var note_type_id = $(this).attr('id');
+      var hdn_note_id = $(this).parent().find(".hdn_note_id").val();
+      $.ajax({
+        url: "/update_note_type",
+        method: "PUT",
+        data: {hdn_note_id: hdn_note_id, note_type_id: note_type_id},
+        success: function(data){ 
+          $('#task_loader,.fixed_loader').hide();
+          $("#labelNoteType_"+data['note_id']).css("background", data['note_type_color']).text(data['note_type_name']);
+          show_alert_message('success', 'Note type updated successfully.');
+        },
+        error: function(data){
+          show_alert_message("danger","Oops! Something went wrong!");
+        }
+      });
+      //$(this.form).submit()
+    });
+  });
+
+  $(document).ready(function() { 
+    var options = { 
+        target:        '#output_notes_attachment',   // target element(s) to be updated with server response 
+        beforeSubmit:  showRequest_notes_attachment,  // pre-submit callback 
+        success:       showResponse_notes_attachment, // post-submit callback 
+        clearForm: true        // clear all form fields after successful submit 
+    }; 
+ 
+    // bind to the form's submit event 
+    $('#new-notes-popup').submit(function() { 
+        //formValidation();
+        // inside event callbacks 'this' is the DOM element so we first 
+        // wrap it in a jQuery object and then invoke ajaxSubmit 
+        $(this).ajaxSubmit(options); 
+        
+        // !!! Important !!! 
+        // always return false to prevent standard browser submit and page navigation 
+        return false; 
+    }); 
+    $("#fileuploader").uploadFile({
+      url:"/upload_multiple_note_attach",
+      multiple:true,
+      fileName:"myfile",
+      showDelete: true,
+      returnType: "json",
+      //showAbort:false,
+      showDone:false,
+      deletelStr: "",
+      abortStr: "",
+      uploadButtonClass:"ajax-file-upload-green",
+      onBeforeSend: function(){
+        
+        $("#notes_submit_btn").attr("disabled","disabled")
+      },
+      onSuccess:function(files,data,xhr)
+      {
+        
+        tempids=[];
+        if(data["message"] =="success")
+        {
+          
+          if($(".temp_file_ids").val() != "")
+          {
+          tempids= $(".temp_file_ids").val().split(",");
+          addItem = data["id"];
+          tempids.splice(tempids.length,1, addItem);
+          $(".temp_file_ids").val(tempids);
+          }
+          else
+          {
+            $(".temp_file_ids").val(data["id"]);
+          }
+          set_required_for_file_descrption(this);
+        }
+        
+      },
+      deleteCallback: function (data, pd) {
+      var tempids=[]; 
+      tempids= $(".temp_file_ids").val().split(",");
+      removeItem = data["id"];
+      tempids.removeByValue(removeItem);
+      $(".temp_file_ids").val(tempids);    
+      
+         $.post("/delete_temp_note_attach?tf_id=" + data["id"], {op: "delete",id: data["id"]},
+             function (resp,textStatus, jqXHR) {
+             
+              
+             });
+          
+           pd.statusbar.hide(); //You choice.
+           $("#show_file_name").hide();
+      }
+    });
+  }); 
+ 
+
+  function showRequest_notes_attachment(formData, jqForm, options) { 
+    $('#notes_submit_btn').prop("disabled", true).html("Please wait...");
+    var queryString = $.param(formData); 
+    return true; 
+  } 
+  function showResponse_notes_attachment(responseText, statusText, xhr, $form)  { 
+    load_activity_cum_deals('quick_notes');
+    show_alert_message("success", "Note added successfully.");
+  } 
+  
+  $('.edit_note').on('click', function(){
+    var id = $(this).data("id"); 
+    $("#noteTextModal").modal("show");
+    $(".add_note_form").html("<div class='ldrimg' style='display: block; left: 35%;text-align: center; vertical-align: middle;'> <img  src='/assets/ajax-loader2.gif'/></div>");
+    $.ajax({
+      url: "/edit_deal_note",
+      data: {id: id},
+      success: function(data){ 
+        $(".add_note_form").html(data);
+        $(".show_title_sec").show();
+      },
+      error: function(data){
+        show_alert_message("danger","Oops! Something went wrong!");
+      }
+    });
+  })
+
+  $('.delete_note').on('click', function(){
+    if(confirm("Are you sure?")){  
+      var id = $(this).data("id"); 
+      $('#task_loader,.fixed_loader').show();
+      $.ajax({
+        url: "/delete_deal_note",
+        data: {id: id},
+        success: function(data){ 
+          show_alert_message("success","Note has been deleted successfully.");
+          $(".quick_note_row_"+id).remove();
+          $(".activity_"+data).remove();
+          $('#task_loader,.fixed_loader').hide();
+        },
+        error: function(data){
+        }
+      });
+    }
+  })
+
+  function view_image(img_url, img_name){
+    $("#ViewImageModal .modal-body").html("<img src='/assets/ajax-loader2.gif'/>");
+    
+    $("#ViewImageModal .modal-body").html("<div style='padding:20px;text-align:center;max-height: 350px;overflow-y: auto;margin-bottom: 20px;'><img src='"+img_url+"' style='max-width:100%;'/><div style='position:absolute;right:10px;bottom:10px'><a href = \'"+img_url+"\' download = \'"+img_name+"\' title = \'Download - "+img_name+"\' >Download</a></div></div>");
+  }

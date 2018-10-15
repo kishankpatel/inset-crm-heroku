@@ -1,0 +1,90 @@
+/ .container
+/   .white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 33px;"}
+/     %span{style: "margin-top:5px"}  
+/       %span.navigation_sec
+/         %a{href: "/contacts"}
+/           Contacts
+/         ="/"
+/       %span.curr_page_name
+/         Edit Contact
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/contacts"} Contact
+          %li.active
+            %span Edit Contact
+        
+      %h2.font-light.m-b-xs Edit Contact
+      .small 
+        =@contact.name
+.content
+  .row
+    .hpanel.hgreen
+      .panel-body
+        .row
+          .con-box1 
+            /= form_for(@contact,:action=>edit_contact_path(), :remote => true, :html=>{:class => "form",:method=>"put",:id=>"new_contact"}) do |f|
+            - if @contact.is_company?
+              - url = contact_path(@contact, :type => "company")
+            - else
+              - url = contact_path(@contact)
+            = form_for(@contact, url: url, :html=>{:class => "form",:method=>"put",:id=>"new_contact"}) do |f|    
+              =f.hidden_field :organization_id, value: current_user.organization_id.to_s
+              /=f.hidden_field :created_by, value: current_user.id.to_s
+              %header
+                - if @contact.class.name == "CompanyContact"
+                  /.navbar-right.glyphicon.glyphicon-trash
+                  %h4 
+                    Edit Company Details
+                - else
+                  /.navbar-right.glyphicon.glyphicon-trash
+                  %h4 
+                    Edit Contact Details
+              %hr
+              .container
+                =render :partial=>"shared/edit_contact",:locals=>{:f => f}
+              %hr
+              .cb
+              .col-md-1{style:"margin-right:17px"}
+              .col-md-6
+                %button.btn.btn-primary.btn-success.navbar-left.cont_submit_btn{type: "submit", "data-disable-with" => "Saving...", onclick: "return chk_validation('#{@contact.class.name.downcase}');"} Update
+                =link_to "Cancel","javascript:",:class=>"btn btn-default navbar-left", :style=>"margin-left:20px", :onclick => "history.go(-1);"     
+              .cb10
+:javascript
+  $(function() {     
+    $('#contact_country').trigger('change')
+    if ($("#contact_contact_type_company").prop("checked")) {
+      $('#div_company_name_strength').show();
+      $("#contact_name").prop("required", true);
+      $("#deal_name").prop("required", true);
+      $("#contact_company_strength").prop("required", true);      
+      $("#deal_company_strength").prop("required", true);
+    }else{ 
+      $('#div_company_name_strength').hide();
+      $("#contact_name").removeAttr("required")
+      $("#contact_company_strength").removeAttr("required")
+       $("#deal_name").removeAttr("required")
+      $("#deal_company_strength").removeAttr("required")
+    }
+    $('#contact_messanger_type').trigger('change');
+    $('#contact_messanger_type').change(function() {
+      if($(this).val() != ""){
+        $("#contact_messanger_id").prop("required", true);
+      }else{
+        $("#contact_messanger_id").removeAttr("required")
+      }
+    });
+  });
+  $(".cont_submit_btn").click(function( event ) {
+    var website = $("#individual_contact_website").val().trim();
+    if( (website != "") && (website.indexOf("http:\/\/") < 0) && (website.indexOf("https:\/\/") < 0) && ( website.indexOf("www.") < 0) ){
+      alert("Invalid website format");
+      event.preventDefault();
+    }
+  });

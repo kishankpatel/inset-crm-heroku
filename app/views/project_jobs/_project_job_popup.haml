@@ -1,0 +1,26 @@
+#projectJobModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "projectJobModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y:scroll;"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %span.cwkp-sprite.proj_heading_icon
+        %h4.modal-title
+          %span.fal.fa-briefcase
+          CREATE NEW JOB
+          
+      - unless @project.present?
+        - @project = Project.where(:id=>project_id).first
+      -@project_job = ProjectJob.new
+      - action =  @project_job.new_record? ? "create" : "update" 
+      - method =  @project_job.new_record? ? "post" : "put"
+      = form_for @project_job, url: "/projects/#{@project.id}/jobs", :html=>{:class => "form new_project_job",:id=>"project-job-form"},:method=>method,:remote=>true do |f|
+        .modal-body
+          =render :partial=> "/project_jobs/form",:locals=>{open_popup: true, f: f}
+        .modal-footer
+          = hidden_field_tag "submit_type"
+          %a.btn.btn-default{href: @project_job.new_record? ? "/projects/#{@project.id}/jobs" : "/projects/#{@project.id}/jobs/#{@project_job.id}", "aria-hidden" => "true","data-dismiss" => "modal"}
+            Cancel
+          = submit_tag @project_job.new_record? ? "Save & Exit" : "Update", class: "btn btn-primary save-job-btn", disable_with: "Please wait...", :onclick => "$('.add-more-job-btn').removeAttr('disable_with')"
+=render :partial=>'/project_jobs/job_repeat_modal'

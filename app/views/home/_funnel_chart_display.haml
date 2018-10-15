@@ -1,0 +1,20 @@
+
+=javascript_include_tag "funnel"
+=javascript_include_tag "exporting"
+= high_chart("funnel_chart", @funnel_chart)
+#funnelChart.body.collapse.in
+/ #pieChart.body.collapse.in
+/ /.cb{:style=>"height:20px;"}
+/ .col-lg-12.lead_funnel_chart
+/   .col-lg-8
+/     = high_chart("funnel_chart", @funnel_chart)
+/   .cb	
+/ #funnel_chart.body.collapse.in
+
+/.col-lg-4{style: "position:absolute;left: 60%; top: 30%"}
+/  .row.rpadding
+/    .panel.panel-default
+/      .panel-body{style: "padding: 10px 20px;"}
+/        .row.rpadding{style: "font-size: 12px;"}
+/.cb
+/%br

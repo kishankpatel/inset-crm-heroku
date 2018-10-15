@@ -1,0 +1,341 @@
+:css
+  / #asmSelect0 option:nth-child(2) {
+  /   display:none;
+  / }
+  .modal-body { max-height: 470px;overflow-y: auto; }
+  .asmListItemRemove { cursor:pointer }
+  .input_text { height: 30px;padding: 3px;font-size:12px }
+  ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #ccc;
+    font-size:12px;
+  }
+  ::-moz-placeholder { /* Firefox 19+ */
+    color: #ccc;
+    font-size:12px;
+  }
+  :-ms-input-placeholder { /* IE 10+ */
+    color: #ccc;
+    font-size:12px;
+  }
+  :-moz-placeholder { /* Firefox 18- */
+    color: #ccc;
+    font-size:12px;
+  }
+  #selectClass0 { background: #e0ecff }
+  .close { font-size: 16px; }
+  a { color: rgba(0, 68, 204, 0.69) }
+.web_form_page
+  .white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 15px;"}
+    .fl  
+      %span{style: "margin-top:5px"}  
+        / %span.navigation_sec
+        /   %a{href: "/leads"}
+        /     Leads
+        /   ="/"
+        %span.curr_page_name
+          Create Web Form
+    .fr
+      %span.navigation_sec{style: "margin-right: 10px;"}
+        %a.tooltip{href: "/manage_web_form", title:"Take a look at all your Web Forms & manage them."}
+          Manage Web Forms
+    .cb
+  .web_form_heading
+    WEB TO LEAD
+  .new_form_layout.no-icon
+    = form_for(WebForm.new, :url => "/create_web_form", :html=>{:method=>"post"}) do |f|  
+      .web_form_container
+        .col-md-4.padlft.padrht
+          .col-md-12.panel.panel-default-light.border-default.web_form_sec{style:"overflow:visible"}
+            .steps
+              STEP 1
+            %div
+              .heading_container
+                .heading_name
+                  %span.cwkp-sprite.web_form_icon.form_icon
+                  CREATE YOUR FORM
+              .form-group
+                %label{:for => "web_form_form_name"} Form Name
+                .input-group
+                  = f.text_field :form_name, required: true, placeholder: "Give a name to your form", :class => "form-control"
+            %div
+              .heading_container
+                .heading_name
+                  %span.cwkp-sprite.web_form_icon.lead_setting
+                  LEAD SETTINGS
+              .form-group
+                %label{:for => "web_form_user_responsible"} User Responsible
+                .input-group
+                  =f.select :user_responsible, @current_organization.users.order("first_name ASC").collect {|c| [c.id == @current_user.id ? "Me" : (c.full_name.present? ? c.full_name : c.email), c.id  ]}, {:include_blank => '- Assign the User -'}, :required => true, style: "font-size:12px", :class => "form-control"
+              .form-group
+                %label{:for => "web_form_source_id"} Lead Source
+                .input-group
+                  =f.select :source_id, @current_organization.sources.order("name ASC").collect {|c| [ c.name, c.id ]}, {:include_blank => '- Choose the source link/URL -'}, :required => true, style: "font-size:12px;", :class => "form-control"
+                  %br
+                .form-group{style:"margin-top: -8px;"}
+                  %a{href: "#", id: "editable_source_add",style:"margin-left:5px;", title: "Add a new lead link source","data-value"=>"","data-original-title"=> "", "data-title"=>"custom"}
+                    + Add New
+          .cb
+        .col-md-4.padlft.padrht
+          .col-md-12.panel.panel-default-light.border-default.web_form_sec{style:"overflow:visible"}
+            .steps
+              STEP 2
+            %div
+              .heading_container
+                .heading_name
+                  %span.cwkp-sprite.web_form_icon.web_site
+                  GENERATE HTML FOR YOUR WEBSITE
+              .form-group
+                %a{href: "javascript:void(0)", "data-toggle" => "modal", href: "#websiteModal",:class => "create_html_link"}
+                  + Create HTML For Your Website
+            %div
+              .heading_container
+                .heading_name
+                  %span.cwkp-sprite.web_form_icon.post_form_activity
+                  POST FORM SUBMISSION ACTIVITY
+              .form-group
+                %label{:for => "web_form_is_display_thank_you_page_false"} Choose what to do, after the visitor submits the form
+                .input-group
+                  = f.radio_button :is_display_thank_you_page,'false', onclick: "enable_page_name_field('enable')", required: true, :class => "mid_align "
+                  Display a page on my website
+              .form-group
+                = "- or -"
+              .form-group
+                .input-group
+                  = f.text_field :external_link, disabled: true, style: "cursor:not-allowed", :class => "form-control"
+              .form-group
+                .input-group
+                  = f.radio_button :is_display_thank_you_page, 'true', :checked => true, onclick: "enable_page_name_field('disable')", required: true, :class => "mid_align"
+                  Display 
+                  %a{href: "/web_form/thank_you", target: "_blank"}
+                    WakeUpSales thank you page
+          .cb
+        .col-md-4.padlft.padrht
+          .col-md-12.panel.panel-default-light.border-default.web_form_sec{style:"overflow:visible"}
+            .steps
+              STEP 3
+            .heading_container
+              .heading_name
+                %span.cwkp-sprite.web_form_icon.email_notification
+                EMAIL NOTIFICATION SETTINGS
+            .form-group
+              .input-group
+                = f.check_box :send_email_notification, onclick: "enable_email_notification_options('enable')", :class => "mid_align"
+                Send Email Notifications To:
+            .email_notification_sec  
+              .form-group
+                .input-group
+                  = f.radio_button :email_to, 'me', :checked => true, :class => "mid_align email_recipient", disabled: true
+                  Me
+              .form-group
+                .input-group
+                  = f.radio_button :email_to, 'all', :class => "mid_align email_recipient", disabled: true
+                  Everyone With Visibility To The Lead
+                  = f.hidden_field :field_names, value: "First Name,Last Name,Email"
+                  = f.hidden_field :form_html_code, value: ""
+
+        .cb
+        .form-group{style: "padding-left: 13px;"}
+          .fl.form-layout-footer
+            = f.submit "Create Form", onsubmit: "validate_form()", :class => "btn btn-info", :disable_with => "Please wait..."
+            %a.btn.btn-default{href: "/manage_web_form"}  Cancel
+          .fr.navigation_sec{style:"margin-right: 15px;"}
+            %span.cwkp-sprite.bulb_info.tooltip{title:"Check out the do's & don'ts of creating a web form."}
+            %a{href: "javascript:void(0)", "data-toggle" => "modal", href: "#showFormGuideLines"}
+              Form Guidelines
+          .cb
+
+
+#showFormGuideLines.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "inviteBetaCon", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-file-contract
+          Form Guidelines
+      .modal-body
+        %div
+          .col-md-6  
+            %strong Don'ts
+            %ul{style: "list-style: disc;margin-top: 10px;"}
+              %li
+                Do not change the name attribute values of any field.
+              %li
+                Don't modify the 'form_unique_id' hidden field.
+          .col-md-6
+            %strong Dos
+            %ul{style: "list-style: disc;margin-top: 10px;"}
+              %li
+                You can modify things like height & width of the fields, from CSS.
+              %li
+                The heading can be modified as well.
+              %li
+                You can also pick your own color & modify accordingly.
+          .cb
+          %p{style: "color:#858585"}
+            *In short anything related to the look and feel of the form can be touched upon and changed. 
+      .modal-footer{style:"margin-top: 15px;"}
+        %span.btn.btn-info{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} Got It
+
+
+#websiteModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "inviteBetaCon", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-file-code
+          Generate HTML Code for your Website. It's that simple
+      .modal-body
+        .row
+          .form-group.col-md-12
+            Choose the fields for the form to place it in your website:
+        .row
+          .form-group.col-md-12
+            = select_tag "fields_name", options_for_select([["-Select Fields-", "test"], ["First Name", "FirstName"], ["Last Name", "LastName"], ["Email", "Email"], ["Phone", "Phone"], ["Title", "Title"], ["Country", "Country"], ["Description", "Description"], ["Industry", "Industry"], ["Website", "Website"]], ["FirstName",'LastName','Email']), multiple: true, :class => "form-control"
+            %label.control-label{:for => "select"}
+        .row
+        .row
+          .form-group.col-md-12
+            %label.control-label{:for => "input"} HTML Codes
+            %i.bar
+            = text_area_tag :form_html_code, "", style: "resize:none;height:200px;width:100%;overflow-y:auto;", :class => "form-control"
+      .modal-footer{style: "padding-left: 0;"}
+        %span.btn.btn-info{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} I'm Done
+              
+
+:javascript
+  function enable_page_name_field(val){
+    if(val == "enable"){
+      $("#web_form_external_link").prop('disabled', false);
+      $("#web_form_external_link").css("cursor","auto");
+      $("#web_form_external_link").prop('required',true);
+    }
+    else{
+      $("#web_form_external_link").prop('disabled', true);
+      $("#web_form_external_link").css("cursor","not-allowed");
+      $("#web_form_external_link").prop('required',false);
+      $("#web_form_external_link").val("");
+    }
+  }
+  function validate_form(){
+  }
+  var is_send_email = "true";
+  function enable_email_notification_options(){
+    if( is_send_email == "true" ){
+      $(".email_recipient").prop('disabled', false);
+      $(".email_recipient").prop('required',true);
+      is_send_email = "false";
+    }
+    else{
+      $(".email_recipient").prop('disabled', true);
+      $(".email_recipient").prop('required',false);
+      is_send_email = "true";
+    }
+  }
+  
+
+  $('#editable_source_add').editable({
+    url: '/settings/save_source?from=editdeal' ,
+    pk: "1",
+    title: 'Enter Source',
+    type: 'text',
+    data: {custom: 'text'}, 
+    text: "+Add New",
+    validate: function(value) {
+      if($.trim(value) == '')
+        return 'Please enter Source name';
+    },
+    success: function(data) {
+      
+      var newsource = data.split('-');
+      var o = new Option(newsource[0],newsource[0]);
+      /// jquerify the DOM object 'o' so we can use the html method
+      $("#lead_source_id").val(newsource[0]);
+      $(o).html(newsource[1]);
+      
+      $(o).prop('selected', true)
+      $("#web_form_source_id").append("<option value='"+newsource[0]+"'>"+newsource[1]+"</option>");
+    },
+    error: function(data) {
+      /* actions on validation error (or ajax error) */
+      var msg = '';
+      if(data.errors) { //validation error
+        $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+      } 
+      else if(data.responseText) { //ajax error
+        msg = data.responseText;
+      }
+    }
+  });
+  $('#editable_source_add').on('hidden', function(e, editable) {
+    $("#editable_source_add").text("+ Add New");
+    editable.text = "";
+  });
+
+
+  // script for asm select
+  function generateForm() {
+    //$("#web_form_field_names").val(selected_values);
+    //alert($('#fields_name').val());
+    //alert(selected_values);
+    $.ajax({
+      type: "POST",
+      url: "/web_form/generate_form/",
+      data: {fields: selected_values },
+      traditional: true,
+      success: function(form) { 
+        $('#form_html_code').text(form); 
+        $("#web_form_form_html_code").val(form);
+      },
+      error: function(){
+        alert("Got an error while generating form");
+      }
+    });
+  }
+  var selected_values = "First Name,Last Name,Email,"; 
+  function updateWebForm() {
+    if ($('#fields_name option:selected').length > 0) {
+      var l = $('#fields_name option:selected').length;
+      //var selected_values = []; 
+      // $('#fields_name :selected').each(function(i, selected){ 
+      //   //alert($(selected).text());
+      //   selected_values = selected_values + $(selected).text() + ",";
+      // });
+      //alert(selected_values);
+      //return false;
+      generateForm();
+    } else {
+      $('#htmlForm').text('');
+    }
+    return true;
+  } 
+  $("#fields_name").change(function(e, data) {
+    if(data.type == "add"){
+      selected_values = selected_values + data.value + ",";
+    }else if(data.type=="drop"){
+      selected_values = selected_values.replace(data.value+",","");
+    }
+
+  });
+
+  $(function() {
+    updateWebForm();
+    $('#fields_name').asmSelect({
+      addItemTarget: 'bottom',
+      animate: true,
+      highlight: false,
+      sortable: false,
+      removeLabel: 'x',
+      moveCallback: updateWebForm,
+      addCallback: updateWebForm,
+      dropCallback: updateWebForm,
+      containerClass: 'asmContainer',
+      selectClass: "selectClass",
+      requiredItems: ["FirstName", "LastName", "Email"]
+    });
+  });

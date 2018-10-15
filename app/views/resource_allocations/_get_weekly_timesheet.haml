@@ -1,0 +1,122 @@
+%div
+  =hidden_field_tag :res_start_dt,start_date
+  =hidden_field_tag :res_end_dt,end_date
+  = form_tag "/weekly_timesheet_save",  :class => "form",:method=>"post",:id=>"form_weekly_timesheet", :remote => true do |f|
+    =hidden_field_tag :user_id,user.id
+    %table.table.table-bordered.timesheet
+      - days_count = (end_date - start_date).to_i 
+      - max_hours = @current_organization.resource_setting.hours_of_work
+      - weekends = @current_organization.resource_setting.week_off_days
+      - weekday_sum=[]
+      %thead
+        %tr
+          %th Project
+          %th Job
+          %th{style: "width:10px"}
+            %a{href: "javascript:",:onclick=>"get_weekly_timesheet('prev')"}
+              .fal.fa-caret-left{style: "font-size:30px"}
+          - (0..days_count).step(1) do |index|
+            -color_code = (weekends.include? ((start_date + (index).days).wday)) ? "#efeaea" : "#ffffff"
+            -weekday_sum << 0
+
+            %th{style: "background-color:#{color_code}"}
+              =raw (start_date + (index).days).strftime("%a") + "<br>" +(start_date + (index).days).strftime("%m") + "/" + (start_date + (index).days).strftime("%d") 
+          %th{style: "width:10px"} 
+            %a{href: "javascript:",:onclick=>"get_weekly_timesheet('next')"}
+              .fal.fa-caret-right{style: "font-size:30px"}
+          %th Total
+      
+      %tbody
+        - if(project_jobs.present?)
+          -project_jobs.each do |prj|
+            %tr
+              %td.text-left
+                =prj.project.present? ? prj.project.name : "(Archived)"
+              %td.text-left{colspan: "2"}
+                ="#" + prj.job_no.to_s + ": "
+                =prj.name
+              -total_hours = 0
+              -(0..days_count).step(1) do |index|
+                -color_code =(weekends.include? ((start_date + (index).days).wday)) ? "#efeaea" : "#ffffff"
+                -ts = nil
+                -rs = timesheet.select{|rd| rd.log_start_time.in_time_zone(user.time_zone).to_date == (start_date + (index).days) && rd.project_job_id == prj.id }
+                
+                -ts = rs[0]  
+                -ts_spent_hours = rs.map(&:spent_hours).inject(0, &:+)
+                -if(rs.present? )
+                  -total_hours = total_hours + ts_spent_hours
+                    
+                  %td{style: "width:80px;background-color:#{color_code}"}
+                    -spent_time=getHourMinuteFromSeconds(ts_spent_hours )
+                    
+                    %input.pull-left{value: spent_time,readonly: true,style: "width:50px"}
+                    %a.pull-left{:onclick=>"get_time_log_list(#{ts.project_job_id},'#{start_date + (index).days}')",:href=>"#timeLogsList", :data=>{:toggle=>"modal" }}
+                      %span.fal.fa-pencil
+                    .cb
+                    -weekday_sum[index] +=  ts_spent_hours
+                    
+                -else
+                  -spent_time = "0"
+                  -is_billable = false
+                  %td{style: "width:80px;background-color:#{color_code}"}
+                    -dateint = (start_date + index.days).to_time.to_i
+                    
+                    %input.hour-input.pull-left{value:spent_time ,data: {project_job_id: prj.id}, name: "spent_time[#{prj.id}][#{dateint}][spent_hours]",style: "width:50px",:readonly=>spent_time != "0" ? true : false , :placeholder=> "hh:mm"}
+                    %input.pull-left{type:"checkbox",value: 1,data: {project_job_id: prj.id}, name: "spent_time[#{prj.id}][#{dateint}][is_billable]",:checked=> is_billable,:title=>"Billable?"}
+                    .cb
+              %td.text-center{colspan:"2"}
+                =getHourMinuteFromSeconds(total_hours)
+            
+          %tr
+            %td.text-right{colspan: "3"}
+              %strong Total
+            -grand_total = 0
+            -(0..days_count).step(1) do |index|
+              %td
+                -grand_total += weekday_sum[index]
+                =getHourMinuteFromSeconds(weekday_sum[index])
+            %td.text-center{colspan:"2"}
+              =getHourMinuteFromSeconds(grand_total)
+    .row
+      .col-md-6.text-right
+        %button.btn{:onclick=>"clear_timesheet_form()"}
+          Cancel
+      .col-md-6.text-left
+        %button.btn.btn-primary{:type=>"submit",:onclick=>"//save_timesheet_form()"}
+          Save
+:javascript
+  $(function(){
+    var date_start = toDate($("#res_start_dt").val())
+    var date_end = toDate($("#res_end_dt").val())
+    $("#wt_start_dt").html(date_start.getDate() + " " + getMonthName(date_start.getMonth()))
+    $("#wt_end_dt").html(date_end.getDate() + " " + getMonthName(date_end.getMonth()))
+    
+    //$(".hour-input").mask("99:99");
+    $('.hour-input').timepicker({ timeFormat: 'H:i' ,'step': 30});
+    $("#form_weekly_timesheet").on("ajax:beforeSend", function(e, data, status, xhr){
+    $("#task_loader,.fixed_loader").show();
+    
+  });
+    $("#form_weekly_timesheet").on("ajax:success", function(e, data, status, xhr){
+    $("#task_loader,.fixed_loader").hide();
+    get_weekly_timesheet('current')
+  });
+
+    //,autoclear: false, {placeholder: ""}
+  });
+  function clear_timesheet_form(){
+
+  }
+  function save_timesheet_form(){
+    $("#task_loader,.fixed_loader").show();
+  }
+
+
+
+
+
+
+
+        
+
+         

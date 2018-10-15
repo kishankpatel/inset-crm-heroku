@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Confirmation</title>
+  </head>
+  <body leftmargin="0" marginheight="0" marginwidth="0" offset="0" style="font-family:'Arial'; font-size:13px; color:#666" topmargin="0">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" style="background:#f3f3f3; width:750px;padding-top:10px;">
+      <tr>
+        <td>
+          <table align="center" border="0" cellpadding="10" cellspacing="0" style="width:640px">
+            <tr>
+              <td height="50" style="text-align:center;">
+                <img src="<%=APP_CONFIG["host_url"]%>/image/Inset-all-in-one.png" style="height: 50px;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #dfdfdf; background-color:#ffffff; font-size:13px; font-family:Trebuchet MS, tahoma, verdana; color:#666666;">
+                <p>
+                  Hi
+                  <%= @sup_admin.full_name.present? ? @sup_admin.full_name : @sup_admin.email %>,
+                </p>
+                <p>
+                  <%= @user.full_name.present? ? @sup_admin.full_name : @sup_admin.email %> just accepted the invitation to join your organisation <%= @sup_admin.organisation.name %> on InSet CRM.
+                </p>
+                <p><b>Role:</b> <%=@user.admin_type == 2 ? "Admin" : "User" %></p>
+                <p>
+                  Let's welcome him/her on-board. 
+                  <br>
+                  Cheers!
+                </p>
+                
+              </td>
+
+            </tr>
+            <%=render :partial=>"email_footer"%>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height="20px"></td>
+      </tr>
+    </table>
+  </body>
+</html>

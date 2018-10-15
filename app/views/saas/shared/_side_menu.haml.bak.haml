@@ -1,0 +1,176 @@
+/ Navigation
+%aside#menu
+  #navigation
+    .profile-picture
+      %a.contact-panel{:href => "/profile"}
+        - if @current_user.image.present?
+          - image_path = @current_user.image.image.url(:thumb)
+        -else
+          - image_path = "/assets/new-ui/user.png"
+        = image_tag image_path, :alt=>"profile image",  :id=>"",:class=>"img-circle m-b m-t-md",:onError=>"this.src='/assets/new-ui/user.png';this.onerror=null;"
+        
+      .stats-label.text-color
+        %span.font-extra-bold.font-uppercase 
+          = @current_user.full_name
+        .dropdown
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %small.text-muted
+              - if @current_user.is_siteadmin?
+                %span.sup_admin_txt
+                  Site Admin
+              - elsif @current_user.admin_type == 1
+                %span.sup_admin_txt
+                  Super Admin
+              - elsif @current_user.admin_type == 2
+                %span.admin_txt
+                  Admin
+              - elsif @current_user.admin_type == 3 && @current_user.role.present?
+                %span.user_txt
+                  =@current_user.role.name
+              - else
+                %span.user_txt
+                  User
+            %b.caret
+          %ul.dropdown-menu.animated.flipInX.m-t-xs
+            / %li
+            /   %a{:href => "/contacts"} Contacts
+            %li
+              %a{:href => "/profile"} Profile
+            - if @current_user.is_admin? || @current_user.is_super_admin?
+              %li
+                %a{:href => "/settings"} 
+                  /%i.fal.fa-cogs.text-primary-2
+                  Settings
+            %li.divider
+            %li
+              = link_to destroy_user_session_path, :method => :delete,:id=>"logout", :onclick=>"return track_logout();" do
+                /%span.pe-7s-power
+                Log Out
+              
+    %ul#side-menu.nav
+      
+      - if (params[:controller] != 'beta_accounts') && (@current_user.is_admin? || @current_user.is_super_admin?)
+        %li
+          %a{:href => "/dashboard"}
+            %span.nav-label Dashboard
+            %span.label.label-success.pull-right 
+        - if @current_user.is_admin? || @current_user.is_super_admin?
+          - if (params[:controller] == "contacts" || params[:controller] == "home") && (params[:action] == "index" || params[:action] == "all_contacts" || params[:action] == "list_companies")
+            - act_cls = "active"
+            - sub_menu_cls = "sub_menu_active"
+          - else
+            - act_cls = ""
+            - sub_menu_cls = ""
+          %li{class: act_cls}
+            %a{:href => "/all_contacts", :class => request.path == "/all_contacts" ? "sub_menu_active" : ""}
+              %span.nav-label Contacts
+              / %span.fa.arrow
+            / %ul.nav.nav-second-level
+            /   %li
+            /     %a{:href => "/all_contacts", :class => request.path == "/all_contacts" ? "sub_menu_active" : ""}
+            /       %span.nav-label All Contacts
+            /       %span.label.label-success.pull-right
+            /   %li
+            /     %a{:href => "/contacts", :class => request.path == "/contacts" ? "sub_menu_active" : ""}
+            /       -# contacts = IndividualContact.where("created_by=? AND is_archive=?", @current_user.id,false)
+            /       -# contact_count_box = @current_organization.present? ? (@current_user.is_admin? ? ( @current_organization.individual_contacts.where("is_archive=?", false).count ) : (contacts.present? ? contacts.count : 0) ) : 0
+            /       %span.nav-label Contacts
+            /       %span.label.label-success.pull-right 
+            /         =#contact_count_box
+            /   %li
+            /     %a{:href => "/list_companies",:class => request.path == "/list_companies" ? "sub_menu_active" : ""} 
+            /       -# if @current_user.is_admin?
+            /         -# org_count_box = @current_organization.present? ? @current_organization.company_contacts.count : 0
+            /       -# else
+            /         -# org_count_box = @current_organization.present? ? @current_organization.company_contacts.where("created_by=?", @current_user.id).count : 0
+            /       %span.nav-label Companies
+            /       %span.label.label-success.pull-right 
+            /         =#org_count_box            
+        - if (params[:controller] == "deals" || params[:controller] == "tasks") && params[:action] == "index"
+          - act_cls = "active"
+        - else
+          - act_cls = ""
+        %li{class: act_cls}
+          %a{:href => "analytics.html"}
+            %span.nav-label Opportunities
+            %span.fa.arrow
+            %span.label.label-warning.pull-right 
+          %ul.nav.nav-second-level
+            %li
+              %a{:href => "/leads", :class => (params[:controller] == "deals" && request.path != "/leads/kanban") ? "sub_menu_active" : ""} 
+                - lead_count_box = get_my_deals_count(@current_organization, @current_user)
+                %span.nav-label Opportunities List
+                %span.label.label-success.pull-right 
+                  =lead_count_box
+
+            %li
+              %a{:href => "/leads/kanban", :class => request.path == "/leads/kanban" ? "sub_menu_active" : ""} Sales Pipeline
+            %li
+              %a{:href => "/tasks", :class => (params[:controller] == "tasks" && params[:action] == "index") ? "sub_menu_active" : ""} 
+                - if @current_user.is_admin?  
+                  - task_count_box = @current_organization.present? ? @current_organization.tasks.where(is_completed: false).count : 0
+                - else
+                  - task_count_box = @current_organization.tasks.where("(created_by=? OR assigned_to=?) AND is_completed=?", @current_user.id, @current_user.id,false).count
+                %span.nav-label Tasks
+                %span.label.label-success.pull-right 
+                  =task_count_box
+      - if params[:controller] == "projects" && params[:action] == "index"
+        - act_cls = "active"
+        - sub_menu_cls = "sub_menu_active"
+      - else
+        - act_cls = ""
+        - sub_menu_cls = ""
+      %li{class: act_cls}
+        %a{:href => "/projects"}
+          %span.nav-label Projects
+          %span.fa.arrow
+        %ul.nav.nav-second-level
+          %li
+            %a{:href => "/projects/kanban", class: sub_menu_cls} 
+              - proj_count_box = @current_organization.present? ? @current_organization.projects.count : 0
+              %span.nav-label Projects View
+              %span.label.label-success.pull-right 
+                =proj_count_box
+          %li
+            %a{:href => "/project_jobs/kanban", :class => request.path == "/project_jobs" && request.path == "/kanban" ? sub_menu_cls : ""} 
+              - job_count_box = @current_organization.present? ? @current_organization.project_jobs.count : 0
+              %span.nav-label Jobs View
+              %span.label.label-success.pull-right 
+                =job_count_box
+
+        - if params[:controller] == "resource_allocations"
+          - act_cls = "active"
+        - else
+          - act_cls = ""
+        %li{class: act_cls}
+          %a{:href => "#"}
+            %span.nav-label Resource
+            %span.fa.arrow
+          %ul.nav.nav-second-level
+            %li
+              %a{:href => "/resource_allocations", :class => request.path == "/resource_allocations" ? "sub_menu_active" : ""} Allocation
+            %li
+              %a{:href => "/resource_utilization", :class => request.path == "/resource_utilization" ? "sub_menu_active" : ""} Utilization
+            %li
+              %a{:href => "/weekly_timesheet", :class => request.path == "/weekly_timesheet" ? "sub_menu_active" : ""} Weekly Timesheet
+        %li
+          %a{:href => "/users"}
+            %span.nav-label Team
+            %span.label.label-success.pull-right 
+        %li
+          %a{:href => "/mail/connect"}
+            %span.nav-label Office 365
+        %li
+          %a{:href => "/calendar"}
+            %span.nav-label Calendar
+      - if @current_user.is_siteadmin?
+        %li
+          %a{:href => "#"}
+            %span.nav-label Siteadmin
+            %span.fa.arrow
+          %ul.nav.nav-second-level
+            %li
+              %a{:href => "/organizations", class: sub_menu_cls} 
+                %span.nav-label Organizations
+                %span.label.label-success.pull-right 
+                  =Organization.count

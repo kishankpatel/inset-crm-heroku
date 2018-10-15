@@ -1,0 +1,61 @@
+- if @deals.present?
+  / = wicked_pdf_javascript_include_tag "jquery.dataTables.min.js"
+  / = wicked_pdf_stylesheet_link_tag "bootstrap.min.css"
+  / = wicked_pdf_stylesheet_link_tag "new-style.css"
+
+  :css
+    .table.white-table > thead > tr > th {
+      background-color: #e0e5e9;
+      border-bottom: 1px solid #dddddd;
+    }
+    .table-hover > tbody > tr {
+      background-color: #f0f0f0;
+      page-break-inside: avoid;
+    }
+    table tbody tr td:before,
+    table tbody tr td:after {
+        content : "" ;
+        height : 4px ;
+        display : block ;
+    }
+  .table-responsive
+    %table.table#leads_pdf.white-table.table-hover.dataTable
+      %thead
+        %tr
+          %th{style: "text-align: center !important;"} #
+          %th{style: "text-align: left !important;"} Opportunity Name
+          %th{style: "text-align: left !important;"} Stage
+          %th{style: "text-align: left !important;"} Value
+          %th{style: "text-align: left !important;"} Created
+          %th{style: "text-align: left !important;"} Assigned
+          %th{style: "text-align: left !important;"} Next Action
+          %th{style: "width: 10% !important;text-align: left !important;"} Contact
+      %tbody
+        - @deals.each_with_index do |deal, i|
+          %tr
+            %td{style: "text-align: center !important;"}= (i+1).to_s + "."
+            %td= deal.title
+            %td          
+              - if deal.deal_status_name.present?
+                = deal.deal_status_name
+              - else
+                = 'NA'
+            %td
+              - if !deal.amount.nil?
+                = deal.currency_type
+                = ' '
+                = deal.amount.to_i
+            %td= date_format(deal.created_at)
+            %td= deal.assigned_user.present? ? deal.assigned_user.full_name : ""
+            %td
+              - if deal.last_task.present?
+                = deal.last_task.name
+              - else
+                = 'No-Action'
+              - if deal.latest_task_type_id.present?
+                %br
+                = Deal.get_last_task_duedate(deal)
+            %td
+              = deal.contact_name
+              = " - "
+              = deal.contact_email

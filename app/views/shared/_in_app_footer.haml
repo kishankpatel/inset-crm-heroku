@@ -1,0 +1,60 @@
+.footer-after-login
+  / .col-md-3.padrht
+  /   %p 
+  /     Using 3.21 Mb of storage | Hours Spent: 0
+  .col-md-4
+    / %b Need Help?
+    / %a{href: "https://www.wakeupsales.com/contact-us", target: "_blank"}
+    /   Click here!
+  .col-md-3.text-center
+    %span.cwkp-sprite.feedback
+    %a.tooltip{"data-toggle" => "modal", href: "#feedbackModal",rel: "tooltip", title: "Send feedback"} 
+      %span Feedback
+    / %a{href: "mailto:support@parkpointsoftware.com", target: "_top", title: "Send feedback"}
+    /   %span
+    /     support@parkpointsoftware.com
+  - if @current_organization.present?
+    .col-md-5.text-right{:style => "padding:0;right:25px;"}
+      %p 
+        Last activity |
+        - org_activities = @current_organization.activities.last(10)
+        - if (act = org_activities).present?
+          - user = act.last.user
+          - if user.present? && user.sign_in_count > 0
+            %b
+              - user_name = user.full_name.present? ? user.full_name : user.email.split("@")[0]
+              %span.tooltip{:title => user_name.length > 15 ? user_name : ""}
+                = truncate(user_name, :length => 14, :ommission => "..")
+            |
+        %b
+          %span.tooltip{:title => @current_organization.name.length > 15 ? @current_organization.name : ""}
+            = truncate(@current_organization.name, :length => 15, :ommission => "..")
+        
+        
+        - if org_activities.present? && dt = (org_activities.last.created_at)
+          - today = Time.zone.now.strftime('%Y-%m-%d')
+          - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+          - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+          |
+          %span{:id => "activityHead"} 
+            %b
+              - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                Today
+                &#45;
+                = DateTime.parse(dt.to_s).strftime('%I:%M %p').to_s
+              - else
+                - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                  Y'day
+                  &#45;
+                  = DateTime.parse(dt.to_s).strftime('%I:%M %p').to_s
+                - else
+                  - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                    Y'day
+                    &#45;
+                    = DateTime.parse(dt.to_s).strftime('%I:%M %p').to_s
+                  - else
+                    = dt.strftime("%d %b'%y %I:%M %p")
+        - else 
+          = "| No recent activity recorded"
+  .cb
+= render partial: "shared/feedback_modal"

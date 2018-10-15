@@ -1,0 +1,26 @@
+.cont_top_r  
+  - cont_owner = User.where("id=?", params[:user_id]).first
+  - cont_owner_name = cont_owner.full_name.present? ? cont_owner.full_name : cont_owner.email             
+  = hidden_field_tag "cont_owner_id", cont_owner.id
+  = hidden_field_tag "cont_owner_name", cont_owner_name
+  - if cont_owner.image.present?
+    %span.user-profile
+      %span.userImage
+        = image_tag cont_owner.image.image.url(:thumb), :alt=>"", :title => "#{cont_owner.full_name.present? ? cont_owner.full_name : (cont_owner.email.present? ? cont_owner.email : '')}"
+  - elsif (gravtar_img_url = gravatar_url(cont_owner.email)).present?
+    %span.user-profile
+      %span.userImage
+        = image_tag gravtar_img_url, alt: "", :title => "#{cont_owner.full_name.present? ? cont_owner.full_name : (cont_owner.email.present? ? cont_owner.email : '')}"
+  -else
+    -if cont_owner_name.present?  
+      .lead-details-page 
+        .cont_top_r  
+          %span.assn-pf-icon{style: "background: #{cont_owner.get_user_color_code(cont_owner_name.downcase[0])}"}
+            = cont_owner_name[0].upcase
+
+.cont_top_r{style:"position: relative;top: 3px;"}
+  %span.tooltip{title: "#{cont_owner_name}", style:"font-size:14px;display: inline-block;margin-bottom: 4px;"}
+    = cont_owner_name.truncate(20)
+  %br
+  %span.lead_owner_txt 
+    = @ic.deals_contacts.present? ? "Lead Owner" : "Contact Owner"

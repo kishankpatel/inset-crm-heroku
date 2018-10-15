@@ -1,0 +1,21 @@
+#projectJobGroupModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "projectJobGroupModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y:scroll;"}
+  .modal-dialog.new_form_layout{:style => "width:70%;"}
+    .modal-content.con-box1.cmn_new_popup_form{style: "margin-top: 0;padding-top: 5px;"}
+      .modal-header.header_icon
+        %button.close{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"} ×
+        %span.cwkp-sprite.proj_heading_icon
+        %h4.modal-title{style: "display:inline-block;"} JOB GROUP
+      .modal-body{style:"padding: 15px 5px 0;"}
+        .btn.btn-primary.btn-success.pad2{"data-target" => "#addJobGroup", "data-toggle" => "modal"}
+          .glyphicon.glyphicon-plus-sign
+          Add Job Group
+        .cb
+        #project-job-groups
+      /- @project_job_groups.each do |p|
+      / %li{style:"padding: 0 5px;text-align: left;cursor:pointer", onclick:"update_job_group_in_job_details('#{params[:project_job_id]}', '#{p.id}');", title: p.name}
+      /   = p.name.truncate(20)
+      / %li.divider
+      .modal-footer
+        %div
+          .navbar-left.form-layout-footer
+            %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel

@@ -1,0 +1,14 @@
+= hidden_field_tag "hdn_active_user_ids"
+= hidden_field_tag "hdn_inactive_user_ids"
+#userActiveDeactiveModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "assignLeadModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+      %h4.modal-title
+        %span.fal.fa-user-cog
+        Activate/ Deactive User(s)
+      .modal-body
+        #users_dual_list_content
+

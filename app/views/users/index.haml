@@ -1,0 +1,436 @@
+
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/users"} Team
+          
+        /=render :partial=>"filters"
+      %h2
+        %i.fal.fa-user-tie
+        Users
+      %small
+      / .container.lead-page
+      /   .top-list-bar.white-sticky-header.fixed-in-app-header
+      /     .lead-stage
+      .row.text-center
+        %ul.list-inline
+          %li#all_tab.active.list-inline-item
+            %a.btn.btn-outline.btn-primary.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)",onclick: "get_users('all', #{@org.present? ? @org.id : @current_organization.id });", id: "allUsers"} 
+              All
+              %span#badge_all.badge_count.badge.badge-warning
+                
+                =@users.by_enabled.count
+                
+          %li#admin_tab
+            %a.btn.btn-outline.btn-primary2.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)",onclick: "get_users('admin', #{@org.present? ? @org.id : @current_organization.id});", id: "adminUsers"} 
+              Admin
+              %span#badge_admin.badge_count.badge.badge-warning
+          %li#users_tab
+            %a.btn.btn-outline.btn-info.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)",onclick: "get_users('user', #{@org.present? ? @org.id : @current_organization.id});", id: "normalUsers"} 
+              User
+              %span#badge_user.badge_count.badge.badge-warning
+          %li#block_tab
+            %a.btn.btn-outline.btn-danger.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)",onclick: "get_users('blocked', #{@org.present? ? @org.id : @current_organization.id});", id: "blockUsers"} 
+              Blocked
+              %span#badge_blocked.badge_count.badge.badge-warning
+          %li#invite_sent_tab
+            %a.btn.btn-outline.btn-success.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)",onclick: "get_users('invite_sent', #{@org.present? ? @org.id : @current_organization.id});", id: "inviteSentUsers"} 
+              Invite Sent
+              %span#badge_invite_sent.badge_count.badge.badge-warning
+          %li#disabled_tab
+            %a.btn.btn-outline.btn-warning.btn-xs{"data-toggle" => "tab", href: "javascript:void(0)", style: "font-size: 12px;",onclick: "get_users('disabled', #{@org.present? ? @org.id : @current_organization.id});", id: "inviteSentUsers"} 
+              Disabled
+              %span#badge_disabled.badge_count.badge.badge-warning
+          
+        - if @current_user.is_siteadmin? && @org.present? && (@current_sub=@org.user_subscriptions).present?
+          .row.fr
+            =link_to "Billing History", "/billing_history/"+@org.id.to_s, :class=> "cmn_size fl", style: "margin-top: 3px;position:relative;"
+            - if (@current_sub=@org.user_subscriptions.active.last).present? && @current_sub.is_active
+              .fl
+                |
+              =link_to "Cancel Subscription", "/subscription/cancel/"+@org.id.to_s, :class=> "cmn_size fl", "data-confirm" => "Are you sure?"
+.ling_mcnt  
+  .user_listing.row
+    = render partial: "get_users"
+= hidden_field_tag "hdn_assign_deals"
+= hidden_field_tag "hdn_unassign_deals"
+#assign_leadModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "assignLeadModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title
+          %span.fal.fa-users
+          ASSIGN LEADS / OPPORTUNITIES
+      #assign_content
+#unassign_leadModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "removeLeadModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title
+          %span.fal.fa-user-times
+          REMOVE LEAD(S)
+      #unassign_content
+#editUserModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "editUserModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"}
+          %span.fal.fa-user-edit
+          EDIT USER
+      #user_content
+:javascript
+  $(document).ready(function(){
+  $(".active_class li").removeClass("activ_menu");
+  $("#organizations").addClass("activ_menu");
+  $('#user_edit_form').bind('ajax:success', function(evt, data, status, xhr){
+  $('#task_loader').hide();
+  $("#editUserModal").modal('hide');
+  window.location.href ="/users";
+  });
+
+  $('#user_edit_form').bind('ajax:before', function(evt, data, status, xhr){
+  $('#task_loader').show();
+  });
+
+  $("#user_edit_form").bind("ajax:complete", function(evt, data, status, xhr) {
+  if(data.responseText !== " "){
+  $("#alert-msg").show();
+  $("#msg_div").html(data.responseText);
+  }
+  $('#task_loader').hide();
+  });    
+  })
+  $( "li.li-contacts" ).hover(
+    function() {
+      $(this).children("div.actions").show();
+    }, function() {
+      $(this).children("div.actions").hide();
+    }
+  );
+  function change_button()
+  {
+  $("#btn_usr_add").html('<a class="btn btn-primary" data-toggle="modal" href="#inviteuserModal" rel="tooltip" style="float:right;padding:3px;margin:4px;"><span class="icon-plus-sign"></span> Invite a Person</a>');
+  }
+  function  update_assign_lead(user_id){
+    var assign_deals = $('#hdn_assign_deals').val();
+    var unassign_deals = $('#hdn_unassign_deals').val();
+    var user_id = user_id;
+    $.ajax({
+      type: "POST",
+      url: "assign_unassign_deals",
+      data: {unassign_deal_ids: unassign_deals, assign_deal_ids: assign_deals, user_id: user_id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(result) {
+        $(".user_listing").html(result);
+        show_alert_message("success","All your changes have been saved.");
+        $('#task_loader').hide();
+        $("#assign_leadModal").modal("hide");
+        $("#unassign_leadModal").modal("hide");
+      }
+    });
+  }
+
+  function assign_deal_to_user(id){
+    $.ajax({
+      type: "POST",
+      url: "/assign_deal_to_user",
+      dataType: 'json',
+      async: false,
+      data: {user_id: id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#assign_leadModal").modal("show");
+        $("#assign_content").html(data.responseText);
+        $("#task_loader").hide();
+      }
+    });
+  }
+
+  function remove_lead(id){
+    $.ajax({
+      type: "POST",
+      url: "/remove_lead",
+      dataType: 'json',
+      async: false,
+      data: {user_id: id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#unassign_leadModal").modal("show");
+        $("#unassign_content").html(data.responseText);
+        $("#task_loader").hide();
+      }
+    });
+  }
+
+  function edit_user(id){
+    $.ajax({
+      type: "POST",
+      url: "/edit_user",
+      dataType: 'json',
+      async: false,
+      data: {user_id: id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $("#editUserModal").modal("show");
+        $("#user_content").html(data.responseText);
+        $("#task_loader").hide();
+        $('form input[type="text"].bfh-phone, form input[type="phone"].bfh-phone, span.bfh-phone').each(function () {
+          var $phone = $(this);
+          $phone.bfhphone($phone.data());
+        });
+      }
+    });
+  }
+
+  function block_unblock_user(id, type){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $.ajax({
+          type: "POST",
+          url: "/block_unblock_user",
+          dataType: 'json',
+          async: false,
+          data: {user_id: id, type: type},
+          beforeSend: function(){
+            $("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            $("#task_loader").hide();
+          },
+          complete: function(data) {
+            var json = JSON.parse(data.responseText);
+            $("#task_loader").hide();
+            if(type=="block"){
+              var txt= "Unblock";
+              var act = "unblock";  
+              $(".user_block_"+id).html("<span class='blocked_lable'>Blocked</span>");
+              $("#block_disabled_"+id).addClass("disabled_div");
+            }else{
+              var txt= "Block";
+              var act = "block";
+              $(".user_block_"+id).html(""); 
+              $("#block_disabled_"+id).removeClass("disabled_div");
+            }
+            $('a#block_div_'+json['user_id']).attr('onclick',"block_unblock_user('" + json['user_id'] + "','" + act + "')" ).html("<span class='cwkp-sprite usr_sprite block'></span>" + txt);
+
+          }
+        });
+      }
+    })
+  }
+  function grant_revoke_admin(id, type){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $.ajax({
+          type: "POST",
+          url: "/grant_revoke_admin",
+          dataType: 'json',
+          async: false,
+          data: {user_id: id, type: type},
+          beforeSend: function(){
+            $("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            $("#task_loader").hide();
+          },
+          complete: function(data) {
+            var json = JSON.parse(data.responseText);
+            $("#task_loader").hide();
+            if(type=="grant"){
+              var txt= "Revoke admin";
+              var act = "revoke";
+              var nm = "Admin";
+              var remove_cls="user-clr";
+              var add_cls="admin-clr";
+            }else{
+              var txt= "Grant admin";
+              var act = "grant";
+              var nm = "User";
+              var remove_cls="admin-clr";
+              var add_cls="user-clr";
+            }
+            $('a#admin_div_'+json['user_id']).attr('onclick',"grant_revoke_admin('" + json['user_id'] + "','" + act + "')" ).html("<span class='cwkp-sprite usr_sprite grant'></span>" + txt);
+            $(".user_type_"+id).removeClass(remove_cls).addClass(add_cls).html(nm);
+          }
+        });
+      }
+    })
+  }
+
+  function resend_invitation(id){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          type: "POST",
+          url: "/resend_invite",
+          dataType: 'json',
+          async: false,
+          data: {user_id: id},
+          beforeSend: function(){
+            $("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            $("#task_loader,.fixed_loader").hide();
+          },
+          complete: function(data) {
+            var json = JSON.parse(data.responseText);
+            $("#task_loader,.fixed_loader").hide();
+            if(json['status']=="success"){
+              //$("#search_result").after("<div class='alert fade in alert-bosuccess' style='position:absolute;'><button class='close' data-dismiss='alert'>×</button>Successfully resent invitation to '" + json['user_email'] + "'</div>");
+              show_alert_message("success","Successfully resent invitation to '" + json['user_email'] + "'");
+            }else{
+              //$("#search_result").after("<div class='alert fade in alert-bodanger' style='position:absolute;'><button class='close' data-dismiss='alert'>×</button>Something went wrong.</div>");
+              show_alert_message("danger", "Something went wrong.");
+            }
+          }
+        });
+      }
+    })
+  }
+  function delete_invitation_user(id){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $("#task_loader,.fixed_loader").show();
+        $.ajax({
+          type: "POST",
+          url: "/delete_invitation_not_accepted_user",
+          dataType: 'json',
+          async: false,
+          data: {user_id: id},
+          beforeSend: function(){
+            $("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            $("#task_loader,.fixed_loader").hide();
+          },
+          complete: function(data) {
+            var json = JSON.parse(data.responseText);
+            $("#task_loader,.fixed_loader").hide();
+            if(json['status']=="success"){
+              $("#user-div-"+id).remove();
+              show_alert_message("success","User deleted successfully.");
+            }else{
+              show_alert_message("danger", "Something went wrong.");
+            }
+          }
+        });
+      }
+    })
+  }
+  function get_users(type,org_id){
+    $.ajax({
+      type: "POST",
+      url: "/get_users",
+      dataType: 'json',
+      async: false,
+      data: {type: type, org_id: org_id},
+      beforeSend: function(){
+        $("#task_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader").hide();
+      },
+      complete: function(data) {
+        $(".user_listing").html(data.responseText);
+        var total_users = $('#hdn_total_users').val();
+        $('#badge_' + type).html('(' + total_users + ')');
+        $("#task_loader").hide();
+      }
+    });
+  }
+
+  function enable_disable_user(id){
+    wus_confirm('Are you sure?', function (confirmed){
+      if(confirmed){
+        $.ajax({
+          type: "POST",
+          url: "/enable_disable_user",
+          dataType: 'json',
+          async: false,
+          data: {user_id: id},
+          beforeSend: function(){
+            $("#task_loader").show();
+          },
+          success: function(data)
+          {
+          },
+          error: function(data) {
+            $("#task_loader").hide();
+          },
+          complete: function(data) {
+            if(data.responseText == "false"){
+              show_alert_message("danger", "Your user limits has exceeded. Please upgrade your plan.");
+            }
+            else{
+              $(".user_listing").html(data.responseText);
+            }
+            var total_users = $('#hdn_total_users').val();
+            $('span.badge_count').html("");
+            $('.user-count-box').html(total_users);
+            $("#task_loader").hide();
+          }
+        });
+      }
+    })
+  }
+
+  
+/= render :partial => "shared/source"
+/= render :partial => "shared/industry"  

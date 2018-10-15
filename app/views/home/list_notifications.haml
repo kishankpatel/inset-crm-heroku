@@ -1,0 +1,55 @@
+.normalheader.small-header
+  .hpanel
+    .panel-body
+      %a.small-header-action{:href => ""}
+        .clip-header
+          %i.fal.fa-arrow-up
+      #hbreadcrumb.pull-right
+        %ol.hbreadcrumb.breadcrumb
+          %li
+            %a{:href => "/list_notifications"} Notifications
+          %li.active
+            %span List View
+      %h2.font-light.m-b-xs Notifications
+      %small
+- if @all_notifications.present?
+  .content.ling_mcnt
+    .row
+      .col-lg-12
+        .hpanel.hgreen.m-b-none
+          .panel-heading
+            Notifications List
+          .panel-body
+
+            #view_company_content.company-page.custom-comp-kls
+              %table.table.table-striped.table-bordered.table-hover.no-footer.datatable
+                %thead
+                  %tr
+                    %th Type
+                    %th.text-left.col-md-3 Description
+                    %th Date
+                %tbody
+                  - @all_notifications.each do |noti|
+                    %tr
+                      %td
+                        - if noti.activity_type == "Create"
+                          - cls = "label-success"
+                        - elsif noti.activity_type == "Update"
+                          - cls = "label-warning"
+                        - else
+                          - cls = "label-danger"
+                        - if noti.notificationable.present? && noti.notificationable.project.present?
+                          = link_to "/projects/#{noti.notificationable.project.id}/jobs/#{noti.notificationable.id}", title: noti.message do
+                            %span.label{class: cls}=noti.activity_type
+                        - else
+                          %a{href: "javascript:void(0)", style: "cursor:pointer;"}
+                            %span.label{class: cls}=noti.activity_type
+                      %td
+                        - if noti.notificationable.present? && noti.notificationable.project.present?
+                          = link_to "/projects/#{noti.notificationable.project.id}/jobs/#{noti.notificationable.id}", title: noti.message do
+                            = noti.message
+                        - else
+                          %a{href: "javascript:void(0)", style: "cursor:pointer;"}
+                            = noti.message
+                      %td=noti.created_at.strftime("%b %d, %Y")
+= will_paginate @all_notifications, :container => false

@@ -1,0 +1,96 @@
+= javascript_include_tag "skypeCheck"
+.header_help_section
+  .help_container
+    .help_header
+      %h3 Help
+      .search_sec
+        .search_bar
+    .help_body
+      .help_questions
+        - if params[:controller] == "deals" && params[:action] == "index"  
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What can you do in Leads Listing page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to add a Lead?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to edit a Lead?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to add multiple Leads/Opportunities in the same name?
+        - elsif params[:controller] == "deals" && params[:action] == "show"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What can you do in the Lead Details page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What's the Activity Stream in a Lead Details page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to add a Task under an Opportunity?
+        
+        - elsif params[:controller] == "tasks" && params[:action] == "index"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How task listing page works?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to add/edit/delete a task?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How a Task is different from a Job?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How the filter works in Task listing?
+
+        - elsif params[:controller] == "contacts" && params[:action] == "index"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What can you do in the Contacts Listing page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to import your Contacts from other CRMs?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to add/edit/delete a contact?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to create an Opportunity for a Contact?
+
+
+        - elsif params[:controller] == "contacts" && params[:action] == "show_contact_detail"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What can you do in the Contact Detail page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to Edit a Contact from the Detail page?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What is a Contact's Activity Stream?
+
+        - elsif params[:controller] == "users" && params[:action] == "index"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How to Invite a Person to your Team? 
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What's the difference between a Blocked User & a Disabled User?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What actions can you do in the Team page?
+        - elsif params[:controller] == "home" && params[:action] == "dashboard"
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How Dashboard page helps you? 
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What are Recent Leads?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} How Usage works?
+          %div
+            %a.help_que{href:"http://helpdesk.wakeupsales.com/cloud-help/", target:"_blank"} What does 'Last 3 Months Summary' tell you?
+
+    .help_footer
+      .col-md-7.padlft.padrht
+        .more_que_sec
+          %a{href:"http://helpdesk.wakeupsales.com/", target:"_blank"} More Questions...Visit our Helpdesk.
+        .write_us_sec
+          .col-md-6.padlft
+            %div  
+              %p
+                Write to Us
+            %div
+              %a{href:"mailto:support@parkpointsoftware.com"}  
+                %span.write_us_on_email
+
+          .col-md-6.padlft
+            %div  
+              %p
+                Talk to us at
+            %div
+              %a{href:"skype:andola.ankeet?call"}
+                %span.reach_us_at_skype
+          .cb
+      .col-md-5.padrht
+        .bo_icon
+      .cb

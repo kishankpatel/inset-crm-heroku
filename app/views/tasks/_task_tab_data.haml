@@ -1,0 +1,73 @@
+- badge_today_count = badge_today
+- badge_overdue_count = badge_overdue
+- badge_upcoming_count = badge_upcoming
+=hidden_field_tag "today_task_count", badge_today_count
+=hidden_field_tag "overdue_task_count", badge_overdue_count
+=hidden_field_tag "upcoming_task_count", badge_upcoming_count
+=hidden_field_tag "task_status_value", "all"
+=hidden_field_tag "task_assigned_to"
+=hidden_field_tag "task_year"
+=hidden_field_tag "task_quarter"
+
+#task-dropdown-menu.dropdown
+  %button.btn.btn-default.dropdown-toggle{"data-toggle" => "dropdown", :type => "button"}
+    %span.bt-nme{class: "get_selected_txt"}
+      - if current_user.is_admin?
+        All Tasks
+      -else
+        My Tasks
+    %span.caret
+  %ul.dropdown-menu.selected_txt
+    - if current_user.is_admin?
+      %li.arrow_top
+      %li.task-tab-data
+        %a{:href => "#", :onclick=>"display_tasks('all');change_btn('alltsk');del_cook()"} All Tasks
+      %li.task-tab-data
+        %a{:href => "#", :onclick=>"display_tasks('completed');change_btn('allcmpl');del_cook()"} All Completed Tasks
+      %li.task-tab-data
+        %a{:href => "#", :onclick=>"display_tasks('open');change_btn('allopen');del_cook()"} All Open Tasks
+      %li.task-tab-data
+        %a{:href => "#", :onclick=>"set_admin_cookie(1);display_tasks('completed');change_btn('cmpl')"} My Completed Tasks
+      %li.task-tab-data
+        %a{:href => "#", :onclick=>"set_admin_cookie(1);display_tasks('open');change_btn('open')"} My Open Tasks
+      %li.task-tab-data
+        %a{:href => "#",:onclick=>"set_admin_cookie(1);display_tasks('all');change_btn('all')"} My Tasks
+    - if !current_user.is_admin?
+      %li.task-tab-data
+        %a{:href => "#",:onclick=>"display_tasks('completed');change_btn('cmpl')"} My Completed Tasks
+      %li.task-tab-data
+        %a{:href => "#",:onclick=>"display_tasks('open');change_btn('open')"}My Open Tasks
+      %li.task-tab-data
+        %a{:href => "#",:onclick=>"display_tasks('all');change_btn('all')"} My Tasks
+.cb
+
+:javascript
+  $(document).ready(function() {
+  $.removeCookie("assigned_toa");
+  });
+  function set_admin_cookie(name)
+  {
+  $.removeCookie("assigned_toa");
+  document.cookie="assigned_toa="+name;
+  
+  }
+  function del_cook()
+  {
+  $.removeCookie("assigned_toa");
+  }
+  function change_btn(name)
+  {
+  
+  if(name == "cmpl")
+  {$(".bt-nme").text("My Completed Tasks")}
+  if(name == "all")
+  {$(".bt-nme").text("My Tasks")}
+  if(name == "open")
+  {$(".bt-nme").text("My Open Tasks")}
+  if(name == "alltsk")
+  {$(".bt-nme").text("All Tasks")}
+  if(name == "allcmpl")
+  {$(".bt-nme").text("All Completed Tasks")}
+  if(name == "allopen")
+  {$(".bt-nme").text("All Open Tasks")}
+  }

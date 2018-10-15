@@ -1,0 +1,55 @@
+- stages_top = @current_organization.deal_statuses.where("name NOT IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc')
+- stages_btm = @current_organization.deal_statuses.where("name IN (?) AND is_active=?", ["Won","Lost"],true).order('original_id asc')
+- all_stages = stages_top + stages_btm
+- if @page == "lead_listing"
+  - all_stages.each do |stage|
+    %li{onclick: "changeLeadStage(#{@lead.id}, #{stage.id})"}
+      %a{:href => "javascript:void(0)", :style => "cursor:default"}
+        = stage.name
+- elsif @page == "lead_details"
+  - all_stages.each do |stage|
+    %li{onclick: "changeLeadStageInLeadDetails(#{@lead.id}, #{stage.id})"}
+      %a{:href => "javascript:void(0)", :style => "cursor:default"}
+        = stage.name
+:javascript
+  function changeLeadStage(id, stage_id,page){
+    $("#task_loader, .fixed_loader").show();
+    $.ajax({
+      url: "/change_lead_stage",
+      data: {id: id,stage_id: stage_id,page: page},
+      success: function(data){ 
+        $(".label-lead-stage").find(".lead_"+id).html(data);
+        if(data == 'Won'){
+          $(".label-lead-stage").find(".lead_"+id).css("background-color", "#2cbf55");
+        }else
+        if(data == 'Lost'){
+          $(".label-lead-stage").find(".lead_"+id).css("background-color", "#e84646");
+        }else{
+          $(".label-lead-stage").find(".lead_"+id).css("background-color", "#999");
+        }
+        $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+        alert('Got an error while changing lead stage.');
+      }
+    });
+  }
+
+  function changeLeadStageInLeadDetails(id, stage_id){
+    $("#task_loader, .fixed_loader").show();
+    $.ajax({
+      url: "/change_lead_stage_in_lead_details",
+      data: {id: id,stage_id: stage_id},
+      success: function(data){ 
+        $(".opp_status_bar_sec").html(data);
+        $(".lead-details-page .deal_status_name").html($("#curr_deal_status").val());
+        $(".lead-details-page .deal_status_name").attr("tooltipText",$("#curr_deal_status").val());
+        load_activity_cum_deals('activity_stream');
+        $("#task_loader, .fixed_loader").hide();
+      },
+      error: function(data){
+        $("#task_loader, .fixed_loader").hide();
+      }
+    });
+  }

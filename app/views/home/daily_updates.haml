@@ -1,0 +1,91 @@
+.dailyupdate-page.task_page
+  .top-task-bar.task-white-bar.fixed-in-app-header
+    /.navbar-right
+    .fr{:style => 'margin-right: 9px;margin-top: 3px;'}
+      = link_to "Manage Daily Updates", manage_daily_updates_path
+  .cb 
+  .wrapper
+    .col-md-5
+      %form.update-field
+        .lbl-blk
+          %label 
+            %span.cwkp-sprite.choose_a_lead
+            Choose a Lead
+          / = select_tag('individual_contact_id', options_from_collection_for_select(@individual_contacts,"id","title"), :prompt => 'Select', :class => "select form-control dailyUpdate_sel")
+          / #lead_list_name
+          = select_tag('contact_id', options_from_collection_for_select(@individual_contacts,"id","full_name"), :prompt => '- Select -', :class => "select form-control dailyUpdate_sel")
+          #lead_list_name
+            / = select_tag('deal_id', options_from_collection_for_select(@deals,"id","title"), :prompt => 'Select', :class => "select form-control dailyUpdate_sel")
+            %label
+              %span.cwkp-sprite.choose_an_opportunity
+              Choose an Opportunity
+            %select#deal_id.select.form-control.dailyUpdate_sel
+              %option Choose the opportunity you want to link with...
+            #user_list_name
+
+        
+    .col-md-7
+      .daily-catchup-point
+        %strong
+          Need daily/periodic updates from your team member(s)? Just schedule it & sit back. You'll get everything you need, at your preferred time.
+        %ul
+          %li Get daily updates without nagging your people.
+          %li Progress from your entire team, delivered to you in a single email.
+          %li Everything tailor made, just what you want... when you want.
+          %li
+            In case you change your mind, unsubscribing is equally easy.
+            /= image_tag "new-ui/daily_updates.jpg"
+    .clearfix
+:javascript
+  $( "#contact_id" ).on('change', function() {
+    var contact_id = $(this).val();
+    $("#user_list_name").html("");
+    $.ajax({ 
+        type: "GET",
+        url: "/get_lead_opportunity",
+        data: {id: contact_id},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          if(data.responseText != null && data.responseText != ""){
+            //$("#lead_list_name").show();
+            $("#deal_id").html(data.responseText);
+          }else{
+            //$("#lead_list_name").hide();
+          }
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+  });
+  $( "#deal_id" ).on('change', function() {
+    var deal_id = $(this).val();
+    $.ajax({ 
+        type: "GET",
+        url: "/get_daily_update_form",
+        dataType: 'json',
+        async: false,
+        data: {deal_id: deal_id},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader,.fixed_loader").hide();
+        },
+        complete: function(data) {
+          $("#user_list_name").html(data.responseText);
+          $(".hide_remains").show();
+          $("#hdn_deal_id").val(deal_id);
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+  });

@@ -1,0 +1,227 @@
+-@invoices = @invoices.paginate(:page => params[:page], :per_page => 10)
+:css
+  .width-45{
+    width:45%
+  }
+= stylesheet_link_tag   "bootstrap-formhelpers", :media => "all"
+= stylesheet_link_tag   "bootstrap-formhelpers.min", :media => "all"
+
+
+= javascript_include_tag "bootstrap-formhelpers-currencies"
+= javascript_include_tag "bootstrap-formhelpers"
+= javascript_include_tag "bootstrap-formhelpers.min"
+
+
+- if !@current_organization.invoices.present?
+  = render :partial => "shared/show_empty_banner"
+- else
+  .normalheader.small-header
+    .hpanel
+      .panel-body
+        %a.small-header-action{:href => ""}
+          .clip-header
+            %i.fal.fa-arrow-up
+        #hbreadcrumb.pull-right
+          %ol.hbreadcrumb.breadcrumb
+            %li.active
+              %span Manage Invoice
+        %h2.font-light.m-b-xs Manage Invoice
+  .ling_mcnt
+    .panel-body.t_s_f
+      .row
+        - currency_symbol = get_org_currency_symbol(@current_organization)
+        .col-md-3
+          .hpanel.hbgblue
+            .panel-body
+              .text-center
+                %h3 Invoice Amount:
+                %p.font-light
+                  - total_amount = invoices_total 'total'
+                  = raw "<span class='amt-text-sm'>"+currency_symbol+"</span><span class='text-big'>"+(number_with_delimiter(total_amount.round(2), :delimiter => ',')).to_s+"</span>"
+        .col-md-3
+          .hpanel.hbgyellow
+            .panel-body
+              .text-center
+                %h3 Invoice Sent:
+                %p.font-light
+                  - total_sent = invoices_total 'is_sent'
+                  = raw "<span class='amt-text-sm'>"+currency_symbol+"</span><span class='text-big'>"+(number_with_delimiter(total_sent.round(2), :delimiter => ',')).to_s+"</span>"
+        .col-md-3
+          .hpanel.hbggreen
+            .panel-body
+              .text-center
+                %h3 Invoice Paid:
+                %p.font-light
+                  - total_paid = invoices_total 'paid'
+                  = raw "<span class='amt-text-sm'>"+currency_symbol+"</span><span class='text-big'>"+(number_with_delimiter(total_paid.round(2), :delimiter => ',')).to_s+"</span>"
+        .col-md-3
+          .hpanel.hbgred
+            .panel-body
+              .text-center
+                %h3 Invoice Due:
+                %p.font-light
+                  = raw "<span class='amt-text-sm'>"+currency_symbol+"</span><span class='text-big'>"+(number_with_delimiter((total_amount - total_paid).round(2), :delimiter => ',')).to_s+"</span>"
+    .hpanel.hblue
+      .panel-body.manage_invoice
+        %table.table.table-striped.invoice_listing
+          %thead
+            %tr
+              %th{style: "width:10px;"}
+              %th
+                Invoice#
+              %th
+                Bill To
+              %th 
+                Description
+              %th.text-center
+                Amount
+              %th.text-center
+                Due Date
+              %th.text-center
+                Status          
+              %th.text-center
+                Generated Date
+                
+            %tbody
+              -if @invoices.present?
+                -@invoices.each do |invoice|
+                  /- if !@current_organization.individual_contacts.where(id: invoice.contact_id).empty?
+                  %tr
+                    %td
+                      - if invoice.status.present? && (invoice.status.downcase != "paid" && invoice.status.downcase != "cancelled")
+                        .btn-group
+                          %a.deal_set.dropdown-toggle{"data-toggle" => "dropdown", type: "button"}
+                            %span.fal.fa-ellipsis-h
+                          %ul.dropdown-menu.invoice_actions{role: "menu", style:"min-width: 100px;"}
+                            %li.arrow_top
+                            %li
+                              - if invoice.status == "Resend" || invoice.is_sent == true
+                                %a.send_resend_invoice{ title: "Send the invoice again", :"data-confirm"=> "Are you sure to send the invoice again?", href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                                  %span.fal.fa-redo
+                                  Resend
+                              - else
+                                %a.send_resend_invoice{ title: "Send invoice mail", :"data-confirm"=> "Are you sure to send invoice mail?",href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                                  %span.fal.fa-location-arrow
+                                  Send
+                            %li.divider
+                            %li
+                              %a.paid_invoice{ title: "Mark as Paid", :"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                                %span.fal.fa-check-circle
+                                Paid 
+                            %li.divider
+                            %li
+                              %a.paid_invoice{ title: "Mark as Paid", :"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{invoice.id}?type=confirm",:style=>"cursor: pointer;"} 
+                                %span.fal.fa-check-circle
+                                Paid & Confirm
+                            %li.divider
+                            %li
+                              %a.cancel_invoice{ title: "Cancel the invoice", :"data-confirm"=> "Are you sure to cancel this invoice?",href: "/cancel_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                                %span.fal.fa-times-circle
+                                Cancel
+                      - elsif invoice.status.present? && invoice.status.downcase == "paid"
+                        =link_to download_invoice_path(:id => invoice.id) do
+                          %span.fal.fa-download
+                        / %a{href: "javascript:void(0)"}
+                        /   %span.fa.fa-download
+                    %td
+                      %span{title: invoice.invoice_no.size > 15 ? invoice.invoice_no : ""} 
+                        %a{href: "/invoice_details/#{invoice.id}"}
+                          = invoice.invoice_no.present? ? (invoice.invoice_no.size > 15 ? invoice.invoice_no.truncate(15) : invoice.invoice_no) : "NA"
+                    %td
+                      - individual_contact = @current_organization.individual_contacts.where("id=?",invoice.contact_id).first
+                      - if individual_contact.present?
+                        %a{href: "/contact/#{individual_contact.to_param}", title: "#{individual_contact.name.present? ? individual_contact.name + ' - ': ''} #{individual_contact.email}" }
+                          = individual_contact.name.present? ? individual_contact.name : individual_contact.email
+                    %td
+                      /= invoice.invoice_items.present? ? invoice.invoice_items.last.description.truncate(25) : "NA"
+                      - if invoice.invoice_items.present? && (items=invoice.invoice_items.where("description is NOT NULL and description != ''").map(&:description)).present?
+                        - i = 1
+                        - items.each do |item|
+                          %b
+                            = i
+                          %span{title: item.size > 30 ? item : "", :class => item.size > 30 ? "tooltip" : ""}
+                            = item.truncate(30)
+                          - i+=1
+                          %br
+                      - else
+                        NA
+                    %td.text-center
+                      - tot_amt = invoice.total_amount.to_s
+                      %span{title: tot_amt.size > 20 ? tot_amt : "", :class => tot_amt.size > 20 ? "tooltip" : ""}
+                        = invoice.currency.present? ? invoice.currency : "USD"
+                        = tot_amt.truncate(20)
+                    %td.text-center
+                      = invoice.due_date.present? ? invoice.due_date.strftime("%m/%d/%Y") : "NA"
+                    %td.text-center
+                      - inv_status =  invoice.status.present? ? (invoice.status == "Send" ? "Sent" : invoice.status) : "NA"
+                      %span{:class=>"invoice_"+inv_status.downcase}
+                        = inv_status                
+                    %td.text-center
+                      = invoice.created_at.strftime("%m/%d/%Y")
+                      
+              -else
+                %tr
+                  %td{:colspan=>"8", :align => "center"}      
+                    No Invoice Generated yet!        
+        .digg_pagination.fr{style: "margin-bottm: 100px"}
+          = will_paginate @invoices, :container => false, :previous_label => 'Prev', :next_label => 'Next'
+:javascript
+  $("#bill_to").keypress(function() {
+  $('#bill_to').addClass('loadinggif');
+   setTimeout(hideloader, 510);
+  });
+
+  function hideloader()
+  {
+   $('#bill_to').removeClass('loadinggif');
+  }
+  $("#bill_to").keyup(function() {
+   $("#contact_type").val($('#bill_to').val());
+  });
+
+  $('#bill_to.typeahead').typeahead([{
+    name: 'contacts',
+    minLength: 0,
+    limit: 500,
+    valueKey: 'name',
+    remote: {url: '/get_contacts/'+ #{current_user.organization.id if current_user.organization.present?}+ '?q=%QUERY'},
+    template: "<p style='word-wrap: break-word;'><strong>{{name}}</strong> - {{email}}</p>",
+    engine: Hogan
+    }]).on('typeahead:selected',onSelected).on('typeahead:opened',onOpened);
+  function onSelected($e,datum){
+    $("#invoice_contact_type").val(datum.contact_type);
+    $("#invoice_contact_id").val(datum.id);
+    
+    cont_type = $("#invoice_contact_type").val();
+    cont_id = $("#invoice_contact_id").val();
+    $("#task_loader,.fixed_loader").show();
+     $.ajax({
+      url: 'get_bill_to_details',
+        type: 'POST',
+        data: {cont_id: cont_id, cont_type: cont_type},
+        success: function(res) {
+            $(".bill_to_details").html(res);
+            $("#task_loader,.fixed_loader").hide();
+        },
+        error: function(res) {
+          $("#task_loader,.fixed_loader").hide();
+          alert("Unable to load contact details.");
+        }
+    }); 
+   
+  }
+  function onOpened($e){
+  $("#deal_contact_id").val("")
+  console.log('Opned');
+  }
+  $(function () {
+    var date = new Date();
+    var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    $('#invoice_due_date').datetimepicker({
+      format: 'DD/MM/YYYY',
+      autoclose: true,
+      minDate: today,
+      pickTime: false
+    })
+  });

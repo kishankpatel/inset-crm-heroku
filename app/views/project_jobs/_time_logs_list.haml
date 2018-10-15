@@ -1,0 +1,14 @@
+#timeLogsList.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %button.close{'aria-hidden' => 'true', group: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Time Logs
+      .modal-body
+        .row.list_job_time_log
+          /=render :partial=>"project_jobs/list_job_time_log",:locals=>{project_job: project_job}
+      .modal-footer
+        .pull-left
+          %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+            %span.c_links
+              Cancel

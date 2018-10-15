@@ -1,0 +1,35 @@
+.contact_detail_top_sec
+  .pfl_contact_detail
+    - @name = contact.class.name == "IndividualContact" ? (contact.full_name.present? ? contact.full_name : contact.email) : contact.name
+      
+    .col-md-12.text-center
+      - if contact.image.present?
+        .contactImage
+          = image_tag contact.image.image.url(:thumb),:class=>"img-circle m-b m-t-md"
+      - else
+        .contactProfileIcon
+          - unless @name.nil?
+            - contact_letter = @name[0]
+          - else
+            - contact_letter = contact[0]
+          - if @name.present?   
+            %span.contact-profile-icon.img-circle{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+              = contact_letter.upcase
+    .col-md-12.text-center
+      %h3
+        - if contact.present? && contact.is_company?
+          - contact_name = contact.name
+        - else
+          - contact_name = contact.full_name if contact.present?
+        - if(contact.class.name == 'IndividualContact')
+          = link_to contact_name, "/contact/#{contact.to_param}", title: contact_name
+        -else
+          = link_to contact_name, "/company_contact/#{contact.to_param}", title: contact_name
+      .cont_basic_info
+        =contact.email
+        %br
+        -if(contact.class.name == 'IndividualContact' && contact.position.present?)
+          =contact.position
+          %br
+        .ld_or_cont.badge.badge-info
+          = contact.class.name == "IndividualContact" ? "Contact" : "Company"

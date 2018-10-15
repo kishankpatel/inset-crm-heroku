@@ -1,0 +1,92 @@
+- unless @daily_updates.present?
+  = render :partial=> "shared/show_empty_banner"
+- else  
+  .dailyupdate-page.task_page
+    .top-task-bar.task-white-bar.fixed-in-app-header
+      /.navbar-right
+      %div{:style => 'margin-right: 9px;margin-top: 4px;'}
+        = link_to "Set a New Update", daily_updates_path
+    .cb
+    .files_content_block
+      .manage_daily_update
+        .daily_update_div
+          %table.table.table-striped.daily_header
+            %tbody
+              %tr
+                %th.du_no # 
+                %th.du_lead Lead Name
+                %th.du_opportunity Opportunity
+                %th.du_lead Users Involved
+                %th.du_alert_time Alert Time
+                %th.du_time_zone Timezone 
+                %th.du_freq Frequency
+                %th.du_action Actions
+              - i = 0
+              - @daily_updates.each do |dly_update|
+                %tr{id: "daily_update_"+dly_update.id.to_s}
+                  %td
+                    = i += 1
+                  %td
+                    - cont = dly_update.deal.deals_contacts.first.contactable
+                    - cont_name = cont.full_name.present? ? cont.full_name : cont.email
+                    = link_to "contact/#{cont.to_param}" do
+                      %span{title: cont_name.size > 15 ? cont_name : ""}
+                      = cont_name.truncate(15)
+                  %td
+                    %span{title: dly_update.deal.title.size > 25 ? dly_update.deal.title : ""}
+                      = link_to "/leads/#{dly_update.deal.to_param}" do
+                        = dly_update.deal.title.truncate(25)
+                  %td
+                    - involved_users = User.where("id IN (?)", dly_update.user_ids.split(",")).map{|u| u.full_name} 
+                    = involved_users.join(", ")
+                  %td
+                    = dly_update.alert_time.strftime("%H:%M%p")
+                  %td
+                    = dly_update.time_zone
+                  %td
+                    = dly_update.frequency
+                  %td
+                    %a.edit-exist-usr.td_link{:href=>"javascript:void(0)", :rel => "tooltip",:title => "Edit" ,:onclick => "edit_daily_update('#{dly_update.id}')"}
+                      %span.glyphicon.glyphicon-edit
+                    %a.td_link{:href=> delete_daily_update_path(id: dly_update.id), :rel => "tooltip",:title => "Delete", :"data-confirm" => "Are you sure want to delete?", "data-method" => "DELETE"}
+                      %span.glyphicon.glyphicon-trash
+
+
+#editDailyUpdateModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "editDailyUpdateModal", role: "dialog", tabindex: "-1"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse_pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title{style: "display:inline-block;"} 
+          %span.fal.fa-hourglass-half
+          EDIT DAILY UPDATES
+      #daily_update_content
+
+
+
+  :javascript
+    function edit_daily_update(id){
+      $.ajax({
+        type: "POST",
+        url: "/edit_daily_update",
+        dataType: 'json',
+        async: false,
+        data: {id: id},
+        beforeSend: function(){
+          $("#task_loader").show();
+        },
+        success: function(data)
+        {
+        },
+        error: function(data) {
+          $("#task_loader").hide();
+        },
+        complete: function(data) {
+          $("#editDailyUpdateModal").modal("show");
+          $("#daily_update_content").html(data.responseText);
+          $("#task_loader").hide();
+        }
+      });
+    }

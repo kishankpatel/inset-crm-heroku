@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  customer_id: 1
+  name: MyString
+  email: MyString
+  requested_user_limit: 1
+  amount: 1
+  is_license_generated: false
+  new_license_text: MyText
+
+two:
+  customer_id: 1
+  name: MyString
+  email: MyString
+  requested_user_limit: 1
+  amount: 1
+  is_license_generated: false
+  new_license_text: MyText

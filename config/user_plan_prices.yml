@@ -1,0 +1,19 @@
+development:
+  "10 Users": 
+    "user_limit": 10
+    "price": 489
+  "20 Users":
+    "user_limit": 20
+    "price": 969
+  "40 Users": 
+    "user_limit": 40
+    "price": 1,929
+  "60 Users":
+    "user_limit": 60
+    "price": 2,889
+  "80 Users": 
+    "user_limit": 80
+    "price": 3,849
+  "100 Users":
+    "user_limit": 100
+    "price": 4,819

@@ -1,0 +1,550 @@
+.lead_info_sec
+  =hidden_field_tag :individual_contact_id , @contact.class.name == "IndividualContact" ? @contact.id : ""
+
+  .row
+    .col-md-6
+      %label First Name:
+      .lead_info_fields.form-group
+        = text_field_tag "cont_first_name", @contact.class.name == "IndividualContact" ? (@contact.first_name.present? ? @contact.first_name : "") : @contact.name, "data-value" => @contact.class.name == "IndividualContact" ? (@contact.first_name.present? ? @contact.first_name : "") : @contact.name, onkeyup: 'return onlycharactersWithApostrophe(event)', onkeydown: 'return onlycharactersWithApostrophe(event)',onblur: "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:class=>""
+        %a.edit_cont_field{href:"javascript:void(0)"}
+          %span.fal.fa-pencil.fr
+        .save_cancel_btn_sec
+          %a.cont_save_btn{href:"javascript:void(0)"} Save
+          %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+
+    .col-md-6
+      .form-group
+        %label Last Name:
+        .lead_info_fields.form-group
+          = text_field_tag "cont_last_name", @contact.class.name == "IndividualContact" ? (@contact.last_name.present? ? @contact.last_name : "") : @contact.name, "data-value" => @contact.class.name == "IndividualContact" ? (@contact.last_name.present? ? @contact.last_name : "") : @contact.name, onkeyup: 'return onlycharactersWithApostrophe(event)', onkeydown: 'return onlycharactersWithApostrophe(event)',onblur: "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))"
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+
+  .row
+    .col-md-6
+      .form-group
+        %label Lead Owner:
+        .lead_info_fields.form-group
+          - cont_initiator = @contact.owner.present? ? @contact.owner : @contact.initiator
+          - if cont_initiator.present?  
+            - cont_initiator_name = cont_initiator.full_name.present? ? cont_initiator.full_name : cont_initiator.email
+          - else
+            - org_admin = @current_organization.users.where("admin_type=?",1).first
+            - cont_initiator_name = org_admin.full_name.present? ? org_admin.full_name : org_admin.email
+          = text_field_tag "cont_owner", cont_initiator_name, "data-value" => cont_initiator_name 
+    .col-md-6
+      .form-group
+        %label Email:
+        .lead_info_fields.form-group
+          = text_field_tag "cont_email", @contact.email.present? ? @contact.email : "", "data-value" => @contact.email.present? ? @contact.email : ""
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+  .row
+    .col-md-6
+      .form-group
+        %label Mobile:
+        .lead_info_fields.form-group
+          / - if @mobile_phone.present?
+          /   - if @mobile_phone.first.phone_no.present?
+          /     - mob = @mobile_phone.first.phone_no
+          / - else
+          /=debug(@contact.phones)
+          -(cont_mob= @contact.phones.by_phone_type("mobile").last)   
+          - mob = cont_mob.present? ? cont_mob.phone_no : ""
+          = text_field_tag "cont_mob", mob, "data-value" => mob, :class => 'bfh-phone','data-format'=>' (ddd) ddd dddd dddd'
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+    .col-md-6
+      .form-group
+        %label Work Phone:
+        .lead_info_fields.form-group
+          - if @work_phone.present? && @work_phone.first.phone_no.present?
+            - work_phone = @work_phone.first.phone_no
+          - else
+            - work_phone = @contact.work_phone
+            -if !work_phone.present?
+              -cont_ph = @contact.phones.by_phone_type("work").last
+              -work_phone=cont_ph.phone_no
+          / = text_field_tag "cont_work_phone", work_phone, "data-value" => work_phone
+          = text_field_tag :cont_work_phone,work_phone, :id=>'cont_work_phone', "data-value" => work_phone, :class => 'bfh-phone','data-format'=>' (ddd) ddd dddd dddd'
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+  .row
+    .col-md-6
+      .form-group
+        %label Facebook:
+        .lead_info_fields.form-group
+          - if @contact.present? && @contact.facebook_url.present?
+            - facebook_url = @contact.facebook_url
+          - else 
+            - facebook_url = ""
+          = text_field_tag "cont_facebook_id", facebook_url, "data-value" => facebook_url
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+    .col-md-6
+      .form-group
+        %label Linkedin:
+        .lead_info_fields.form-group
+          - if @contact.present? && @contact.linkedin_url.present?
+            - linkedin_url = @contact.linkedin_url
+          - else
+            - linkedin_url = ""
+          = text_field_tag "cont_linkedin_id", linkedin_url, "data-value" => linkedin_url
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+  .row
+    .col-md-6
+      .form-group
+        %label Twitter:
+        .lead_info_fields.form-group
+          - if @contact.present? && @contact.twitter_url.present?
+            - twitter_url = @contact.twitter_url
+          - else
+            - twitter_url = ""
+          = text_field_tag "cont_twitter_id", twitter_url, "data-value" => twitter_url
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+    .col-md-6
+      .form-group
+        %label Skype ID:
+        .lead_info_fields.form-group
+          - if @contact.present? && @contact.messanger_id.present?
+            - skype_id = @contact.messanger_id
+          - else 
+            - skype_id = ""
+          = text_field_tag "cont_skype_id", skype_id, "data-value" => skype_id
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+  .row
+    .col-md-6
+      .form-group
+        %label Company:
+        .lead_info_fields.form-group
+          - company_name = @contact.company_contact.present? ? @contact.company_contact.name : ""
+          - if company_name.present?  
+            = hidden_field_tag 'hid_comp_name', "<a href='/company_contact/#{@contact.company_contact.to_param}' title='#{company_name}'>#{company_name.truncate(35)}</a>"
+          - else
+            = hidden_field_tag 'hid_comp_name', 'Not Available'
+          / = text_field_tag "cont_company", company_name, "data-value" => company_name
+          = text_field_tag "cont_company", company_name, "data-value" => company_name,:class=>'company_name_typeahead', 'data-provide'=> 'typeahead' , :autocomplete=>'off', onkeyup:"$('#text_loader').show()"
+          = hidden_field_tag "hdn_company_id", "#{@contact.company_contact.id if @contact.company_contact.present?}"
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.comp_cont_save_btn{href:"javascript:void(0)"} Save
+            %a.comp_cont_cancel_btn{href:"javascript:void(0)"} Cancel
+    .col-md-6
+      .form-group
+        %label Website:
+        .lead_info_fields.form-group
+          - if @contact.company_contact.present? && @contact.company_contact.website.present?
+            - contact_website = @contact.company_contact.website
+          - else 
+            - contact_website = ""
+          = text_field_tag "cont_website", contact_website, "data-value" => contact_website
+          %a.edit_cont_field{href:"javascript:void(0)"}
+            %span.fal.fa-pencil.fr
+          .save_cancel_btn_sec
+            %a.cont_save_btn{href:"javascript:void(0)"} Save
+            %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+  .cb
+  .cont_address_sec
+    - company = @contact.company_contact
+    - if company.present?  
+      =hidden_field_tag :contact_type, company.class.name
+      %h4 Company Address
+      =hidden_field_tag :company_contact_id, company.id
+      / -if(@contact.class.name == 'IndividualContact')
+      /   - address = @contact.address
+      / -elsif (@contact.class.name == 'CompanyContact')
+      /   - address = @contact.address
+      / - company = @contact.company_contact
+      
+      - company_address_present = @contact.present? && @contact.company_contact.present? && @contact.company_contact.address.present?
+      .row
+        .col-md-6
+          .form-group
+            %label Street:
+            .lead_info_fields.form-group
+              - if company_address_present && company.address.address.present?
+                - street = company.address.address
+              - else
+                - street = ""
+              = text_field_tag "cont_street", street, "data-value" => street
+              %a.edit_cont_field{href:"javascript:void(0)"}
+                %span.fal.fa-pencil.fr
+              .save_cancel_btn_sec
+                %a.cont_save_btn{href:"javascript:void(0)"} Save
+                %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+        .col-md-6
+          .form-group
+            %label City:
+            .lead_info_fields.form-group
+              - if company_address_present && company.address.city.present?
+                - city = company.address.city.truncate(15)
+              - else
+                - city = ""
+              = text_field_tag "cont_city", city, "data-value" => city
+              %a.edit_cont_field{href:"javascript:void(0)"}
+                %span.fal.fa-pencil.fr
+              .save_cancel_btn_sec
+                %a.cont_save_btn{href:"javascript:void(0)"} Save
+                %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+      .row
+        .col-md-6
+          .form-group
+            %label Country:
+            .lead_info_fields.form-group
+              
+              = select_tag 'cont_country', options_from_collection_for_select(Country.all, 'id', 'name', company_address_present && company.address.country.present? ? company.address.country.id : ""), :prompt => '- Select Country -', html: {:selected => true}, id:"cont_country_comp", :class=>"change_option form-control", :onchange => "fetch_country_states_cont(this.value,$(this).closest('.cont_address_sec').find('#cont_state'));"
+        .col-md-6
+          .form-group
+            %label State:
+            .lead_info_fields.form-group
+              - if company_address_present && company.address.state.present?
+                - state = company.address.state
+              - else
+                - state = ""
+              = hidden_field_tag "curr_cont_state_comp", state
+              = select_tag "cont_state", "", :class=>"change_option form-control"
+      .row
+        .col-md-6
+          .form-group
+            %label Zip Code:
+            .lead_info_fields.form-group
+              - if company_address_present && company.address.zipcode.present?
+                - zip_code = company.address.zipcode.truncate(15)
+              - else
+                - zip_code = ""
+              = text_field_tag "cont_zip_code", zip_code, "data-value" => zip_code, :onkeydown => "return numbersonly(event)", :onkeyup => "return numbersonly(event)" 
+              %a.edit_cont_field{href:"javascript:void(0)"}
+                %span.fal.fa-pencil.fr
+              .save_cancel_btn_sec
+                %a.cont_save_btn{href:"javascript:void(0)"} Save
+                %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+        -if(@contact.class.name == "CompanyContact")
+          .col-md-6
+            .form-group
+              %label Company Size:
+              .lead_info_fields.form-group
+                - @cn = CompanyStrength.all
+                - @cn.last.range = "1000 & more"
+                = select_tag 'cont_company_strength', options_from_collection_for_select(@cn, 'id', 'range', (@contact.company_contact.present? && @contact.company_contact.company_strength.present? ? @contact.company_contact.company_strength_id : "")), :prompt => '- Select your company size -', html: {:selected => true}, id:"cont_company_strength", :class=>"change_option company_strength form-control", :disabled => @contact.company_contact.present? ? false : true, title: @contact.company_contact.present? ? "" : "Please add a company first.", style: "cursor:#{@contact.company_contact.present? ? 'auto' : 'not-allowed'}"
+        -elsif company.present?
+          .col-md-6
+            .form-group
+              %label Company Size:
+              .lead_info_fields.form-group
+                - @cn = CompanyStrength.all
+                - @cn.last.range = "1000 & more"
+                = select_tag 'cont_company_strength', options_from_collection_for_select(@cn, 'id', 'range', (@contact.company_contact.present? && @contact.company_contact.company_strength.present? ? @contact.company_contact.company_strength_id : "")), :prompt => '- Select your company size -', html: {:selected => true}, id:"cont_company_strength", :class=>"change_option company_strength  form-control", :disabled => @contact.company_contact.present? ? false : true, title: @contact.company_contact.present? ? "" : "Please add a company first.", style: "cursor:#{@contact.company_contact.present? ? 'auto' : 'not-allowed'}"
+        .cb
+    / - else    
+  .cont_address_sec
+    %h4 Individual Address
+    =hidden_field_tag :contact_type, @contact.class.name
+  
+    .row
+      .col-md-6
+        .form-group
+          %label Street:
+          .lead_info_fields.form-group
+            - if @contact.present? && @contact.address.present? && @contact.address.address.present?
+              - street = @contact.address.address
+            - else
+              - street = ""
+            = text_field_tag "cont_street", street, "data-value" => street
+            %a.edit_cont_field{href:"javascript:void(0)"}
+              %span.fal.fa-pencil.fr
+            .save_cancel_btn_sec
+              %a.cont_save_btn{href:"javascript:void(0)"} Save
+              %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+      .col-md-6
+        .form-group
+          %label City:
+          .lead_info_fields.form-group
+            - if @contact.present? && @contact.city.present?
+              - city = @contact.city.truncate(15)
+            - else
+              - city = ""
+            = text_field_tag "cont_city", city, "data-value" => city
+            %a.edit_cont_field{href:"javascript:void(0)"}
+              %span.fal.fa-pencil.fr
+            .save_cancel_btn_sec
+              %a.cont_save_btn{href:"javascript:void(0)"} Save
+              %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+    .row
+      .col-md-6
+        .form-group
+          %label Country:
+          .lead_info_fields.form-group
+            
+            = select_tag 'cont_country', options_from_collection_for_select(Country.all, 'id', 'name', @contact.country.present? ? @contact.country.id : ""), :prompt => '- Select Country -', html: {:selected => true}, id:"cont_country", :class=>"change_option  form-control", :onchange => "fetch_country_states_cont(this.value,$(this).closest('.cont_address_sec').find('#cont_state_ind'));"
+      .col-md-6
+        .form-group
+          %label State:
+          .lead_info_fields.form-group
+            
+            - if @contact.address.present? && @contact.address.state.present?
+              - state = @contact.address.state
+            - else
+              - state = ""
+            = hidden_field_tag "curr_cont_state", state
+            = select_tag "cont_state", "", :class=>"change_option  form-control",:id=>"cont_state_ind"
+    .row
+      .col-md-6
+        .form-group
+          %label Zip Code:
+          .lead_info_fields.form-group
+            - if @contact.present? && @contact.address.present? && @contact.address.zipcode.present?
+              - zip_code = @contact.address.zipcode.truncate(15)
+            - else
+              - zip_code = ""
+            = text_field_tag "cont_zip_code", zip_code, "data-value" => zip_code, :onkeydown => "return numbersonly(event)", :onkeyup => "return numbersonly(event)" 
+            %a.edit_cont_field{href:"javascript:void(0)"}
+              %span.fal.fa-pencil.fr
+            .save_cancel_btn_sec
+              %a.cont_save_btn{href:"javascript:void(0)"} Save
+              %a.cont_cancel_btn{href:"javascript:void(0)"} Cancel
+      
+      / .col-md-6
+      /   .form-group
+      /     %label Company Size:
+      /     .lead_info_fields
+      /       - @cn = CompanyStrength.all
+      /       - @cn.last.range = "1000 & more"
+      /       = select_tag 'cont_company_strength', options_from_collection_for_select(@cn, 'id', 'range', (@contact.company_contact.present? && @contact.company_contact.company_strength.present? ? @contact.company_contact.company_strength_id : "")), :prompt => '- Select your company size -', html: {:selected => true}, id:"cont_company_strength", :class=>"change_option company_strength", :disabled => @contact.company_contact.present? ? false : true, title: @contact.company_contact.present? ? "" : "Please add a company first.", style: "cursor:#{@contact.company_contact.present? ? 'auto' : 'not-allowed'}"
+      .cb
+
+:javascript
+  $(document).ready(function() {
+    if( typeof($("#cont_country").val()) != "undefined"){
+    
+      select_country_state_on_load($("#cont_country").val(), $("#cont_country").closest(".cont_address_sec").find("#cont_state_ind"),$("#curr_cont_state").val());
+    }
+    if( typeof($("#cont_country_comp").val()) != "undefined"){
+      
+      select_country_state_on_load($("#cont_country_comp").val(),$("#cont_country_comp").closest(".cont_address_sec").find("#cont_state"), $("#curr_cont_state_comp").val());
+    }
+    $(".comp_name").html($("#hid_comp_name").val());
+  });
+
+  $(".lead_info_fields input").attr("readonly","readonly");
+  $(".edit_cont_field").click(function(){
+    $(".edit_cont_field").hide();
+    $(this).next(".save_cancel_btn_sec").show();
+    $(this).parent(".lead_info_fields").find("input").removeAttr("readonly").focus();
+  })
+  $(".lead_info_fields").on("mouseover", function(){
+    if($(".save_cancel_btn_sec").is(':visible')){
+      $(".edit_cont_field").hide();
+    }else{
+      $(this).closest(".lead_info_fields").find(".edit_cont_field").show();
+    }
+  })
+  $(".lead_info_fields").on("mouseout", function(){
+    $(".edit_cont_field").hide();
+  })
+  $(".cont_cancel_btn").click(function(){
+    var txt_field = $(this).closest(".lead_info_fields").find("input");
+    txt_field.attr("readonly","readonly").val(txt_field.data("value"));
+    $(".save_cancel_btn_sec").hide();
+  })
+  $(".cont_save_btn").click(function(){
+    var text_field = $(this).closest(".lead_info_fields").find("input");
+    text_field.attr("readonly","readonly");
+    $(".save_cancel_btn_sec").hide();
+    var data_val = text_field.val();
+    var data_field = text_field.prop("name");
+    // $("#hdn_company_id").removeAttr("readonly");
+    var individual_contact_id = $(".lead_info_sec").find("#individual_contact_id").val();
+    var contact_type = $(this).closest(".cont_address_sec").find("#contact_type").val();
+    var company_contact_id = $(".lead_info_sec").find("#company_contact_id").val()
+    var hdn_company_id = $("#hdn_company_id").val();
+    if(text_field.val() != text_field.data('value')){
+      $.ajax({
+        type: "POST",
+        url: "/update_contact_info",
+        data: {id: "#{@contact.id}", data_val: data_val, data_field: data_field, hdn_company_id: hdn_company_id, individual_contact_id: individual_contact_id, ctype: contact_type},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          if( data_field == "cont_first_name" || data_field == "cont_last_name"){
+            $(".cont_name").html(data);
+            $(".curr_page_name").html(data);
+          }else
+          if( data_field == "cont_mob"){
+            $(".cont_mobile").html(data_val).attr("href", "skype:+"+data_val+"?call");
+          }
+          else
+          if( data_field == "cont_work_phone"){
+            $(".cont_work_phone").html(data_val).attr("href", "skype:+"+data_val+"?call");
+          }
+          else
+          if( data_field == "cont_email"){
+            $(".cont_email").html(data_val);
+          }
+          else
+          if( data_field == "cont_website"){
+            if(data != 'error'){
+              show_alert_message("danger","Please enter a company first.")
+            }else{
+              $(".cont_website").html(data_val).attr("href", data_val);
+              $(".cont_website").closest("span").attr("title", data_val);
+            }
+          }
+          $("#task_loader,.fixed_loader").hide();
+          text_field.data("value", data_val);
+          if( data_field == "cont_country"){
+            fetch_country_states_cont(data_val,$(this).closest(".cont_address_sec").find("#cont_state_ind"))
+          }
+          show_alert_message("success","Contact information updated successfully.")
+        },
+        error: function(data) {
+          text_field.val(text_field.data("value"));
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  })
+
+
+  $('.change_option').on('change', function() {
+
+    var data_val = $(this).val();
+    var data_field = $(this).prop("name");
+    var hdn_company_id = $("#hdn_company_id").val();
+    var individual_contact_id = $(".lead_info_sec").find("#individual_contact_id").val();
+    var contact_type = $(this).closest(".cont_address_sec").find("#contact_type").val();
+
+    var company_contact_id = $(".lead_info_sec").find("#company_contact_id").val()
+    
+    $.ajax({
+      type: "POST",
+      url: "/update_contact_info",
+      data: {id: "#{@contact.id}", data_val: data_val, data_field: $(this).prop("name"), hdn_company_id: hdn_company_id, individual_contact_id: individual_contact_id, ctype: contact_type},
+      beforeSend: function(){
+        $("#task_loader,.fixed_loader").show();
+      },
+      success: function(data)
+      {
+        if( data_field == "cont_country"){
+          $(".cont_country").html(data);
+        }else
+        if( data_field == "cont_company_strength"){
+          $(".cont_company_strength").html(data);
+        }
+        $("#task_loader,.fixed_loader").hide();
+        show_alert_message("success","Contact information updated successfully.")
+      },
+      error: function(data) {
+        show_alert_message("danger", "Oops! Something went wrong.");
+        $("#task_loader,.fixed_loader").hide();
+      }
+    });
+  })
+
+  $('input[type="text"].bfh-phone').each(function () {
+    var $phone = $(this);
+    $phone.bfhphone($phone.data());
+  });
+
+
+  $('.company_name_typeahead').typeahead([{
+    name: 'company_contacts',
+    valueKey: 'company_name',
+    remote: {url: '/get_companies/'+ #{current_user.organization.id if current_user.organization.present?}+ '?q=%QUERY'},
+    template: '<p><strong>{{company_name}}</strong></p>',
+    engine: Hogan
+    }]).on('typeahead:selected',onSelectedTask).on('typeahead:opened',onOpened).on('keyup', onKeyUp);
+   
+  
+  function onKeyUp($e,datum){
+    $("#cont_company").val($(this).val());
+  }
+  function onSelectedTask($e,datum){
+    console.log("autocompleted");
+    console.log(datum);
+    $("#cont_company").val(datum.company_name);
+    $("#company_id").val(datum.id);
+    console.log(datum.id);
+  }
+  function onOpened($e){
+    $("#company_id").val("");
+    $("#text_loader").hide();
+  }
+  
+  function onClosed($e){
+    if($("#company_id").val() == ""){
+      $("#company_name").val("");
+    }
+  }
+  $(".comp_cont_save_btn").click(function(){
+    $("#hdn_company_id").removeAttr("readonly");
+    var hdn_company_id = $("#hdn_company_id").val();
+    var text_field = $(this).closest(".lead_info_fields").find(".company_name_typeahead");
+    text_field.attr("readonly","readonly");
+    $(".save_cancel_btn_sec").hide();
+    var data_val = text_field.val();
+    var data_field = text_field.prop("name");
+    var individual_contact_id = $(".lead_info_sec").find("#individual_contact_id").val();
+    var contact_type = $(this).closest(".cont_address_sec").find("#contact_type").val();
+    var company_contact_id = $(".lead_info_sec").find("#company_contact_id").val()
+    
+    if(text_field.val() != text_field.data('value') && data_val.trim() !=null && data_val.trim() != ""){
+      $.ajax({
+        type: "POST",
+        url: "/update_contact_info",
+        data: {id: "#{@contact.id}", data_val: data_val, data_field: data_field, hdn_company_id: hdn_company_id},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          load_activity_cum_deals('lead_info');
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","Contact information updated successfully.");
+        },
+        error: function(data) {
+          text_field.val(text_field.data("value"));
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }else{
+      $("#cont_company").val(text_field.data("value"));
+    }
+  })
+  $(".comp_cont_cancel_btn").click(function(){
+    var txt_field = $(this).closest(".lead_info_fields").find(".company_name_typeahead");
+    txt_field.attr("readonly","readonly").val(txt_field.data("value"));
+    $(".save_cancel_btn_sec").hide();
+    $("#cont_company").val(txt_field.data("value"));
+  })

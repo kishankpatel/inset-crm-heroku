@@ -1,0 +1,18 @@
+%h6
+  Time Log:
+%h6
+  Esti:
+  =project_job.estimate_minutes.present? ? getHourMinuteFromMinutes(project_job.estimate_minutes) : "0"
+  &nbsp;hrs
+%h6
+  Logged:
+  =project_job.logged_hours
+  hrs
+%h6
+  Billable:
+  =project_job.billable_hours
+  hrs
+%h6
+  Non-Billable:
+  =project_job.nonbillable_hours
+  hrs

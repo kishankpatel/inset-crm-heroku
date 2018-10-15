@@ -1,0 +1,67 @@
+- if @bounce_emails.present?
+  .white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 33px;"}
+    %span{style: "margin-top:5px"}  
+      %span.curr_page_name
+        ="Bounce Emails(#{BounceEmail.count})"
+ 
+  .col-md-12
+    .table-responsive{style: "border:none;"}
+      %table#bounceEmailsList.table.table-hover{style: "border: 1px solid #E0DEDE;background: #fff;","data-source"=>bounce_emails_url(format: 'json')}
+        %thead
+          %tr
+            %th #
+            %th Organization Name
+            %th Sender Email
+            %th Recipient Email
+            %th Subject
+            %th Bounce date
+        %tbody
+:javascript
+    bounceEmailsDataTable=$('#bounceEmailsList').dataTable({
+      oLanguage: {"sLengthMenu": "_MENU_", "sProcessing": "<img alt='loader' src='/assets/ajax-loader.png'>" },
+      sPaginationType: "bootstrap",
+      bJQueryUI: true,
+      bServerSide: true,
+      sDom: '<"H"f>rtp',
+      aoColumns: [],
+      sAjaxSource: $('#bounceEmailsList').data('source'),
+      bLengthChange: false,
+      bFilter: false,
+      bSort: false,
+      aoColumnDefs: [
+        {
+          aTargets: [0],
+            mRender: function(data, type, row ){
+              return row[0];
+            }
+        },
+        {
+          aTargets: [1],
+            mRender: function(data, type, row ){
+              return row[1]
+            }
+        },
+        {aTargets: [2],
+            mRender: function(data, type, row ){
+              return row[2]
+              }
+        },
+        {aTargets: [3],
+            mRender: function(data, type, row ){
+              return row[3]
+              }
+        },
+        {aTargets: [4],
+            mRender: function(data, type, row ){
+              return row[5]
+              }
+        },
+        {aTargets: [5],
+            mRender: function(data, type, row ){
+              return row[4]
+              }
+        }
+      ],
+      fnPreDrawCallback: function() { $('#task_loader,.fixed_loader').show();},
+      fnDrawCallback: function() {$('#task_loader,.fixed_loader').hide();}
+    });

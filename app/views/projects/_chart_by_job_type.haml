@@ -1,0 +1,81 @@
+- job_type_txt = []
+- job_type_val = []
+- arr = []
+- job_types = @current_organization.project_job_types
+- job_types.each do |a|
+  - data_hash = Hash.new
+  - a_count = proj.project_jobs.by_job_type(a.id).count 
+  - job_type_val << a_count.to_s
+  - data_hash["values"] = [a_count]
+  - data_hash["background-color"] = "#" + "%06x" % (rand * 0xffffff)
+  - data_hash["text"] = a.name + ": " + a_count.to_s
+  - arr.push(data_hash)
+/- arr =  [{  "values"=>[10], "background-color"=>"#9933ff", "text"=>"Xi" }, { "values"=>[9], "background-color"=>"#9999ff", "text"=>"Omicron"  } ]
+- arr = arr.to_json
+- if (job_type_val.all? {|i| i=="0"})
+  No data available
+- else
+  %div{:id=>"projectJobTypeChart_" + proj.id.to_s, :style => "overflow:unset !important;"}
+  :javascript
+    var myConfig = {
+      "type":"pie",
+      
+      "legend":{
+        "x":"60%",
+        "y":"20%",
+        "border-width":0,
+        "marker":{
+          "type":"square"
+        },
+        "toggle-action":"remove",
+        "icon":{
+          "line-color":"#9999ff"
+        },
+        "max-items":8,
+        "overflow":"scroll"
+      },
+      "plotarea":{
+        "margin-right":"40%",
+        "margin-top":"0%",
+        "height":"150px"
+      },
+      "plot":{
+        "value-box":{
+          "text":"",
+          "font-size":12,
+          "font-family":"Georgia",
+          "font-weight":"normal",
+          "placement":"none",
+          "font-color":"gray",
+        },
+        "tooltip":{
+          "text":"%t: %v (%npv%)",
+          "font-color":"black",
+          "font-family":"Georgia",
+          "text-alpha":1,
+          "background-color":"white",
+          "alpha":0.7,
+          "border-width":1,
+          "border-color":"#cccccc",
+          "line-style":"dotted",
+          "border-radius":"10px",
+          "padding":"10%",
+          "placement":"node:center"
+        },
+        "border-width":1,
+        "border-color":"#cccccc",
+        "line-style":"dotted"
+      },
+      "series": #{arr}
+    };
+    zingchart.render({ 
+      id: "projectJobTypeChart_#{proj.id}", 
+      data: myConfig, 
+      height: 150, 
+      width: "20%",
+      "margin-right": "15%"
+    });
+    $("#projectJobTypeChart_#{proj.id}-license-text").remove();
+    $(".chart_by_job_type").on("contextmenu",function(e){
+      $("#projectJobTypeChart_#{proj.id}-menu").remove();
+    }); 

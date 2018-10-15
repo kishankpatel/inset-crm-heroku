@@ -1,0 +1,145 @@
+=render partial: "/projects/create_project_popup"
+-content_for :title,@project.name
+:css
+  body{
+    overflow-x:hidden;
+  }
+ 
+
+.container
+  .top-list-bar.white-sticky-header.fixed-in-app-header{style: "padding-top: 22px;padding-left: 30px;"}
+    %span{style: "margin-top:5px"}  
+      %span.navigation_sec
+        - if @project.deal.present? && @project.deal.deals_contacts.first.contactable.present?
+          - @contact = @project.deal.deals_contacts.first.contactable
+          - @name = @contact.class.name == "IndividualContact" ? (@contact.full_name.present? ? @contact.full_name : @contact.email) : @contact.name
+          /- @cont_type = @contact.deals_contacts.present? ? 'Lead' : 'Contact'
+          - @cont_type = 'Account'
+          %a{href: "/projects"}
+            Leads
+            =">"
+            =@name
+            =">"
+            ="Opportunity Details >"  
+            = @project.deal.title
+            =">"
+            = @project.name
+        -else
+          %a{href: "/projects"}
+            Projects
+          =">"
+          =@name
+          =">"
+          ="Opportunity Details >"
+      %span.curr_page_name
+        = truncate(@project.name, :length => 130, :ommission => "...")
+    .fr
+      
+      .dropdown  
+        
+        %ul.dropdown-menu.dropdown_right.project_list
+          %li
+            %a{href:"/projects/#{@project.id}/jobs", title: @project.name}
+              = @project.name.truncate(20)
+
+     
+  .lead-details-page.new_form_layout
+    #top_lead_details_sec  
+      = render :partial => "top_project_details"
+
+    
+    .opp_detail_left_sec.contact_detail_right_sec.fl
+      .cont_box
+        .cont_tabs
+          %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: " get_project_jobs(#{@project.id});activateTab('job-listing')", :class=> "job-listing-tab active"}
+            %span.cwkp-sprite.opp_quick_note_icn
+            Jobs 
+          %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "getResourceUtilization();activateTab('resource-util')", :class=> "resource-util-tab"}
+            %span.cwkp-sprite.opp_task_list_icn
+            Resource Utilization
+          %a{"data-toggle" => "tab", href: "javascript:void(0)", onclick: "get_resource_allocation('current',#{@project.id});activateTab('resource-alloc')", :class=> "resource-alloc-tab "}
+            %span.cwkp-sprite.cont_activities_icn
+            Resource Allocation   
+        
+          %a.pull-right{href: project_project_jobs_path(@project)}
+            Job Listing page
+        .cb
+      .cmn_cl.resources-list.div_resource_allocation#project-detail-contents
+    
+
+    .opp_detail_right_sec.contact_detail_left_sec.fr
+      .contact_detail_sec.cont_box
+        .contact_detail_head
+          .fl 
+            %span.cwkp-sprite.cont_det_icn
+            Project Details
+          
+          .cb
+        .contact_detail_cntr
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.cont_created_on
+            .project-detail-txt.fl
+              Last Activity
+            .project-detail-txt.fl
+              = @project.updated_at.strftime("%b %d, %Y %H:%M %P")
+            .cb
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.usr_sprite.ind_profile
+            .project-detail-txt.fl
+              User(s) :
+            .project-detail-txt.fl
+              = @project.project_users.map{|p|p.user}.compact.count
+            .cb
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.jobs
+            .project-detail-txt.fl
+              Job(s)  :
+            .project-detail-txt.fl
+              = @project.project_jobs.count
+            .cb
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.lead
+            .project-detail-txt.fl
+              Lead :
+            .other-info-desc
+              = @project.individual_contact.present? ? @project.individual_contact.name : "NA"
+            .cb
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.cont_opps_icn
+            .project-detail-txt.fl
+              Opportunity :
+            .project-detail-txt.fl
+              - if @project.deal.present? 
+                %span{title:@project.deal.title}
+                  = truncate(@project.deal.title, :length => 30, :ommission => "...")
+              - else
+                = "NA"
+            .cb
+          .cont-info-txt
+            .project-detail-txt.fl
+              %span.cwkp-sprite.cont_created_on
+            / .project-detail-txt.fl
+            /   Estimated Hours :
+            / .project-detail-txt.fl
+            .cb
+            =render :partial=>"projects/job_time_stat",:locals=>{project: @project}
+          .cb
+= render partial: "cta_buttons",:locals=>{project: @project}
+=render :partial=>'add_user_modal'
+=hidden_field_tag :project_id, @project.id
+=hidden_field_tag :utilization_project_id,@project.id
+:javascript
+  
+  $(document).ready(function() {
+  var project_id = $('#project_id').val()
+  get_project_jobs(project_id)
+  });
+  function activateTab(data){
+    $(".cont_tabs a").removeClass("active");
+    $("."+data+"-tab").addClass("active");
+  }

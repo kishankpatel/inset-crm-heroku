@@ -1,0 +1,31 @@
+
+-(0..days_count).step(1) do |index|
+  -rss = nil
+  -rss = resource_distributions.select{|rd| rd.allotted_date.utc.to_date == (start_date + (index).days)}
+  
+  -if(rss.present? )
+    -total_time = 0
+    -rss.map{|rs| total_time += rs.allotted_time }
+    
+    %td
+      -rss.each do |rs|
+        -prj_color= project_colors.present? ? project_colors.select{|prj| prj[:id] == rs.project_id}.first : {}
+        -project_name = rs.project.present? ? rs.project.name : "Archived"
+        %span.resource-box.btn-group.tooltip-col{title: project_name,class: "project_id_color project_color_#{prj_color[:id]}",style: "background: #{prj_color[:color_code]}", onclick: "highlight_project_color(#{prj_color[:id]})"}
+          %span.label.pull-left
+            = rs.project.short_name
+          %span.badge.badge-info.pull-left
+            = getHourMinuteFromMinutes (rs.allotted_time )
+          .cb
+          %span.tooltiptext
+            %a{href: project_path(rs.project),target: "_blank"} 
+              =project_name
+              %br
+              Job :
+              =rs.project_job.name if rs.project_job.present?
+
+
+  -else
+    
+    %td
+      ="0"

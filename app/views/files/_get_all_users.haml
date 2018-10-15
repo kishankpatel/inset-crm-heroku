@@ -1,0 +1,29 @@
+%li.arrow_right{style: "left: 114px;top: 0;"}
+.all_user 
+  - @users.each do |user|
+    - user_name = @current_user.id == user.id ? "Me" : (user.full_name.present? ? user.full_name : user.email)
+    %li{onclick: "filterFilesByUser(#{user.id})", title: "#{user_name}"}
+      %a{href: "javascript:void(0)"}
+        = user_name.truncate(15)
+    %li.divider
+
+:javascript 
+  function filterFilesByUser(id){
+    $("#task_loader").show();
+    $.ajax({
+    url: '/filter_files_by_user',
+      type: 'POST',
+      data: {user_id: id},
+      success: function(res) {
+        $(".files_wrapper").html(res);
+        $(".show_file_filter").show();
+        $(".show_file_filter .filter_name").html($("#user").val());
+        $('li.dropdown.mega-dropdown').removeClass('open');
+        $("#task_loader").hide();
+      },
+      error: function(res) {
+        alert("Error Found.!!!");
+        $("#task_loader").hide();
+      }
+    });
+  }

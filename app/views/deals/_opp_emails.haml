@@ -1,0 +1,378 @@
+:css
+  div.wysiwyg iframe{width: 100% !important;}
+  .email_notes_section,.create_email_notes_section{display:none;}
+.conversation_details
+  .conv_det_body
+    - if (deal_mail_letters = @deal.mail_letters).present?
+      - deal_mail_letters.order("id DESC").each do |mail|  
+        - ic = @current_organization.individual_contacts.find_by_email(mail.mailto)
+        - if ic.present?
+          .mail_conversation.m-b-lg
+            .pf_icon_sec.fl
+              .user-profile
+                - display_name = mail.user.full_name.present? ? mail.user.full_name : mail.user.email.split("@")[0]
+
+                - if mail.user.image.present? && mail.user.image.image.present?
+                  .fl.userImage
+                    = image_tag mail.user.image.image.url(:thumb), :alt=>""  
+                - elsif (gravtar_img_url = gravatar_url(mail.user.email)).present?
+                  .fl.userImage
+                    = image_tag gravtar_img_url, alt: ""
+                -else
+                  - first_char = display_name.chars.first
+                  %div.profileImage.assn-pf-icon{:style => "background: #{mail.user.get_user_color_code(first_char.downcase[0])} !important"}
+                    = first_char.upcase
+            .mail_details_sec.fl.m-l
+              %div
+                .conv_usr_mail_grey.m-b
+                  %strong
+                    = "#{mail.user.full_name}<#{mail.user.email}>"
+                  %small  
+                    %span.cwkp-sprite.email_conv_icn1
+                    = "#{distance_of_time_in_words_to_now(mail.created_at)} ago"
+                    - activity = @deal.activities.where("activity_type=? AND activity_id=?", "MailLetter", mail.id).first
+                    - if activity.present?
+                      - if(sent_email_opened = activity.sent_email_opens).present?
+                        - user_timezone = @current_user.time_zone.present? ? @current_user.time_zone : "Kolkata"
+                        - last_opened = sent_email_opened.last
+                        - dt = activity.created_at.beginning_of_day
+                        - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                          = f_date = "Today"
+                        - else
+                          - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                            = f_date = "Yesterday"
+                          - else
+                            - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                              = f_date = dt.strftime("%b %d")
+                            - else
+                              = f_date = dt.strftime("%b %d, %Y")
+                        %span
+                          = "Opened at: "
+                          = "#{f_date} at"
+                          = last_opened.opened.to_datetime.in_time_zone(user_timezone).strftime("%I:%M %p")
+                .m-b-xs
+                  %a.conv_usr_mail.text-success.font-bold{href:"javascript:void(0)"}  
+                    = "To: #{ic.full_name}<#{mail.mailto}>"
+              .conv_mail_content
+                .mail_sub.m-b-xs
+                  %b  
+                    Subject:
+                  = mail.subject if mail.subject.present?
+                - if mail.description.present?  
+                  .mail_desc_sec
+                    .sort_mail_desc  
+                      = truncate_html(mail.description, length: 100, omission: '...')
+                    - if mail.description.gsub(/(<[^>]+>)/, '').size > 100
+                      .mail_desc  
+                        = mail.description.html_safe
+                      %a.show_more_mail.fr{href:"javascript:void(0)"} Show more
+                      .cb
+            .cb
+            %a.add_email_note.m-b-xs{href:"javascript:void(0)"} + Add Note
+            .create_email_notes_section
+              = text_area_tag :email_note, "",:required => true, id:"", :class=>"form-control m-b email_note mail_#{mail.id}", :placeholder => "Add note"
+              = button_tag "Save Note", onclick:"save_note(#{mail.id})", :class=>"btn btn-success"
+              = button_tag "Cancel", :class=>"btn btn-default hide_note"
+            - if mail.email_notes.present?
+              .email_notes_cntr  
+                %a.show_email_notes.fr{href:"javascript:void(0)"} View Notes
+                .cb
+                .cont_activity_sec.email_notes_section
+                  .timeline-centered   
+                    - mail.email_notes.order("id DESC").each do |email_note|
+                      - dt = email_note.created_at
+                      - today = Time.zone.now.strftime('%Y-%m-%d')
+                      - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                      - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                      - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                        - f_date = "Today"
+                      - else
+                        - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                          - f_date = "Yesterday"
+                        - else
+                          - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                            - f_date = dt.strftime("%b %d")
+                          - else
+                            - f_date = dt.strftime("%b %d, %Y")
+                      %article.timeline-entry
+                        .timeline-entry-inner
+                          .timeline-icon
+                            %span.img-circle.img-thumbnail.note-s15
+                          .timeline-label
+                            .fl  
+                              %h2
+                                %a
+                                  %span.cwkp-sprite.tag-arrow-icon
+                                  = email_note.notes.html_safe
+                            .fr
+                              / created by
+                              - user = email_note.user
+                              - if user.present?
+                                - user_name = user.full_name.present? ? user.full_name : user.email
+                                - is_cur_user = (user == @current_user)
+                                %div{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                  - if user.image.present?  
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag user.image.image.url(:thumb), :alt=>""
+                                  - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag gravtar_img_url, alt: ""
+                                  - else
+                                    .lead-details-page 
+                                      %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                        = user_name[0].upcase 
+                            .cb
+                            / %p
+                            /   / description
+                          .cont_act_info
+                            .fl
+                              / date
+                              = "Created on #{f_date} at #{dt.strftime("%I:%M %p")}"
+                            .fr
+                              /attachments
+                            .cb
+    - else
+      .text-center No data found
+    - if @current_user.smtp_config.present?
+      .mail_conversation.replay_mail_conv_sec
+        .pf_icon_sec.fl
+          %div
+            - display_name = @current_user.full_name.present? ? @current_user.full_name : @current_user.email.split("@")[0]
+
+            - if @current_user.image.present? && @current_user.image.image.present?
+              .fl.userImage
+                = image_tag @current_user.image.image.url(:thumb), :alt=>""  
+            - elsif (gravtar_img_url = gravatar_url(@current_user.email)).present?
+              .fl.userImage
+                = image_tag gravtar_img_url, alt: ""
+            -else
+              - first_char = display_name.chars.first
+              .lead-details-page
+                .assn-pf-icon{:style => "background: #{@current_user.get_user_color_code(first_char.downcase[0])} !important"}
+                  = first_char.upcase
+        .fl.replay_mail_sec
+          .replay_mail_header.mt5
+            .fl  
+              %h4.text-primary.m-t-none
+                %span.fal.fa-envelope
+                New Mail
+            .fr
+              %a{href:"javascript:void(0)", onclick:"minimise_replay_form()"} - 
+              / %a{href:"javascript:void(0)", onclick:"newWindow_method_1()"}
+              /   %span.cwkp-sprite.maximize_icon
+              / %a{href:"javascript:void(0)", onclick:"close_replay_form()"} x
+            
+            .cb
+          .replay_mail_form_cntr  
+            - sendmail = Contact.new()
+            = form_for(sendmail,:url=>"/send_email", :html=>{:class => "form cmn_new_popup_form",:method=>"post",:id=>"send-mail-popup",:multipart => true}) do |f|
+              .replay_mail_form
+                = hidden_field_tag "tmp_file_ids"
+                = hidden_field_tag "mailer_id", @deal.id
+                = hidden_field_tag "mailer_type", "Deal"
+                = hidden_field_tag "email_contact_id", @deal.deals_contacts.first.contactable.id
+                = hidden_field_tag "email_contact_type", 'individual_contact'
+                %input{:type=>"hidden",:id=>"contact_id_send_mail_popup",:name=> "contact_id_send_mail_popup"}
+              .form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-envelope
+                  = text_field_tag "from_add", @current_user.smtp_config.present? && @current_user.smtp_config == "inset" ? "no-reply@wakeupsales.com" : @current_user.email, readonly: true, class: "form-control", title: @current_user.email.size > 40 ? @current_user.email : ""
+              .form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-envelope
+                  - to_email = @deal.deals_contacts.first.contactable.email
+                  = email_field_tag :to, to_email.truncate(40),:required => true, readonly: true, class: "form-control", title: to_email.size > 40 ? to_email : ""
+              .m-b
+                %a.cc_link{href: "javascript:", id: "cc_link", onclick: "show_cc_bcc('cc')", :class=>"link_col", style: "display: inline-block;"} Cc
+                %a.bcc_link{href: "javascript:", id: "bcc_link", onclick: "show_cc_bcc('bcc')", :class=>"link_col"} Bcc
+              .row.displaynone#cc_bcc_div
+                .form-group.col-md-12#cc_div
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = email_field_tag :cc, "",:class=> "send_email_field", placeholder: "Cc", class: "form-control"
+                  %span.link_col{onclick: "hide_cc_bcc('cc')",style: "cursor:pointer;"} Remove Cc
+                  %a.bcc_link{href: "javascript:", id: "add_bcc", onclick: "show_cc_bcc('bcc')", :class=>"link_col"} | Add Bcc
+                  #email_err_cc.error
+                .form-group.col-md-12#bcc_div
+                  .input-group
+                    .input-group-addon
+                      %span.fal.fa-envelope
+                    = email_field_tag :bcc,"",:class=> "send_email_field", placeholder:"Bcc", class: "form-control"
+                  %span.link_col{onclick: "hide_cc_bcc('bcc')",style: "cursor:pointer;"} Remove Bcc
+                  %a.cc_link{href: "javascript:", id: "add_cc", onclick: "show_cc_bcc('cc')", :class=>"link_col", style: "display: inline-block;"}
+                    | Add Cc
+                  #email_err_bcc.error
+              .form-group
+                .input-group
+                  .input-group-addon
+                    %span.fal.fa-pen-nib
+                  = text_field_tag :subject, "", :required => true ,:html=>{:maxlength=> "100"}, :style=> "resize: none;", :rows=>"4", placeholder: "Subject", class: "form-control"
+              .form-group.m-b-none
+                %label
+                  .cb10
+                  Message
+                .full_width
+                  .input-group.full_width
+                    = text_area_tag :message, "",:required => true,:style=> "resize:none;", class: "form-control"
+                #email_err_msg.error
+              .form-group
+                .input-group
+                  #multiple_upload{style:"positon:relative;"}
+                    %span.fal.fa-cloud-upload{title:""}
+              .replay_mail_footer
+                = submit_tag "Send", class:"btn btn-primary", disable_with: "Please wait...", onclick: "return validate_send_email()"
+              /   .col-md-12.no_padding
+              /     .form-group
+              /       %label
+              /         From
+              /       = text_field_tag "from_add", @current_user.smtp_config.present? && @current_user.smtp_config == "inset" ? "no-reply@wakeupsales.com" : @current_user.email, readonly: true, class: "form-control", title: @current_user.email.size > 40 ? @current_user.email : ""
+              /     .form-group
+              /       %label
+              /         To 
+              /       - to_email = @deal.deals_contacts.first.contactable.email
+              /       = email_field_tag :to, to_email.truncate(40),:required => true, readonly: true, class: "form-control", title: to_email.size > 40 ? to_email : ""
+              /   .cb
+              /   .col-md-12.no_padding
+              /     .form-group
+              /       %label
+              /         Cc  
+              /       = email_field_tag "cc", "", class:"form-control"
+              /     .form-group
+              /       %label 
+              /         Bcc  
+              /       = email_field_tag "bcc", "", class:"form-control"
+              /   .cb
+              /   .col-md-12.no_padding
+              /     .form-group
+              /       %label 
+              /         Subject
+              /       = text_field_tag "subject", "", :required => true,class:"form-control"
+              /     .form-group
+              /       %label
+              /         Message
+              /       = text_area_tag :message, "",:required => true,:style=> "resize:none;", class:"form-control ckeditor1", :id => "ckeditor1"
+              /     %label{id:"email_err_msg",class: "error"}
+              /   .ajax-upload-dragdrop
+              /     #multiple_upload{style:"positon:relative;"}
+              /       %span.cwkp-sprite.attach{title:""}
+              / .replay_mail_footer
+              /   = submit_tag "Send", class:"btn btn-primary", disable_with: "Please wait..."
+              /   / %button.btn.btn-default Calcel
+    - else
+
+      .set_up_email_err
+        %a{"data-target" => "#SendEmailModal", "data-toggle" => "modal", href: "javascript:void(0)"} 
+          Please setup your email to send email.
+
+= render partial:"shared/send_email"
+:javascript
+  // $('#message').wysiwyg({
+  //   rmUnusedControls: true,
+  //   controls: {
+  //     bold: { visible : true },
+  //     underline: { visible: true },
+  //     italic: { visible: true },
+  //     insertOrderedList: { visible: true },
+  //     insertUnorderedList: { visible: true },
+  //     undo: { visible: true },
+  //     redo: { visible: true },
+  //     indent: { visible: true },
+  //     outdent: { visible: true },
+  //     removeFormat: { visible: true },
+  //     increaseFontSize: { visible: true },
+  //     decreaseFontSize: { visible: true }
+  //   }
+  // });
+  $('#message').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+  function newWindow_method_1() {
+    var divText = $('.replay_mail_form').html();
+    var myWindow = window.open('','','width=700,height=500');
+    var doc = myWindow.document;
+    doc.open();
+    doc.write(divText);
+    doc.close();
+  }
+  function minimise_replay_form(){
+    $(".replay_mail_form_cntr").toggle(); 
+  }
+  function close_replay_form(){
+    $(".replay_mail_conv_sec").hide(); 
+  }
+
+
+  Array.prototype.removeByValue = function(val) {
+    for(var i=0; i<this.length; i++) {
+        if(this[i] == val) {
+            this.splice(i, 1);
+            break;
+        }
+    }
+  }
+  
+  $(".show_more_mail").click(function(){
+    if( $(this).closest(".mail_desc_sec").find(".mail_desc").is(":visible") ){
+      $(this).html("Show more");
+    }else{
+      $(this).html("Show less");
+    }
+    $(this).closest(".mail_desc_sec").find(".sort_mail_desc").toggle();
+    $(this).closest(".mail_desc_sec").find(".mail_desc").toggle();
+  })
+
+  $(".show_email_notes").click(function(){
+    if( $(this).closest(".email_notes_cntr").find(".email_notes_section").is(":visible") ){
+      $(this).html("View notes");
+    }else{
+      $(this).html("Hide notes");
+    }
+    $(this).closest(".email_notes_cntr").find(".email_notes_section").toggle();
+  })
+
+  function save_note(id){
+    var notes = $(".mail_"+id).val();
+    if(notes.trim() == "" || notes.trim() == null){
+      $(".mail_"+id).focus();
+    }else{
+      $.ajax({
+        type: "POST",
+        url: "/create_email_note",
+        data: {mail_letter_id: id, notes: notes},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          load_activity_cum_deals('emails')
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","Note added successfully.");
+        },
+        error: function(data) {
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  }
+
+  $(".add_email_note").click(function(){
+    $(this).hide();
+    $(this).next(".create_email_notes_section").show();
+  })
+
+  $(".hide_note").click(function(){
+    $(this).closest(".create_email_notes_section").find(".email_note").val("");
+    $(this).closest(".create_email_notes_section").hide();
+    $(this).closest(".create_email_notes_section").prev(".add_email_note").show();
+  })

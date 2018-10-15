@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  mail_letter_id: 1
+  name: MyString
+  email: MyString
+  ip_address: MyString
+  opened: MyString
+
+two:
+  mail_letter_id: 1
+  name: MyString
+  email: MyString
+  ip_address: MyString
+  opened: MyString

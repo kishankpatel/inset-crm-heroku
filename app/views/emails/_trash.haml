@@ -1,0 +1,95 @@
+/ Sent Contents
+
+.table-responsive
+  %table.table.table-hover.table-mailbox
+    %tbody
+    - @emails.each do |email|
+      %tr.email_contents{"data-id" => "#{email[:id]}", :class => "#{email[:unread] ? 'unread' : ''}"}
+        %td
+          .checkbox
+            %input.chk-item{:type => "checkbox", "data-id" => "#{email[:id]}"}/
+            %label
+        %td
+          %span.star_icon{:class => "#{email[:starred] ? 'starred' : 'not-starred'}", "data-starred" => "#{email[:starred]}"}= params[:provider] == "google" ? (email[:starred] ? "<span class='email_icons stared_msg fas fa-star star'></span>".html_safe : "<span class='email_icons unstared_msg fal fa-star star'></span>".html_safe) : ''
+        %td{class: "view-message "}
+          %a{:href => "#"} 
+            - if email[:from].present?
+              - name = email[:from].split('<').first.strip
+              - if name.present?
+                = truncate(name, :length => 20, :ommission => "...")
+              - else
+                = email[:from].split('<').last.strip.split('>').first if email[:from].split('<').last.present?
+            - else
+              = ''
+        %td{class: "view-message "}
+          %a{:href => "#"}
+            = email[:subject].truncate(60)
+            %span{style: "color: #999"}
+              &#45;
+              = email[:snippet]
+        %td
+          %span.attachment= email[:attachment] ? "<i class='fa fa-paperclip fa-lg'></i>".html_safe : ''
+        %td.text-right.mail-date
+          - if email[:received].present?
+            - received = Time.at(email[:received]).in_time_zone(current_user.time_zone)
+            - if received.year == Date.today.year
+              = (received < Date.today) ? received.strftime('%b %e') : received.strftime('%H:%M')
+            - else
+              = received.strftime('%d/%m/%Y')
+/ /list-group
+:javascript
+  $(function () {
+    next_page_token = "#{@next_page_token}";
+    if (next_page_token != "" && $.inArray(next_page_token, pageToken) == -1){
+      pageToken.push(next_page_token);
+    }
+
+    $(".view-message").on("click", function () {
+      var id = $(this).closest(".email_contents").data("id");
+      $.ajax({
+        url: "/emails/#{params[:provider]}/trash/" + id,
+        data: {provider: '#{params[:provider]}'},
+        type: 'GET',
+        success: function (res) {
+          $(".email_details_header,.search_bar").hide();
+          $("#email-content").html(res);
+          $(".mail-option").hide();
+          mark_as_read(id)
+        }
+      });
+    });
+    $(".star").on("click", function () {
+      var element = $(this);
+      var id = element.closest(".email_contents").data("id"),
+          starred = element.parent().data("starred");
+      $.ajax({
+        url: "/emails/#{params[:provider]}/" + id + "/toggle_star/",
+        type: "POST",
+        data: {starred: starred},
+        success: function (res) {
+          if (res.result) {
+            if(element.hasClass("stared_msg")){
+              element.removeClass("fas").addClass("fal");
+              element.removeClass("stared_msg").addClass("unstared_msg");
+
+            }else{
+              element.removeClass("fal").addClass("fas");
+              element.removeClass("unstared_msg").addClass("stared_msg");
+            }
+            element.parent().data("starred", !starred);
+          }
+        }
+      });
+
+    });
+  });
+  function mark_as_read(id) {
+   $.ajax({
+      url: "/emails/#{params[:provider]}/toggle_unread",
+      type: "POST",
+      data: {ids: id, unread: false},
+      success: function (res) {
+        //$(this).closest("li").find("span.view-message").addClass("unread");
+      }
+    });
+  }

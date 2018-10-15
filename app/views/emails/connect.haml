@@ -1,0 +1,12 @@
+- if params[:message].present?
+  .col.col-lg-12.text-center{:style => "position: absolute; margin-top: 10%;"}
+    %strong.text-danger We are unable to connect with selected email provider. Access denied.
+.connect_to_email_page
+  .connect_to_email_banner
+  .connect_to_email_btn  
+    -session['omniauth.state'] ||=  SecureRandom.hex(24)
+    / = link_to '/auth/google_oauth2/callback?state=' + session['omniauth.state'] do
+    = link_to '/auth/google' do
+      = image_tag image_path('new-ui/connect_to_gmail_btn.png'), alt: 'Gmail'
+  %p
+  Say Goodbye to switching between your Email & CRM Permanently

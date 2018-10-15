@@ -1,0 +1,415 @@
+= javascript_include_tag "jquery.bxslider"
+/- cache('home_page_new_ui', skip_digest: true) do
+.body_container
+  .home-page
+    %section.home_top_sec
+      .home_banner.text-center
+        .wrapper
+          .home_banner_txt  
+            %h2
+              Your sales team needs a smarter CRM
+            %p
+              With Wakeupsales CRM, get the most out of your sales team by minimizing bottlenecks 
+              %br
+              = "& making things simpler yet more effective." 
+            %a{href:"/users/sign-up"} Sign Up Free
+    %section.wus_benifit_sec
+      .col-md-6.col-sm-6.col-xs-12.not_using_wus_sec
+        .text-right  
+          %span
+            Not Using CRM
+        .wus_fetures_cntr  
+          %ul
+            %li
+              Time Wastage on Excessive Data Entry
+            %li
+              Inefficient Lead Management
+            %li
+              Improper Data Management & Tracking
+            %li
+              Juggling Between Dozens of Spreadsheets
+            %li
+              Relatively Lesser Visibility
+            %li
+              Lack of Transparency in Lead Nurturing
+            %li
+              Inefficient Resource Utilization
+            %li
+              Mediocre Customer Satisfaction
+            %li
+              Relatively Moderate Deal Closures
+            
+      .col-md-6.col-sm-6.col-xs-12.using_wus_sec
+        %span
+          With Wakeupsales
+        .wus_fetures_cntr  
+          %img{src:"/assets/new-ui/wus_right_banner.png"}
+      .cb
+    .new_home_page
+      %div
+        %section.home_header_sec.wus_users_sec
+          %a{href:"/awards-and-recognitions"}  
+            %img.ranked_image{src:"/assets/new-ui/ranked_image.png"}
+          %h1
+            “Wakeupsales has a brilliant UI,
+            %br
+            which makes CRM work joyful. 
+            %br
+            It's so easy to work with!” 
+          %p.home_header_desc
+            Streamline Your Sales Activities, Improve Your Productivity & Create Powerful Customer Relationships.
+        %section
+          .home_sign_up_banner
+            .col-md-5.col-sm-6.col-xs-12.home_sign_up_left_sec
+              .try_wus_desc.fl
+                %p.try_wus_head
+                  Try Wakeupsales for FREE:
+                %ul
+                  %li
+                    Streamline Your Sales Process
+                  %li
+                    Automate All Your Reports
+                  %li
+                    Improve Your Business Visibility
+                  %li
+                    Collaborate Better Than Ever
+                  %li
+                    Give Yourself More Chances For Deal Closures
+                  %li
+                    Get Your Precious Time Back
+              .cb
+            .col-md-7.col-sm-6.col-xs-12
+              .home_sign_up_form
+                - @user = User.new
+                - session[:non_authenticate] = nil
+                = form_for @user, :url => save_user_path, :html=>{:class => "form signup-form"},id:"form_1", remote:"true" do |f|
+                  .home_sign_up_cntr  
+                    .home_sign_up_field_sec  
+                      = hidden_field_tag "current_page", "/",id:"top_current_page"
+                      = f.text_field :nickname, value: "", :class => "user_nickname", id:"top_nickname"
+                      .inp-fld.home_email_icn{title:"Add email"}
+                        = f.email_field :email, :required => true, :placeholder=>"Enter Your Work Email", :class=>"input_icon user_email",value:"",readonly:"true",onclick:"$(this).removeAttr('readonly')",onblur:"$(this).attr('readonly','readonly')",id:"top_email_field"
+                        .email_err_msg
+                      .inp-fld.hidden_sign_up_field.home_psw_icn{title:"Enter a strong password"}
+                        = f.password_field "password", :required => true, :placeholder => "e.g. ********", :class=>"input_icon",id:"top_password_field"
+                      .inp-fld.hidden_sign_up_field.home_cmp_icn{title:"Add your organization"}
+                        = f.text_field "organization_name", :required => true, :placeholder => "e.g. Acme Corporation, Inc.", :class=>"input_icon",id:"top_organization_name"
+                        .cpmpany_err_msg
+                      /.recaptchasec.hidden_sign_up_field
+                      /  #RecaptchaField1
+                      /  = recaptcha_tags            
+                    .home_sign_up_btn_sec  
+                      .sign_up_btn_sec
+                        = f.submit "Get Started, It's Free!", :disable_with => "Submitting....", :class=>"btn submit_btn",id:"top_sign_up_btn"
+                        / %div.text-center
+                        /   %small
+                        /     No credit card required | All features included.
+                    .cb
+                  .social_media_signup
+                    .txt_or  
+                      = "- OR -"
+                    %a{href:"javascript:void(0)", :onclick => "social_authenticate('/auth/google_oauth2')", :title => "Sign in using Google Account", :class => "google_sign_up_btn"}
+                    %a{href:"javascript:void(0)", :onclick => "social_authenticate('/auth/linkedin')", :title => "Sign in using Linkedin Account", :class => "linkedin_sign_up_btn"}
+            .cb 
+    %section
+      .companies_logo_sec
+        .companies_logo
+          = image_tag "/assets/new-ui/company_1.png", :alt => "company_1"
+          = image_tag "/assets/new-ui/company_2.png", :alt => "company_2"
+          = image_tag "/assets/new-ui/company_3.png", :alt => "company_3"
+          = image_tag "/assets/new-ui/company_4.png", :alt => "company_4"
+    .new_home_page
+      %div
+        %section
+          .top_testimonial_sec
+            .top_test_cntr
+              “We found it easy to use and with little support we progressed easily. There are different functionalities from start to finish for all sales activities. Got quick support from the team with quick responses. Tracking of the sales activity was very difficult we were losing a lot of contacts and data now with wakeupsales all is under one roof with live data management and collaboration among the team.”
+              %br
+              %img{src:"/assets/new-ui/Yamina.png", alt:"Yamina"}
+              .test_name Yamina Harzallah
+              .test_dsc
+                General Manager | Safety integrated Solutions, Algeria
+        %section{style: "margin-top:30px;"}
+          .sub_dsc
+            Do you or your team find saying any of these or actually going through these issues or something similar?
+          .sub_head
+            “Me or my team we do not share the same story of leads – I think we need a system”
+          .sub_dsc
+            Your customer information is distributed, in a combination of post-it notes, 4 x Spreadsheets, 5 x Access Databases, 
+            6 x Word Files, Emails (added to the pain of searching through, each time), saved in notepads in your desktop. 
+            %br
+            – its high time to put all your ‘Customer Bio’ in a single chamber.
+          .sub_head
+            “I have an idea (a half-baked one) but not sure what my sales people are doing with the leads we have got last day, week or month?”
+          .sub_dsc
+            Well you need visibility & transparency that enables you to guide your sales team for better & faster conversion. More importantly it’s not business wise possible to conduct sales pipeline con-call every day. 
+            %br
+            – time for a single pipeline in one place with the updated statuses.
+        %section
+          .top_test_sec
+            .top_test_cntr
+              %b  
+                “Wakeupsales is a smart CRM tool
+              =". It has got a simple (and clean) user interface unlike others I had tried in the past. "
+              %b
+                The most important thing was the app's simplified flow 
+              ="- let's you attain the objective of managing customers in a superb way. Looking forward.”"
+              %br
+              %img{src:"/assets/new-ui/ajay-img.png", alt:"Ajay P"}
+              .test_name Ajay P
+              .test_dsc
+                Director | Centurion Ads & Media, India
+        %section.wus_easy_to_use_sec
+          .easy_to_use_head
+            Wakeupsales is an easy to use sales CRM
+          .sub_dsc.text-center
+            So easy, that getting used to it takes hardly a minute. 
+          .wus_feature_box_sec  
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Plan Your Activities
+                %img{src:"/assets/new-ui/play_your_activities.png", alt:"Plan your activities"}
+              .sub_dsc.wus_future_desc Plan everything from emails to phone calls & project allocation. Wakeupsales CRM handles all of this beautifully.
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Easily Manage Deals
+                %img{src:"/assets/new-ui/easily_manage_deals.png", alt:"Easily manage deals"}
+              .sub_dsc.wus_future_desc Never miss out on a deadline or a meeting. Managing leads or deals work like a breeze in Wakeupsales CRM. Easier than ever!
+            .cb
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Work Smarter
+                %img{src:"/assets/new-ui/work_smarter.png", alt:"Plan your activities"}
+              .sub_dsc.wus_future_desc We call Wakeupsales the all-in-one CRM suite & there's a good reason for it. Integrate your gmail, track your mails, generate invoice & so much more right inside the CRM.
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Track Everything
+                %img{src:"/assets/new-ui/track_everything.png", alt:"Easily manage deals"}
+              .sub_dsc.wus_future_desc We took the basic necessity of getting to know your work progress & made it so much easier to monitor. If it's happening, Wakeupsales just knows. 
+            .cb
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Email Tracking
+                %img{src:"/assets/new-ui/email_tracking_img.png", alt:"Plan your activities"}
+              .sub_dsc.wus_future_desc Ever wondered if your emails are actually reaching the recipients? Wakeupsales has got it covered. Not just send emails but also track them right from the CRM. 
+            .wus_feature_box.col-md-6.col-sm-6.col-xs-12
+              .wus_future_img
+                .wus_future_head
+                  Web To Lead
+                %img{src:"/assets/new-ui/web_to_lead_img.png", alt:"Easily manage deals"}
+              .sub_dsc.wus_future_desc Imagine never running short of leads! Yes, Wakeupsales CRM adds all your website visitors automatically into your account as leads.
+            .cb
+        %section.try_wus_free_sec
+          %a.try_wus_free{href:"/users/sign-up"} Try Wakeupsales Free
+          .sub_dsc Free, easy to set up, no credit card required
+        %section
+          .sub_head
+            “OK, please can you update the present status of the meeting with ‘Dave’ (your new client) and keep it ready for next week. And who actually sent the quote to him last week? What was the last discussion we had with him over call? Who is working on his requirements as of now? 
+          .sub_dsc
+            Gosh! Do you really go through this pain! Don’t you think it would have been so much cool to know all the answers within a minute at a single place. A tool where your team members can enter the data, so that your follow-up becomes easier and faster (hassle-free, worry-free, confusion-free). – time to collaborate effectively, no more confusions.
+          .sub_head
+            “I have a top-of-the-line sales team but why does the sales cycle taking so long to close?”
+          .sub_dsc
+            Nothing wrong with your sales team, it’s the process that’s taking time. Make it easier by using a CRM which is going to fasten up the process, making it easier for you and your team to prospect more efficiently. – time to straighten up your sales process.
+          .lead_listing_img_sec  
+            %img{src:"/assets/new-ui/lead_listing_v8.png"}
+            .lead_list_below_txt
+              Wakeupsales CRM is so simple, it's easy to fall in love. And using it gives you a better chance at 
+              %br
+              deal closures.      
+        %section
+          .top_test_sec
+            .top_test_cntr
+              “I really loved the UI of Wakeupsales. It's very pleasant to work with. The plugin library isn't so rich at the moment but I'm sure it will grow by time. This crm is definitely worth a try!”
+              %br
+              %img{src:"/assets/new-ui/taylon.png", alt:"Ajay P"}
+              .test_name Taylan Toprak
+              .test_dsc
+                Owner | Estateslist.com, Turkey
+        %section
+          .start_free_trial_sec
+            %img.businesses_signedup{src:"/assets/new-ui/businesses_signedup.png"}
+            %a.try_wus_free{href:"/users/sign-up"} Start a free 30 days trial for your team
+            .sub_dsc.text-center
+              No obligations, no restrictions, no credit card required.
+        %section
+          .sub_head 
+            “Common myth about CRM is that only big businesses can use it. We got a small business, I think we can handle it though pen-and-paper, spreadsheets!”
+          .sub_dsc
+            Well that’s wrong, it doesn’t matter if you’re running small, mid or big enterprises. A CRM greatly assists and binds withyour sales process while helping you to accelerate your deal closures. – time to get sales smart for your business.
+          .sub_head 
+            “We have just started, I think spreadsheets are enough to manage all our leads and customer information for sales. – isn’t it?”
+          .sub_dsc
+            %p Q. Does your spreadsheet remind you to call your lead?
+            %p Q. Are you able to know what your sales team communicated with the client you are about to speak after 10mins?
+            %p Q. Will you be able to find out whom ‘Dave’ (your sales rep) has contacted, last month?
+            %p Q. Is your spreadsheet able to send emails and receive the replies!
+
+          .sub_dsc.some_adv_txt
+            Well these are only some of the advantages of a CRM & of course it has more! – time to shift from your spreadsheet to CRM.
+          .sub_head 
+            Does any of the points below comes to your mind that you want to improve!
+          .sub_dsc
+            .col-md-6.col-sm-6.col-xs-12 
+              %ul.wus_points
+                %li
+                  Customer service and communication?
+                %li
+                  Customer churn?
+                %li
+                  Data security?
+            .col-md-6.col-sm-6.col-xs-12
+              %ul.wus_points
+                %li
+                  Sales process?
+                %li
+                  Team efficiency?
+                %li
+                  Team mobility?
+            .cb
+        %section
+          .wus_enterprise_sec.text-center
+            .wus_enterprise_head Wakeupsales
+            .wus_enterprise_subhead ENTERPRISE CLASS
+            .sub_dsc
+              From multi-nationals to startups & freelancers, everyone is using Wakeupsales CRM. 
+              .wus_org_users
+                %img{src:"/assets/new-ui/wus_org_users.png", alt:"Wakeupsales Users"}
+              .wus_enterprise_dsc
+                Companies of all shapes and sizes use Wakeupsales enterprise class. Learn how Wakeupsales helps your team work with perspective.
+        %section.text-center
+          %a.try_wus_free.start_pf_acc{href:"/users/sign-up"} Start with a Professional account
+          .sub_dsc.text-center
+            No obligations, no restrictions, no credit card required.
+        %section
+          .all_plans_sec
+            .all_plans_head
+              All our plans include these features:
+            .sub_dsc.text-center
+              .all_plans_points
+                %ul.wus_points
+                  %li Lead & Contact Management
+                  %li Sales Pipeline View
+                  %li Project Management
+                  %li Web to Lead Integration
+                  %li In-built Gmail Integration
+              .all_plans_points
+                %ul.wus_points
+                  %li Task Listing
+                  %li User Management
+                  %li Files Hub
+                  %li Invoice Management
+                  %li Google Calendar Sync
+              .all_plans_points
+                %ul.wus_points
+                  %li Reports & Analytics
+                  %li Daily Updates
+                  %li Activities Stream
+                  %li Email Tracking
+                  %li Quick Notes
+              .cb
+        %section
+          .as_seen_on_sec.text-center
+            .as_seen_on_head
+              As seen on...
+            .col-md-6.col-sm-6.col-xs-12.as_seen_on_box
+              .as_seen_on_subhead 
+                Wakeupsales effortlessly manages key processes such as Lead Management, Emails & Follow-ups etc. It's a joy to work with.
+              .as_seen_on_img
+                %a{href:"http://comparecamp.com/wakeupsales-reviews-pros-cons-pricing-top-notch-crm-software/"}  
+                  %img{src:"/assets/new-ui/compare_camp_logo3.png", alt:"CRM Tool on Compare Camp", title:"CRM Tool on Compare Camp"}
+            .col-md-6.col-sm-6.col-xs-12.as_seen_on_box
+              .as_seen_on_subhead 
+                Wakeupsales CRM is a lovely choice for small & midsize enterprises searching for a CRM. It's easy to use, comprehensive & highly customizable.
+              .as_seen_on_img
+                %a{href:"http://www.accuratereviews.com/best-crm-reviews-list/"}  
+                  %img{src:"/assets/new-ui/accurate_review3.png", alt:"Accurate Reviews", title:"Accurate Reviews"}
+            .cb
+            .as_seen_on_box  
+              .as_seen_on_subhead 
+                Working with Wakeupsales CRM is super easy & super fun. It's very intuitive.
+              .as_seen_on_img
+                %a{href:"http://www.capterra.com/customer-relationship-management-software/spotlight/153054/WakeUpSales/Andolasoft"}    
+                  %img.as_seen_on_captera_img{src:"/assets/new-ui/captera3.png", alt:"CRM Tool on Capterra", title:"CRM Tool on Capterra"}
+        %section.footer_test_sec
+          .col-md-6.col-sm-6.col-xs-12 
+            .top_test_sec
+              .top_test_cntr
+                “The support team was awesome. It’s really different & one of the best supportive team. I like that so much. I think the product is good and its best for my production work. Looking forward to Wakeupsales on other platforms.”
+                %br
+                %img{src:"/assets/new-ui/abu_saleh.png", alt:"Ajay P"}
+                .test_name Abu Saleh Nayem
+                .test_dsc
+                  Assistant Systems Engineer, EZZY Group
+                  %br
+                  Dhaka, Bangladesh
+          .col-md-6.col-sm-6.col-xs-12
+            .top_test_sec
+              .top_test_cntr
+                “Wakeupsales helped me to automate my website visitors and insert them directly as leads to my CRM Dashboard. I liked it because it’s easy to use & opensource. The CRM is great at forecasting agreements, and its integrations make it more likeable.”
+                %br
+                %img{src:"/assets/new-ui/hemant_p.png", alt:"Ajay P"}
+                .test_name Hemant P
+                .test_dsc
+                  CEO | Glyxo, India
+          .cb
+        %section
+          .signup_inst_sec
+            %p 
+              What are you waiting for?
+              %br
+              Sign up for free and become one of the millions of people around 
+              %br
+              the world who have fallen in love with Wakeupsales.
+            %a.try_wus_free.start_fre_acc{href:"/users/sign-up"} Sign up It's free 
+            %p 
+              Already using Wakeupsales? 
+              %a{href:"users/sign-in"} Log in
+              = "."
+:javascript
+  $(document).ready(function() {
+    var wh=$(window).height() - 100; 
+    $('.team-form-bnr').height(wh);
+    $('#slider2').bxSlider({
+      controls: true,
+      auto: true,
+      autoControls: false,
+      pause: 10000,
+      pager: false,
+      touchEnabled: true,
+      adaptiveHeight: true
+    });
+    $('.bx-controls-direction > a').html(''); 
+  });
+  $(".user_email").on('keypress',function(){
+    $(this).closest("form").find(".hidden_sign_up_field").slideDown('slow');
+  })
+  $(".user_email").on('change',function(){
+    $(this).closest("form").find(".hidden_sign_up_field").slideDown('slow');
+  })
+  $(".user_email").on('blur',function(){
+    if($(this).val() == "" ) 
+      $(this).closest("form").find(".hidden_sign_up_field").slideUp('slow');
+  })
+  
+  $(".lead_and_cont_icons").on('mouseover', function(){
+    $(".card_details_view").show();
+  })
+
+  $(".lead_and_cont_icons").on('mouseout', function(){
+    $(".card_details_view").hide();
+  })
+  
+  $(".card_details_view").on('mouseover', function(){
+    $(".card_details_view").show();
+  })
+  
+  $(".card_details_view").on('mouseout', function(){
+    $(".card_details_view").hide();
+  })
+= javascript_include_tag "hamburgers"

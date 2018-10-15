@@ -1,0 +1,131 @@
+.navbar-right.text-left
+  .col-md-12
+    .btn-group
+      .dropdown-toggle.f_menu{"data-toggle" => "dropdown", type: "button",onclick: "reser_all_submenu();$('.main_menu').show()"}
+        %span.pe-7s-filter.fnt-25{:title => "Filter"}
+      
+      %ul.dropdown-menu.main_menu{role: "menu",style: "display:none"}
+        %li.arrow_top
+        %li.dropdown-submenu
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('created');"} Created By
+          #cr.sec_mnu{style: "display: none;"}
+            .arrow_left.lead_arrow.cre_arw{style: "display:none;"}
+            %ul#cre_by_app.dropdown-menu.prj-sub-menu
+              - all_org_users.each do |cre_by|
+                %li
+                  %a{href: "#",onclick: "chk_radio_button(#{cre_by.id},'created')",class: "filterSelectDropdow"}
+                    %input{id:"cre_by_#{cre_by.id}", class: "cre_by_c",type: "checkbox", value: "#{cre_by.id}",c_name: "#{cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split('@')[0]}",style: "",name: "created_by"}
+                      - cre_usr = cre_by.full_name.present? ? cre_by.full_name : cre_by.email.split("@")[0]
+                      %span{title:cre_usr}
+                        = cre_usr.truncate(13)
+                %li.divider
+        %li.divider
+        %li.dropdown-submenu{:style => "position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('assigned');"} Assigned To
+          #asg.sec_mnu{style: "display: none;"}
+            .arrow_left.lead_arrow.asg_arw{style: "display:none;"}
+            %ul.dropdown-menu.prj-sub-menu
+              - select_all_org_users.each do |assg_by|
+                %li
+                  - assg_by.is_active == false ? sty = "background-color:#f0f0f0;" : sty = ""
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{assg_by.id},'assigned')",class: "filterSelectDropdow", style:sty}
+                    %input{id:"assg_by_#{assg_by.id}", class: "asg_by_c",type: "checkbox", value: "#{assg_by.id}",a_name: "#{assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split('@')[0]}",style: "",name: "assg_by"}
+                      - assn_by = assg_by.full_name.present? ? assg_by.full_name : assg_by.email.split("@")[0]
+                      %span{title:assn_by}
+                        = assn_by.truncate(13)
+                %li.divider
+        %li.divider
+        %li.dropdown-submenu{:style => "position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown",onclick: "display_hide_submenu('lead');"} Opportunity
+          #lead.sec_mnu{style: "display: none;"}
+            .arrow_left.lead_arrow.lead_arw{style: "display:none;"}
+            %ul.dropdown-menu.prj-sub-menu
+              - @current_organization.deals.each do |lead|
+                %li
+                  %a{href: "javascript:void(0)",onclick: "chk_radio_button(#{lead.id},'lead')",class: "filterSelectDropdow",title: "#{lead.title}"}
+                    %input{id:"lead_#{lead.id}", class: "lead",type: "checkbox", value: "#{lead.id}",a_name: "#{lead.title}",style: "",name: "lead"}
+                      =truncate(lead.title, :length => 13, :ommission => "..")
+                %li.divider
+        %li.divider
+        %li.dropdown-submenu{onclick: "display_hide_submenu('anytime');", :style=>"position: relative;"}
+          %a{href: "javascript:void(0)","data-toggle"=>"dropdown"} Anytime
+          #any.sec_mnu{style: "display: none;"}
+            .arrow_left.lead_arrow.any_arw{style: "display:none;"}
+            %ul.dropdown-menu.prj-sub-menu
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_week','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_week", class: "any_time",type: "radio", value: "Past Week",style: "",name: "anytime"}
+                  Past Week
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_two_weeks','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_two_weeks", class: "any_time",type: "radio", value: "Past Two Weeks",style: "",name: "anytime"}
+                  Past Two Weeks
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_three_weeks','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_three_weeks", class: "any_time",type: "radio", value: "Past Three Weeks",style: "",name: "anytime"}
+                  Past Three Weeks
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_month','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_month", class: "any_time",type: "radio", value: "Past Month",style: "",name: "anytime"}
+                  Past Month
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('past_year','any')",class: "filterSelectDropdow"}  
+                  %input{id:"past_year", class: "any_time",type: "radio", value: "Past Year",style: "",name: "anytime"}
+                  Past Year
+              %li.divider
+              %li
+                %a{href: "javascript:void(0)",onclick: "chk_radio_button('cu_date','any')",class: "filterSelectDropdow"} 
+                  %input{id:"cu_date", class: "any_time",type: "radio", value: "Custom Date",style: "",name: "anytime"}
+                  Custom Date
+              %li#custom_date{style: "display:none;margin:4px;"}
+                =text_field_tag "project_from","",value: "",class: "form-control typeahead",placeholder: "From"
+                .cb10
+                =text_field_tag "project_to","",value: "",class: "form-control typeahead",placeholder: "To"
+                .cb10
+                %button.btn.btn-primary{class: "filterSelectDropdow",type: "button",rel: "tooltip", title: "Filter" } 
+                  Search
+
+        %li.divider
+  // will be implemented in phase 3
+  //%a#additional_links{"data-toggle" => "modal", href: "#BulkProjectModal", rel: "popup", title: "Bulk project upload", onclick:"$('#bulk-project-form')[0].reset();$('.displaynone').hide();"}
+  //  %span.cwkp-sprite.bulk-project-upload{type: "button",rel: "tooltip", title: "Bulk Project Upload" } 
+  %span.cwkp-sprite.active_list_view_icon{title: "List View"}
+  %a{href:"/projects/details_view", title: "Detailed View"}
+    %span.cwkp-sprite.new_eye_icon
+  %a{href:"/projects/board_view", title: "Board View"}
+    %span.cwkp-sprite.new_grid_view_icon
+  %a{href:"/projects/kanban", title: "Kanban View"}
+    %span.cwkp-sprite.new_kanban_view_icon
+      / %span.cwkp-sprite.new_list_view_icon
+/ %ul.tag_filter.text-right{style: "display:none;"}
+/   %li#show_filter_dealmsg
+/   %li.created_by_tag.com_cls{style: "display: none;"}
+/     .tag_dd
+/       %span#created_by_tag_txt
+/       %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('created_by','cre_by_c');"} x
+/   %li.assigned_to_tag.com_cls{style: "display: none;"}
+/     .tag_dd
+/       %span#assigned_to_tag_txt
+/       %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('assigned_to','asg_by_c');"} x
+/   %li.lead_tag.com_cls{style: "display: none;"}
+/     .tag_dd
+/       %span#lead_tag_txt
+/       %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('lead','lead');"} x
+/   %li.date_range_tag.com_cls{style: "display: none;"}
+/     .tag_dd
+/       %span#from_tag_txt
+/       %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date_range','any_time');"} x
+/   %li.date_tag.com_cls{style: "display: none;"}
+/     .tag_dd
+/       %span#date_tag_txt
+/       %a.filter_tag_deal{href: "javascript:void(0);", onclick: "reset_filter('date','any_time');"} x          
+/   %li.reset_tag.com_cls
+/     %div
+/       %a{href: "javascript:void(0);", onclick: "reset_all_filter();reset_filter_val();", class: "btn btn-xs btn-warning"} RESET
+/ =hidden_field_tag "filter_get_val","0"
+/ =hidden_field_tag 'hdndeals', 'mydeals'
+/ =hidden_field_tag 'lead'

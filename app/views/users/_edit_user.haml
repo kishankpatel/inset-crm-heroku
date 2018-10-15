@@ -1,0 +1,74 @@
+= form_for @user, :html => { :class => ' edit_user_form', :id => "user_edit_form",:method => "PUT" } do |f|
+  .modal-body
+    .prf_img.col-md-12
+      .form-group.img_upload
+        .cms-file-input.ace-file-multiple{style:"text-align:center;"}
+          .fl
+            .user_prof  
+              - if @user.image.present?
+                = image_tag @user.image.image.url(:thumb), style: "max-width:80px", :id=>"previewHolder"
+              - else
+                = image_tag "/assets/prof_img.png", :alt=>"profile image", style: "max-width:90px; max-height:90px", :id=>"previewHolder"
+            .click_img
+              Preview 
+          .fl.choose_file_sec
+            .choose_pf_image{onclick:"$('.file_hid_block').click()"}
+              %span.cwkp-sprite.choose_img_icon
+              Choose Profile Image
+            = f.file_field "profile_image",:class=> "form-control btn-metis-7 btn-file file_hid_block", style:"padding-left: 95px !important;padding: 10px;"
+
+          .cb
+    .row  
+      .col-md-6
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-user
+            =f.text_field :first_name, :required => true, :html=>{:maxlength=> "20"},:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:onkeydown=>"return onlycharacters(event)", placeholder:"First Name",:class=>"form-control"
+      .col-md-6
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-user
+            =f.text_field :last_name,:html=>{:maxlength=> "20"},:onblur =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:onkeydown=>"return onlycharacters(event)", placeholder:"Last Name",:class=>"form-control"
+    .row
+      .col-md-6
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-envelope
+            =f.email_field :email, :required => true, :disabled => true, :style => "color: #333;", placeholder:"Email", style:"cursor:not-allowed",:class=>"form-control"
+      .col-md-6
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-phone
+            =f.text_field :work_phone,:class=>"bfh-phone","data-format"=>" (ddd) ddd dddd dddd", :onblur => "this.value = jQuery.trim((this.value).replace(/^\s*/g,''))",:onclick =>"this.value = jQuery.trim((this.value).replace(/^\s*/g,''))", :value => @user.phone.present? ? @user.phone.phone_no : "", :required => true,placeholder:"Phone",:class=>"form-control"
+    .row
+      .col-md-6
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-map-marker-alt
+            = f.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones, { }, :required => true, prompt:"- Select Time Zone -", class:"form-control"
+        / .form-group.col-md-6{:style => "float:left;margin-left:31px;"}
+        /   = f.select :priority_label, options_for_select((0..15).to_a, :selected => @user.priority_label),{:include_blank => '- Priority Level -'},:class => 'form-control'
+      .cb
+  .modal-footer
+    %a.btn.btn-default{href:"#", "aria-hidden" => "true","data-dismiss" => "modal"} Cancel
+    =f.submit "Update", :class=>"btn btn-info", :disable_with => "Updating...."
+
+:javascript
+  function readURL(input) {
+         if (input.files && input.files[0]) {
+             var reader = new FileReader();
+             reader.onload = function(e) {
+                 $('#previewHolder').attr('src', e.target.result);
+             }
+
+             reader.readAsDataURL(input.files[0]);
+         }
+     }
+     $("#user_profile_image").change(function() {
+         readURL(this);
+     });

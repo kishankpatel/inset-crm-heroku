@@ -1,0 +1,70 @@
+.profile-details
+  %span.close_lead_details{onclick: "hideDetails()"}
+    x
+  .pfl-detail-blk
+    - con_name = @company.name.present? ? @company.name.upcase : @company.email.present? ? @company.email[0].upcase : "NA"
+    - if @company.deals_contacts.present?  
+      - contact = @company.deals_contacts.first.contactable
+    - if contact.present? && contact.image.present?
+      .big-profile-img
+        = image_tag @company.image.image.url(:small)
+    - else
+      - unless con_name.nil?
+        - contact_letter = con_name[0,2]
+      - else
+        - contact_letter = @company.email.split("@")[0,2]
+      .lead-profile-icon.big-profile-icon{:style=>"background:#{Contact.get_color_code(contact_letter.downcase[0])};cursor: default;"}
+        = contact_letter.titlecase
+    %h6
+      = @company.name.present? ? @company.name : "Not available" 
+    %span
+      = @company.country_id.present? ? Country.find(@company.country_id).name : "NA"
+    .change-pfl-icon
+      - assn_user_id = 'null'      
+    /= link_to "/contact/#{@company.to_param}?type=company", title: "View Details" do
+    /  .clr-user-icon.cwkp-sprite.contact-icon
+  .pfl-table
+    %table
+      %tr
+        %td
+          %strong Website:
+        %td 
+          %span{title: ""}
+            - if @company.website.present?              
+              = link_to @company.website, @company.website, :target => "_blank"
+            - else
+              Not available
+      %tr
+        %td
+          %strong Owner:
+        %td 
+          = @company.individual_contacts.present? ? @company.individual_contacts.first.name : "Not available"
+      %tr
+        %td
+          %strong Phone:
+        %td
+          - work_phone = @company.phones.present? ? (@company.phones.by_phone_type("work")) : ''
+          = work_phone.present? && work_phone.first.phone_no.present? ? work_phone.first.phone_no : "Not available"
+      %tr
+        %td
+          %strong Email:
+        %td 
+          = @company.email.present? ? mail_to(@company.email) : "Not available"
+
+:javascript
+  function addAttachmentToLead(id){
+    $("#AddLeadAttachmentLead .modal-body").html("<img src='/assets/ajax-loader2.gif'/>");
+    $.ajax({
+      url: "/add_attchment_to_lead",
+      data: {id: id},
+      success: function(data){ 
+        //alert("Success.");
+        $("#AddLeadAttachmentLead .modal-body").html(data);
+        $("#task_loader").hide();
+      },
+      error: function(data){
+        alert('Got an error while changing priority.');
+      }
+    });
+  }
+

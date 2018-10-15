@@ -1,0 +1,13 @@
+#projectModal.modal.fade{"aria-hidden" => "true", "aria-labelledby" => "projectModalLabel", role: "dialog", tabindex: "-1", :style => "overflow-y:scroll;"}
+  .modal-dialog.pop-lrg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr.clse-pop{"aria-hidden" => "true", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        
+        %h4.modal-title
+          %span.fal.fa-briefcase
+          CREATE NEW PROJECT
+      #project-form-div
+        / = render partial: "projects/project_form_div"

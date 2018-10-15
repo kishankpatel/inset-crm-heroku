@@ -1,0 +1,48 @@
+:css
+  .well {
+      background-color: #FFFFFF;
+      border: 1px solid #428fd0;
+      border-radius: 4px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      min-height: 20px;
+      padding: 19px;
+  }
+%br
+%br
+%br
+.row.contact_row.signup-page
+  .col-md-12.banner
+    .wrapper
+      %h1 “ Lorem ipsum Lorem ipsum Lorem ipsum ”
+      %p There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour,
+      - session[:non_authenticate] = nil
+      #login-alert.alert.alert-danger.col-sm-12{:style => "display:none"}
+      - @user = User.new
+      = form_for @user, :url => save_user_path, :html=>{:class => "form signup-form"} do |f|
+
+        = f.email_field :email, :required => true, :class=>"form-control", :placeholder=>"Email" , :style=>"height:40px;font-size: 17px;"
+
+        = f.text_field "organization_name", :class => "form-control", :required => true, :placeholder => "Company Name", :style => "height:40px;font-size: 17px;"
+        = f.submit "Sign up for free", :disable_with => "Submitting....", :onclick=> "return chk_validemail('beta_request_email');track_signup();"
+      %div{:style => "text-align:center;margin: 10px;"} OR
+      .social_media_sign_up
+        %p
+          You can also signup with 
+        %input.vi-google-signin{:onclick => "social_authenticate('/auth/google_oauth2')", :title => "Sign in using Google Account", :type => "button"}
+        %input.vi-linkedin-signin{:onclick => "social_authenticate('/auth/linkedin')", :title => "Sign in using Linkedin Account", :type => "button"}
+    %section.strip
+      .wrapper
+        %p There are many variations of passages of Lorem Ipsum
+        %a
+          See our full list of integratins
+          %i.fal.fa-arrow-circle-right{"aria-hidden" => "true"}
+
+= stylesheet_link_tag "home"
+:javascript
+  $(document).ready(function() {
+    $('#feature').click(function(){
+      window.location.href="/#features";
+    });
+  });

@@ -1,0 +1,61 @@
+#userWF.modal.fade.hmodal-success.work_flow_one{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .color-line
+      .modal-header
+        %span.fr{"aria-hidden" => "true", type: "button", "data-dismiss" => "modal"}
+          %i.fal.fa-times.fa-2x
+        %h4.modal-title What would you like to do?
+      .modal-body
+        .row
+          .col-lg-4
+            .hpanel.m-b-none
+              %a{"data-dismiss" => "modal", "data-target" => "#indvComp", "data-toggle" => "modal", :href => "javascript:void(0)",:onclick=>"reset_wizrd('con')"}
+                .panel-body.text-center
+                  .wf_ft_img
+                    = image_tag "/assets/saas/create-contact.svg"
+                  %h4.font-extra-bold Create a Contact
+          .col-lg-4
+            .hpanel.m-b-none
+              %a{"data-dismiss" => "modal", "data-target" => "#opportunityStepStart", "data-toggle" => "modal", :href => "javascript:void(0)",:onclick=>"reset_wizrd('opp')"}
+                .panel-body.text-center
+                  .wf_ft_img
+                    = image_tag "/assets/saas/create-opportunity.svg"
+                  %h4.font-extra-bold Create an Opportunity
+          .col-lg-4
+            .hpanel.m-b-none
+              %a{"data-dismiss" => "modal", "data-target" => "#projectStepStart", "data-toggle" => "modal", :href => "javascript:void(0)",:onclick=>"reset_wizrd('pro')"}
+                .panel-body.text-center
+                  .wf_ft_img
+                    = image_tag "/assets/saas/create-project.svg"
+                  %h4.font-extra-bold Create a Project
+        / .row.mt10
+        /   .col-lg-4
+        /     .hpanel.m-b-none
+        /       %a{"data-dismiss" => "modal", "data-target" => "#taskStepStart", "data-toggle" => "modal", :href => "javascript:void(0)"}
+        /         .panel-body.text-center
+        /           .wf_ft_img
+        /             = image_tag "/assets/saas/create-task.svg"
+        /           %h4.font-extra-bold Create a Task
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+		
+:javascript
+  function reset_wizrd(typ)
+  {
+    if(typ == "pro")
+    {
+      $("#project_wizard")[0].reset();
+    }
+    if(typ == "opp")
+    {
+      $("#new_wizard_deal")[0].reset();
+    }
+    if(typ == "con")
+    {
+      $("#contact_wizard")[0].reset();
+      $("#company_wizard")[0].reset();
+    }
+  }  
+		
+		

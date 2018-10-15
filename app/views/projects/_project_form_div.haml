@@ -1,0 +1,391 @@
+- project = @project.present? ? @project : Project.new
+- project_users = project.project_users.build if project.new_record?
+
+= form_for project, :url => "/projects",  :class => "form",:method=>"post",:id=>"project-form" do |f|
+  - if @project.present?
+    = f.hidden_field :id
+  .modal-body
+    .row
+      .form-group.col-md-12.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-briefcase
+          =f.text_field :name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a name to your project", :maxlength=>"50"
+      / .form-group.col-md-6.padlft
+      /   %div
+      /     %span Link this Project with a 'Lead' & its 'Opportunity'
+      /   .clearfix
+      /   .col-md-12
+      /     .col-md-3{:class=> "radio radio-info radio-inline "}  
+      /       = radio_button_tag "link_lead", "yes", true, :class => "custom-frm-inner"
+      /       %label{for: "link_lead_yes"}
+      /         %span
+      /         Yes
+      /     .col-md-8{:class=> " radio radio-info radio-inline"}  
+      /       = radio_button_tag "link_lead", "no", false, :class => "custom-frm-inner"
+      /       %label{for: "link_lead_no"}
+      /         No, keep this independent
+      / .cb
+    .row
+      .form-group.col-md-6.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-sticky-note
+          = f.select :linked_with, options_for_select([["None", ""], ["Company","Organization"], "Contact", "Opportunity"]), {:prompt => "- Related to -"},{:class => "form-control" }
+
+      .form-group.col-md-6.prj-company-contact-div{style: "#{f.object.company_contact_id.present? ? 'display:block' : 'display:none'}"}
+        .input-group
+          .input-group-addon
+            %span.pe-7s-id
+          - if f.object.company_contact_id.present?
+            =f.select :company_contact_id, @current_organization.company_contacts.order("name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose an Organization', selected: f.object.company_contact_id.present? ? f.object.company_contact_id : ""}, :class => "form-control "
+          - else
+            =f.select :company_contact_id, @current_organization.company_contacts.order("name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose a Company'}, :class => "form-control "
+    .row
+      .form-group.col-md-6.prj-individual-contact-div
+        .input-group
+          .input-group-addon
+            %span.pe-7s-id
+          - if f.object.individual_contact_id.present?
+            =f.select :individual_contact_id, @current_organization.individual_contacts.order("first_name, last_name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose a Contact to link', selected: f.object.individual_contact_id.present? ? f.object.individual_contact_id : ""}, :class => "form-control "
+          - else
+            =f.select :individual_contact_id, @current_organization.individual_contacts.order("first_name, last_name").collect {|i| [ i.name.present? ? i.name : i.email , i.id ]}, {:include_blank => 'Choose a Contact to link', selected: @deal.present? && @deal.class.name == "Deal" ? "#{@deal.deals_contacts.present? && @deal.deals_contacts.first.contactable.present? ? @deal.deals_contacts.first.contactable.id : ''}" : ""}, :class => "form-control "
+      .form-group.col-md-6.prj-lead-div
+        .input-group
+          .input-group-addon
+            %span.pe-7s-cash
+          - if f.object.deal_id.present?
+            =f.select :deal_id, @current_organization.deals.order("title").collect {|d| [ d.title , d.id ]}, {:include_blank => 'Choose an Opportunity to link', selected: f.object.deal_id.present? ? f.object.deal_id : ""}, :class => "form-control "
+          - else
+            =f.select :deal_id, @current_organization.deals.order("title").collect {|d| [ d.title , d.id ]}, {:include_blank => 'Choose an Opportunity to link', selected: @deal.present? && @deal.class.name == "Deal" ? "#{@deal.id}" : ""}, :class => "form-control "
+      .cb
+    .row
+      .form-group.col-md-6.padrht
+        .input-group
+          .input-group-addon
+            %span.fal.fa-toolbox
+          =f.text_field :short_name,:class=>"form-control custom-frm-inner", :autocomplete=>"off", :required => true, placeholder: "Give a short name to your project", :maxlength => "5"
+      .col-md-6.padlft
+        .cmn_selct_fld
+          /%span.cwkp-sprite.proj-task-type
+          /=f.select :project_task_type_id, @current_organization.project_task_types.collect {|pt| [ pt.name, pt.id ]}, {:include_blank => 'Select default project type'}, :class => "form-control"
+          =f.hidden_field :project_task_type_id
+          #project_type_dropdown.dropdown.form_fld.cmn_selct_fld.form-group{style:""}
+            .input-group
+              .input-group-addon
+                %span.fal.fa-user-md
+              %input.dropdown-toggle.project-type-toggle{"data-toggle" => "dropdown", :type => "text", "aria-expanded" => "false", :style =>"background:#fff;", :onclick => "$('#custom-project-type').focus();", :id => "project-type-toggle", :placeholder => "Select default job type", :required => true, :onkeydown=>"$('#custom-project-type').focus();return false;", :class => "form-control custom-frm-inner", :readonly => true}
+                %span.cwkp-sprite.proj-task-type{title: "Project Type"}
+              %ul{:class=>"dropdown-menu", :id => "project-type-dropdown-menu", :style => ""}
+                %li{:class=>"dropdownjs-add", :id => "type-li", :tabindex=>"-1"}
+                  %input{:name => "custom-add", :id => "custom-project-type", :class => "custom-project-type", :placeholder=>"+ Add New", :onclick => "event.stopPropagation();", :style => "width:100%;border:3px solid #ddd;", :class => "form-control"}
+                - @current_organization.project_job_types.each do |pj|
+                  %li{:value=> pj.id, :tabindex=> "0", :class=>"selected", :style => ""}
+                    = pj.name
+                    %span{:class=>"close"}
+      .cb
+    .row
+      .col-md-6
+        /=f.hidden_field :project_stage_id
+        #project_stage_dropdown.dropdown.cmn_selct_fld.form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-tag
+            =f.select :project_stage_id, @current_organization.active_project_stages.collect{|ps| [ps.name,ps.id]},{:include_blank => 'Select the project Stage', },class: "form-control",:required=>true
+      .col-md-6
+        
+        .form-group
+          .input-group
+            .input-group-addon
+              %span.fal.fa-user
+            =f.select :project_manager_id, @current_organization.admins.collect{|ps| [ps.full_name.present? ? ps.full_name : ps.email,ps.id]},{:include_blank => 'Select the project manager', },class: "form-control",:required=>true
+             
+    .row
+      .form-group.col-md-12
+        .form_fld 
+          .input-group
+            .input-group-addon
+              %span.fal.fa-pen-fancy
+          
+            =f.text_area :description,:class=>"form-control custom-frm-inner", :autocomplete=>"off", placeholder: "Describe your project",:rows=>3
+    
+    .row
+      %div{style:""} 
+        %p
+          Add Users to Project
+      .form-group.modal-checkbox
+        .col-md-12{class: "modal-checkbox "}
+          - if project.new_record?
+            - indx = 0
+            - all_org_users.each do |u|
+              = f.fields_for :project_users do |proj_user|
+                %span.col-md-3.checkbox.checkbox-inline
+                  = proj_user.check_box :user_id, {}, u.id, nil
+                  %label{for: "project_project_users_attributes_#{indx}_user_id"}
+                    %span
+                    = u.full_name.present? ? u.full_name : u.email.split("@")[0]
+                - indx = indx + 1
+          - else
+            - indx = 0
+            - user_ids = []
+            = f.fields_for :project_users do |proj_user|
+              - if proj_user.object.id.present?
+                - u = proj_user.object.user
+                - if u.present? && u.id.present?
+                  - user_ids << u.id
+                  %span.col-md-3.checkbox.checkbox-inline
+                    = proj_user.check_box :user_id, {}, u.id, nil
+                    %label{for: "project_project_users_attributes_#{indx}_user_id"}
+                      %span
+                      = u.full_name.present? ? u.full_name : u.email.split("@")[0]
+                  - indx = indx + 1
+            - all_org_users.each do |u|
+              - unless user_ids.include? u.id
+                %span.col-md-3.checkbox.checkbox-inline
+                  %input{type: 'checkbox', id: "project_project_users_attributes_#{indx}_user_id", name: "project[project_users_attributes][#{indx}][user_id]", value: u.id}
+                  %label{for: "project_project_users_attributes_#{indx}_user_id"}
+                    %span
+                    = u.full_name.present? ? u.full_name : u.email.split("@")[0]
+                - indx = indx + 1
+    .row
+      .form-group.col-md-12.modal-checkbox
+        %span{class: "modal-checkbox checkbox  checkbox-primary"}
+          = check_box_tag :invite_user,false
+          %label{for: "invite_user"}
+            %span
+            Invite User
+    .row
+      .form-group.col-md-12
+        .form_fld 
+          .input-group
+            .input-group-addon
+              %span.fal.fa-user-plus
+            =text_field_tag :users_email,"", :class=>"form-control custom-frm-inner", :autocomplete=>"off", placeholder: "Invite multiple users separated by comma email ID", disabled: true, style: "background:#eee"
+    
+        = link_to "More Options", "javascript:void(0)", id: "more-less-btn", :onclick => "show_hide()"
+    #more-fileds
+      .row
+        /.form-group.col-md-4
+        /  .form_fld 
+        /    %span.cwkp-sprite.proj-est-hr
+        /    = f.text_field :estimate_hour,:class=>"form-control custom-frm-inner proj-timepicker", id: "estimate-datetimepicker", autocomplete: "off", placeholder: "hh", :maxlength => "6",:onkeydown => "numbersonly(event)"
+        .form-group.col-md-6
+          .input-group
+            .input-group-addon
+              %span.fal.fa-calendar
+            = f.text_field :start_date,:class=>"form-control custom-frm-inner proj-datetimepicker", id: "start-datetimepicker", autocomplete: "off",:onkeydown => "disable_text(event);", placeholder: "Start date", value: "#{f.object.start_date.present? ? f.object.start_date.strftime('%m/%d/%Y %H:%M') : ''}"
+        .form-group.col-md-6
+          .input-group
+            .input-group-addon
+              %span.fal.fa-calendar
+            = f.text_field :end_date,:class=>"form-control custom-frm-inner proj-datetimepicker", id: "end-datetimepicker", autocomplete: "off",:onkeydown => "disable_text(event);", placeholder: "End date", value: "#{f.object.end_date.present? ? f.object.end_date.strftime('%m/%d/%Y %H:%M') : ''}"
+        .cb
+      = f.hidden_field :created_by, value: current_user.id.to_s
+      = f.hidden_field :organization_id, value: @current_organization.id.to_s
+      /= f.hidden_field :deal_id, value: @deal_org.id.to_s
+      = f.hidden_field :status, value: "Started"
+  .modal-footer
+    %a.btn.btn-default{href:"javascript:", "aria-hidden" => "true","data-dismiss" => "modal"}
+      Cancel
+    - if f.object.id.present?
+      = submit_tag "Update", class: "btn btn-info", disable_with: "Please wait..."
+    - else
+      = submit_tag "Create", class: "btn btn-info", disable_with: "Please wait..."
+
+:javascript
+  $(function(){
+  console.log($("#project_linked_with").val())
+  showHideTypeRelationProject($("#project_linked_with").val())
+
+  var nwdate = new Date();
+  nwdate.setDate(nwdate.getDate() - 1); 
+
+  var start_date = new Date();
+
+  //minDate: nwdate,
+  $("#start-datetimepicker").datetimepicker({ useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on("dp.change", function (e) {
+    start_date = new Date(e.date);
+    $(this).blur();
+    //alert(start_date);
+  });
+  //minDate: start_date.setDate(start_date.getDate()), 
+
+  $('#end-datetimepicker').datetimepicker({useCurrent: false,  format: 'MM/DD/YYYY HH:mm'}).on("dp.change", function (e) {
+    end_date = new Date(e.date);
+    if(start_date > end_date){
+      $("#end-datetimepicker").val("");
+      show_alert_message("danger","End date must be greater than start date.");
+      $(this).blur();
+      return false;
+    }
+  });
+
+  $("#project_individual_contact_id").change(function() {
+    var id =$(this).val();
+    $.ajax({
+      type: "GET",
+      url: "/get_lead_opportunity",
+      data: {id: id},
+      async: true,
+      beforeSend: function(){
+        $("#task_loader, .fixed_loader").show();
+      },
+      success: function(data)
+      {
+      },
+      error: function(data) {
+        $("#task_loader, .fixed_loader").hide();
+      },
+      complete: function(data) {
+        $("#project_deal_id").html(data.responseText);
+        $("#project_deal_id").select2();
+        $("#task_loader, .fixed_loader").hide();
+      }
+    });
+  });
+  });
+  function show_hide(){
+    if($('#more-fileds').is(":visible")){
+      $("#more-fileds").slideUp();
+      $("#more-less-btn").text("Show Options");
+    }else{
+      $("#more-fileds").slideDown();
+      $("#more-less-btn").text("Hide Options");
+    }
+  };
+  
+  var enable_invite_user_field = "true";
+  $("#project-form-div").find("#invite_user").on("change", function(){
+    if(enable_invite_user_field == "true"){
+      $("#project-form-div").find("#users_email").removeAttr("disabled").css("background","#fff");
+      enable_invite_user_field = "false";
+      $("#project-form-div").find("#invite_user").val("true");
+    }
+    else{
+      $("#project-form-div").find("#users_email").attr("disabled","disabled").css("background","#eee").val("");
+      enable_invite_user_field = "true";
+      $("#project-form-div").find("#invite_user").val("false");
+    }
+  })
+  // function enable_invite_user(){
+  // }
+
+  //$('input[type=radio][name=link_lead]').change(function() {
+    // if (this.value == 'yes') {
+    //   $("#lead_section").show();
+    //   $("#project_individual_contact_id").prop("required",true);
+    //   $("#project_deal_id").prop("required",true);
+    // }
+    // else{
+    //   $("#lead_section").hide();
+    //   $("#project_individual_contact_id").prop("required",false).val("");
+    //   $("#project_deal_id").prop("required",false).val("");
+    // }
+  //});
+
+  $('#projectModal').on('hidden.bs.modal', function () {
+    $('#project_individual_contact_id').prop('required',false).css({'background':'#fff','cursor':'default'});
+
+    $('#project_deal_id').prop('required',false).css({'background':'#fff','cursor':'default'});
+
+    $('#project_deal_id option').show();
+    $('#project_individual_contact_id option').show();
+    $('#link_lead_no').removeAttr('disabled','disabled');
+    $('#link_lead_no').next().find('span').css('cursor','default')
+  })
+
+  $('#custom-project-type').keypress(function(e) {
+    if(e.which == 13) {
+      create_custom_project_type($.trim($(this).val()))
+    }
+  });
+
+  function create_custom_project_type(new_val){
+    var new_job_type = new_val;
+    $.ajax({
+      url: '/create_job_type',
+      type: 'POST',
+      async: true,
+      data: {name: new_job_type, custom: "true" },
+      success: function(res) {
+        if(res['status'] == "success"){
+          $("#project-type-dropdown-menu li").last().after("<li class='selected' value='" + res['id']+ "' tabindex='0' style='padding-left:15px;'>"+ res['name'] +"</li>")
+          show_alert_message("success", res['msg']);
+          $("#project_project_task_type_id").val(res['id']);
+          $(".project-type-toggle").val(res['name']).prop("required",true);
+          $("#custom-project-type").val("");
+          $("#project-type-dropdown-menu").hide();
+        }else{
+          $("#project-type-dropdown-menu").show();
+          $("#custom-project-type").css("border","1px solid #F00").focus().val("");
+          show_alert_message("danger", res['msg']);
+          $(".project-type-toggle").prop("placeholder","Select default project type");
+        }
+      },
+    });
+  }
+
+  $("#project-type-dropdown-menu li").click(function() {
+    $(".project-type-toggle").val($.trim($(this).text()));
+    $("#project_project_type_id").val($(this).val());
+  });
+  $("#project-stage-dropdown-menu li").click(function() {
+    $(".project-stage-toggle").val($.trim($(this).text()));
+    $("#project_project_stage_id").val($(this).val());
+  });
+  $("#project_linked_with").on('change', function(){
+    var val = $(this).val();
+    showHideTypeRelationProject(val)
+  })
+  function showHideTypeRelationProject(value)
+  {
+    
+    switch(value) {
+      case "Opportunity":
+        $(".prj-individual-contact-div").show();
+        $(".prj-lead-div").show();
+        $(".prj-company-contact-div").hide();
+        $("#project_company_contact_id").removeAttr("required")
+        $("#project_individual_contact_id").prop("required","required")
+        $("#project_deal_id").prop("required","required")
+        $("#project_company_contact_id").val("")
+        break;
+      case "Contact":
+        $(".prj-individual-contact-div").show();
+        $(".prj-lead-div").hide();
+        $(".prj-company-contact-div").hide();
+        $("#project_company_contact_id").val("")
+        $("#project_company_contact_id").removeAttr("required")
+        $("#project_individual_contact_id").prop("required","required")
+        $("#project_deal_id").removeAttr("required")
+        $("#project_lead_id").val("")
+        break;
+      case "Organization":
+        $(".prj-individual-contact-div").hide();
+        $(".prj-lead-div").hide();
+        $(".prj-company-contact-div").show();
+        $("#project_individual_contact_id").val("")
+        $("#project_lead_id").val("")
+        $("#project_company_contact_id").prop("required","required")
+        $("#project_individual_contact_id").removeAttr("required")
+        $("#project_deal_id").removeAttr("required")
+        break;
+      default:
+        $(".prj-individual-contact-div").hide();
+        $(".prj-lead-div").hide();
+        $(".prj-company-contact-div").hide();
+        $("#project_company_contact_id").val("")
+        $("#project_individual_contact_id").val("")
+        $("#project_lead_id").val("")
+        $("#project_company_contact_id").removeAttr("required")
+        $("#project_individual_contact_id").removeAttr("required")
+        $("#project_deal_id").removeAttr("required")
+        break;
+    }
+      //$(".js-source-states").select2();
+  }
+  $(function(){
+    $("#project_individual_contact_id").select2();
+    $("#project_company_contact_id").select2();
+    $("#project_lead_id").select2();
+  });

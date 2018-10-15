@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  project: 
+  project_job: 
+  user: 
+  allotted_date: 2018-04-20
+  alloted_time: 1
+
+two:
+  project: 
+  project_job: 
+  user: 
+  allotted_date: 2018-04-20
+  alloted_time: 1

@@ -1,0 +1,472 @@
+= render :partial => "contacts/confirm_contact_delete"
+= hidden_field_tag "hidden_website"
+/=render :partial => 'contacts/filters'
+
+#contacts-list
+  %div.table-responsive
+    - con = Contact
+    %table.table.table-striped.table-bordered.table-hover.no-footer.ajax-contact-list{:cellspacing => "0", :width => "100%", id: "contactList",style: "", "data-source"=>contacts_url(format: 'json',params: {cuser: @current_user.id, tab: params[:tab]})}
+      %thead
+        %tr
+          %th.dropdown
+            .checkbox.checkbox-inline
+              %input{type:"checkbox", id:"select_all_contacts"}
+              %label{for: "select_all_contacts"}
+            %a.dropdown-toggle{:id=> "arrowDropdown",:href=>"javascript:","data-toggle" => "", :style=> ""}
+              .label_arrow{:id=> "arrowLabel"}
+                %small.text-muted
+                  %b.caret
+            %ul.dropdown-menu.custom-menu.fl.show-drop-down.lead-custom-drop{:id=> "active_sub_menu",:style=>""}
+              %li.arrow_top
+              %li{"data-toggle" => "modal", href: "javascript:void(0)", rel: "popup", title: "Delete Selected Leads", onclick:"$('#confirmContactDelete').show();",:style=>""}
+                %span.glyphicon.glyphicon-trash
+                Delete Contacts
+          %th.text-left Contact Name
+          %th Email
+          %th Company          
+          %th Country
+          %th Phone No.
+          %th Open Opportunities
+          %th{style: "text-align:left !important;"} Opportunities
+      %tbody
+
+:javascript
+  contactListTable = $('#contactList').dataTable({
+    sPaginationType: "bootstrap",
+    bJQueryUI: true,
+    bProcessing: false,
+    bServerSide: true,
+    serverSide: true,
+    iDisplayLength : 20, 
+    aoColumns: [null,{"sWidth":"20%","sClass": "col-md-3 text-left"},null,null,null,null,null,{"sWidth":"10%","sClass": "txt-align"}],
+    oLanguage: { 
+      "sSearch": "" ,
+      oPaginate: {
+        sPrevious: "Prev"
+      }
+    },
+    sAjaxSource: $('#contactList').data('source'),
+    aoColumnDefs: [
+      
+      { aTargets: [0],
+        bSortable: false,
+          mRender: function(data, type, row ){
+          str="<span class='dropdown text-left' ><div> <a class='deal_set dropdown-toggle more-in-ll' data-toggle='dropdown' aria-expanded='false' onclick=\";$('#clicked_button_ref').val('listmenu');\"  rel='dropdown' title='Actions' style='cursor:pointer' href='javascript:'><small class='text-muted'><b class='caret'></b></small></a>";
+          if(row[19]==0){
+            var link_txt = "<li id='convert_opportunity_"+row[14]+"'><a onclick='change_deal_popup_info();$(\"#company_type\").val(\"IndividualContact\");$(\"#hidden_first_name\").val(\""+ row[3] +"\");$(\"#deal_contact_id\").val(\""+ row[14] +"\");$(\"#lead_referrer\").val(\"Header\");$(\"#new_deal\")[0].reset();$(\".error\").html(\"\");$(\"#deal_first_name\").val(\""+row[3]+"\").prop(\"readonly\",true).removeClass(\"typeahead tt-query\").addClass(\"form-control\").removeAttr(\"onkeyup data-provide onkeydown\").attr(\"disabled\",\"disabled\");$(\"#deal_email\").val(\""+row[4]+"\").prop(\"readonly\",\"readonly\");$(\"#deal_work_phone\").val(\""+row[7]+"\")' data-toggle='modal' href='#dealModal'><span class='glyphicon glyphicon-transfer' style='' title='Add Opportunity'></span>Convert To Lead</a></li><li class='divider'></li>"
+          }else{
+            var link_txt = "<li id='convert_opportunity_"+row[14]+"'><a href='#dealModal' data-toggle='modal' onclick='$(\"#lead_referrer\").val(\"Header\");$(\"#new_deal\")[0].reset();$(\".error\").html(\"\");$(\"#deal_first_name\").attr(\"disabled\",false);reset_deal_popup_info();hide_lead_fields();$(\".opportunity_header\").click();$(\"#deal_first_name\").val(\""+row[3]+"\").attr({\"readonly\":\"readonly\",\"disabled\":\"disabled\"});$(\"#deal_email\").val(\""+row[4]+"\").attr({\"readonly\":\"readonly\"});$(\"#company_type\").val(\"IndividualContact\");$(\"#deal_contact_id\").val("+row[14]+");$(\"#hidden_first_name\").val(\""+row[3]+"\")''><span class='glyphicon glyphicon-briefcase' style='' title='Add Opportunity'></span>Add Opportunity</a></li><li class='divider'></li>"
+          }
+          
+          str="<div class='checkbox checkbox-inline'><input type='checkbox' value='" + row[14] +"' name='active_contact_label_menu' class='other_chk_box_class chb-in-ll' onclick='other_chk_box()'><label></label></div>" + str; 
+          
+          str+= "<ul class='dropdown-menu single-dropdown-menu' style=''><li class='arrow_top'></li>"+link_txt+"<li><a onclick=\"$('.error').html('');$('#send-mail-popup').get(0).reset();$('#to').val('"+ row[4] +"');$('#mailer_id').val('" + row[14] + "');$('#mailer_type').val('Contact');$('#email_contact_id').val(" + row[14] + ");$('#email_contact_type').val('"+ row[1] +"');reset_email_err_msg();\" href='javascript:' data-toggle='modal' data-target='#SendEmailModal'><span class='glyphicon glyphicon-envelope' style=''></span>Send Email</a></li><li class='divider'></li><li><a href='/edit_individual_contact/"+ row[0] +"'><span class='glyphicon glyphicon-edit' style=''></span>Edit</a></li> <li class='divider'></li><li><a rel='nofollow' data-method='delete' href='javascript:void(0)' onclick='$(\"#confirmContactDelete\").show();$(\"#contact_id_to_delete\").val(" + row[14] + ");'><span class='glyphicon glyphicon-trash' style=''></span>Delete</a><li class='divider'></li></ul></div></span>";       
+          return str
+        }
+      },
+
+      { aTargets: [1],
+
+        bSortable: true,
+          mRender: function(data, type, row ){
+          if(row[1] == "individual_contact"){
+            name = row[3]
+            sort_name = row[3].substr(0,15) + "..."
+            if(row[25] == "Contact"){
+              back_col = "#aaa";
+            }else if(row[25] == "Lead"){
+              back_col = "#ff9800";
+            }else{
+              back_col = "#2cbf55";
+            }
+
+            if(row[3].length >= 15){
+              if(row[11] == ""){
+                str = "<div class='col-md-2 p-xxs'><a href='contact/"+row[0]+"' title='"+row[3]+"'><span class='lead-profile-icon' style='background: " + row[9] + "'>"+row[2]+"</span></a></div>";
+                var sty = "";
+              }else{
+                str = "<div class='col-md-2 p-xxs'><a href='contact/"+row[0]+"' title='"+row[3]+"'><div class='contact-img-center user-profile' style=''><img src='" + row[11] + "' style=''></div></a></div>";
+                var sty = "";
+              }
+              if(row[13]=="true"){
+                str += "<div class='col-md-10 p-xxs'><span class='cwkp-sprite bulk-csv' title='CSV uploaded'></span><span style='"+ sty +"'><a href='contact/"+row[0]+"' title='"+row[3]+"'>"+sort_name+"</a><br><div class='cont_type' style='background:"+back_col+"'>"+row[25]+"</div></div>";
+              }else{
+                str += "<div class='col-md-10 p-xxs'><span style='"+ sty +"'><a href='contact/"+row[0]+"' title='"+row[3]+"' style='margin-left:10px;'>"+sort_name+"</a></span><br><div class='cont_type' style='background:"+back_col+"'>"+row[25]+"</div></div>";
+              }
+              return str;
+            }else{
+              if(row[11] == ""){
+                str = "<div class='col-md-2 p-xxs'><a href='contact/"+row[0]+"' title='"+row[3]+"'><span class='lead-profile-icon' style='background: " + row[9] + "'>"+row[2]+"</span></a></div>";
+                var sty = "";
+              }else{
+                str = "<div class='col-md-2 p-xxs'><a href='contact/"+row[0]+"' title='"+row[3]+"'><div class='contact-img-center' style=''><img src='" + row[11] + "' style='height:40px;width:40px;left:3px;'></div></a></div>";
+                var sty = "";
+              }
+              if(row[13]=="true"){
+                str += "<div class='col-md-10 p-xxs'><span class='cwkp-sprite bulk-csv' title='CSV uploaded'></span><span style='"+ sty +"'><a href='contact/"+row[0]+"' title='"+row[3]+"'>"+name+"</a></span><br><div class='cont_type' style='background:"+back_col+"'>"+row[25]+"</div></div>";
+              }else{
+                str += "<div class='col-md-10 p-xxs'><span style='"+ sty +"'><a href='contact/"+row[0]+"' title='"+row[3]+"' style='margin-left:10px;'>"+name+"</a></span><br><div class='cont_type' style='background:"+back_col+"'>"+row[25]+"</div></div>";
+              }
+              return str;
+            }
+          }
+          else{
+            name = row[3]
+            sort_name = row[3].substr(0,20) + "..."
+            if(row[3].length > 20){
+              return "<span class='lead-profile-icon' style='background: " + row[9] + "'>"+row[2]+"</span><span><a href='contact/"+row[0]+"?type=company' title='"+row[3]+"' >"+sort_name+"</a></span>";
+            }
+            else{
+              return "<span class='lead-profile-icon' style='background: " + row[9] + "'>"+row[2]+"</span><span class=''><a href='contact/"+row[0]+"?type=company' title='"+row[3]+"' >"+name+"</a></span>";
+            }
+          }
+      }},
+      { aTargets: [2],
+        bSortable: true,
+          mRender: function(data, type, row ){
+            return "<a href='javascript:void(0)' class='change-color-ll' data-target = '#SendEmailModal' data-toggle = 'modal' rel='tooltip' onclick='$(\".error\").html(\"\");$(\"#send-mail-popup\").get(0).reset();$(\"#to\").val(\"" + row[4] + "\");$(\"#mailer_id\").val(\"" + row[14] + "\");$(\"#mailer_type\").val(\"" + row[10] + "\");$(\"#email_contact_id\").val(\"" + row[14] + "\");$(\"#email_contact_type\").val(\"" + row[10] + "\")'>"+row[4]+"</a>";
+      }},
+      { aTargets: [3],
+        bSortable: false,
+          mRender: function(data, type, row ){
+            if(row[5] == "NA"){
+              var cmp_link = row[5];
+            }else{
+              var cmp_link = "<a href='"+row[12]+"'>"+row[5]+"</a>";
+            }
+            return cmp_link;
+      }},      
+      { aTargets: [4],
+        bSortable: false,
+          mRender: function(data, type, row ){
+            if(row[6].length > 15){
+              var country_name = row[6].substring(0,15) + "..."
+              var country_title = row[6]
+              }
+            else{
+              var country_name = row[6]
+              var country_title = ''
+            }
+            return "<span title='"+country_title+"'>"+country_name+"</span>";
+      }},
+      { aTargets: [5],
+        bSortable: false,
+          mRender: function(data, type, row ){
+            return "<a class='edit_phone' data-pk='"+row[14]+"'>"+row[7]+"</a>";
+      }},
+      { aTargets: [6],
+        bSortable: false,
+          mRender: function(data, type, row ){
+            return row[26];
+      }},
+      { aTargets: [7],
+        bSortable: false,
+          mRender: function(data, type, row ){ 
+          if(row[13]=="true"){
+            if(row[16]=="true"){
+              var opptunity_txt = "<a href='/leads/"+row[17]+"' target='_blank'>"+ row[15] +"</a>";
+            }else{
+              if(row[15]==""){
+                var opptunity_txt = "<a href='#' class='contact_opporunity' id='opportunity_"+row[14]+"' data-pk=" + row[14] + "></a>";
+              }else{
+                var opptunity_txt = "<a href='#' class='contact_opporunity' id='opportunity_"+row[14]+"' data-pk=" + row[14] + ">"+ row[15] +"</a><a href='#' value='"+row[14]+"' class='opportunity_lead' onclick='opportunity_lead("+row[14]+")'><span class='cwkp-sprite convert-lead' title='Convert to Lead'></span></a>";
+              }
+            }
+          }else{
+            if(row[22] == ""){
+              if(row[15]==""){
+                var opptunity_txt = "<a href='#' class='contact_opporunity' id='opportunity_"+row[14]+"' data-pk=" + row[14] + "></a>";
+              }else{
+                var opptunity_txt = "<a href='#' class='contact_opporunity' id='opportunity_"+row[14]+"' data-pk=" + row[14] + ">"+ row[15] +"</a><a href='#' value='"+row[14]+"' class='opportunity_lead' onclick='opportunity_lead("+row[14]+")'><span class='cwkp-sprite convert-lead' title='Convert to Lead'></span></a>";
+              }
+            }else{
+              opptunity_txt = "<br/><a target='_blank' href='/leads/"+row[21]+"' title='"+row[22]+"' rel='tooltip'>" + row[20] + "</a>"
+            }
+          }
+          //opptunity_txt += "<br/><a target='_blank' href='/leads/"+row[21]+"' title='"+row[22]+"' rel='tooltip'>" + row[20] + "</a>"
+          if(row[23] > 1){
+            opptunity_txt += "<br/><a href='/contact/"+row[0]+"?view_more=true' style='font-size:11px;color:#344a54;'>+" + row[23] + " more..."
+          }
+          return opptunity_txt;
+      }},
+    ],
+    fnPreDrawCallback: function() { 
+      $('#task_loader,.fixed_loader').show(); 
+      $("#contactList_filter input").attr("placeholder", "Search...");
+    },
+    fnDrawCallback: function() {
+      if("#{escape_once(params[:tab])}" == "all_contacts"){
+        $(".contacts_tab").removeClass("active");
+        $(".all_cont").addClass("active");
+      }else{
+        $(".contacts_tab").removeClass("active");
+        $(".my_cont").addClass("active");
+      }
+      $("#select_all_contacts").prop("checked",false);
+      $("#select_all_contacts").on('click', function(){
+        if($(this).is(":checked")){
+          var vals="";
+          $(".chb-in-ll").each(function(i){
+            $(this).prop("checked",true);
+            vals = vals + $(this).val().toString() + ",";
+          })
+          $("#mass_contact_ids").val(vals);
+          $("#contact_ids_to_delete").val(vals);
+        }else{
+          $(".chb-in-ll").each(function(i){
+            $(this).prop("checked",false);
+          })
+          $("#active_sub_menu").hide();
+          $("#mass_contact_ids").val("");
+          $("#contact_ids_to_delete").val("");
+        }
+      })
+      $('#task_loader,.fixed_loader').hide();
+      var opportunity = "";
+      $('.contact_opporunity').editable({      
+      url: '/create_contact_opportunity' ,
+      mode: 'popup',
+      title: 'Enter Opportunity Name',
+      emptytext: '+ Add opportunity',
+      type: 'text',
+      placement: 'left',
+      data: {custom: 'text'}, 
+      validate: function(value) {
+        if($.trim(value) == '')
+          return 'Please enter opportunity name';
+        else
+          opportunity = $.trim(value);
+      },
+      success: function(data) {
+        $(this).closest("td").html("<a href='#' class='contact_opporunity' id='opportunity_"+$(this).attr('data-pk')+"' data-pk=" + $(this).attr('data-pk') + ">"+ opportunity +"</a><a href='#' onclick='opportunity_lead("+$(this).attr('data-pk')+")'><span class='cwkp-sprite convert-lead' title='Convert to Lead'></span></a>")
+      },
+      error: function(data) {
+      }
+    });
+
+
+
+
+    //Edit website
+    $('.edit_website').editable({
+      url: '/update_contact_website',
+      name: "website",
+      title: 'Enter website',
+      type: 'text',
+      placement: 'top',
+      data: {custom: 'text'}, 
+      params:{a: $(this).data("id")},
+      emptytext: 'Enter website',
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter website';
+       
+      },
+      success: function(data) {
+        $('.edit_website').html(data);
+      },
+      error: function(data) {
+        //alert('error') 
+        /* actions on validation error (or ajax error) */
+        var msg = '';
+        if(data.errors) { //validation error
+          $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+        } 
+        else if(data.responseText) { //ajax error
+        msg = data.responseText;
+      }
+    }
+    });
+
+
+    //Edit phone number
+    $('.edit_phone').editable({
+      url: '/update_contact_phone',
+      name: "website",
+      title: 'Enter phone number',
+      type: 'text',
+      placement: 'top',
+      data: {custom: 'text'}, 
+      params:{a: $(this).data("id")},
+      emptytext: 'Enter phone',
+      validate: function(value) {
+        if($.trim(value) == '' || $.trim(value) == 'NA')
+          return 'Please enter website';
+       
+      },
+      success: function(data) {
+        $(this).html(data);
+      },
+      error: function(data) {
+        //alert('error') 
+        /* actions on validation error (or ajax error) */
+        var msg = '';
+        if(data.errors) { //validation error
+          $.each(data.errors, function(k, v) { msg += k+": "+v+"<br>"; });
+        } 
+        else if(data.responseText) { //ajax error
+        msg = data.responseText;
+      }
+    }
+    });
+
+
+    //Edit Country start
+    $('.edit_country').editable({
+      placement: 'bottom',
+      url: '/update_contact_country',
+      type: 'select',
+      source: '/get_contact_country',
+      title: 'Select Country',   
+      data: {custom: 'Select Country'}, 
+      emptytext: 'Select Country',
+      validate: function(value) {
+        if($.trim(value) == '')
+          return 'Please select Country';
+      },
+      success: function(data) {
+      }
+    });
+
+    //end
+
+    //$('.edit_phone').click(function(){
+    //  $('.edit_phone').next().find("input").addClass("bfh-phone form-control").attr("data-format", "(ddd) ddd-dddd").attr("onblur","this.value = jQuery.trim((this.value).replace(/^\s*/g,''))").attr("onclick","this.value = jQuery.trim((this.value).replace(/^\s*/g,''))");
+
+    //})
+
+
+    }
+  });
+
+  function opportunity_lead(id){
+    $.ajax({
+      url: 'opportunity_to_lead/'+id,
+        type: 'POST',
+        success: function(res) {
+          
+        },
+        complete: function(res) {          
+          data = $.parseJSON(res.responseText)
+          $("#opportunity_"+data["message"].contact_id).closest("td").html("<a href='/leads/"+data["message"].deal_id+"' target='_blank'>"+ data["message"].opportunity +"</a>");
+          $("#convert_opportunity_"+data['message'].contact_id).html("<a href='#dealModal' data-toggle='modal' onclick='$(\"#lead_referrer\").val(\"Header\");$(\"#new_deal\")[0].reset();$(\".error\").html(\"\");$(\"#deal_first_name\").attr(\"disabled\",false);reset_deal_popup_info();hide_lead_fields();$(\".opportunity_header\").click();$(\"#deal_first_name\").val(\""+data['message'].contact_name+"\").attr({\"readonly\":\"readonly\",\"disabled\":\"disabled\"});$(\"#deal_email\").val(\""+data['message'].contact_email+"\").attr({\"readonly\":\"readonly\"});$(\"#company_type\").val(\"IndividualContact\");$(\"#deal_contact_id\").val("+data['contact_id']+");$(\"#hidden_first_name\").val(\""+data['message'].contact_name+"\")''><span class='glyphicon glyphicon-briefcase' style='margin-right:5px;color:#333;top: 1px;' title='Add Opportunity'></span>Add Opportunity</a></li>");
+          show_alert_message("success", "You did it! The Contact is now converted to a Lead.")
+        },
+        error: function(res) {
+          //alert(2)
+        }
+    });
+  };
+  $(".import_contact a").click(function(){
+    $("input:file[id=attachment_lead]").val('');
+  })
+
+  $("div#contact_label_menu ul > li > input:checkbox").click(function(e) {
+    //e.stopPropagation();
+  });
+
+  function other_chk_box(){
+    //check header checkbox if all checkbox are checked and vice versa
+    var check_box_count = $(".chb-in-ll").length;
+    var check_all_count = 0;
+    $(".chb-in-ll").each(function(i){
+      if($(this).is(":checked")){
+        check_all_count = check_all_count + 1;
+      }
+    })
+    if(check_box_count == check_all_count){
+      $("#select_all_contacts").prop("checked",true);
+    }else{
+      $("#select_all_contacts").prop("checked",false);
+    }
+
+    var $cbs = $('input[name="active_contact_label_menu"]');
+    var total = 0;
+    $cbs.each(function() {
+        if (this.checked){
+            total ++;
+        }
+    });
+    if(total > 0){
+      $("#arrowLabel").removeClass("label_arrow")
+      $("#arrowLabel").addClass("label_arrow_active")
+      $("#arrowDropdown").attr("data-toggle", "dropdown")
+    }else{
+      $("#arrowLabel").addClass("label_arrow")
+      $("#arrowLabel").removeClass("label_arrow_active")
+      $("#arrowDropdown").removeAttr("data-toggle", "dropdown");
+      $(".DataTables_sort_wrapper").removeClass("open")
+    }
+    var checkboxes = document.getElementsByName('active_contact_label_menu');
+    var vals = "";
+    for (var i=0, n=checkboxes.length;i<n;i++) {
+     if (checkboxes[i].checked) 
+     {
+      vals += checkboxes[i].value+ ","
+     }
+    }
+    
+    $("#mass_contact_ids").val(vals);
+    $("#contact_ids_to_delete").val(vals);
+  };
+
+
+  $(".ajax-contact-list").find('th').on("click", function (event) {
+    if(!$(event.target).is("span") && !$(event.target).is("div")){
+      $(".contact-custom-drop").hide();
+      event.stopImmediatePropagation();
+    }
+  });
+
+  $(".contact-custom-drop").on("click", function(event){
+    //event.stopPropagation();
+  });
+
+  $("#arrowDropdown").click(function() {  
+    var isChecked = $('input[name="active_contact_label_menu"]:checked').length;
+    if(isChecked > 0){
+      $("#single-dropdown-menu").hide();
+      $("#active_sub_menu").toggle();
+      $(".alert-danger").remove();
+    }else{
+      show_alert_message("danger", "Please select a few contacts first!")
+    }
+  });
+
+  $(window).click(function() {
+    $("#active_sub_menu").hide();
+  });
+  function change_deal_popup_info(){
+    $("#dealModal .modal-title").html("Convert To Lead");
+    $("#deal_submit_more").hide();
+  }
+
+  $(".reset_search").on('click', function(){
+    $("#contactList_filter input").val('');
+    contactListTable.fnFilter('');
+    $(this).hide();
+  })
+
+  $("#contactList_filter input").on('keyup', function(){
+    if($(this).val() != '' && $(this).val() != null){
+      $(".reset_search").show();
+    }else{
+      $(".reset_search").hide();
+    }
+  })
+  
+  $(function() {
+    $.cookie("contact_tab", "my_contacts");
+  });
+
+  $(".contacts_tab").on("click", function(){
+    var tab = $(this).data("tab");
+    $.ajax( {
+      type: "GET",
+      url: "/get_contact_list" ,
+      data: {tab: tab},
+      success: function(result) {  
+        $(".contact-list-page").html(result);    
+      }
+    });
+  })

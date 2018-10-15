@@ -1,0 +1,24 @@
+#list_task_type
+  = render :partial => "listing_task_type"  
+
+#editTaskType.modal.fade{'aria-hidden' => 'true', 'aria-labelledby' => 'myModalLabel', role: 'dialog', tabindex: '-1'}
+  .modal-dialog.cstm-material-modal
+    .modal-content
+      .modal-header
+        %span.close{'aria-hidden' => 'true', type: 'button', 'data-dismiss' => 'modal'} &times;
+        %h4.modal-title Edit Task Type
+      .modal-body
+        = form_for(TaskType.new, :url => '', :html=>{:class => 'form', onsubmit: 'updateTaskType(); return false;'}) do |f|
+          = f.hidden_field 'id'
+          .row
+            .form-group
+              %label.control-label{:for => "input"} Task Type*
+              %i.bar
+              =f.text_field :name, :required => true, id: 'txt-edit-task-type', :maxlength=> '50', :class=> 'form-control'
+            .form-group
+              %button.btn.btn-success{type: 'submit', id: 'deal_submit_btn'} Update
+              %a.btn.btn-default{href:'javascript:', 'aria-hidden' => 'true', 'data-dismiss' => 'modal', style: "top: 0"}
+                %span.c_links
+                  Cancel
+
+= render partial: "shared/add_task_type"

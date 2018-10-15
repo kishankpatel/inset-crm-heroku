@@ -1,0 +1,99 @@
+-if @invoices.present?
+  - if current_user.is_admin? && !current_user.is_siteadmin?
+    .co-md-12.text-center
+      - if @deal.present? && @contact.present?
+        %a{:href => "/invoice/create?lead=#{@deal.to_param}&contact=#{@contact.to_param}"}
+          + Create Invoice
+  .col-md-12
+    .table-responsive
+      %table#opp_invoices.table.white-table.table-hover.table-striped
+        %thead
+          %tr
+            %th{style: "width:10px;"}
+            %th
+              Invoice#
+            %th
+              Bill To
+            %th.text-center
+              Status
+            %th.text-center
+              Amount($)
+            %th.text-center
+              Due Date
+            %th.text-center
+              Generated Date
+        %tbody
+          - @invoices.each do |invoice|
+            %tr
+              %td
+                - if invoice.status.present? && (invoice.status.downcase != "paid" && invoice.status.downcase != "cancelled")
+                  .btn-group
+                    %a.deal_set.dropdown-toggle{"data-toggle" => "dropdown", type: "button"}
+                      %span.fal.fa-ellipsis-h
+                    %ul.dropdown-menu.invoice_actions{role: "menu", style:"min-width: 100px;"}
+                      %li.arrow_top
+                      %li
+                        - if invoice.status == "Resend" || invoice.is_sent == true
+                          %a.send_resend_invoice{ title: "Send the invoice again", :"data-confirm"=> "Are you sure to send the invoice again?", href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                            %span.fal.fa-redo
+                            Resend
+                        - else
+                          %a.send_resend_invoice{ title: "Send invoice mail", :"data-confirm"=> "Are you sure to send invoice mail?",href: "/resend_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                            %span.fal.fa-location-arrow
+                            Send
+                      %li.divider
+                      %li
+                        %a.paid_invoice{ title: "Mark as Paid", :"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                          %span.fal.fa-check-circle
+                          Paid 
+                      %li.divider
+                      %li
+                        %a.paid_invoice{ title: "Mark as Paid", :"data-confirm"=> "Are you sure to mark as Paid?", href: "/paid_invoice/#{invoice.id}?type=confirm",:style=>"cursor: pointer;"} 
+                          %span.fal.fa-check-circle
+                          Paid & Confirm
+                      %li.divider
+                      %li
+                        %a.cancel_invoice{ title: "Cancel the invoice", :"data-confirm"=> "Are you sure to cancel this invoice?",href: "/cancel_invoice/#{invoice.id}",:style=>"cursor: pointer;"} 
+                          %span.fal.fa-times-circle
+                          Cancel
+                - elsif invoice.status.present? && invoice.status.downcase == "paid"
+                  =link_to download_invoice_path(:id => invoice.id) do
+                    %span.fal.fa-download
+                  / %a{href: "javascript:void(0)"}
+                  /   %span.fa.fa-download
+              %td
+                %span{title: invoice.invoice_no.size > 15 ? invoice.invoice_no : ""}  
+                  %a{href: "/invoice_details/#{invoice.id}"} 
+                    = invoice.invoice_no.present? ? (invoice.invoice_no.size > 15 ? invoice.invoice_no.truncate(15) : invoice.invoice_no) : "NA"
+              %td
+                - individual_contact = @current_organization.individual_contacts.where("id=?",invoice.contact_id).first
+                - if individual_contact.present?
+                  %a{href: "/contact/#{individual_contact.to_param}", title: "#{individual_contact.name.present? ? individual_contact.name + ' - ': ''} #{individual_contact.email}" }
+                    = individual_contact.name.present? ? individual_contact.name : individual_contact.email
+              %td.text-center
+                - inv_status =  invoice.status.present? ? (invoice.status == "Send" ? "Sent" : invoice.status) : "NA"
+                %span{:class=>"invoice_"+inv_status.downcase}
+                  = inv_status                
+              %td.text-center
+                - tot_amt = invoice.total_amount.to_s
+                %span{title: tot_amt.size > 20 ? tot_amt : "", :class => tot_amt.size > 20 ? "tooltip" : ""}
+                  =invoice.currency
+                  = tot_amt.truncate(20)
+              %td.text-center
+                = invoice.due_date.present? ? invoice.due_date.strftime("%m/%d/%Y") : "NA"
+              %td.text-center
+                = invoice.created_at.strftime("%m/%d/%Y")
+- else
+  - if current_user.is_admin? && !current_user.is_siteadmin?
+    .co-md-12.text-center
+      - if @deal.present? && @contact.present?
+        %a{:href => "/invoice/create?lead=#{@deal.to_param}&contact=#{@contact.to_param}"}
+          + Create Invoice
+      %br
+      No invoices found.
+      %a{:href => "/manage_invoice"}
+        Manage Invoice
+  - else
+    .co-md-12.text-center
+      No invoices found. Please contact admin to create invoices.
+      

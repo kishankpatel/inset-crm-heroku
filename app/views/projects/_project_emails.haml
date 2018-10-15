@@ -1,0 +1,246 @@
+.conversation_details
+  .conv_det_body
+    .co-md-12.text-center
+      - if @project.linked_with == "Opportunity"
+        - contact_email = @project.deal.contact_info["email"]
+        - contact_id = @project.deal.contact_info["id"]
+        - contact_type = @project.deal.contact_info["type"]
+      - elsif @project.linked_with == "Organization"
+        - contact_email = @project.company_contact.email
+        - contact_id = @project.company_contact.id
+        - contact_type = 'company_contact'
+      - elsif @project.linked_with == "Contact"
+        - contact_email = @project.individual_contact.email
+        - contact_id = @project.individual_contact.id
+        - contact_type = 'individual_contact'
+      - else
+        - contact_email = ''
+        - contact_id = ''
+        - contact_type = ''
+
+      = link_to "#SendEmailModal", "data-toggle" => "modal", "onclick" => "$('#mailer_type').val('Project');$('#mailer_id').val('#{@project.id}');$('#email_contact_id').val('#{contact_id}');$('#email_contact_type').val('#{contact_type}');$('#to').val('#{contact_email}')" do
+        %i.fal.fa-paper-plane
+        Send Email
+    - if @emails.present?
+      - @emails.each do |mail|  
+        - ic = @current_organization.individual_contacts.find_by_email(mail.mailto)
+        - if ic.present?
+          .mail_conversation.m-b-lg
+            .pf_icon_sec.fl
+              .user-profile
+                - display_name = mail.user.full_name.present? ? mail.user.full_name : mail.user.email.split("@")[0]
+
+                - if mail.user.image.present? && mail.user.image.image.present?
+                  .fl.userImage
+                    = image_tag mail.user.image.image.url(:thumb), :alt=>""  
+                - elsif (gravtar_img_url = gravatar_url(mail.user.email)).present?
+                  .fl.userImage
+                    = image_tag gravtar_img_url, alt: ""
+                -else
+                  - first_char = display_name.chars.first
+                  %div.profileImage.assn-pf-icon{:style => "background: #{mail.user.get_user_color_code(first_char.downcase[0])} !important"}
+                    = first_char.upcase
+            .mail_details_sec.fl.m-l
+              %div
+                .conv_usr_mail_grey.m-b
+                  %strong
+                    = "#{mail.user.full_name}<#{mail.user.email}>"
+                  %small  
+                    %span.cwkp-sprite.email_conv_icn1
+                    = "#{distance_of_time_in_words_to_now(mail.created_at)} ago"
+                    - activity = @project.activities.where("activity_type=? AND activity_id=?", "MailLetter", mail.id).first
+                    - if activity.present?
+                      - if(sent_email_opened = activity.sent_email_opens).present?
+                        - user_timezone = @current_user.time_zone.present? ? @current_user.time_zone : "Kolkata"
+                        - last_opened = sent_email_opened.last
+                        - dt = activity.created_at.beginning_of_day
+                        - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                          = f_date = "Today"
+                        - else
+                          - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                            = f_date = "Yesterday"
+                          - else
+                            - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                              = f_date = dt.strftime("%b %d")
+                            - else
+                              = f_date = dt.strftime("%b %d, %Y")
+                        %span
+                          = "Opened at: "
+                          = "#{f_date} at"
+                          = last_opened.opened.to_datetime.in_time_zone(user_timezone).strftime("%I:%M %p")
+                .m-b-xs
+                  %a.conv_usr_mail.text-success.font-bold{href:"javascript:void(0)"}  
+                    = "To: #{ic.full_name}<#{mail.mailto}>"
+              .conv_mail_content
+                .mail_sub.m-b-xs
+                  %b  
+                    Subject:
+                  = mail.subject if mail.subject.present?
+                - if mail.description.present?  
+                  .mail_desc_sec
+                    .sort_mail_desc  
+                      = truncate_html(mail.description, length: 100, omission: '...')
+                    - if mail.description.gsub(/(<[^>]+>)/, '').size > 100
+                      .mail_desc  
+                        = mail.description.html_safe
+                      %a.show_more_mail.fr{href:"javascript:void(0)"} Show more
+                      .cb
+            .cb
+            %a.add_email_note.m-b-xs{href:"javascript:void(0)"} + Add Note
+            .create_email_notes_section
+              = text_area_tag :email_note, "",:required => true, id:"", :class=>"form-control m-b email_note mail_#{mail.id}", :placeholder => "Add note"
+              = button_tag "Save Note", onclick:"save_note(#{mail.id})", :class=>"btn btn-success"
+              = button_tag "Cancel", :class=>"btn btn-default hide_note"
+            - if mail.email_notes.present?
+              .email_notes_cntr  
+                %a.show_email_notes.fr{href:"javascript:void(0)"} View Notes
+                .cb
+                .cont_activity_sec.email_notes_section
+                  .timeline-centered   
+                    - mail.email_notes.order("id DESC").each do |email_note|
+                      - dt = email_note.created_at
+                      - today = Time.zone.now.strftime('%Y-%m-%d')
+                      - yesterday = (Time.zone.now - (24 * 60 * 60)).strftime('%Y-%m-%d')
+                      - day_before_yesterday = (Time.zone.now - (48 * 60 * 60)).strftime('%Y-%m-%d')
+                      - if (Date.today.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                        - f_date = "Today"
+                      - else
+                        - if (yesterday.to_s == DateTime.parse(dt.to_s).strftime('%Y-%m-%d').to_s)
+                          - f_date = "Yesterday"
+                        - else
+                          - if dt.strftime("%Y").to_s == Time.zone.now.year.to_s
+                            - f_date = dt.strftime("%b %d")
+                          - else
+                            - f_date = dt.strftime("%b %d, %Y")
+                      %article.timeline-entry
+                        .timeline-entry-inner
+                          .timeline-icon
+                            %span.img-circle.img-thumbnail.note-s15
+                          .timeline-label
+                            .fl  
+                              %h2
+                                %a
+                                  %span.cwkp-sprite.tag-arrow-icon
+                                  = email_note.notes.html_safe
+                            .fr
+                              / created by
+                              - user = email_note.user
+                              - if user.present?
+                                - user_name = user.full_name.present? ? user.full_name : user.email
+                                - is_cur_user = (user == @current_user)
+                                %div{ title: "Created by: #{is_cur_user ? 'Me' : user_name}"}     
+                                  - if user.image.present?  
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag user.image.image.url(:thumb), :alt=>""
+                                  - elsif (gravtar_img_url = gravatar_url(user.email)).present?
+                                    %span.user-profile
+                                      %span.userImage
+                                        = image_tag gravtar_img_url, alt: ""
+                                  - else
+                                    .lead-details-page 
+                                      %span.assn-pf-icon{style: "background: #{user.get_user_color_code(user_name.downcase[0])}"}
+                                        = user_name[0].upcase 
+                            .cb
+                            / %p
+                            /   / description
+                          .cont_act_info
+                            .fl
+                              / date
+                              = "Created on #{f_date} at #{dt.strftime("%I:%M %p")}"
+                            .fr
+                              /attachments
+                            .cb
+    - else
+      .co-md-12.text-center
+        No emails found.
+= render partial:"shared/send_email"
+:javascript
+  $('#message').summernote({
+      toolbar: [
+          ['headline', ['style']],
+          ['style', ['bold', 'italic', 'underline', 'superscript', 'subscript', 'strikethrough', 'clear']],
+          ['textsize', ['fontsize']],
+          ['alignment', ['ul', 'ol', 'paragraph', 'lineheight']],
+      ]
+    });
+  function newWindow_method_1() {
+    var divText = $('.replay_mail_form').html();
+    var myWindow = window.open('','','width=700,height=500');
+    var doc = myWindow.document;
+    doc.open();
+    doc.write(divText);
+    doc.close();
+  }
+  function minimise_replay_form(){
+    $(".replay_mail_form_cntr").toggle(); 
+  }
+  function close_replay_form(){
+    $(".replay_mail_conv_sec").hide(); 
+  }
+
+
+  Array.prototype.removeByValue = function(val) {
+    for(var i=0; i<this.length; i++) {
+        if(this[i] == val) {
+            this.splice(i, 1);
+            break;
+        }
+    }
+  }
+  
+  $(".show_more_mail").click(function(){
+    if( $(this).closest(".mail_desc_sec").find(".mail_desc").is(":visible") ){
+      $(this).html("Show more");
+    }else{
+      $(this).html("Show less");
+    }
+    $(this).closest(".mail_desc_sec").find(".sort_mail_desc").toggle();
+    $(this).closest(".mail_desc_sec").find(".mail_desc").toggle();
+  })
+
+  $(".show_email_notes").click(function(){
+    if( $(this).closest(".email_notes_cntr").find(".email_notes_section").is(":visible") ){
+      $(this).html("View notes");
+    }else{
+      $(this).html("Hide notes");
+    }
+    $(this).closest(".email_notes_cntr").find(".email_notes_section").toggle();
+  })
+
+  function save_note(id){
+    var notes = $(".mail_"+id).val();
+    if(notes.trim() == "" || notes.trim() == null){
+      $(".mail_"+id).focus();
+    }else{
+      $.ajax({
+        type: "POST",
+        url: "/create_email_note",
+        data: {mail_letter_id: id, notes: notes},
+        beforeSend: function(){
+          $("#task_loader,.fixed_loader").show();
+        },
+        success: function(data)
+        {
+          load_activity_cum_projects('emails')
+          $("#task_loader,.fixed_loader").hide();
+          show_alert_message("success","Note added successfully.");
+        },
+        error: function(data) {
+          show_alert_message("danger", "Oops! Something went wrong.");
+          $("#task_loader,.fixed_loader").hide();
+        }
+      });
+    }
+  }
+
+  $(".add_email_note").click(function(){
+    $(this).hide();
+    $(this).next(".create_email_notes_section").show();
+  })
+
+  $(".hide_note").click(function(){
+    $(this).closest(".create_email_notes_section").find(".email_note").val("");
+    $(this).closest(".create_email_notes_section").hide();
+    $(this).closest(".create_email_notes_section").prev(".add_email_note").show();
+  })

@@ -1,0 +1,3 @@
+name,short+AF8-name,start+AF8-date,start+AF8-date,Opportunity,contact+AF8-email,estimate+AF8-hour,default+AF8-job+AF8-type,description,team+AF8-emails,is+AF8-completed,stage
+Inset Customization,CUST,1+AC0-Jan+AC0-18,1+AC0-Jun+AC0-18,Test Lead Name,test+AEA-example.com,120,Development,This is just a test description about the project,team1+AEA-mydomain.com+AH4-team2+AEA-mydomain.com,FALSE,Login
+Inset Design,IDESG,1+AC0-Jan+AC0-19,1+AC0-Jun+AC0-19,My Opportunity,test1+AEA-example.com,60,Designing,This is just a test description about the project,team1+AEA-mydomain.com,FALSE,Prepare

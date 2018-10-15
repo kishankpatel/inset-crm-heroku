@@ -1,0 +1,19 @@
+-if user_signed_in?
+  - appoint_scheudle = false if local_assigns[:appoint_scheudle].nil?
+  
+  -if(appoint_scheudle == true)
+    -divid = 'scheduleModal'
+  -else
+    -divid = 'taskModal'
+  .modal.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", role: "dialog", tabindex: "-1",:id=>divid}
+    .modal-dialog.new_form_layout{:style => "width:60%;"}
+      .modal-content
+        .color-line
+        #form_content
+          - @task=Task.new
+          -if(appoint_scheudle.present?)
+            =render :partial => "tasks/task_form", :object => @task, :title=> :"",:locals=>{appoint_scheudle: true}
+          -else
+            =render :partial => "tasks/task_form", :object => @task, :title=> :""
+
+

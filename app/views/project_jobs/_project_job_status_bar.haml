@@ -1,0 +1,10 @@
+%div
+  - status_arr = ['New', 'In Progress', 'Resolved', 'Blocked', 'Closed']
+  - project_job_status = @project_job.status.present? ? @project_job.status : "New"
+  - status_arr.each_with_index do |status, i|
+    - cls = ''
+    - if status_arr.index(project_job_status) >= i
+      - cls = 'active'
+    %span.opp_status{:class=> "#{cls}", onclick: "changeJobStatusDetails(#{@project_job.id}, '#{status}')"}
+      = status
+    - i += 1

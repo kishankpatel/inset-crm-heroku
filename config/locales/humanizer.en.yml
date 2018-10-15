@@ -1,0 +1,17 @@
+en:
+  humanizer:
+    validation:
+      error: It seems you're not a human! 
+    questions:
+      - question: What is two plus two (2 + 2)?
+        answers: ["4", "four"]
+      - question: What is four plus two (4 + 2)?
+        answer: ["6", "six"]
+      - question: What is six plus two (6 + 2)?
+        answer: ["8", "eight"]
+      - question: What is one plus one (1 + 1)?
+        answers: ["2", "two"]
+      - question: What is ten minus One (10 - 1)?
+        answers: ["9", "nine"]
+      - question: What number comes after 10?
+        answers: ["11", "eleven"]

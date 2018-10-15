@@ -1,0 +1,147 @@
+= form_for @daily_update, as: :daily_updates, url: save_daily_updates_path, method: :post, html: { class: "daily_update_form cmn_new_popup_form", id: "daily_update_form" } do |f|
+  .modal-body
+    = hidden_field_tag "hdn_deal_id"
+    /.lbl-blk.user
+    /  %label Lead
+    /  = f.select('deal_id', options_from_collection_for_select(@deals,"id","title", @daily_update.deal_id.to_i), :class => "select form-control dailyUpdate_sel")
+    .lbl-blk.user.form-group{style:"margin-bottom: 15px;"}
+      %label Users Involved
+      %br
+      .all.modal-checkbox
+        = hidden_field_tag "hdn_user_ids"
+        - if @users.present? && @users.count > 1
+          = check_box_tag "usercheckAll",'usercheckAll'
+          %label{for: "usercheckAll"}
+            %span
+            All
+      %div.form-group
+        %span.modal-checkbox
+          -if @users.present?
+            - @users.each do |u|
+              = check_box_tag 'daily_updates_user_ids', u.id, f.object.present? && f.object.user_ids.present? && f.object.user_ids.include?(u.id.to_s),id:"daily_updates_user_ids_#{u.id}"
+              %label{for: "daily_updates_user_ids_#{u.id}"}
+                %span
+                = u.first_name.present? ? u.first_name : u.email           
+    .form-group.col-md-5.padlft
+      %label{:for => "daily_update_time_zone"} Set TimeZone
+      .form_fld.cmn_selct_fld
+        %span.cwkp-sprite.lead_time_zone
+        = f.time_zone_select(:time_zone, ActiveSupport::TimeZone.us_zones,{}, :class=>"form-control")
+    .col-md-7  
+      %label{style:"font-weight:normal;"} Set Alert Time
+      /.form_fld.cmn_selct_fld
+      /  %span.cwkp-sprite.proj-est-hr
+      /  = f.time_select 'alert_time', {minute_step: 5}, :class=>"fl form-control"
+      /  .cb
+      .br
+      .left_icon_cntr  
+        .left_icon
+          .right_arrow_icon    
+            = f.time_select 'alert_time', {minute_step: 5}, :class=>"form-control", style:"display: inline-block;"
+      .cb
+      %div{style:"font-size: 12px;color: #666;"}
+        24 hours format
+      / .lbl-blk.alert-time.user
+      /   %label Set Alert Time
+      /   .col-md-4.pull-left
+      /     %label Hour(s)
+      /   .col-md-4.pull-right
+      /     %label Minute(s)
+      /   .form-group  
+      /     = f.time_select 'alert_time', {minute_step: 5}
+      /     %label.control-label{:for => "daily_updates_alert_time_"}
+      /     %i.bar
+    .cb
+
+        
+    
+    .lbl-blk.user.form-group{style:"margin-top:5px;"}
+      %label Set Frequency
+      %br
+      .all.modal-checkbox
+        = hidden_field_tag "hdn_frequency"          
+        = check_box_tag "checkAll",'checkAll'
+        %label{for: "checkAll"}
+          %span
+          All
+      %div
+        %span.modal-checkbox
+          - Date::ABBR_DAYNAMES.each do |d|
+            = check_box_tag "frequency",  d, f.object.present? && f.object.frequency.present? && f.object.frequency.include?(d), id: "frequency_#{d}"
+            %label{for: "frequency_#{d}"}
+              %span
+              = d
+      .clearfix
+  .modal-footer
+    %a.btn.btn-default{:href => "javascript:void(0)", "data-dismiss" => "modal", style:"margin-bottom:0;"} Cancel
+    = f.submit "Update", class: "update btn btn-info"
+
+:javascript
+  $("#hdn_deal_id").val("#{@daily_update.deal.id}");
+  var countChecked = function() {
+    var total = [];
+    var n = $( "input:checked" ).not('#checkAll').length;
+    
+    $( "input[type=checkbox][name=frequency]:checked" ).not('#checkAll').each(function(){
+      total.push($(this).attr("value"));
+    });
+    $( "#hdn_frequency" ).val(total);
+
+    if($(this).attr("value") != "checkAll"){
+      $("#checkAll").removeAttr("checked");
+    }
+
+    if($( "input[type=checkbox][name=frequency]:checked" ).not('#checkAll').length == $( "input[type=checkbox][name=frequency]" ).not('#checkAll').length){
+      $("#checkAll").prop("checked","checked");
+    }     
+  };
+  //countChecked();
+  var total = [];
+  $("input[type=checkbox][name=frequency]:checked").each(function () {
+      total.push($(this).attr("value"));
+  });
+  $( "#hdn_frequency" ).val(total);
+   
+  $( "input[type=checkbox][name=frequency]" ).on( "click", countChecked );
+  $("#checkAll").click(function () {
+     $('input[type=checkbox][name=frequency]').not(this).prop('checked', this.checked);
+     $("input[type=checkbox][name=frequency]:checked").each(function () {
+          total.push($(this).attr("value"));
+      });
+      $( "#hdn_frequency" ).val(total);
+  });
+
+  /* User selection*/
+  var usercountChecked = function() {
+    var usrtotal = [];
+    
+    $( "input[type=checkbox][name=daily_updates_user_ids]:checked" ).not('#usercheckAll').each(function(){
+      usrtotal.push($(this).attr("value"));
+    });
+    $( "#hdn_user_ids" ).val(usrtotal);
+    if($(this).attr("value") != "usercheckAll"){
+      $("#usercheckAll").removeAttr("checked");
+    }
+
+    if($( "input[type=checkbox][name=daily_updates_user_ids]:checked" ).not('#usercheckAll').length == $( "input[type=checkbox][name=daily_updates_user_ids]" ).not('#usercheckAll').length){
+      $("#usercheckAll").prop("checked","checked");
+    }     
+  };
+   
+  $( "input[type=checkbox][name=daily_updates_user_ids]" ).on( "click", usercountChecked );
+
+  var usrtotal = [];
+  $("input[type=checkbox][name=daily_updates_user_ids]:checked").each(function () {
+      usrtotal.push($(this).attr("value"));
+  });
+  $( "#hdn_user_ids" ).val(usrtotal);
+
+  $("#usercheckAll").click(function () {
+     $('input[type=checkbox][name=daily_updates_user_ids]').not(this).prop('checked', this.checked);
+     $("input[type=checkbox][name=daily_updates_user_ids]:checked").each(function () {
+          usrtotal.push($(this).attr("value"));
+      });
+      $( "#hdn_user_ids" ).val(usrtotal);
+  });
+  //alert($sel_hour);
+  
