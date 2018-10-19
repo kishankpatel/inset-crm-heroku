@@ -47,7 +47,7 @@ gem 'jquery-rails', '3.1.4'
 
 #gem 'bootstrap-on-rails'
 gem 'less-rails', '2.6.0'
-gem 'devise' #, '3.5.10'
+gem 'devise' , '3.5.10'
 gem 'bootstrap-wysihtml5-rails', '0.3.3.8'
 gem 'haml-rails', '0.4'
 #gem 'jquery-minicolors-rails'
