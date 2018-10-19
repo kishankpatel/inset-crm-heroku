@@ -20,16 +20,16 @@ class TempImage < ActiveRecord::Base
   attr_accessor :crop_x, :crop_y, :crop_w, :crop_h
 #  after_update :reprocess_image, :if => :cropping?
   
-  has_attached_file :avatar,
-                  :storage => :s3,
-                  :s3_credentials => S3_CREDENTIALS,
-                  :styles => { :original => "500x500>"},
-                  :convert_options => {:all=>"-strip"},
-                  :path => "TempImage/:id/:styles_:basename.:extension",
-                  :url => "TempImage/:id/:styles_:basename.:extension",
-                  :s3_headers => {'Cache-Control' => 'max-age=315576000', 'Expires' => 1.years.from_now.httpdate },
-				  :processors => [:cropper]
-  validates_attachment_content_type :avatar, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+  # has_attached_file :avatar,
+  #                 :storage => :s3,
+  #                 :s3_credentials => S3_CREDENTIALS,
+  #                 :styles => { :original => "500x500>"},
+  #                 :convert_options => {:all=>"-strip"},
+  #                 :path => "TempImage/:id/:styles_:basename.:extension",
+  #                 :url => "TempImage/:id/:styles_:basename.:extension",
+  #                 :s3_headers => {'Cache-Control' => 'max-age=315576000', 'Expires' => 1.years.from_now.httpdate },
+		# 		  :processors => [:cropper]
+  # validates_attachment_content_type :avatar, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
   def avatar_geometry(style = :original)
      @geometry ||= {}
      imgpath=self.avatar.url(style)
