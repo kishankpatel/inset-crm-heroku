@@ -47,7 +47,7 @@ gem 'jquery-rails', '3.1.4'
 
 #gem 'bootstrap-on-rails'
 gem 'less-rails', '2.6.0'
-gem 'devise' , '3.5.10'
+gem 'devise' , '< 2.3.0'
 gem 'bootstrap-wysihtml5-rails', '0.3.3.8'
 gem 'haml-rails', '0.4'
 #gem 'jquery-minicolors-rails'
@@ -62,7 +62,7 @@ gem 'aws-sdk-v1', '1.67.0'
 gem 'paperclip','3.3.0'
 
 gem 'will_paginate-bootstrap', '1.0.1'
-gem "devise_invitable", "~> 1.3.1"
+# gem "devise_invitable", "~> 1.3.1"
 gem "jekyll" #, "~> 1.3.0"
 gem 'lazy_high_charts', '1.5.8'
 gem 'exception_notification', '3.0.1', :require => 'exception_notifier'
